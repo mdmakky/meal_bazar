@@ -2085,4 +2085,38 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get mealDefaultManagerOnly => 'শুধু ম্যানেজার ডিফল্ট মিল বদলাতে পারেন';
+
+  @override
+  String get rateSection => 'মিল রেট';
+
+  @override
+  String get rateHelp =>
+      'হিসাব করে: বাজার খরচ ÷ মোট মিল। নির্দিষ্ট রেট: আগে থেকে ঘোষণা করা রেট, সবাই প্রতি মিলে এটাই দেবে।';
+
+  @override
+  String get rateCalculated => 'হিসাব করে';
+
+  @override
+  String get rateFixed => 'নির্দিষ্ট রেট';
+
+  @override
+  String get rateAmountLabel => 'প্রতি মিলের রেট (৳)';
+
+  @override
+  String get rateAmountRequired => '০-এর বেশি একটি রেট লিখুন';
+
+  @override
+  String rateSurplus(String amount) {
+    return 'বাজার খরচের চেয়ে $amount বেশি উঠেছে';
+  }
+
+  @override
+  String rateDeficit(String amount) {
+    return 'বাজার খরচের চেয়ে $amount কম উঠেছে';
+  }
+
+  @override
+  String rateBalanceFood(String meals, String rate) {
+    return 'খাবার খরচ = $meals মিল × $rate (নির্দিষ্ট রেট)';
+  }
 }

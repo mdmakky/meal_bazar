@@ -8,6 +8,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../../core/failure_text.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
 import '../../../core/widgets/widgets.dart';
+import '../../money/domain/money.dart' show parseAmount;
 import '../../notices/application/notice_providers.dart';
 import '../application/mess_providers.dart';
 import '../domain/member.dart';
@@ -378,7 +379,9 @@ class _MessSettingsScreenState extends ConsumerState<MessSettingsScreen> {
   final _form = GlobalKey<FormState>();
   final _name = TextEditingController();
   final _address = TextEditingController();
+  final _rate = TextEditingController();
   String? _loadedFor;
+  var _fixedRate = false;
   var _startDay = 1;
   var _cutoff = const TimeOfDay(hour: 22, minute: 0);
   var _saving = false;
@@ -387,6 +390,7 @@ class _MessSettingsScreenState extends ConsumerState<MessSettingsScreen> {
   void dispose() {
     _name.dispose();
     _address.dispose();
+    _rate.dispose();
     super.dispose();
   }
 
@@ -409,6 +413,8 @@ class _MessSettingsScreenState extends ConsumerState<MessSettingsScreen> {
             address: _address.text,
             monthStartDay: _startDay,
             mealOffCutoff: '${two(_cutoff.hour)}:${two(_cutoff.minute)}:00',
+            fixedRate: _fixedRate,
+            fixedMealRate: _fixedRate ? parseAmount(_rate.text) : null,
           );
       if (mounted) showSnack(context, l.settingsSaved);
     } catch (e) {
@@ -432,6 +438,11 @@ class _MessSettingsScreenState extends ConsumerState<MessSettingsScreen> {
       _startDay = mess.monthStartDay;
       final [h, m, ...] = mess.mealOffCutoff.split(':');
       _cutoff = TimeOfDay(hour: int.parse(h), minute: int.parse(m));
+      _fixedRate = mess.fixedRate;
+      _rate.text = switch (mess.fixedMealRate) {
+        null => '',
+        final r => r == r.roundToDouble() ? '${r.toInt()}' : '$r',
+      };
     }
 
     return Scaffold(
@@ -479,6 +490,35 @@ class _MessSettingsScreenState extends ConsumerState<MessSettingsScreen> {
                 ),
                 onTap: _pickCutoff,
               ),
+              const SizedBox(height: AppSpace.lg),
+              Text(
+                l.rateSection,
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              const SizedBox(height: AppSpace.xs),
+              Text(l.rateHelp, style: Theme.of(context).textTheme.bodySmall),
+              const SizedBox(height: AppSpace.sm),
+              SegmentedButton<bool>(
+                segments: [
+                  ButtonSegment(value: false, label: Text(l.rateCalculated)),
+                  ButtonSegment(value: true, label: Text(l.rateFixed)),
+                ],
+                selected: {_fixedRate},
+                onSelectionChanged: (v) => setState(() => _fixedRate = v.first),
+              ),
+              if (_fixedRate) ...[
+                const SizedBox(height: AppSpace.md),
+                TextFormField(
+                  controller: _rate,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: InputDecoration(labelText: l.rateAmountLabel),
+                  validator: (v) => (parseAmount(v ?? '') ?? 0) > 0
+                      ? null
+                      : l.rateAmountRequired,
+                ),
+              ],
             ],
           ),
         ),

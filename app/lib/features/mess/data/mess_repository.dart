@@ -131,6 +131,8 @@ class MessRepository {
     String? address,
     int? monthStartDay,
     String? mealOffCutoff,
+    bool? fixedRate,
+    double? fixedMealRate,
   }) => guard(() async {
     final rows = await _client
         .from('messes')
@@ -139,6 +141,12 @@ class MessRepository {
           'address': ?address?.trim(),
           'month_start_day': ?monthStartDay,
           'meal_off_cutoff': ?mealOffCutoff,
+          'meal_rate_mode': ?switch (fixedRate) {
+            null => null,
+            true => 'fixed',
+            false => 'calculated',
+          },
+          'fixed_meal_rate': ?fixedMealRate,
         })
         .eq('id', messId)
         .select();
