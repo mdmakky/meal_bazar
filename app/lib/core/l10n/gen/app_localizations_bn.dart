@@ -609,7 +609,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get todayFillHelp =>
-      'সব সদস্যের মিল গতকালের মতো বসবে, না থাকলে ১টা করে। পরে ট্যাপ করে বদলাবেন।';
+      'সব সদস্যের মিল গতকালের মতো বসবে, না থাকলে তাদের ডিফল্ট মিল (তাও না থাকলে ১টা)। পরে ট্যাপ করে বদলাবেন।';
 
   @override
   String get todayFill => 'আজকের মিল বসান';
@@ -1553,4 +1553,66 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get dashNobodyThatDay => 'এই দিনে কেউ মেসে ছিল না';
+
+  @override
+  String get recurringTitle => 'নিয়মিত মাসিক বিল';
+
+  @override
+  String get recurringHelp =>
+      'ভাড়া, ওয়াইফাই, বুয়ার মতো যে বিল প্রতি মাসে একই থাকে, একবার লিখে রাখুন। তারপর প্রতি মাসে এক চাপে খরচে বসান।';
+
+  @override
+  String get recurringEmpty => 'এখনো কোনো নিয়মিত বিল নেই';
+
+  @override
+  String get recurringAdd => 'নতুন নিয়মিত বিল';
+
+  @override
+  String get recurringEdit => 'নিয়মিত বিল বদলান';
+
+  @override
+  String get recurringDay => 'মাসের কততম দিনে বসবে';
+
+  @override
+  String recurringDayValue(String day) {
+    return 'মাসের $day নম্বর দিন';
+  }
+
+  @override
+  String recurringActive(String name) {
+    return '$name চালু';
+  }
+
+  @override
+  String get recurringApply => 'এই মাসের বিল বসান';
+
+  @override
+  String recurringApplied(String count) {
+    return '$countটি বিল খরচে বসানো হলো';
+  }
+
+  @override
+  String get recurringNothingToApply =>
+      'এই মাসের সব নিয়মিত বিল আগেই বসানো হয়েছে';
+
+  @override
+  String recurringPending(String count) {
+    return 'এই মাসের $countটি নিয়মিত বিল বসানো বাকি';
+  }
+
+  @override
+  String get recurringManagerOnly => 'শুধু ম্যানেজার নিয়মিত বিল বদলাতে পারেন';
+
+  @override
+  String get mealDefaultTitle => 'সদস্যদের ডিফল্ট মিল';
+
+  @override
+  String get mealDefaultHelp =>
+      'আগের দিনের মিল না থাকলে \"আজকের মিল বসান\" এই হিসাবে মিল বসাবে।';
+
+  @override
+  String get mealDefaultEmpty => 'কোনো সক্রিয় সদস্য বা চালু বেলা নেই';
+
+  @override
+  String get mealDefaultManagerOnly => 'শুধু ম্যানেজার ডিফল্ট মিল বদলাতে পারেন';
 }

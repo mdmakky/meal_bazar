@@ -1199,7 +1199,7 @@ abstract class AppLocalizations {
   /// No description provided for @todayFillHelp.
   ///
   /// In bn, this message translates to:
-  /// **'সব সদস্যের মিল গতকালের মতো বসবে, না থাকলে ১টা করে। পরে ট্যাপ করে বদলাবেন।'**
+  /// **'সব সদস্যের মিল গতকালের মতো বসবে, না থাকলে তাদের ডিফল্ট মিল (তাও না থাকলে ১টা)। পরে ট্যাপ করে বদলাবেন।'**
   String get todayFillHelp;
 
   /// No description provided for @todayFill.
@@ -2899,6 +2899,108 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'এই দিনে কেউ মেসে ছিল না'**
   String get dashNobodyThatDay;
+
+  /// No description provided for @recurringTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'নিয়মিত মাসিক বিল'**
+  String get recurringTitle;
+
+  /// No description provided for @recurringHelp.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভাড়া, ওয়াইফাই, বুয়ার মতো যে বিল প্রতি মাসে একই থাকে, একবার লিখে রাখুন। তারপর প্রতি মাসে এক চাপে খরচে বসান।'**
+  String get recurringHelp;
+
+  /// No description provided for @recurringEmpty.
+  ///
+  /// In bn, this message translates to:
+  /// **'এখনো কোনো নিয়মিত বিল নেই'**
+  String get recurringEmpty;
+
+  /// No description provided for @recurringAdd.
+  ///
+  /// In bn, this message translates to:
+  /// **'নতুন নিয়মিত বিল'**
+  String get recurringAdd;
+
+  /// No description provided for @recurringEdit.
+  ///
+  /// In bn, this message translates to:
+  /// **'নিয়মিত বিল বদলান'**
+  String get recurringEdit;
+
+  /// No description provided for @recurringDay.
+  ///
+  /// In bn, this message translates to:
+  /// **'মাসের কততম দিনে বসবে'**
+  String get recurringDay;
+
+  /// No description provided for @recurringDayValue.
+  ///
+  /// In bn, this message translates to:
+  /// **'মাসের {day} নম্বর দিন'**
+  String recurringDayValue(String day);
+
+  /// No description provided for @recurringActive.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name} চালু'**
+  String recurringActive(String name);
+
+  /// No description provided for @recurringApply.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই মাসের বিল বসান'**
+  String get recurringApply;
+
+  /// No description provided for @recurringApplied.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count}টি বিল খরচে বসানো হলো'**
+  String recurringApplied(String count);
+
+  /// No description provided for @recurringNothingToApply.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই মাসের সব নিয়মিত বিল আগেই বসানো হয়েছে'**
+  String get recurringNothingToApply;
+
+  /// No description provided for @recurringPending.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই মাসের {count}টি নিয়মিত বিল বসানো বাকি'**
+  String recurringPending(String count);
+
+  /// No description provided for @recurringManagerOnly.
+  ///
+  /// In bn, this message translates to:
+  /// **'শুধু ম্যানেজার নিয়মিত বিল বদলাতে পারেন'**
+  String get recurringManagerOnly;
+
+  /// No description provided for @mealDefaultTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'সদস্যদের ডিফল্ট মিল'**
+  String get mealDefaultTitle;
+
+  /// No description provided for @mealDefaultHelp.
+  ///
+  /// In bn, this message translates to:
+  /// **'আগের দিনের মিল না থাকলে \"আজকের মিল বসান\" এই হিসাবে মিল বসাবে।'**
+  String get mealDefaultHelp;
+
+  /// No description provided for @mealDefaultEmpty.
+  ///
+  /// In bn, this message translates to:
+  /// **'কোনো সক্রিয় সদস্য বা চালু বেলা নেই'**
+  String get mealDefaultEmpty;
+
+  /// No description provided for @mealDefaultManagerOnly.
+  ///
+  /// In bn, this message translates to:
+  /// **'শুধু ম্যানেজার ডিফল্ট মিল বদলাতে পারেন'**
+  String get mealDefaultManagerOnly;
 }
 
 class _AppLocalizationsDelegate

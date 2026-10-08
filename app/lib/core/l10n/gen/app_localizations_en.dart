@@ -615,7 +615,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get todayFillHelp =>
-      'Copies yesterday\'s meals for every member, or 1 each. Tap to adjust after.';
+      'Copies yesterday\'s meals for every member, else their default meals, else 1 each. Tap to adjust after.';
 
   @override
   String get todayFill => 'Fill today\'s meals';
@@ -1562,4 +1562,67 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dashNobodyThatDay => 'Nobody was in the mess on this day';
+
+  @override
+  String get recurringTitle => 'Monthly bills';
+
+  @override
+  String get recurringHelp =>
+      'Write down bills that stay the same every month (rent, Wi-Fi, maid) once. Then post them as expenses each month with one tap.';
+
+  @override
+  String get recurringEmpty => 'No monthly bills yet';
+
+  @override
+  String get recurringAdd => 'New monthly bill';
+
+  @override
+  String get recurringEdit => 'Edit monthly bill';
+
+  @override
+  String get recurringDay => 'Day of the month to post on';
+
+  @override
+  String recurringDayValue(String day) {
+    return 'Day $day of the month';
+  }
+
+  @override
+  String recurringActive(String name) {
+    return '$name on';
+  }
+
+  @override
+  String get recurringApply => 'Post this month\'s bills';
+
+  @override
+  String recurringApplied(String count) {
+    return '$count bills posted as expenses';
+  }
+
+  @override
+  String get recurringNothingToApply =>
+      'This month\'s bills are already posted';
+
+  @override
+  String recurringPending(String count) {
+    return '$count monthly bills not posted yet this month';
+  }
+
+  @override
+  String get recurringManagerOnly => 'Only a manager can change monthly bills';
+
+  @override
+  String get mealDefaultTitle => 'Default meals';
+
+  @override
+  String get mealDefaultHelp =>
+      'When a member has no meal the day before, \"Fill today\" uses these.';
+
+  @override
+  String get mealDefaultEmpty => 'No active members or meal types';
+
+  @override
+  String get mealDefaultManagerOnly =>
+      'Only a manager can change default meals';
 }
