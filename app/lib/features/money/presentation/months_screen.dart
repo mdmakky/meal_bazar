@@ -218,7 +218,13 @@ class _CloseMonthFormState extends ConsumerState<CloseMonthForm> {
                   l.monthTotalMeals,
                   Fmt.meals(t.totalMeals, banglaDigits: bn),
                 ),
-                line(l.moneyMealRate, money(context, t.mealRate)),
+                line(
+                  l.moneyMealRate,
+                  [
+                    money(context, t.mealRate),
+                    if (t.fixedRate) '(${l.rateFixed})',
+                  ].join(' '),
+                ),
                 line(l.moneyExtraTotal, money(context, t.extraTotal)),
                 line(l.moneyDepositTotal, money(context, t.creditTotal)),
               ],

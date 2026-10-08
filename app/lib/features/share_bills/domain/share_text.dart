@@ -64,7 +64,8 @@ String messSummaryText(
     '',
     '${l.shareBillFoodTotal}: ${f.money(t.foodTotal)}',
     '${l.shareBillTotalMeals}: ${f.meals(t.totalMeals)}',
-    '${l.shareBillRate}: ${f.money(t.mealRate)}',
+    '${l.shareBillRate}: ${f.money(t.mealRate)}'
+        '${t.fixedRate ? ' (${l.rateFixed})' : ''}',
     if (t.extraTotal != 0) '${l.shareBillExtraTotal}: ${f.money(t.extraTotal)}',
     '',
     for (final b in sorted)

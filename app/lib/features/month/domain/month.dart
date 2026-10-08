@@ -17,14 +17,20 @@ class MonthTotals {
     required this.mealRate,
     required this.extraTotal,
     required this.creditTotal,
+    this.fixedRate = false,
+    this.rateGap = 0,
   });
 
+  /// `month_totals`, optionally merged with `month_rate_info` (0016) for
+  /// `mode` and `surplus_or_deficit`.
   factory MonthTotals.fromJson(Map<String, dynamic> j) => MonthTotals(
     foodTotal: _d(j['food_total']),
     totalMeals: _d(j['total_meals']),
     mealRate: _d(j['meal_rate']),
     extraTotal: _d(j['extra_total']),
     creditTotal: _d(j['credit_total']),
+    fixedRate: j['mode'] == 'fixed',
+    rateGap: j['surplus_or_deficit'] == null ? 0 : _d(j['surplus_or_deficit']),
   );
 
   final double foodTotal;
@@ -33,8 +39,15 @@ class MonthTotals {
   final double extraTotal;
   final double creditTotal;
 
+  /// A fixed rate is in force: [mealRate] is that rate, not food ÷ meals.
+  final bool fixedRate;
+
+  /// Fixed mode only: food_total − rate × total_meals, reported never
+  /// charged. > 0 = bazar cost more than the rate collected.
+  final double rateGap;
+
   /// Food cost exists but nobody has meals yet: nobody can be charged.
-  bool get unallocatedFood => totalMeals == 0 && foodTotal > 0;
+  bool get unallocatedFood => !fixedRate && totalMeals == 0 && foodTotal > 0;
 }
 
 class MemberBalance {

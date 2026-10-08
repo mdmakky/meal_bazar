@@ -24,9 +24,15 @@ class MonthRepository {
   });
 
   Future<MonthTotals> totals(String messId, MonthPeriod p) => guard(() async {
-    final rows =
-        await _client.rpc('month_totals', params: _range(messId, p)) as List;
-    return MonthTotals.fromJson(rows.single as Map<String, dynamic>);
+    final params = _range(messId, p);
+    final (totals, info) = await (
+      _client.rpc('month_totals', params: params),
+      _client.rpc('month_rate_info', params: params),
+    ).wait;
+    return MonthTotals.fromJson({
+      for (final r in [...info as List, ...totals as List])
+        ...r as Map<String, dynamic>,
+    });
   });
 
   Future<List<MemberBalance>> balances(String messId, MonthPeriod p) =>

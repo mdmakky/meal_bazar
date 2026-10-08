@@ -13,6 +13,7 @@ import '../../meals/presentation/meal_widgets.dart';
 import '../../mess/application/mess_providers.dart';
 import '../../mess/domain/member.dart';
 import '../../money/application/money_providers.dart';
+import '../../money/domain/money.dart' show rateGapText;
 import '../../money/presentation/money_screen.dart';
 import '../../money/presentation/money_sheets.dart';
 import '../../month/application/month_providers.dart';
@@ -225,10 +226,12 @@ class _ManagerStats extends ConsumerWidget {
           _stat(
             l.dashRate,
             m(t.mealRate),
-            l.moneyMealRateProof(
-              m(t.foodTotal),
-              decimal(t.totalMeals, bangla: bn),
-            ),
+            t.fixedRate
+                ? [l.rateFixed, ?rateGapText(l, t, m)].join(' · ')
+                : l.moneyMealRateProof(
+                    m(t.foodTotal),
+                    decimal(t.totalMeals, bangla: bn),
+                  ),
           ),
           _stat(
             l.dashBazar,

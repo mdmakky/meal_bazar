@@ -235,10 +235,12 @@ class _Figures extends ConsumerWidget {
                   Figure(
                     label: l.moneyMealRate,
                     value: money(context, t.mealRate),
-                    proof: l.moneyMealRateProof(
-                      money(context, t.foodTotal),
-                      Fmt.meals(t.totalMeals, banglaDigits: bn),
-                    ),
+                    proof: t.fixedRate
+                        ? l.rateFixed
+                        : l.moneyMealRateProof(
+                            money(context, t.foodTotal),
+                            Fmt.meals(t.totalMeals, banglaDigits: bn),
+                          ),
                   ),
                 ),
                 _pair(
@@ -260,6 +262,8 @@ class _Figures extends ConsumerWidget {
                       color: context.palette.warning,
                     ),
                   ),
+                if (rateGapText(l, t, (v) => money(context, v)) case final gap?)
+                  Text(gap, style: Theme.of(context).textTheme.bodyMedium),
               ],
             ),
           ),
@@ -493,14 +497,16 @@ class BillBreakdown extends ConsumerWidget {
     final l = AppLocalizations.of(context);
     final bn = banglaDigits(context);
     final text = Theme.of(context).textTheme;
-    final rate = ref.watch(monthTotalsProvider(messId)).value?.mealRate;
+    final t = ref.watch(monthTotalsProvider(messId)).value;
+    final rate = t == null ? '…' : money(context, t.mealRate);
+    final meals = Fmt.meals(balance.meals, banglaDigits: bn);
     String label(BillPart p) => switch (p) {
       BillPart.opening => l.balanceOpening,
       BillPart.credit => l.balanceCredit,
-      BillPart.food => l.balanceFood(
-        Fmt.meals(balance.meals, banglaDigits: bn),
-        rate == null ? '…' : money(context, rate),
-      ),
+      BillPart.food =>
+        t?.fixedRate ?? false
+            ? l.rateBalanceFood(meals, rate)
+            : l.balanceFood(meals, rate),
       BillPart.extra => l.balanceExtra,
     };
     Widget line(String name, Widget value, {TextStyle? style}) => Padding(

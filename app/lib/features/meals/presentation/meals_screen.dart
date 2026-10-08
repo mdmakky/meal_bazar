@@ -634,10 +634,12 @@ class _MonthSummary extends ConsumerWidget {
                     : Figure(
                         label: l.todayRateLabel,
                         value: Fmt.money(t.mealRate, banglaDigits: bn),
-                        proof: l.todayRateProof(
-                          Fmt.money(t.foodTotal, banglaDigits: bn),
-                          decimal(t.totalMeals, bangla: bn),
-                        ),
+                        proof: t.fixedRate
+                            ? l.rateFixed
+                            : l.todayRateProof(
+                                Fmt.money(t.foodTotal, banglaDigits: bn),
+                                decimal(t.totalMeals, bangla: bn),
+                              ),
                         initiallyExpanded: true,
                       ),
               ),
