@@ -37,7 +37,8 @@ select test.expect_error($$select join_mess('ZZZZZZ', 'Rahim')$$, 'INVALID_INVIT
 select join_mess(lower(:'code'), 'Rahim') as b_member \gset
 select test.expect_error(format($$select join_mess(%L, 'Rahim')$$, :'code'), 'ALREADY_MEMBER');
 select test.check((select count(*) from mess_members) = 1, 'pending user sees only own row');
-select test.check((select count(*) from messes) = 0, 'pending user cannot read mess');
+select test.check((select count(*) from messes) = 1, 'pending user sees the requested mess (name only matters)');
+select test.check((select count(*) from audit_log) = 0, 'pending user cannot read audit');
 select test.check(test.rows(format($$update mess_members set status = 'active' where id = %L$$, :'b_member')) = 0,
   'pending user cannot approve self');
 
