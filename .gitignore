@@ -1,9 +1,21 @@
+# OS / editors
 .DS_Store
 .idea/
 .vscode/
 *.iml
+
+# Secrets — never commit (keys live in Vercel / Supabase dashboards)
 .env
 .env.*
+!.env.example
+*.jks
+*.keystore
+**/android/key.properties
+
+# Node / Vercel (ai-gateway)
+node_modules/
+.vercel/
+
 # impeccable working files
 .impeccable/questions/
 .impeccable/*.webp
