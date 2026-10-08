@@ -1,0 +1,10 @@
+.DS_Store
+.idea/
+.vscode/
+*.iml
+.env
+.env.*
+# impeccable working files
+.impeccable/questions/
+.impeccable/*.webp
+.impeccable/*.png

@@ -1,0 +1,61 @@
+{
+  "title": "Meal Bazar: choose the visual world",
+  "question": "The roll assigned the Mobile-Money Slip world. Keep it, take an alternate, or re-roll.",
+  "options": [
+    {
+      "id": "assigned",
+      "label": "Mobile-Money Slip",
+      "kicker": "THE ROLL",
+      "lineage": "The cash-out / Send Money confirmation slip every Bangladeshi reads daily (generic, not any provider's brand)",
+      "thesis": "Every entry is a receipt. The month bill is a slip that explains itself line by line.",
+      "palette": ["#F6F5F1", "#16213A", "#E3A21A", "#1E7F5C", "#C8442E"],
+      "materials": ["thermal-slip paper", "perforated tear lines", "monospace reference numbers", "stamped status chips"],
+      "viewport": "The Today screen as one running slip: a large Bangla date, the meal total as the headline amount, a tally grid of members × meals, and a dashed tear line above the quick-action row.",
+      "risk": "If the slip motif goes decorative (fake zigzags everywhere), it turns kitsch. Perforation is reserved for totals."
+    },
+    {
+      "id": "challenger-split-flap",
+      "label": "Split-Flap Meal Board",
+      "lineage": "Rail concourse departure board",
+      "thesis": "Today's meals as a departure board: members are rows, meal types are columns, and the cells flip 1 / ½ / 0.",
+      "palette": ["#111214", "#F2F2EE", "#F0A81C", "#B8392B"],
+      "materials": ["matte black flaps", "brushed steel", "amber row lamps"],
+      "viewport": "A dark board with fixed character cells, with the active meal column lit amber.",
+      "risk": "Low audience recognition in Dhaka, and a dark-only grammar fights daylight use.",
+      "case": "Fuses well for the meal grid itself, but weaker for bazar, money and bills. It wins clarity on one screen and loses identification.",
+      "hero": "https://impeccable.style/worlds/cards/signals-instruments-split-flap-concourse-hero.webp",
+      "board": "https://impeccable.style/worlds/cards/signals-instruments-split-flap-concourse.webp"
+    },
+    {
+      "id": "challenger-monochrome",
+      "label": "Monochrome Product Canon",
+      "lineage": "Neutral-scale software marketing",
+      "thesis": "Near-black on near-white with one accent, where every number is paired with its proof.",
+      "palette": ["#FAFAFA", "#18181B", "#71717A", "#2563EB"],
+      "materials": ["neutral scale", "hairline borders"],
+      "viewport": "A clean neutral Today screen with an accent primary button.",
+      "risk": "Indistinguishable from every SaaS app, so it fails 'unique style'.",
+      "case": "Fuses cleanly but carries no Bangladeshi identity. Clear, forgettable.",
+      "hero": "https://impeccable.style/worlds/cards/digital-design-canon-monochrome-product-marketing-hero.webp"
+    },
+    {
+      "id": "challenger-centre-rail",
+      "label": "Centre-Rail Ledger",
+      "lineage": "Wide-margin reference edition",
+      "thesis": "Twin columns around a vermilion rail of keys, ruled at one pixel.",
+      "palette": ["#EFE9DC", "#141414", "#C0392B"],
+      "materials": ["ruled hairlines", "small caps apparatus"],
+      "viewport": "Two dense columns of members and figures around a date rail.",
+      "risk": "Tiny type and hairline controls break the 48dp touch and 1.3× text-scale rules.",
+      "case": "Fuses poorly because dense book typesetting fights Bengali script and thumb input."
+    }
+  ],
+  "reroll": true,
+  "canon": true,
+  "canonCard": {
+    "label": "The category standard",
+    "thesis": "Standard Material 3 finance app: tonal cards, a green primary and a bottom nav, executed well.",
+    "viewport": "A top app bar, summary cards, a chart, and a FAB."
+  },
+  "steer": true
+}
