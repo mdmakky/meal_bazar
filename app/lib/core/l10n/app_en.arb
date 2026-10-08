@@ -500,5 +500,22 @@
   "dashMonthlyTitle": "Meal rate, last 6 months",
   "dashChartEmpty": "Nothing this month yet",
   "dashRecentBazar": "Recent bazar",
-  "dashNobodyThatDay": "Nobody was in the mess on this day"
+  "dashNobodyThatDay": "Nobody was in the mess on this day",
+  "remindTitle": "Reminders",
+  "remindCutoffTitle": "Meal-off cutoff soon",
+  "remindCutoffBody": "Want tomorrow's meal off? Do it now",
+  "remindNudgeTitle": "Today's meals not entered",
+  "remindNudgeBody": "Haven't entered today's meals? Do it now",
+  "remindDutyTitle": "Your bazar tomorrow",
+  "remindDutyBody": "{mess}: you're on bazar duty tomorrow",
+  "@remindDutyBody": {"placeholders": {"mess": {"type": "String"}}},
+  "remindCutoffToggle": "Before the meal-off cutoff",
+  "remindCutoffToggleSub": "30 minutes before the cutoff",
+  "remindNudgeToggle": "Evening meal entry",
+  "remindNudgeToggleSub": "Every day at 9 PM, for managers",
+  "remindDutyToggle": "Bazar duty",
+  "remindDutyToggleSub": "8 PM the day before your duty",
+  "remindPermissionOff": "Notifications are off",
+  "remindPermissionBody": "Turn on notifications to get reminders",
+  "remindPermissionButton": "Turn on"
 }
