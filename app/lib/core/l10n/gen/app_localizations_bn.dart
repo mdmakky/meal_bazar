@@ -1786,4 +1786,84 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get noticeGone => 'নোটিশটি আর নেই';
+
+  @override
+  String get dutyTitle => 'বাজারের পালা';
+
+  @override
+  String get dutyGenerate => 'পালা বানান';
+
+  @override
+  String get dutyEmpty => 'এই মাসে কারও বাজারের পালা নেই';
+
+  @override
+  String get dutyMyUpcoming => 'আপনার সামনের পালা';
+
+  @override
+  String get dutyThisMonth => 'এই মাসের পালা';
+
+  @override
+  String get dutyDone => 'বাজার হয়ে গেছে';
+
+  @override
+  String get dutyMarkDone => 'বাজার করেছি';
+
+  @override
+  String get dutyMembersLabel => 'কে কে করবে, ক্রম অনুযায়ী ট্যাপ করুন';
+
+  @override
+  String get dutyPickMembers => 'অন্তত একজনকে বাছুন';
+
+  @override
+  String get dutyStart => 'শুরুর দিন';
+
+  @override
+  String get dutyEveryLabel => 'কত দিন পরপর';
+
+  @override
+  String dutyEvery(String n) {
+    return 'প্রতি $n দিনে';
+  }
+
+  @override
+  String get dutyDays => 'কত দিনের জন্য';
+
+  @override
+  String get dutyDaysInvalid => '১ থেকে ৩৬৬ দিনের মধ্যে দিন';
+
+  @override
+  String dutyCreated(String count) {
+    return '$countটি পালা তৈরি হয়েছে';
+  }
+
+  @override
+  String get dutyEditTitle => 'পালা বদলান';
+
+  @override
+  String get dutyMember => 'কে বাজার করবে';
+
+  @override
+  String get dutyNote => 'নোট';
+
+  @override
+  String get dutyDeleteConfirm => 'এই দিনের পালা মুছে ফেলবেন?';
+
+  @override
+  String get dutyTodayMine => 'আজ আপনার বাজারের পালা';
+
+  @override
+  String get dutyTomorrowMine => 'কাল আপনার বাজারের পালা';
+
+  @override
+  String dutyTodayOther(String name) {
+    return 'আজ বাজার করবেন $name';
+  }
+
+  @override
+  String dutyTomorrowOther(String name) {
+    return 'কাল বাজার করবেন $name';
+  }
+
+  @override
+  String get dutyNextMonth => 'পরের মাস';
 }

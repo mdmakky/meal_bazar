@@ -1795,4 +1795,84 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noticeGone => 'This notice is no longer available';
+
+  @override
+  String get dutyTitle => 'Bazar duty';
+
+  @override
+  String get dutyGenerate => 'Make a rota';
+
+  @override
+  String get dutyEmpty => 'Nobody has bazar duty this month';
+
+  @override
+  String get dutyMyUpcoming => 'Your upcoming duties';
+
+  @override
+  String get dutyThisMonth => 'This month\'s duties';
+
+  @override
+  String get dutyDone => 'Bazar done';
+
+  @override
+  String get dutyMarkDone => 'I did the bazar';
+
+  @override
+  String get dutyMembersLabel => 'Who goes: tap them in order';
+
+  @override
+  String get dutyPickMembers => 'Pick at least one member';
+
+  @override
+  String get dutyStart => 'Start date';
+
+  @override
+  String get dutyEveryLabel => 'How often';
+
+  @override
+  String dutyEvery(String n) {
+    return 'Every $n days';
+  }
+
+  @override
+  String get dutyDays => 'For how many days';
+
+  @override
+  String get dutyDaysInvalid => 'Enter 1 to 366 days';
+
+  @override
+  String dutyCreated(String count) {
+    return '$count duties created';
+  }
+
+  @override
+  String get dutyEditTitle => 'Change duty';
+
+  @override
+  String get dutyMember => 'Who does the bazar';
+
+  @override
+  String get dutyNote => 'Note';
+
+  @override
+  String get dutyDeleteConfirm => 'Delete this day\'s duty?';
+
+  @override
+  String get dutyTodayMine => 'Today is your bazar duty';
+
+  @override
+  String get dutyTomorrowMine => 'Tomorrow is your bazar duty';
+
+  @override
+  String dutyTodayOther(String name) {
+    return '$name does the bazar today';
+  }
+
+  @override
+  String dutyTomorrowOther(String name) {
+    return '$name does the bazar tomorrow';
+  }
+
+  @override
+  String get dutyNextMonth => 'Next month';
 }

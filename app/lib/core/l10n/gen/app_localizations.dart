@@ -3325,6 +3325,150 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'নোটিশটি আর নেই'**
   String get noticeGone;
+
+  /// No description provided for @dutyTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাজারের পালা'**
+  String get dutyTitle;
+
+  /// No description provided for @dutyGenerate.
+  ///
+  /// In bn, this message translates to:
+  /// **'পালা বানান'**
+  String get dutyGenerate;
+
+  /// No description provided for @dutyEmpty.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই মাসে কারও বাজারের পালা নেই'**
+  String get dutyEmpty;
+
+  /// No description provided for @dutyMyUpcoming.
+  ///
+  /// In bn, this message translates to:
+  /// **'আপনার সামনের পালা'**
+  String get dutyMyUpcoming;
+
+  /// No description provided for @dutyThisMonth.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই মাসের পালা'**
+  String get dutyThisMonth;
+
+  /// No description provided for @dutyDone.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাজার হয়ে গেছে'**
+  String get dutyDone;
+
+  /// No description provided for @dutyMarkDone.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাজার করেছি'**
+  String get dutyMarkDone;
+
+  /// No description provided for @dutyMembersLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'কে কে করবে, ক্রম অনুযায়ী ট্যাপ করুন'**
+  String get dutyMembersLabel;
+
+  /// No description provided for @dutyPickMembers.
+  ///
+  /// In bn, this message translates to:
+  /// **'অন্তত একজনকে বাছুন'**
+  String get dutyPickMembers;
+
+  /// No description provided for @dutyStart.
+  ///
+  /// In bn, this message translates to:
+  /// **'শুরুর দিন'**
+  String get dutyStart;
+
+  /// No description provided for @dutyEveryLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'কত দিন পরপর'**
+  String get dutyEveryLabel;
+
+  /// No description provided for @dutyEvery.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রতি {n} দিনে'**
+  String dutyEvery(String n);
+
+  /// No description provided for @dutyDays.
+  ///
+  /// In bn, this message translates to:
+  /// **'কত দিনের জন্য'**
+  String get dutyDays;
+
+  /// No description provided for @dutyDaysInvalid.
+  ///
+  /// In bn, this message translates to:
+  /// **'১ থেকে ৩৬৬ দিনের মধ্যে দিন'**
+  String get dutyDaysInvalid;
+
+  /// No description provided for @dutyCreated.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count}টি পালা তৈরি হয়েছে'**
+  String dutyCreated(String count);
+
+  /// No description provided for @dutyEditTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'পালা বদলান'**
+  String get dutyEditTitle;
+
+  /// No description provided for @dutyMember.
+  ///
+  /// In bn, this message translates to:
+  /// **'কে বাজার করবে'**
+  String get dutyMember;
+
+  /// No description provided for @dutyNote.
+  ///
+  /// In bn, this message translates to:
+  /// **'নোট'**
+  String get dutyNote;
+
+  /// No description provided for @dutyDeleteConfirm.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই দিনের পালা মুছে ফেলবেন?'**
+  String get dutyDeleteConfirm;
+
+  /// No description provided for @dutyTodayMine.
+  ///
+  /// In bn, this message translates to:
+  /// **'আজ আপনার বাজারের পালা'**
+  String get dutyTodayMine;
+
+  /// No description provided for @dutyTomorrowMine.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাল আপনার বাজারের পালা'**
+  String get dutyTomorrowMine;
+
+  /// No description provided for @dutyTodayOther.
+  ///
+  /// In bn, this message translates to:
+  /// **'আজ বাজার করবেন {name}'**
+  String dutyTodayOther(String name);
+
+  /// No description provided for @dutyTomorrowOther.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাল বাজার করবেন {name}'**
+  String dutyTomorrowOther(String name);
+
+  /// No description provided for @dutyNextMonth.
+  ///
+  /// In bn, this message translates to:
+  /// **'পরের মাস'**
+  String get dutyNextMonth;
 }
 
 class _AppLocalizationsDelegate

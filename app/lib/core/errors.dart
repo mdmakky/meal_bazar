@@ -52,6 +52,8 @@ const _sqlKeys = {
   'REASON_REQUIRED': FailureKind.validation,
   'DEPOSIT_NOT_PENDING': FailureKind.validation,
   'RECEIPT_PATH_INVALID': FailureKind.validation,
+  'NOT_YOUR_DUTY': FailureKind.notManager,
+  'INVALID_ROTATION': FailureKind.validation,
 };
 
 AppFailure mapError(Object error) {
