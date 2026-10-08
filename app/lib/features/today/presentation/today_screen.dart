@@ -40,6 +40,16 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
 
     final key = (messId: messId, day: _day);
     final manager = ref.watch(amIManagerProvider);
+    // A plain active member may switch their own meal off before the cutoff.
+    final me = ref.watch(currentMembershipProvider)?.member;
+    final mess = ref.watch(currentMessProvider);
+    final myId = !manager && me?.status == MemberStatus.active ? me!.id : null;
+    final offOpen =
+        myId != null &&
+        mess != null &&
+        ref
+            .watch(nowProvider)()
+            .isBefore(mealOffDeadline(_day, mess.mealOffCutoff));
     final membersAsync = ref.watch(membersProvider(messId));
     final typesAsync = ref.watch(mealTypesProvider(messId));
     // Only the grid's shape: a cell tap must not rebuild the whole screen.
@@ -144,9 +154,14 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                       member: rows[i],
                       types: types,
                       editable: manager,
+                      ownOff: offOpen && rows[i].id == myId,
                     ),
                   ),
                 ],
+              ),
+            if (myId != null && mess != null)
+              SliverToBoxAdapter(
+                child: _MealOffHint(cutoff: mess.mealOffCutoff),
               ),
           ],
           const SliverToBoxAdapter(child: SizedBox(height: AppSpace.xl)),
@@ -156,8 +171,12 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
 
     return Scaffold(
       body: SafeArea(bottom: false, child: body),
-      bottomNavigationBar: manager && rows.isNotEmpty && types.isNotEmpty
+      bottomNavigationBar: types.isEmpty
+          ? null
+          : manager && rows.isNotEmpty
           ? _QuickActions(dayKey: key, members: rows, types: types)
+          : myId != null
+          ? _QuickActions(dayKey: key, members: rows, types: types, myId: myId)
           : null,
     );
   }
@@ -555,12 +574,16 @@ class _MemberRow extends ConsumerWidget {
     required this.member,
     required this.types,
     required this.editable,
+    this.ownOff = false,
   });
 
   final MessDay dayKey;
   final Member member;
   final List<MealType> types;
   final bool editable;
+
+  /// My own row, before the cutoff: tap switches the meal off/on.
+  final bool ownOff;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -611,6 +634,7 @@ class _MemberRow extends ConsumerWidget {
                 member: member,
                 type: t,
                 editable: editable,
+                ownOff: ownOff && t.enabled,
               ),
           ],
         ),
@@ -625,12 +649,14 @@ class _Cell extends ConsumerWidget {
     required this.member,
     required this.type,
     required this.editable,
+    this.ownOff = false,
   });
 
   final MessDay dayKey;
   final Member member;
   final MealType type;
   final bool editable;
+  final bool ownOff;
 
   MealEntry _current(WidgetRef ref) =>
       ref.read(dayGridProvider(dayKey)).value?[cellKey(member.id, type.id)] ??
@@ -658,6 +684,14 @@ class _Cell extends ConsumerWidget {
       banglaDigits: bnDigits(context),
       onTap: editable
           ? () => putEntry(context, ref, dayKey, cycleMeal(_current(ref)))
+          : ownOff
+          ? () => putEntry(
+              context,
+              ref,
+              dayKey,
+              toggleMealOff(_current(ref)),
+              own: true,
+            )
           : null,
       onLongPress: editable
           ? () async {
@@ -680,10 +714,11 @@ Future<bool> putEntry(
   BuildContext context,
   WidgetRef ref,
   MessDay dayKey,
-  MealEntry e,
-) async {
+  MealEntry e, {
+  bool own = false,
+}) async {
   try {
-    await ref.read(dayGridProvider(dayKey).notifier).put(e);
+    await ref.read(dayGridProvider(dayKey).notifier).put(e, own: own);
     return true;
   } catch (err) {
     if (context.mounted) showFailure(context, err);
@@ -696,11 +731,15 @@ class _QuickActions extends ConsumerWidget {
     required this.dayKey,
     required this.members,
     required this.types,
+    this.myId,
   });
 
   final MessDay dayKey;
   final List<Member> members;
   final List<MealType> types;
+
+  /// Set for a plain member: only "switch off tomorrow" is offered.
+  final String? myId;
 
   /// Member, then meal type (skipped when there is only one).
   Future<MealEntry?> _pick(BuildContext context, WidgetRef ref) async {
@@ -765,6 +804,48 @@ class _QuickActions extends ConsumerWidget {
     }
   }
 
+  /// Member: pick tomorrow's meal types to have off, then save the changes.
+  Future<void> _offTomorrow(BuildContext context, WidgetRef ref) async {
+    final l = AppLocalizations.of(context);
+    final mess = ref.read(currentMessProvider);
+    final me = myId;
+    if (mess == null || me == null) return;
+    final tomorrow = dayOnly(today().add(const Duration(days: 1, hours: 2)));
+    if (!ref
+        .read(nowProvider)()
+        .isBefore(mealOffDeadline(tomorrow, mess.mealOffCutoff))) {
+      showSnack(context, l.mealOffCutoffPassed);
+      return;
+    }
+    final key = (messId: mess.id, day: tomorrow);
+    final Map<String, MealEntry> grid;
+    try {
+      grid = await ref.read(dayGridProvider(key).future);
+    } catch (e) {
+      if (context.mounted) showFailure(context, e);
+      return;
+    }
+    if (!context.mounted) return;
+    MealEntry current(MealType t) =>
+        grid[cellKey(me, t.id)] ??
+        MealEntry(memberId: me, mealTypeId: t.id, date: tomorrow, count: 0);
+    final active = types.where((t) => t.enabled).toList();
+    final off = await _pickOff(context, active, {
+      for (final t in active)
+        if (current(t).isOff) t.id,
+    });
+    if (off == null || !context.mounted) return;
+    for (final t in active) {
+      final e = current(t);
+      if (e.isOff == off.contains(t.id)) continue;
+      if (!await putEntry(context, ref, key, toggleMealOff(e), own: true)) {
+        return;
+      }
+      if (!context.mounted) return;
+    }
+    showSnack(context, l.mealOffSaved);
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
@@ -788,33 +869,107 @@ class _QuickActions extends ConsumerWidget {
         child: Row(
           spacing: AppSpace.sm,
           children: [
-            action(
-              l.todayActionBazar,
-              Icons.shopping_basket_outlined,
-              () => showAddBazarSheet(context),
-            ),
-            action(
-              l.todayActionExpense,
-              Icons.receipt_long_outlined,
-              () => showAddExpenseSheet(context),
-            ),
-            action(
-              l.todayActionDeposit,
-              Icons.savings_outlined,
-              () => showAddDepositSheet(context),
-            ),
-            action(
-              l.todayActionGuest,
-              Icons.person_add_alt,
-              () => _guest(context, ref),
-            ),
-            action(
-              l.todayActionMealOff,
-              Icons.no_meals_outlined,
-              () => _mealOff(context, ref),
-            ),
+            if (myId != null)
+              action(
+                l.mealOffTomorrow,
+                Icons.no_meals_outlined,
+                () => _offTomorrow(context, ref),
+              )
+            else ...[
+              action(
+                l.todayActionBazar,
+                Icons.shopping_basket_outlined,
+                () => showAddBazarSheet(context),
+              ),
+              action(
+                l.todayActionExpense,
+                Icons.receipt_long_outlined,
+                () => showAddExpenseSheet(context),
+              ),
+              action(
+                l.todayActionDeposit,
+                Icons.savings_outlined,
+                () => showAddDepositSheet(context),
+              ),
+              action(
+                l.todayActionGuest,
+                Icons.person_add_alt,
+                () => _guest(context, ref),
+              ),
+              action(
+                l.todayActionMealOff,
+                Icons.no_meals_outlined,
+                () => _mealOff(context, ref),
+              ),
+            ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Checklist of meal types; returns the ids to have off, or null if dismissed.
+Future<Set<String>?> _pickOff(
+  BuildContext context,
+  List<MealType> types,
+  Set<String> initial,
+) {
+  final l = AppLocalizations.of(context);
+  final off = {...initial};
+  return AppSheet.show<Set<String>>(
+    context,
+    title: l.mealOffTomorrowTitle,
+    actions: [
+      Builder(
+        builder: (context) => AppButton(
+          label: l.mealOffSave,
+          onPressed: () => Navigator.pop(context, off),
+        ),
+      ),
+    ],
+    child: StatefulBuilder(
+      builder: (context, setState) => Column(
+        children: [
+          for (final t in types)
+            CheckboxListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(t.name),
+              value: off.contains(t.id),
+              onChanged: (v) =>
+                  setState(() => v == true ? off.add(t.id) : off.remove(t.id)),
+            ),
+        ],
+      ),
+    ),
+  );
+}
+
+/// Members: when tomorrow's meals can still be switched off.
+class _MealOffHint extends StatelessWidget {
+  const _MealOffHint({required this.cutoff});
+
+  /// Postgres `time`, e.g. '22:00:00'.
+  final String cutoff;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = cutoff.split(':').map(int.parse).toList();
+    // ponytail: copy says "tonight"/pm; fine for evening cutoffs (the default).
+    final h = p[0] % 12 == 0 ? 12 : p[0] % 12;
+    final time = p[1] == 0 ? '$h' : '$h:${p[1].toString().padLeft(2, '0')}';
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpace.gutter,
+        AppSpace.md,
+        AppSpace.gutter,
+        0,
+      ),
+      child: Text(
+        AppLocalizations.of(
+          context,
+        ).mealOffHint(Fmt.digits(time, bangla: bnDigits(context))),
+        style: Theme.of(context).textTheme.bodySmall,
       ),
     );
   }

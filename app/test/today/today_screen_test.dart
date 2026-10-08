@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:meal_bazar/core/dates.dart';
+import 'package:meal_bazar/core/errors.dart';
 import 'package:meal_bazar/core/format.dart';
 import 'package:meal_bazar/core/l10n/gen/app_localizations.dart';
 import 'package:meal_bazar/core/theme/app_theme.dart';
@@ -16,6 +17,7 @@ import 'package:meal_bazar/features/mess/domain/member.dart';
 import 'package:meal_bazar/features/mess/domain/mess.dart';
 import 'package:meal_bazar/features/month/application/month_providers.dart';
 import 'package:meal_bazar/features/month/domain/month.dart';
+import 'package:meal_bazar/features/today/application/day_grid.dart';
 import 'package:meal_bazar/features/today/presentation/today_screen.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -61,7 +63,11 @@ MealEntry entry(String m, String t, double c, {int guests = 0}) => MealEntry(
 
 late MockMealRepository repo;
 
-Future<void> pump(WidgetTester tester, {bool manager = true}) async {
+Future<void> pump(
+  WidgetTester tester, {
+  bool manager = true,
+  DateTime? now,
+}) async {
   final router = GoRouter(
     routes: [GoRoute(path: '/', builder: (_, _) => const TodayScreen())],
   );
@@ -69,6 +75,7 @@ Future<void> pump(WidgetTester tester, {bool manager = true}) async {
     ProviderScope(
       overrides: [
         mealRepositoryProvider.overrideWithValue(repo),
+        if (now != null) nowProvider.overrideWithValue(() => now),
         myMembershipsProvider.overrideWith(
           (ref) async => [
             Membership(
@@ -220,5 +227,129 @@ void main() {
     await tester.tap(find.bySemanticsLabel('Karim দুপুর: ১'));
     await tester.pumpAndSettle();
     verifyNever(() => repo.save(any(), any(), source: any(named: 'source')));
+  });
+
+  group('member meal off', () {
+    // Before today's cutoff (yesterday 22:00 Dhaka), so the clock is pinned.
+    final early = day.subtract(const Duration(days: 2));
+
+    setUp(() {
+      when(
+        () => repo.entriesForDay(any(), any()),
+      ).thenAnswer((_) async => [entry('rahim', 'lunch', 1, guests: 1)]);
+    });
+
+    testWidgets('own row actionable, others read-only, hint shown', (
+      tester,
+    ) async {
+      await pump(tester, manager: false, now: early);
+
+      expect(
+        tester.getSemantics(
+          find.bySemanticsLabel('Rahim দুপুর: ১, +১ জন অতিথি'),
+        ),
+        containsSemantics(isButton: true),
+      );
+      expect(
+        tester.getSemantics(find.bySemanticsLabel('Karim দুপুর: ০')),
+        isNot(containsSemantics(isButton: true)),
+      );
+      expect(find.text(l.mealOffHint('১০')), findsOneWidget);
+      expect(find.text(l.mealOffTomorrow), findsOneWidget);
+      expect(find.text(l.todayActionBazar), findsNothing);
+    });
+
+    testWidgets('tapping own cell calls setMyMealOff, optimistic', (
+      tester,
+    ) async {
+      final saving = Completer<void>();
+      when(
+        () => repo.setMyMealOff(any(), any(), any(), off: any(named: 'off')),
+      ).thenAnswer((_) => saving.future);
+      await pump(tester, manager: false, now: early);
+
+      await tester.tap(find.bySemanticsLabel('Rahim দুপুর: ১, +১ জন অতিথি'));
+      await tester.pump();
+      expect(
+        find.bySemanticsLabel('Rahim দুপুর: ${l.mealCellOff}, +১ জন অতিথি'),
+        findsOneWidget,
+      );
+      verify(
+        () => repo.setMyMealOff('mess1', day, 'lunch', off: true),
+      ).called(1);
+      verifyNever(() => repo.save(any(), any(), source: any(named: 'source')));
+
+      await tester.tap(find.bySemanticsLabel('Karim দুপুর: ০'));
+      await tester.pump();
+      verifyNever(
+        () => repo.setMyMealOff(any(), any(), any(), off: any(named: 'off')),
+      );
+      saving.complete();
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('cutoff error reverts and explains', (tester) async {
+      when(
+        () => repo.setMyMealOff(any(), any(), any(), off: any(named: 'off')),
+      ).thenThrow(const AppFailure(FailureKind.cutoffPassed));
+      await pump(tester, manager: false, now: early);
+
+      await tester.tap(find.bySemanticsLabel('Rahim দুপুর: ১, +১ জন অতিথি'));
+      await tester.pumpAndSettle();
+      expect(
+        find.bySemanticsLabel('Rahim দুপুর: ১, +১ জন অতিথি'),
+        findsOneWidget,
+      );
+      expect(find.text(l.mealOffCutoffPassed), findsOneWidget);
+    });
+
+    testWidgets('after the cutoff own row is read-only', (tester) async {
+      await pump(tester, manager: false);
+
+      await tester.tap(find.bySemanticsLabel('Rahim দুপুর: ১, +১ জন অতিথি'));
+      await tester.pumpAndSettle();
+      verifyNever(
+        () => repo.setMyMealOff(any(), any(), any(), off: any(named: 'off')),
+      );
+    });
+
+    testWidgets('quick action switches tomorrow\'s picked meals off', (
+      tester,
+    ) async {
+      when(
+        () => repo.setMyMealOff(any(), any(), any(), off: any(named: 'off')),
+      ).thenAnswer((_) async {});
+      await pump(tester, manager: false, now: early);
+
+      await tester.tap(find.text(l.mealOffTomorrow));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(CheckboxListTile, 'রাত'));
+      await tester.pump();
+      await tester.tap(find.text(l.mealOffSave));
+      await tester.pumpAndSettle();
+      final tomorrow = dayOnly(day.add(const Duration(days: 1, hours: 2)));
+      verify(
+        () => repo.setMyMealOff('mess1', tomorrow, 'dinner', off: true),
+      ).called(1);
+      verifyNever(
+        () => repo.setMyMealOff(any(), any(), 'lunch', off: any(named: 'off')),
+      );
+      expect(find.text(l.mealOffSaved), findsOneWidget);
+    });
+
+    testWidgets('manager keeps direct edits, no member hint', (tester) async {
+      when(
+        () => repo.save(any(), any(), source: any(named: 'source')),
+      ).thenAnswer((_) async {});
+      await pump(tester, now: early);
+
+      expect(find.text(l.mealOffHint('১০')), findsNothing);
+      await tester.tap(find.bySemanticsLabel('Rahim দুপুর: ১, +১ জন অতিথি'));
+      await tester.pumpAndSettle();
+      verify(() => repo.save('mess1', any(), source: 'app')).called(1);
+      verifyNever(
+        () => repo.setMyMealOff(any(), any(), any(), off: any(named: 'off')),
+      );
+    });
   });
 }

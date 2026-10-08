@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../meals/application/meal_providers.dart';
 import '../../meals/domain/meal.dart';
 
+/// The clock, overridable in tests (meal-off cutoff).
+final nowProvider = Provider<DateTime Function()>((_) => DateTime.now);
+
 String cellKey(String memberId, String mealTypeId) => '$memberId|$mealTypeId';
 
 /// One day's entries keyed by [cellKey], with optimistic writes on top.
@@ -29,13 +32,17 @@ class DayGrid extends AsyncNotifier<Map<String, MealEntry>> {
   }
 
   /// Shows [e] at once, saves it, and reverts (then rethrows) on failure.
-  Future<void> put(MealEntry e) async {
+  /// [own]: a member switching their own meal off/on (`set_my_meal_off`).
+  Future<void> put(MealEntry e, {bool own = false}) async {
     final k = cellKey(e.memberId, e.mealTypeId);
     final before = state.value?[k];
     _pending[k] = e;
     _set(k, e);
     try {
-      await ref.read(mealControllerProvider).save(day.messId, e);
+      final meals = ref.read(mealControllerProvider);
+      await (own
+          ? meals.setMyMealOff(day.messId, e)
+          : meals.save(day.messId, e));
     } catch (_) {
       if (ref.mounted && identical(_pending[k], e)) _set(k, before);
       rethrow;

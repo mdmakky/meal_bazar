@@ -77,3 +77,16 @@ MealEntry cycleMeal(MealEntry e) {
   };
   return e.copyWith(count: next);
 }
+
+/// Member self-service toggle: off ↔ on (1). Guests are kept.
+MealEntry toggleMealOff(MealEntry e) => e.isOff
+    ? e.copyWith(isOff: false, count: 1)
+    : e.copyWith(isOff: true, count: 0);
+
+/// When a member can no longer switch [date]'s meal off: the previous day at
+/// `messes.meal_off_cutoff` ('HH:MM[:SS]'), Asia/Dhaka (UTC+6, no DST).
+/// UX only; SQL `set_my_meal_off` enforces it.
+DateTime mealOffDeadline(DateTime date, String cutoff) {
+  final p = cutoff.split(':').map(int.parse).toList();
+  return DateTime.utc(date.year, date.month, date.day - 1, p[0] - 6, p[1]);
+}

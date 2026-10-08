@@ -61,6 +61,17 @@ class MealController {
     _refresh(messId, entry.date);
   }
 
+  /// My own meal off/on via `set_my_meal_off` (members, before the cutoff).
+  Future<void> setMyMealOff(String messId, MealEntry entry) async {
+    await _repo.setMyMealOff(
+      messId,
+      entry.date,
+      entry.mealTypeId,
+      off: entry.isOff,
+    );
+    _refresh(messId, entry.date);
+  }
+
   Future<int> fillDay(String messId, DateTime day) async {
     final n = await _repo.fillDay(messId, day);
     _refresh(messId, day);

@@ -125,6 +125,24 @@ class MealRepository {
         requireRows(rows);
       });
 
+  /// Member self-service: switches my own meal off/on (SQL enforces cutoff).
+  Future<void> setMyMealOff(
+    String messId,
+    DateTime date,
+    String mealTypeId, {
+    required bool off,
+  }) => guard(
+    () => _client.rpc(
+      'set_my_meal_off',
+      params: {
+        'p_mess': messId,
+        'p_date': isoDate(date),
+        'p_meal_type': mealTypeId,
+        'p_off': off,
+      },
+    ),
+  );
+
   /// Creates missing rows for active members (copy of yesterday, else 1).
   Future<int> fillDay(String messId, DateTime day) => guard(() async {
     final n = await _client.rpc(
