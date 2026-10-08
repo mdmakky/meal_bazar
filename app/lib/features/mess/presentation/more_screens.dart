@@ -65,6 +65,11 @@ class MoreScreen extends ConsumerWidget {
       ],
       tile(Icons.history, l.auditTitle, () => context.push('/more/audit')),
       tile(
+        Icons.notifications_outlined,
+        l.remindTitle,
+        () => context.push('/more/reminders'),
+      ),
+      tile(
         Icons.person_outline,
         l.accountTitle,
         () => context.push('/more/account'),
