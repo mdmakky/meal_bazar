@@ -27,3 +27,6 @@ app/env.json
 # Supabase CLI local state
 supabase/.temp/
 supabase/.branches/
+
+# Claude Code local worktrees/state
+.claude/
