@@ -8,6 +8,7 @@ import '../features/auth/application/auth_providers.dart';
 import '../features/auth/presentation/profile_setup_screen.dart';
 import '../features/auth/presentation/set_new_password_screen.dart';
 import '../features/auth/presentation/sign_in_screen.dart';
+import '../features/export/presentation/export_screen.dart';
 import '../features/meals/presentation/meal_types_screen.dart';
 import '../features/meals/presentation/meals_screen.dart';
 import '../features/mess/application/mess_providers.dart';
@@ -199,6 +200,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'meal-types',
                     builder: (_, _) => const MealTypesScreen(),
+                  ),
+                  GoRoute(
+                    path: 'export',
+                    builder: (_, _) => const ExportScreen(),
                   ),
                 ],
               ),
