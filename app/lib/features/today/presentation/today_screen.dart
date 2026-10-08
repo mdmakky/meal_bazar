@@ -293,7 +293,7 @@ class _Header extends ConsumerWidget {
               ),
             ],
           ),
-          const _SyncLine(),
+          _SyncLine(dayKey: dayKey),
           const SizedBox(height: AppSpace.lg),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpace.md),
@@ -318,19 +318,30 @@ class _Header extends ConsumerWidget {
   }
 }
 
-/// The queue's worst state; a failed write names why and offers retry.
+/// This mess's worst queue state; a failed write names why and offers retry
+/// or discard (the next pull restores the server's value).
 class _SyncLine extends ConsumerWidget {
-  const _SyncLine();
+  const _SyncLine({required this.dayKey});
+
+  final MessDay dayKey;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final ops = ref.watch(syncQueueProvider).value ?? const <SyncOp>[];
-    final error = ops.where((o) => o.status == opFailed).firstOrNull?.lastError;
+    final ops = [
+      for (final o in ref.watch(syncQueueProvider).value ?? const <SyncOp>[])
+        if (o.messId == dayKey.messId) o,
+    ];
+    final failed = ops.where((o) => o.status == opFailed);
+    final error = failed.firstOrNull?.lastError;
     return Column(
       children: [
         SyncBadge(
           state: queueState(ops),
           onRetry: () => ref.read(syncServiceProvider).retryFailed(),
+          onDiscard: () async {
+            await ref.read(appDbProvider).discard(failed.map((o) => o.id));
+            ref.invalidate(dayEntriesProvider);
+          },
         ),
         if (error != null)
           Padding(

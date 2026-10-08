@@ -507,6 +507,10 @@ class _BazarList extends ConsumerWidget {
           status: SyncBadge(
             state: opState(ops[b.id]),
             onRetry: () => ref.read(syncServiceProvider).retryFailed(),
+            onDiscard: () async {
+              await ref.read(appDbProvider).discard([?ops[b.id]?.id]);
+              ref.invalidate(bazarsProvider(messId));
+            },
           ),
           onTap: () => showBazarDetail(context, b),
         ),

@@ -445,4 +445,46 @@ void main() {
     await tester.pumpWidget(const SizedBox());
     await tester.runAsync(db.close);
   });
+
+  testWidgets('sync badge counts this mess only; discard drops failed ops', (
+    tester,
+  ) async {
+    final db = AppDb(
+      DatabaseConnection(
+        NativeDatabase.memory(),
+        closeStreamsSynchronously: true,
+      ),
+    );
+    Future<void> failed(String id, String messId) async {
+      await db.enqueue('meal_entries', id, id, {'mess_id': messId});
+      await db.updateOp(id, status: opFailed, lastError: 'monthClosed');
+    }
+
+    when(
+      () => repo.entriesForDay(any(), any()),
+    ).thenAnswer((_) async => [entry('karim', 'lunch', 1)]);
+    await tester.runAsync(() => failed('other', 'mess2'));
+    await pump(
+      tester,
+      local: [
+        appDbProvider.overrideWithValue(db),
+        mealRepositoryProvider.overrideWithValue(repo),
+      ],
+    );
+    expect(find.text(l.syncSynced), findsOneWidget);
+
+    await failed('mine', 'mess1');
+    await tester.pumpAndSettle();
+    expect(find.text(l.syncFailed), findsOneWidget);
+    expect(find.text(l.failureMonthClosed), findsOneWidget);
+
+    await tester.tap(find.text(l.syncDiscard));
+    await tester.pumpAndSettle();
+    expect(find.text(l.syncSynced), findsOneWidget);
+    final left = await db.select(db.syncQueue).get();
+    expect(left.map((o) => o.id), ['other']);
+
+    await tester.pumpWidget(const SizedBox());
+    await tester.runAsync(db.close);
+  });
 }
