@@ -3091,6 +3091,120 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'আজকের মিল বসান'**
   String get setupMeals;
+
+  /// No description provided for @shareBillTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'*{mess}* · মাসের বিল'**
+  String shareBillTitle(String mess);
+
+  /// No description provided for @shareBillSummaryTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'*{mess}* · মাসের হিসাব'**
+  String shareBillSummaryTitle(String mess);
+
+  /// No description provided for @shareBillMeals.
+  ///
+  /// In bn, this message translates to:
+  /// **'মিল: {meals} × {rate} = {cost}'**
+  String shareBillMeals(String meals, String rate, String cost);
+
+  /// No description provided for @shareBillPaid.
+  ///
+  /// In bn, this message translates to:
+  /// **'জমা দিয়েছেন'**
+  String get shareBillPaid;
+
+  /// No description provided for @shareBillFoodTotal.
+  ///
+  /// In bn, this message translates to:
+  /// **'মোট খাবার খরচ'**
+  String get shareBillFoodTotal;
+
+  /// No description provided for @shareBillTotalMeals.
+  ///
+  /// In bn, this message translates to:
+  /// **'মোট মিল'**
+  String get shareBillTotalMeals;
+
+  /// No description provided for @shareBillRate.
+  ///
+  /// In bn, this message translates to:
+  /// **'মিল রেট'**
+  String get shareBillRate;
+
+  /// No description provided for @shareBillExtraTotal.
+  ///
+  /// In bn, this message translates to:
+  /// **'অন্যান্য খরচ'**
+  String get shareBillExtraTotal;
+
+  /// No description provided for @shareBillShare.
+  ///
+  /// In bn, this message translates to:
+  /// **'বিল শেয়ার'**
+  String get shareBillShare;
+
+  /// No description provided for @shareBillRemind.
+  ///
+  /// In bn, this message translates to:
+  /// **'মনে করিয়ে দিন'**
+  String get shareBillRemind;
+
+  /// No description provided for @shareBillShareAll.
+  ///
+  /// In bn, this message translates to:
+  /// **'সবার হিসাব শেয়ার'**
+  String get shareBillShareAll;
+
+  /// No description provided for @shareBillToneTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'কীভাবে বলবেন?'**
+  String get shareBillToneTitle;
+
+  /// No description provided for @shareBillTonePolite.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভদ্রভাবে'**
+  String get shareBillTonePolite;
+
+  /// No description provided for @shareBillToneShort.
+  ///
+  /// In bn, this message translates to:
+  /// **'ছোট করে'**
+  String get shareBillToneShort;
+
+  /// No description provided for @shareBillToneFirm.
+  ///
+  /// In bn, this message translates to:
+  /// **'জোর দিয়ে'**
+  String get shareBillToneFirm;
+
+  /// No description provided for @shareBillRemindPolite.
+  ///
+  /// In bn, this message translates to:
+  /// **'আসসালামু আলাইকুম {name}, এই মাসের মেসের হিসাবে আপনার {amount} বাকি আছে। সুবিধামতো সময়ে দিয়ে দিলে খুব উপকার হয়। ধন্যবাদ!'**
+  String shareBillRemindPolite(String name, String amount);
+
+  /// No description provided for @shareBillRemindShort.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name}, মেসের বাকি {amount}। দয়া করে দিয়ে দিন।'**
+  String shareBillRemindShort(String name, String amount);
+
+  /// No description provided for @shareBillRemindFirm.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name}, আপনার মেসের বাকি {amount} এখনো জমা হয়নি। দয়া করে ৩ দিনের মধ্যে পরিশোধ করুন।'**
+  String shareBillRemindFirm(String name, String amount);
+
+  /// No description provided for @shareBillPayHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'বিকাশ/নগদ: {number}'**
+  String shareBillPayHint(String number);
 }
 
 class _AppLocalizationsDelegate

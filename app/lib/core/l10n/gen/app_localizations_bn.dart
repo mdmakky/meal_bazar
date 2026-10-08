@@ -1653,4 +1653,75 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get setupMeals => 'আজকের মিল বসান';
+
+  @override
+  String shareBillTitle(String mess) {
+    return '*$mess* · মাসের বিল';
+  }
+
+  @override
+  String shareBillSummaryTitle(String mess) {
+    return '*$mess* · মাসের হিসাব';
+  }
+
+  @override
+  String shareBillMeals(String meals, String rate, String cost) {
+    return 'মিল: $meals × $rate = $cost';
+  }
+
+  @override
+  String get shareBillPaid => 'জমা দিয়েছেন';
+
+  @override
+  String get shareBillFoodTotal => 'মোট খাবার খরচ';
+
+  @override
+  String get shareBillTotalMeals => 'মোট মিল';
+
+  @override
+  String get shareBillRate => 'মিল রেট';
+
+  @override
+  String get shareBillExtraTotal => 'অন্যান্য খরচ';
+
+  @override
+  String get shareBillShare => 'বিল শেয়ার';
+
+  @override
+  String get shareBillRemind => 'মনে করিয়ে দিন';
+
+  @override
+  String get shareBillShareAll => 'সবার হিসাব শেয়ার';
+
+  @override
+  String get shareBillToneTitle => 'কীভাবে বলবেন?';
+
+  @override
+  String get shareBillTonePolite => 'ভদ্রভাবে';
+
+  @override
+  String get shareBillToneShort => 'ছোট করে';
+
+  @override
+  String get shareBillToneFirm => 'জোর দিয়ে';
+
+  @override
+  String shareBillRemindPolite(String name, String amount) {
+    return 'আসসালামু আলাইকুম $name, এই মাসের মেসের হিসাবে আপনার $amount বাকি আছে। সুবিধামতো সময়ে দিয়ে দিলে খুব উপকার হয়। ধন্যবাদ!';
+  }
+
+  @override
+  String shareBillRemindShort(String name, String amount) {
+    return '$name, মেসের বাকি $amount। দয়া করে দিয়ে দিন।';
+  }
+
+  @override
+  String shareBillRemindFirm(String name, String amount) {
+    return '$name, আপনার মেসের বাকি $amount এখনো জমা হয়নি। দয়া করে ৩ দিনের মধ্যে পরিশোধ করুন।';
+  }
+
+  @override
+  String shareBillPayHint(String number) {
+    return 'বিকাশ/নগদ: $number';
+  }
 }
