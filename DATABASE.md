@@ -62,10 +62,13 @@ RPCs: `create_mess(name, month_start_day) → mess_id`, `join_mess(code) → mem
 | `guard_closed_month` trigger | On meal_entries, bazars, expenses and deposits: raises `MONTH_CLOSED` when the row's date falls inside a closed month |
 
 ### Later
-`ai_usage` (mess_id, day, feature, count), `ai_drafts` (status draft/confirmed/rejected), `announcements`, `notifications`, `meal_off_requests` (folded into `meal_entries.is_off` plus the cutoff check), `price_observations` (v1.2).
+`ai_usage` (mess_id, day, feature, count), `ai_drafts` (status draft/confirmed/rejected), `notifications`, `meal_off_requests` (folded into `meal_entries.is_off` plus the cutoff check), `price_observations` (v1.2).
 
 ### Account deletion (0007)
 `delete_my_account()` RPC: refuses with `LAST_MANAGER` while the caller is the only manager of a mess that other app users still belong to. Otherwise pending requests are deleted, memberships become `left` and are unlinked (`user_id = null`, `display_name` kept), a mess with no other app users is soft-deleted, the profile is anonymised ("Former member", no phone/photo, `deleted_at`), and the user is queued in `deletion_requests (user_id, requested_at)`. Postgres cannot remove the Supabase auth user, so the gateway's daily cron (service role) calls `auth.admin.deleteUser` for each queued row and sets `processed_at` (0010); failures record `last_error` and retry next day. The app signs out after the RPC.
+
+### Notices (0013)
+`announcements` (title ≤ 80, body ≤ 1000, `pinned`, nullable `expires_at`, soft delete) and `announcement_reads` (`announcement_id`, `member_id`, `read_at`; pk both). Members read, managers write (audited). A member may insert/upsert only their own read rows (`is_own_notice_read`). The `announcement_feed` view hides deleted and expired notices and adds the caller's `is_read`.
 
 ## Error codes
 RPCs and triggers raise `errcode 'P0001'` with a short message key that the app maps to bn/en text: `MONTH_CLOSED`, `LAST_MANAGER`, `INVALID_INVITE`, `ALREADY_MEMBER`, `NOT_MANAGER`, `REASON_REQUIRED`.
