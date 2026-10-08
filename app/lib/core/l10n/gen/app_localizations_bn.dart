@@ -170,6 +170,72 @@ class AppLocalizationsBn extends AppLocalizations {
   String get failureValidation => 'কিছু তথ্য ঠিক নেই। দেখে আবার দিন।';
 
   @override
+  String get failureInvalidCredentials => 'ইমেইল বা পাসওয়ার্ড মেলেনি';
+
+  @override
+  String get failureEmailTaken => 'এই ইমেইলে আগেই অ্যাকাউন্ট আছে। লগইন করুন।';
+
+  @override
+  String get failureWeakPassword => 'পাসওয়ার্ডটা আরও শক্ত করুন';
+
+  @override
+  String get failureEmailNotConfirmed =>
+      'আগে ইমেইলে পাঠানো লিংকে ক্লিক করে অ্যাকাউন্ট নিশ্চিত করুন';
+
+  @override
+  String get signInTitle => 'মিল বাজারে ঢুকুন';
+
+  @override
+  String get signInHint => 'মেসের পুরো হিসাব, ফোন থেকেই';
+
+  @override
+  String get signInGoogle => 'Google দিয়ে চালিয়ে যান';
+
+  @override
+  String get signInOrEmail => 'অথবা ইমেইল দিয়ে';
+
+  @override
+  String get signInModeLogin => 'লগইন';
+
+  @override
+  String get signInModeSignUp => 'নতুন অ্যাকাউন্ট';
+
+  @override
+  String get signInEmailLabel => 'ইমেইল';
+
+  @override
+  String get signInPasswordLabel => 'পাসওয়ার্ড';
+
+  @override
+  String get signInEmailInvalid => 'সঠিক ইমেইল দিন';
+
+  @override
+  String get signInPasswordShort => 'পাসওয়ার্ড অন্তত ৮ অক্ষরের দিন';
+
+  @override
+  String get signInSubmitLogin => 'লগইন করুন';
+
+  @override
+  String get signInSubmitSignUp => 'অ্যাকাউন্ট খুলুন';
+
+  @override
+  String get signInForgot => 'পাসওয়ার্ড ভুলে গেছেন?';
+
+  @override
+  String get signInResetSent => 'পাসওয়ার্ড বদলানোর লিংক ইমেইলে পাঠানো হয়েছে';
+
+  @override
+  String get signInConfirmTitle => 'ইমেইলে পাঠানো লিংকে ক্লিক করুন';
+
+  @override
+  String signInConfirmBody(String email) {
+    return '$email ঠিকানায় একটা লিংক পাঠিয়েছি। লিংকে ক্লিক করে এখানে ফিরে লগইন করুন।';
+  }
+
+  @override
+  String get signInBackToLogin => 'লগইনে ফিরে যান';
+
+  @override
   String get configMissingTitle => 'সুপাবেস কনফিগ পাওয়া যায়নি';
 
   @override

@@ -404,6 +404,132 @@ abstract class AppLocalizations {
   /// **'কিছু তথ্য ঠিক নেই। দেখে আবার দিন।'**
   String get failureValidation;
 
+  /// No description provided for @failureInvalidCredentials.
+  ///
+  /// In bn, this message translates to:
+  /// **'ইমেইল বা পাসওয়ার্ড মেলেনি'**
+  String get failureInvalidCredentials;
+
+  /// No description provided for @failureEmailTaken.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই ইমেইলে আগেই অ্যাকাউন্ট আছে। লগইন করুন।'**
+  String get failureEmailTaken;
+
+  /// No description provided for @failureWeakPassword.
+  ///
+  /// In bn, this message translates to:
+  /// **'পাসওয়ার্ডটা আরও শক্ত করুন'**
+  String get failureWeakPassword;
+
+  /// No description provided for @failureEmailNotConfirmed.
+  ///
+  /// In bn, this message translates to:
+  /// **'আগে ইমেইলে পাঠানো লিংকে ক্লিক করে অ্যাকাউন্ট নিশ্চিত করুন'**
+  String get failureEmailNotConfirmed;
+
+  /// No description provided for @signInTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'মিল বাজারে ঢুকুন'**
+  String get signInTitle;
+
+  /// No description provided for @signInHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেসের পুরো হিসাব, ফোন থেকেই'**
+  String get signInHint;
+
+  /// No description provided for @signInGoogle.
+  ///
+  /// In bn, this message translates to:
+  /// **'Google দিয়ে চালিয়ে যান'**
+  String get signInGoogle;
+
+  /// No description provided for @signInOrEmail.
+  ///
+  /// In bn, this message translates to:
+  /// **'অথবা ইমেইল দিয়ে'**
+  String get signInOrEmail;
+
+  /// No description provided for @signInModeLogin.
+  ///
+  /// In bn, this message translates to:
+  /// **'লগইন'**
+  String get signInModeLogin;
+
+  /// No description provided for @signInModeSignUp.
+  ///
+  /// In bn, this message translates to:
+  /// **'নতুন অ্যাকাউন্ট'**
+  String get signInModeSignUp;
+
+  /// No description provided for @signInEmailLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'ইমেইল'**
+  String get signInEmailLabel;
+
+  /// No description provided for @signInPasswordLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'পাসওয়ার্ড'**
+  String get signInPasswordLabel;
+
+  /// No description provided for @signInEmailInvalid.
+  ///
+  /// In bn, this message translates to:
+  /// **'সঠিক ইমেইল দিন'**
+  String get signInEmailInvalid;
+
+  /// No description provided for @signInPasswordShort.
+  ///
+  /// In bn, this message translates to:
+  /// **'পাসওয়ার্ড অন্তত ৮ অক্ষরের দিন'**
+  String get signInPasswordShort;
+
+  /// No description provided for @signInSubmitLogin.
+  ///
+  /// In bn, this message translates to:
+  /// **'লগইন করুন'**
+  String get signInSubmitLogin;
+
+  /// No description provided for @signInSubmitSignUp.
+  ///
+  /// In bn, this message translates to:
+  /// **'অ্যাকাউন্ট খুলুন'**
+  String get signInSubmitSignUp;
+
+  /// No description provided for @signInForgot.
+  ///
+  /// In bn, this message translates to:
+  /// **'পাসওয়ার্ড ভুলে গেছেন?'**
+  String get signInForgot;
+
+  /// No description provided for @signInResetSent.
+  ///
+  /// In bn, this message translates to:
+  /// **'পাসওয়ার্ড বদলানোর লিংক ইমেইলে পাঠানো হয়েছে'**
+  String get signInResetSent;
+
+  /// No description provided for @signInConfirmTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'ইমেইলে পাঠানো লিংকে ক্লিক করুন'**
+  String get signInConfirmTitle;
+
+  /// No description provided for @signInConfirmBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'{email} ঠিকানায় একটা লিংক পাঠিয়েছি। লিংকে ক্লিক করে এখানে ফিরে লগইন করুন।'**
+  String signInConfirmBody(String email);
+
+  /// No description provided for @signInBackToLogin.
+  ///
+  /// In bn, this message translates to:
+  /// **'লগইনে ফিরে যান'**
+  String get signInBackToLogin;
+
   /// No description provided for @configMissingTitle.
   ///
   /// In bn, this message translates to:

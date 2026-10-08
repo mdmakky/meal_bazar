@@ -174,6 +174,73 @@ class AppLocalizationsEn extends AppLocalizations {
       'Some details are not right. Check them and try again.';
 
   @override
+  String get failureInvalidCredentials => 'Email or password did not match';
+
+  @override
+  String get failureEmailTaken =>
+      'This email already has an account. Log in instead.';
+
+  @override
+  String get failureWeakPassword => 'Please choose a stronger password';
+
+  @override
+  String get failureEmailNotConfirmed =>
+      'Confirm your account first with the link we emailed you';
+
+  @override
+  String get signInTitle => 'Sign in to Meal Bazar';
+
+  @override
+  String get signInHint => 'Your whole mess, from your phone';
+
+  @override
+  String get signInGoogle => 'Continue with Google';
+
+  @override
+  String get signInOrEmail => 'or with email';
+
+  @override
+  String get signInModeLogin => 'Log in';
+
+  @override
+  String get signInModeSignUp => 'New account';
+
+  @override
+  String get signInEmailLabel => 'Email';
+
+  @override
+  String get signInPasswordLabel => 'Password';
+
+  @override
+  String get signInEmailInvalid => 'Enter a valid email';
+
+  @override
+  String get signInPasswordShort => 'Use at least 8 characters';
+
+  @override
+  String get signInSubmitLogin => 'Log in';
+
+  @override
+  String get signInSubmitSignUp => 'Create account';
+
+  @override
+  String get signInForgot => 'Forgot password?';
+
+  @override
+  String get signInResetSent => 'We emailed you a link to reset your password';
+
+  @override
+  String get signInConfirmTitle => 'Click the link we emailed you';
+
+  @override
+  String signInConfirmBody(String email) {
+    return 'We sent a link to $email. Click it, then come back here and log in.';
+  }
+
+  @override
+  String get signInBackToLogin => 'Back to log in';
+
+  @override
   String get configMissingTitle => 'Supabase config missing';
 
   @override

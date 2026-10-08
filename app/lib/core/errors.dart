@@ -16,6 +16,10 @@ enum FailureKind {
   laterMonthClosed,
   cutoffPassed,
   invalidOtp,
+  invalidCredentials,
+  emailTaken,
+  weakPassword,
+  emailNotConfirmed,
   rateLimited,
   validation,
   unknown,
@@ -97,6 +101,17 @@ AppFailure _fromAuth(AuthException e) {
   if (code == 'otp_expired' ||
       (e.statusCode == '403' && e.message.toLowerCase().contains('token'))) {
     return AppFailure(FailureKind.invalidOtp, debug);
+  }
+  if (e is AuthWeakPasswordException || code == 'weak_password') {
+    return AppFailure(FailureKind.weakPassword, debug);
+  }
+  switch (code) {
+    case 'invalid_credentials':
+      return AppFailure(FailureKind.invalidCredentials, debug);
+    case 'user_already_exists' || 'email_exists':
+      return AppFailure(FailureKind.emailTaken, debug);
+    case 'email_not_confirmed':
+      return AppFailure(FailureKind.emailNotConfirmed, debug);
   }
   if (code == 'validation_failed') {
     return AppFailure(FailureKind.validation, debug);

@@ -81,6 +81,33 @@ void main() {
     expect(kindOf(const AuthException('weird')), FailureKind.unknown);
   });
 
+  test('maps email auth errors', () {
+    const cases = {
+      'invalid_credentials': FailureKind.invalidCredentials,
+      'user_already_exists': FailureKind.emailTaken,
+      'email_exists': FailureKind.emailTaken,
+      'weak_password': FailureKind.weakPassword,
+      'email_not_confirmed': FailureKind.emailNotConfirmed,
+    };
+    cases.forEach((code, kind) {
+      expect(
+        kindOf(AuthApiException('x', statusCode: '400', code: code)),
+        kind,
+        reason: code,
+      );
+    });
+    expect(
+      kindOf(
+        AuthWeakPasswordException(
+          message: 'weak',
+          statusCode: '422',
+          reasons: const ['length'],
+        ),
+      ),
+      FailureKind.weakPassword,
+    );
+  });
+
   test('maps network errors', () {
     expect(kindOf(const SocketException('no route')), FailureKind.network);
     expect(kindOf(TimeoutException('slow')), FailureKind.network);
