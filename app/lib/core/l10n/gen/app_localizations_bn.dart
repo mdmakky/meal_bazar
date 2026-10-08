@@ -45,7 +45,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get loading => 'লোড হচ্ছে';
 
   @override
-  String get navToday => 'আজ';
+  String get navHome => 'হোম';
 
   @override
   String get navMeals => 'মিল';
@@ -1553,4 +1553,104 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get dashNobodyThatDay => 'এই দিনে কেউ মেসে ছিল না';
+
+  @override
+  String get navBazar => 'বাজার';
+
+  @override
+  String mealGridManager(String name) {
+    return 'ম্যানেজার: $name';
+  }
+
+  @override
+  String get mealGridPrevMonth => 'আগের মাস';
+
+  @override
+  String get mealGridNextMonth => 'পরের মাস';
+
+  @override
+  String get mealGridTotalRow => 'মোট মিল';
+
+  @override
+  String get mealGridDayTotal => 'এই দিনের মোট মিল';
+
+  @override
+  String get mealGridHint => 'সংখ্যায় ট্যাপ করলে ০, ০.৫, ১, ১.৫, ২ ঘুরে আসবে';
+
+  @override
+  String get mealGridAllOne => 'সবাই ১';
+
+  @override
+  String get mealGridLikeYesterday => 'গতকালের মতো';
+
+  @override
+  String get mealGridNothingToChange => 'বদলানোর কিছু নেই';
+
+  @override
+  String get mealGridAdd => 'যোগ করুন';
+
+  @override
+  String get mealGridAddTitle => 'কী যোগ করবেন?';
+
+  @override
+  String get mealGridAi => 'মিল লিখে বলুন';
+
+  @override
+  String get mealGridToday => 'আজকের মিল';
+
+  @override
+  String get mealGridGoToMeals => 'মিল বসান';
+
+  @override
+  String get bazarTabTotal => 'এই মাসের বাজার';
+
+  @override
+  String get bazarPickerFrequent => 'বেশি কেনা হয়';
+
+  @override
+  String get bazarPickerStaples => 'চাল-ডাল-তেল';
+
+  @override
+  String get bazarPickerVeg => 'সবজি';
+
+  @override
+  String get bazarPickerProtein => 'মাছ-মাংস-ডিম';
+
+  @override
+  String get bazarPickerSpice => 'মসলা ও অন্যান্য';
+
+  @override
+  String get bazarPickerCustom => 'নতুন আইটেম';
+
+  @override
+  String get bazarPickerHelp => 'ট্যাপ করে আইটেম যোগ করুন, আবার ট্যাপে বাদ';
+
+  @override
+  String get setupTitle => 'শুরু করি';
+
+  @override
+  String setupProgress(String done, String total) {
+    return '$done/$total হয়েছে';
+  }
+
+  @override
+  String get setupLater => 'পরে করব';
+
+  @override
+  String get setupStart => 'শুরু';
+
+  @override
+  String get setupMess => 'মেস খোলা হয়েছে';
+
+  @override
+  String get setupMealTypes => 'মিলের বেলা ঠিক করুন';
+
+  @override
+  String get setupMembers => 'সদস্য যোগ করুন';
+
+  @override
+  String get setupDeposit => 'শুরুর জমা লিখুন';
+
+  @override
+  String get setupMeals => 'আজকের মিল বসান';
 }

@@ -170,11 +170,11 @@ abstract class AppLocalizations {
   /// **'লোড হচ্ছে'**
   String get loading;
 
-  /// No description provided for @navToday.
+  /// No description provided for @navHome.
   ///
   /// In bn, this message translates to:
-  /// **'আজ'**
-  String get navToday;
+  /// **'হোম'**
+  String get navHome;
 
   /// No description provided for @navMeals.
   ///
@@ -2899,6 +2899,198 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'এই দিনে কেউ মেসে ছিল না'**
   String get dashNobodyThatDay;
+
+  /// No description provided for @navBazar.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাজার'**
+  String get navBazar;
+
+  /// No description provided for @mealGridManager.
+  ///
+  /// In bn, this message translates to:
+  /// **'ম্যানেজার: {name}'**
+  String mealGridManager(String name);
+
+  /// No description provided for @mealGridPrevMonth.
+  ///
+  /// In bn, this message translates to:
+  /// **'আগের মাস'**
+  String get mealGridPrevMonth;
+
+  /// No description provided for @mealGridNextMonth.
+  ///
+  /// In bn, this message translates to:
+  /// **'পরের মাস'**
+  String get mealGridNextMonth;
+
+  /// No description provided for @mealGridTotalRow.
+  ///
+  /// In bn, this message translates to:
+  /// **'মোট মিল'**
+  String get mealGridTotalRow;
+
+  /// No description provided for @mealGridDayTotal.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই দিনের মোট মিল'**
+  String get mealGridDayTotal;
+
+  /// No description provided for @mealGridHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'সংখ্যায় ট্যাপ করলে ০, ০.৫, ১, ১.৫, ২ ঘুরে আসবে'**
+  String get mealGridHint;
+
+  /// No description provided for @mealGridAllOne.
+  ///
+  /// In bn, this message translates to:
+  /// **'সবাই ১'**
+  String get mealGridAllOne;
+
+  /// No description provided for @mealGridLikeYesterday.
+  ///
+  /// In bn, this message translates to:
+  /// **'গতকালের মতো'**
+  String get mealGridLikeYesterday;
+
+  /// No description provided for @mealGridNothingToChange.
+  ///
+  /// In bn, this message translates to:
+  /// **'বদলানোর কিছু নেই'**
+  String get mealGridNothingToChange;
+
+  /// No description provided for @mealGridAdd.
+  ///
+  /// In bn, this message translates to:
+  /// **'যোগ করুন'**
+  String get mealGridAdd;
+
+  /// No description provided for @mealGridAddTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'কী যোগ করবেন?'**
+  String get mealGridAddTitle;
+
+  /// No description provided for @mealGridAi.
+  ///
+  /// In bn, this message translates to:
+  /// **'মিল লিখে বলুন'**
+  String get mealGridAi;
+
+  /// No description provided for @mealGridToday.
+  ///
+  /// In bn, this message translates to:
+  /// **'আজকের মিল'**
+  String get mealGridToday;
+
+  /// No description provided for @mealGridGoToMeals.
+  ///
+  /// In bn, this message translates to:
+  /// **'মিল বসান'**
+  String get mealGridGoToMeals;
+
+  /// No description provided for @bazarTabTotal.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই মাসের বাজার'**
+  String get bazarTabTotal;
+
+  /// No description provided for @bazarPickerFrequent.
+  ///
+  /// In bn, this message translates to:
+  /// **'বেশি কেনা হয়'**
+  String get bazarPickerFrequent;
+
+  /// No description provided for @bazarPickerStaples.
+  ///
+  /// In bn, this message translates to:
+  /// **'চাল-ডাল-তেল'**
+  String get bazarPickerStaples;
+
+  /// No description provided for @bazarPickerVeg.
+  ///
+  /// In bn, this message translates to:
+  /// **'সবজি'**
+  String get bazarPickerVeg;
+
+  /// No description provided for @bazarPickerProtein.
+  ///
+  /// In bn, this message translates to:
+  /// **'মাছ-মাংস-ডিম'**
+  String get bazarPickerProtein;
+
+  /// No description provided for @bazarPickerSpice.
+  ///
+  /// In bn, this message translates to:
+  /// **'মসলা ও অন্যান্য'**
+  String get bazarPickerSpice;
+
+  /// No description provided for @bazarPickerCustom.
+  ///
+  /// In bn, this message translates to:
+  /// **'নতুন আইটেম'**
+  String get bazarPickerCustom;
+
+  /// No description provided for @bazarPickerHelp.
+  ///
+  /// In bn, this message translates to:
+  /// **'ট্যাপ করে আইটেম যোগ করুন, আবার ট্যাপে বাদ'**
+  String get bazarPickerHelp;
+
+  /// No description provided for @setupTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'শুরু করি'**
+  String get setupTitle;
+
+  /// No description provided for @setupProgress.
+  ///
+  /// In bn, this message translates to:
+  /// **'{done}/{total} হয়েছে'**
+  String setupProgress(String done, String total);
+
+  /// No description provided for @setupLater.
+  ///
+  /// In bn, this message translates to:
+  /// **'পরে করব'**
+  String get setupLater;
+
+  /// No description provided for @setupStart.
+  ///
+  /// In bn, this message translates to:
+  /// **'শুরু'**
+  String get setupStart;
+
+  /// No description provided for @setupMess.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেস খোলা হয়েছে'**
+  String get setupMess;
+
+  /// No description provided for @setupMealTypes.
+  ///
+  /// In bn, this message translates to:
+  /// **'মিলের বেলা ঠিক করুন'**
+  String get setupMealTypes;
+
+  /// No description provided for @setupMembers.
+  ///
+  /// In bn, this message translates to:
+  /// **'সদস্য যোগ করুন'**
+  String get setupMembers;
+
+  /// No description provided for @setupDeposit.
+  ///
+  /// In bn, this message translates to:
+  /// **'শুরুর জমা লিখুন'**
+  String get setupDeposit;
+
+  /// No description provided for @setupMeals.
+  ///
+  /// In bn, this message translates to:
+  /// **'আজকের মিল বসান'**
+  String get setupMeals;
 }
 
 class _AppLocalizationsDelegate

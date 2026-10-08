@@ -157,6 +157,14 @@ abstract final class AppSize {
   static const double spinner = 20;
   static const double emptyIcon = 40;
   static const double mealCellWidth = 52;
+
+  /// Stepper grid: − / + hit area, its visible circle, the value, rows.
+  static const double stepTarget = 40;
+  static const double stepFace = 28;
+  static const double stepValue = 32;
+  static const double gridName = 96;
+  static const double gridHeader = 40;
+  static const double gridRow = 56;
 }
 
 abstract final class AppMotion {

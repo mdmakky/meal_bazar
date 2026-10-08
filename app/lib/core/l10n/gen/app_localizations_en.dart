@@ -45,7 +45,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loading => 'Loading';
 
   @override
-  String get navToday => 'Today';
+  String get navHome => 'Home';
 
   @override
   String get navMeals => 'Meals';
@@ -1562,4 +1562,104 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dashNobodyThatDay => 'Nobody was in the mess on this day';
+
+  @override
+  String get navBazar => 'Bazar';
+
+  @override
+  String mealGridManager(String name) {
+    return 'Manager: $name';
+  }
+
+  @override
+  String get mealGridPrevMonth => 'Previous month';
+
+  @override
+  String get mealGridNextMonth => 'Next month';
+
+  @override
+  String get mealGridTotalRow => 'Total meals';
+
+  @override
+  String get mealGridDayTotal => 'Total meals this day';
+
+  @override
+  String get mealGridHint => 'Tap a number to cycle 0, 0.5, 1, 1.5, 2';
+
+  @override
+  String get mealGridAllOne => 'Everyone 1';
+
+  @override
+  String get mealGridLikeYesterday => 'Same as yesterday';
+
+  @override
+  String get mealGridNothingToChange => 'Nothing to change';
+
+  @override
+  String get mealGridAdd => 'Add';
+
+  @override
+  String get mealGridAddTitle => 'What do you want to add?';
+
+  @override
+  String get mealGridAi => 'Type meals in words';
+
+  @override
+  String get mealGridToday => 'Today\'s meals';
+
+  @override
+  String get mealGridGoToMeals => 'Enter meals';
+
+  @override
+  String get bazarTabTotal => 'Bazar this month';
+
+  @override
+  String get bazarPickerFrequent => 'Bought often';
+
+  @override
+  String get bazarPickerStaples => 'Rice, lentils, oil';
+
+  @override
+  String get bazarPickerVeg => 'Vegetables';
+
+  @override
+  String get bazarPickerProtein => 'Fish, meat, eggs';
+
+  @override
+  String get bazarPickerSpice => 'Spices and other';
+
+  @override
+  String get bazarPickerCustom => 'New item';
+
+  @override
+  String get bazarPickerHelp => 'Tap to add an item, tap again to remove';
+
+  @override
+  String get setupTitle => 'Let\'s get started';
+
+  @override
+  String setupProgress(String done, String total) {
+    return '$done/$total done';
+  }
+
+  @override
+  String get setupLater => 'Later';
+
+  @override
+  String get setupStart => 'Start';
+
+  @override
+  String get setupMess => 'Mess created';
+
+  @override
+  String get setupMealTypes => 'Set up meal times';
+
+  @override
+  String get setupMembers => 'Add members';
+
+  @override
+  String get setupDeposit => 'Record opening deposits';
+
+  @override
+  String get setupMeals => 'Enter today\'s meals';
 }
