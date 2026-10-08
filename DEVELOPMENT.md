@@ -9,7 +9,7 @@ ai-gateway/     Vercel functions (Phase 6)
 ```
 
 ## Prerequisites
-- Flutter 3.35+ (Dart 3.9+), Android SDK.
+- Flutter 3.35+ (Dart 3.9+), Java 17, and the Android SDK with cmdline-tools (`~/Library/Android/sdk`). Run `flutter doctor --android-licenses` once.
 - PostgreSQL 15+ locally, for the SQL tests (`brew install postgresql@16 && brew services start postgresql@16`).
 - A Supabase project, created on the free tier.
 
@@ -43,7 +43,7 @@ Don't move to the next phase while any of these fail. Commit each part to `main`
 - [x] **Phase 4**: SQL engine, close/reopen, closed-month guard, PDF report and share
 - [ ] **Phase 5**: Drift offline mirror and sync queue (blocked: drift_dev needs Dart 3.10, so upgrade Flutter first)
 - [x] **Phase 6**: AI gateway, meal draft, receipt scan
-- [ ] **Phase 7**: FCM (needs a Firebase project), meal-off cutoff for members, deposit verification
+- [x] Meal-off cutoff for members, deposit verification, receipt photos
+- [ ] **Phase 7**: FCM push notifications (needs a Firebase project)
 - [x] Account deletion and audit log screen (Play Store and v1.1)
-- [ ] Hard-delete auth users from `deletion_requests` (admin job)
-- [ ] Receipt photo upload to Storage
+- [x] Hard-delete auth users from `deletion_requests` (daily gateway cron)
