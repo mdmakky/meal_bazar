@@ -244,6 +244,27 @@ void main() {
   });
 
   group('member', () {
+    testWidgets('members get meal-off and my-deposit buttons; managers not', (
+      tester,
+    ) async {
+      await pumpDashboard(tester, manager: false);
+      expect(find.widgetWithText(AppButton, l.mealOffTomorrow), findsOne);
+      expect(find.widgetWithText(AppButton, l.depositVerifyMine), findsOne);
+
+      await pumpDashboard(tester);
+      expect(find.widgetWithText(AppButton, l.mealOffTomorrow), findsNothing);
+      expect(find.widgetWithText(AppButton, l.depositVerifyMine), findsNothing);
+    });
+
+    testWidgets('my-deposit button opens the member deposit sheet', (
+      tester,
+    ) async {
+      await pumpDashboard(tester, manager: false);
+      await tester.tap(find.widgetWithText(AppButton, l.depositVerifyMine));
+      await tester.pumpAndSettle();
+      expect(find.text(l.depositVerifyHelp), findsOneWidget);
+    });
+
     testWidgets('আমার হিসাব: my figures, explain sheet, recent bazar', (
       tester,
     ) async {
@@ -345,25 +366,6 @@ void main() {
       );
       await tester.pumpAndSettle();
     }
-
-    testWidgets('a day before anyone joined is not "no members"', (
-      tester,
-    ) async {
-      await pumpToday(tester, [
-        member('rahim', 'Rahim', role: MemberRole.manager, joined: now),
-      ]);
-      expect(find.text(l.dashNobodyThatDay), findsNothing);
-
-      await tester.tap(find.byTooltip(l.todayPrevDay));
-      await tester.pumpAndSettle();
-      expect(find.text(l.dashNobodyThatDay), findsOneWidget);
-      expect(find.text(l.todayNoMembers), findsNothing);
-
-      await tester.tap(find.widgetWithText(AppButton, l.todayBackToToday));
-      await tester.pumpAndSettle();
-      expect(find.text(l.dashNobodyThatDay), findsNothing);
-      expect(find.textContaining('${l.todayIsToday} · '), findsOneWidget);
-    });
 
     testWidgets('only a truly empty mess says "no members"', (tester) async {
       await pumpToday(tester, [

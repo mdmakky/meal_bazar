@@ -3,28 +3,27 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/dates.dart';
-import '../../../core/db/db.dart';
 import '../../../core/db/sync.dart';
-import '../../../core/errors.dart';
 import '../../../core/failure_text.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../ai/presentation/ai_entry.dart';
 import '../../meals/application/meal_providers.dart';
 import '../../meals/domain/meal.dart';
+import '../../meals/presentation/meal_grid.dart';
 import '../../meals/presentation/meal_widgets.dart';
 import '../../mess/application/mess_providers.dart';
 import '../../mess/domain/member.dart';
-import '../../mess/presentation/common.dart';
 import '../../money/application/money_providers.dart';
 import '../../money/presentation/money_sheets.dart';
 import '../../month/application/month_providers.dart';
 import '../application/day_grid.dart';
 import 'dashboard.dart';
+import 'setup_checklist.dart';
 
-/// The daily routine: date, the day's headcount with its proof, the month's
-/// meal rate with its proof, the member × meal grid, quick actions; then the
-/// month dashboard ("এই মাস") below the grid.
+/// হোম: (managers) the setup checklist, the date, the day's headcount with its
+/// proof, the month's meal rate with its proof, the day's meals in brief
+/// (entered on the মিল tab), quick actions; then the month dashboard.
 class TodayScreen extends ConsumerStatefulWidget {
   const TodayScreen({super.key});
 
@@ -52,34 +51,11 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
       }
     });
     final manager = ref.watch(amIManagerProvider);
-    // A plain active member may switch their own meal off before the cutoff.
-    final me = ref.watch(currentMembershipProvider)?.member;
     final mess = ref.watch(currentMessProvider);
-    final myId = !manager && me?.status == MemberStatus.active ? me!.id : null;
-    final offOpen =
-        myId != null &&
-        mess != null &&
-        ref
-            .watch(nowProvider)()
-            .isBefore(mealOffDeadline(_day, mess.mealOffCutoff));
+    final myId = plainMemberId(ref);
     final membersAsync = ref.watch(membersProvider(messId));
     final typesAsync = ref.watch(mealTypesProvider(messId));
-    // Only the grid's shape: a cell tap must not rebuild the whole screen.
-    final (gridLoaded, gridError) = ref.watch(
-      dayGridProvider(key).select((a) => (a.hasValue, a.error)),
-    );
-    final (empty, typesUsed, membersUsed) = ref.watch(
-      dayGridProvider(key).select((a) {
-        final v = a.value?.values ?? const <MealEntry>[];
-        String ids(Iterable<String> s) =>
-            (s.toSet().toList()..sort()).join(',');
-        return (
-          v.isEmpty,
-          ids(v.map((e) => e.mealTypeId)),
-          ids(v.map((e) => e.memberId)),
-        );
-      }),
-    );
+    final gridAsync = ref.watch(dayGridProvider(key));
 
     void retry() {
       ref.invalidate(membersProvider(messId));
@@ -92,6 +68,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
       retry();
       ref.invalidate(currentPeriodProvider(messId));
       ref.invalidate(bazarsProvider(messId));
+      ref.invalidate(depositsProvider(messId));
       // Each section shows its own error; the spinner only waits.
       await Future.wait([
         ref.read(membersProvider(messId).future),
@@ -102,7 +79,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     final error = [
       if (!membersAsync.hasValue) membersAsync.error,
       if (!typesAsync.hasValue) typesAsync.error,
-      if (!gridLoaded) gridError,
+      if (!gridAsync.hasValue) gridAsync.error,
     ].nonNulls.firstOrNull;
 
     final Widget body;
@@ -110,29 +87,25 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     List<MealType> types = const [];
     if (error != null) {
       body = ErrorView(message: failureText(context, error), onRetry: retry);
-    } else if (!membersAsync.hasValue || !typesAsync.hasValue || !gridLoaded) {
+    } else if (!membersAsync.hasValue ||
+        !typesAsync.hasValue ||
+        !gridAsync.hasValue) {
       body = const LoadingView(rows: 5);
     } else {
-      // Members present that day, plus anyone who already has a row.
-      rows = membersAsync.value!.where((m) {
-        final present =
-            m.status == MemberStatus.active &&
-            !m.joinedOn.isAfter(_day) &&
-            (m.leftOn == null || _day.isBefore(m.leftOn!));
-        return present ||
-            (m.status != MemberStatus.pending &&
-                membersUsed.split(',').contains(m.id));
-      }).toList();
-      // Disabled types stay visible on days they still have rows.
-      types = typesAsync.value!
-          .where((t) => t.enabled || typesUsed.split(',').contains(t.id))
-          .toList();
+      (:rows, :types) = gridShape(
+        membersAsync.value!,
+        typesAsync.value!,
+        gridAsync.value!.values,
+        _day,
+      );
       final hasMembers = membersAsync.value!.any(
         (m) => m.status != MemberStatus.pending,
       );
       body = CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
+          if (manager)
+            SliverToBoxAdapter(child: SetupChecklist(messId: messId)),
           SliverToBoxAdapter(
             child: _Header(
               day: _day,
@@ -142,7 +115,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
               onToday: () => setState(() => _day = today()),
             ),
           ),
-          if (rows.isEmpty && !hasMembers)
+          if (!hasMembers)
             SliverFillRemaining(
               hasScrollBody: false,
               child: EmptyView(
@@ -150,16 +123,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                 message: l.todayNoMembers,
                 actionLabel: manager ? l.membersAdd : null,
                 onAction: () => context.push('/more/members'),
-              ),
-            )
-          else if (rows.isEmpty)
-            // The mess has members, just none present on this day.
-            SliverToBoxAdapter(
-              child: EmptyView(
-                icon: Icons.event_busy_outlined,
-                message: l.dashNobodyThatDay,
-                actionLabel: _day == today() ? null : l.todayBackToToday,
-                onAction: () => setState(() => _day = today()),
               ),
             )
           else if (types.isEmpty)
@@ -173,31 +136,12 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
             )
           else ...[
             if (manager) SliverToBoxAdapter(child: _AiEntry(day: _day)),
-            if (empty)
-              SliverToBoxAdapter(
-                child: _FillCard(dayKey: key, manager: manager),
-              )
-            else
-              SliverMainAxisGroup(
-                slivers: [
-                  PinnedHeaderSliver(
-                    child: _GridHeader(dayKey: key, types: types),
-                  ),
-                  SliverList.builder(
-                    itemCount: rows.length,
-                    itemBuilder: (_, i) => _MemberRow(
-                      dayKey: key,
-                      member: rows[i],
-                      types: types,
-                      editable: manager,
-                      ownOff: offOpen && rows[i].id == myId,
-                    ),
-                  ),
-                ],
-              ),
+            SliverToBoxAdapter(
+              child: _DayMeals(dayKey: key, types: types),
+            ),
             if (myId != null && mess != null)
               SliverToBoxAdapter(
-                child: _MealOffHint(cutoff: mess.mealOffCutoff),
+                child: MealOffHint(cutoff: mess.mealOffCutoff),
               ),
           ],
           if (hasMembers)
@@ -214,12 +158,8 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
         bottom: false,
         child: RefreshIndicator(onRefresh: refresh, child: body),
       ),
-      bottomNavigationBar: types.isEmpty
-          ? null
-          : manager && rows.isNotEmpty
+      bottomNavigationBar: manager && rows.isNotEmpty && types.isNotEmpty
           ? _QuickActions(dayKey: key, members: rows, types: types)
-          : myId != null
-          ? _QuickActions(dayKey: key, members: rows, types: types, myId: myId)
           : null,
     );
   }
@@ -327,7 +267,7 @@ class _Header extends ConsumerWidget {
               ),
             ],
           ),
-          _SyncLine(dayKey: dayKey),
+          SyncLine(messId: dayKey.messId),
           const SizedBox(height: AppSpace.lg),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpace.md),
@@ -348,50 +288,6 @@ class _Header extends ConsumerWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-/// This mess's worst queue state; a failed write names why and offers retry
-/// or discard (the next pull restores the server's value).
-class _SyncLine extends ConsumerWidget {
-  const _SyncLine({required this.dayKey});
-
-  final MessDay dayKey;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final ops = [
-      for (final o in ref.watch(syncQueueProvider).value ?? const <SyncOp>[])
-        if (o.messId == dayKey.messId) o,
-    ];
-    final failed = ops.where((o) => o.status == opFailed);
-    final error = failed.firstOrNull?.lastError;
-    return Column(
-      children: [
-        SyncBadge(
-          state: queueState(ops),
-          onRetry: () => ref.read(syncServiceProvider).retryFailed(),
-          onDiscard: () async {
-            await ref.read(appDbProvider).discard(failed.map((o) => o.id));
-            ref.invalidate(dayEntriesProvider);
-          },
-        ),
-        if (error != null)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpace.md),
-            child: Text(
-              failureText(
-                context,
-                AppFailure(
-                  FailureKind.values.asNameMap()[error] ?? FailureKind.unknown,
-                ),
-              ),
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.labelSmall,
-            ),
-          ),
-      ],
     );
   }
 }
@@ -532,38 +428,23 @@ class _AiEntry extends StatelessWidget {
   }
 }
 
-/// No rows for the day yet. Manager fills from yesterday (else 1 each).
-class _FillCard extends ConsumerStatefulWidget {
-  const _FillCard({required this.dayKey, required this.manager});
+/// "আজকের মিল": per meal type headcount and the day total, and the way
+/// into the মিল tab where meals are entered.
+class _DayMeals extends ConsumerWidget {
+  const _DayMeals({required this.dayKey, required this.types});
 
   final MessDay dayKey;
-  final bool manager;
+  final List<MealType> types;
 
   @override
-  ConsumerState<_FillCard> createState() => _FillCardState();
-}
-
-class _FillCardState extends ConsumerState<_FillCard> {
-  var _busy = false;
-
-  Future<void> _fill() async {
-    setState(() => _busy = true);
-    try {
-      await ref
-          .read(mealControllerProvider)
-          .fillDay(widget.dayKey.messId, widget.dayKey.day);
-    } catch (e) {
-      if (mounted) showFailure(context, e);
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
-    final isToday = widget.dayKey.day == today();
+    final p = context.palette;
+    final bn = bnDigits(context);
+    final entries =
+        ref.watch(dayGridProvider(dayKey)).value?.values ?? const [];
+    final isToday = dayKey.day == today();
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
       child: AppCard(
@@ -571,246 +452,39 @@ class _FillCardState extends ConsumerState<_FillCard> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: AppSpace.md,
           children: [
-            Text(
-              widget.manager ? l.todayNoEntries : l.todayNoEntriesMember,
-              style: text.titleSmall,
-            ),
-            if (widget.manager) ...[
-              Text(l.todayFillHelp, style: text.bodyMedium),
-              AppButton(
-                label: isToday ? l.todayFill : l.todayFillDay,
-                icon: Icons.playlist_add_check,
-                loading: _busy,
-                onPressed: _fill,
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-const _cellGap = AppSpace.xs;
-
-/// Pinned: meal type names with the column's headcount.
-class _GridHeader extends ConsumerWidget {
-  const _GridHeader({required this.dayKey, required this.types});
-
-  final MessDay dayKey;
-  final List<MealType> types;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = AppLocalizations.of(context);
-    final p = context.palette;
-    final text = Theme.of(context).textTheme;
-    final bn = bnDigits(context);
-    final entries =
-        ref.watch(dayGridProvider(dayKey)).value?.values ?? const [];
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: p.surfaceMuted,
-        border: Border.symmetric(horizontal: BorderSide(color: p.border)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpace.gutter,
-          vertical: AppSpace.sm,
-        ),
-        child: Row(
-          spacing: _cellGap,
-          children: [
-            Expanded(child: Text(l.todayMemberColumn, style: text.labelMedium)),
-            for (final t in types)
-              SizedBox(
-                width: AppSize.mealCellWidth,
-                child: Column(
-                  children: [
-                    Text(
-                      t.name,
-                      style: text.labelMedium,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    Text(
-                      Fmt.meals(
-                        entries
-                            .where((e) => e.mealTypeId == t.id)
-                            .fold(0.0, (s, e) => s + e.people),
-                        banglaDigits: bn,
-                      ),
-                      style: text.labelSmall?.copyWith(
-                        fontFeatures: const [FontFeature.tabularFigures()],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ponytail: fixed 52 dp columns fit ~4 meal types on a 360 dp phone; scroll
-// the cells horizontally if messes really run 5+.
-class _MemberRow extends ConsumerWidget {
-  const _MemberRow({
-    required this.dayKey,
-    required this.member,
-    required this.types,
-    required this.editable,
-    this.ownOff = false,
-  });
-
-  final MessDay dayKey;
-  final Member member;
-  final List<MealType> types;
-  final bool editable;
-
-  /// My own row, before the cutoff: tap switches the meal off/on.
-  final bool ownOff;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final p = context.palette;
-    final text = Theme.of(context).textTheme;
-    final bn = bnDigits(context);
-    final dayTotal = ref.watch(
-      dayGridProvider(dayKey).select(
-        (a) => (a.value?.values ?? const <MealEntry>[])
-            .where((e) => e.memberId == member.id)
-            .fold(0.0, (s, e) => s + e.people),
-      ),
-    );
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: p.border)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpace.gutter,
-          vertical: AppSpace.xs,
-        ),
-        child: Row(
-          spacing: _cellGap,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    member.displayName,
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    isToday ? l.mealGridToday : l.mealGridDayTotal,
                     style: text.titleSmall,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                   ),
-                  Text(
-                    Fmt.meals(dayTotal, banglaDigits: bn),
-                    style: text.labelSmall?.copyWith(
-                      fontFeatures: const [FontFeature.tabularFigures()],
-                    ),
+                ),
+                Text(
+                  decimal(dayPeople(entries, types), bangla: bn),
+                  style: text.headlineSmall?.copyWith(
+                    fontFeatures: const [FontFeature.tabularFigures()],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            for (final t in types)
-              _Cell(
-                dayKey: dayKey,
-                member: member,
-                type: t,
-                editable: editable,
-                ownOff: ownOff && t.enabled,
-              ),
+            Text(
+              [
+                for (final t in types)
+                  '${t.name} ${decimal(dayPeople(entries, [t]), bangla: bn)}',
+              ].join(' · '),
+              style: text.bodyMedium?.copyWith(color: p.inkSecondary),
+            ),
+            AppButton(
+              label: l.mealGridGoToMeals,
+              icon: Icons.restaurant_outlined,
+              variant: AppButtonVariant.secondary,
+              onPressed: () => context.go('/meals'),
+            ),
           ],
         ),
       ),
     );
-  }
-}
-
-class _Cell extends ConsumerWidget {
-  const _Cell({
-    required this.dayKey,
-    required this.member,
-    required this.type,
-    required this.editable,
-    this.ownOff = false,
-  });
-
-  final MessDay dayKey;
-  final Member member;
-  final MealType type;
-  final bool editable;
-  final bool ownOff;
-
-  MealEntry _current(WidgetRef ref) =>
-      ref.read(dayGridProvider(dayKey)).value?[cellKey(member.id, type.id)] ??
-      MealEntry(
-        memberId: member.id,
-        mealTypeId: type.id,
-        date: dayKey.day,
-        count: 0,
-      );
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final k = cellKey(member.id, type.id);
-    final v = ref.watch(
-      dayGridProvider(dayKey).select((a) {
-        final e = a.value?[k];
-        return e == null ? null : (e.count, e.guestCount, e.isOff);
-      }),
-    );
-    return MealCell(
-      label: '${member.displayName} ${type.name}',
-      count: v?.$1 ?? 0,
-      guests: v?.$2 ?? 0,
-      off: v?.$3 ?? false,
-      banglaDigits: bnDigits(context),
-      onTap: editable
-          ? () => putEntry(context, ref, dayKey, cycleMeal(_current(ref)))
-          : ownOff
-          ? () => putEntry(
-              context,
-              ref,
-              dayKey,
-              toggleMealOff(_current(ref)),
-              own: true,
-            )
-          : null,
-      onLongPress: editable
-          ? () async {
-              final e = await showMealEntrySheet(
-                context,
-                title: '${member.displayName} · ${type.name}',
-                entry: _current(ref),
-              );
-              if (e != null && context.mounted) {
-                await putEntry(context, ref, dayKey, e);
-              }
-            }
-          : null,
-    );
-  }
-}
-
-/// Optimistic save; on failure the cell has reverted, so just say why.
-Future<bool> putEntry(
-  BuildContext context,
-  WidgetRef ref,
-  MessDay dayKey,
-  MealEntry e, {
-  bool own = false,
-}) async {
-  try {
-    await ref.read(dayGridProvider(dayKey).notifier).put(e, own: own);
-    return true;
-  } catch (err) {
-    if (context.mounted) showFailure(context, err);
-    return false;
   }
 }
 
@@ -819,120 +493,11 @@ class _QuickActions extends ConsumerWidget {
     required this.dayKey,
     required this.members,
     required this.types,
-    this.myId,
   });
 
   final MessDay dayKey;
   final List<Member> members;
   final List<MealType> types;
-
-  /// Set for a plain member: only "switch off tomorrow" is offered.
-  final String? myId;
-
-  /// Member, then meal type (skipped when there is only one).
-  Future<MealEntry?> _pick(BuildContext context, WidgetRef ref) async {
-    final l = AppLocalizations.of(context);
-    final active = types.where((t) => t.enabled).toList();
-    final member = await pickOne<Member>(
-      context,
-      title: l.todayPickMember,
-      options: [for (final m in members) (m, m.displayName)],
-    );
-    if (member == null || !context.mounted) return null;
-    final type = active.length == 1
-        ? active.single
-        : await pickOne<MealType>(
-            context,
-            title: l.todayPickMealType,
-            options: [for (final t in active) (t, t.name)],
-          );
-    if (type == null) return null;
-    return ref.read(dayGridProvider(dayKey)).value?[cellKey(
-          member.id,
-          type.id,
-        )] ??
-        MealEntry(
-          memberId: member.id,
-          mealTypeId: type.id,
-          date: dayKey.day,
-          count: 0,
-        );
-  }
-
-  String _names(MealEntry e) =>
-      '${members.firstWhere((m) => m.id == e.memberId).displayName} · '
-      '${types.firstWhere((t) => t.id == e.mealTypeId).name}';
-
-  Future<void> _guest(BuildContext context, WidgetRef ref) async {
-    final current = await _pick(context, ref);
-    if (current == null || !context.mounted) return;
-    final e = await showMealEntrySheet(
-      context,
-      title: _names(current),
-      entry: current,
-      guestsFirst: true,
-    );
-    if (e != null && context.mounted) await putEntry(context, ref, dayKey, e);
-  }
-
-  Future<void> _mealOff(BuildContext context, WidgetRef ref) async {
-    final l = AppLocalizations.of(context);
-    final current = await _pick(context, ref);
-    if (current == null || !context.mounted) return;
-    final ok = await putEntry(
-      context,
-      ref,
-      dayKey,
-      current.copyWith(isOff: true, count: 0),
-    );
-    if (ok && context.mounted) {
-      final member = members.firstWhere((m) => m.id == current.memberId);
-      final type = types.firstWhere((t) => t.id == current.mealTypeId);
-      showSnack(context, l.todayMealOffDone(member.displayName, type.name));
-    }
-  }
-
-  /// Member: pick tomorrow's meal types to have off, then save the changes.
-  Future<void> _offTomorrow(BuildContext context, WidgetRef ref) async {
-    final l = AppLocalizations.of(context);
-    final mess = ref.read(currentMessProvider);
-    final me = myId;
-    if (mess == null || me == null) return;
-    final tomorrow = dayOnly(today().add(const Duration(days: 1, hours: 2)));
-    if (!ref
-        .read(nowProvider)()
-        .isBefore(mealOffDeadline(tomorrow, mess.mealOffCutoff))) {
-      showSnack(context, l.mealOffCutoffPassed);
-      return;
-    }
-    final key = (messId: mess.id, day: tomorrow);
-    final Map<String, MealEntry> grid;
-    try {
-      grid = await ref.read(dayGridProvider(key).future);
-    } catch (e) {
-      if (context.mounted) showFailure(context, e);
-      return;
-    }
-    if (!context.mounted) return;
-    MealEntry current(MealType t) =>
-        grid[cellKey(me, t.id)] ??
-        MealEntry(memberId: me, mealTypeId: t.id, date: tomorrow, count: 0);
-    final active = types.where((t) => t.enabled).toList();
-    final off = await _pickOff(context, active, {
-      for (final t in active)
-        if (current(t).isOff) t.id,
-    });
-    if (off == null || !context.mounted) return;
-    for (final t in active) {
-      final e = current(t);
-      if (e.isOff == off.contains(t.id)) continue;
-      if (!await putEntry(context, ref, key, toggleMealOff(e), own: true)) {
-        return;
-      }
-      if (!context.mounted) return;
-    }
-    showSnack(context, l.mealOffSaved);
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -957,107 +522,33 @@ class _QuickActions extends ConsumerWidget {
         child: Row(
           spacing: AppSpace.sm,
           children: [
-            if (myId != null)
-              action(
-                l.mealOffTomorrow,
-                Icons.no_meals_outlined,
-                () => _offTomorrow(context, ref),
-              )
-            else ...[
-              action(
-                l.todayActionBazar,
-                Icons.shopping_basket_outlined,
-                () => showAddBazarSheet(context),
-              ),
-              action(
-                l.todayActionExpense,
-                Icons.receipt_long_outlined,
-                () => showAddExpenseSheet(context),
-              ),
-              action(
-                l.todayActionDeposit,
-                Icons.savings_outlined,
-                () => showAddDepositSheet(context),
-              ),
-              action(
-                l.todayActionGuest,
-                Icons.person_add_alt,
-                () => _guest(context, ref),
-              ),
-              action(
-                l.todayActionMealOff,
-                Icons.no_meals_outlined,
-                () => _mealOff(context, ref),
-              ),
-            ],
+            action(
+              l.todayActionBazar,
+              Icons.shopping_basket_outlined,
+              () => showAddBazarSheet(context),
+            ),
+            action(
+              l.todayActionExpense,
+              Icons.receipt_long_outlined,
+              () => showAddExpenseSheet(context),
+            ),
+            action(
+              l.todayActionDeposit,
+              Icons.savings_outlined,
+              () => showAddDepositSheet(context),
+            ),
+            action(
+              l.todayActionGuest,
+              Icons.person_add_alt,
+              () => addGuest(context, ref, dayKey, members, types),
+            ),
+            action(
+              l.todayActionMealOff,
+              Icons.no_meals_outlined,
+              () => markMealOff(context, ref, dayKey, members, types),
+            ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-/// Checklist of meal types; returns the ids to have off, or null if dismissed.
-Future<Set<String>?> _pickOff(
-  BuildContext context,
-  List<MealType> types,
-  Set<String> initial,
-) {
-  final l = AppLocalizations.of(context);
-  final off = {...initial};
-  return AppSheet.show<Set<String>>(
-    context,
-    title: l.mealOffTomorrowTitle,
-    actions: [
-      Builder(
-        builder: (context) => AppButton(
-          label: l.mealOffSave,
-          onPressed: () => Navigator.pop(context, off),
-        ),
-      ),
-    ],
-    child: StatefulBuilder(
-      builder: (context, setState) => Column(
-        children: [
-          for (final t in types)
-            CheckboxListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(t.name),
-              value: off.contains(t.id),
-              onChanged: (v) =>
-                  setState(() => v == true ? off.add(t.id) : off.remove(t.id)),
-            ),
-        ],
-      ),
-    ),
-  );
-}
-
-/// Members: when tomorrow's meals can still be switched off.
-class _MealOffHint extends StatelessWidget {
-  const _MealOffHint({required this.cutoff});
-
-  /// Postgres `time`, e.g. '22:00:00'.
-  final String cutoff;
-
-  @override
-  Widget build(BuildContext context) {
-    final p = cutoff.split(':').map(int.parse).toList();
-    // ponytail: copy says "tonight"/pm; fine for evening cutoffs (the default).
-    final h = p[0] % 12 == 0 ? 12 : p[0] % 12;
-    final time = p[1] == 0 ? '$h' : '$h:${p[1].toString().padLeft(2, '0')}';
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpace.gutter,
-        AppSpace.md,
-        AppSpace.gutter,
-        0,
-      ),
-      child: Text(
-        AppLocalizations.of(
-          context,
-        ).mealOffHint(Fmt.digits(time, bangla: bnDigits(context))),
-        style: Theme.of(context).textTheme.bodySmall,
       ),
     );
   }

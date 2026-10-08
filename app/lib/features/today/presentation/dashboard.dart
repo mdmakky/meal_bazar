@@ -8,6 +8,7 @@ import '../../../core/dates.dart';
 import '../../../core/failure_text.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
 import '../../../core/widgets/widgets.dart';
+import '../../meals/presentation/meal_grid.dart';
 import '../../meals/presentation/meal_widgets.dart';
 import '../../mess/application/mess_providers.dart';
 import '../../mess/domain/member.dart';
@@ -17,7 +18,7 @@ import '../../money/presentation/money_sheets.dart';
 import '../../month/application/month_providers.dart';
 import '../../month/domain/month.dart';
 
-/// "এই মাস": the month at a glance under the Today grid (Plan §16–17).
+/// "এই মাস": the month at a glance on হোম (Plan §16–17).
 /// Every money figure is a SQL figure; each section loads and fails alone.
 class MonthDashboard extends StatelessWidget {
   const MonthDashboard({
@@ -411,6 +412,33 @@ class _MyAccount extends ConsumerWidget {
               ],
             );
           },
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpace.gutter,
+            AppSpace.sm,
+            AppSpace.gutter,
+            0,
+          ),
+          child: Row(
+            spacing: AppSpace.sm,
+            children: [
+              Expanded(
+                child: AppButton(
+                  label: l.mealOffTomorrow,
+                  variant: AppButtonVariant.secondary,
+                  onPressed: () => offTomorrow(context, ref),
+                ),
+              ),
+              Expanded(
+                child: AppButton(
+                  label: l.depositVerifyMine,
+                  variant: AppButtonVariant.secondary,
+                  onPressed: () => showMyDepositSheet(context),
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
