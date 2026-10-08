@@ -194,7 +194,13 @@ class MoneyRepository {
     MonthPeriod p, {
     int from = 0,
   }) => guard(() async {
-    final rows = await _desc('expenses', messId, p, from);
+    final rows = await _desc(
+      'expenses',
+      messId,
+      p,
+      from,
+      select: '*, expense_shares(member_id, weight)',
+    );
     return rows.map(Expense.fromJson).toList();
   });
 
@@ -211,10 +217,11 @@ class MoneyRepository {
     String table,
     String messId,
     MonthPeriod p,
-    int from,
-  ) => _client
+    int from, {
+    String select = '*',
+  }) => _client
       .from(table)
-      .select()
+      .select(select)
       .eq('mess_id', messId)
       .isFilter('deleted_at', null)
       .gte('date', isoDate(p.start))
@@ -247,8 +254,15 @@ class MoneyRepository {
     await _sync.drain();
   });
 
+  /// Upserts the expense, then replaces its shares (empty = equal split).
+  // ponytail: two calls, not one transaction; a failed second call leaves the
+  // old shares and shows the error, and saving again repairs it (idempotent).
   Future<void> saveExpense(Expense e) => guard(() async {
     requireRows(await _client.from('expenses').upsert(e.toJson()).select('id'));
+    await _client.rpc(
+      'set_expense_shares',
+      params: {'p_expense': e.id, 'p_shares': e.sharesJson()},
+    );
   });
 
   Future<void> saveDeposit(Deposit d) => guard(() async {

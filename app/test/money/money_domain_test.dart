@@ -17,6 +17,34 @@ void main() {
     expect(parseAmount('10000000000'), isNull);
   });
 
+  test('sharePreview splits by weight, rounded to paisa', () {
+    expect(sharePreview(900, {'a': 1, 'b': 1, 'c': 1}), {
+      'a': 300,
+      'b': 300,
+      'c': 300,
+    });
+    expect(sharePreview(900, {'a': 2, 'b': 1}), {'a': 600, 'b': 300});
+    expect(sharePreview(100, {'a': 1, 'b': 1, 'c': 1})['a'], 33.33);
+    expect(sharePreview(100, {}), isEmpty);
+  });
+
+  test('Expense parses and serialises shares', () {
+    final e = Expense.fromJson({
+      'id': 'e',
+      'mess_id': 'm',
+      'date': '2026-10-05',
+      'category_id': 'c',
+      'amount': '900.00',
+      'split': 'equal',
+      'expense_shares': [
+        {'member_id': 'a', 'weight': '2.00'},
+        {'member_id': 'b', 'weight': 1},
+      ],
+    });
+    expect(e.shares, {'a': 2.0, 'b': 1.0});
+    expect(e.sharesJson().first, {'member_id': 'a', 'weight': 2.0});
+  });
+
   test('itemsTotal sums exactly in paisa', () {
     expect(itemsTotal([0.1, 0.2]), 0.3);
     expect(itemsTotal([]), 0);
