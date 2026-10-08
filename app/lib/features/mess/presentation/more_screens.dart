@@ -85,6 +85,11 @@ class MoreScreen extends ConsumerWidget {
       ),
       tile(Icons.history, l.auditTitle, () => context.push('/more/audit')),
       tile(
+        Icons.file_download_outlined,
+        l.exportTitle,
+        () => context.push('/more/export'),
+      ),
+      tile(
         Icons.person_outline,
         l.accountTitle,
         () => context.push('/more/account'),

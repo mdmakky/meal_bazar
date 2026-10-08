@@ -1896,4 +1896,68 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get splitPreview => 'প্রিভিউ: কে কত দেবে (আসল হিসাব মাস শেষে)';
+
+  @override
+  String get exportTitle => 'ডেটা এক্সপোর্ট (CSV)';
+
+  @override
+  String get exportAction => 'CSV এক্সপোর্ট';
+
+  @override
+  String get exportPeriod => 'কোন মাসের হিসাব';
+
+  @override
+  String get exportCurrent => 'চলতি মাস';
+
+  @override
+  String get exportHint =>
+      'ব্যালেন্স, মিল, বাজার, খরচ আর জমা — ৫টি CSV ফাইল। Excel বা Google Sheets-এ খোলা যায়।';
+
+  @override
+  String get exportButton => 'এক্সপোর্ট করে শেয়ার করুন';
+
+  @override
+  String get exportDate => 'তারিখ';
+
+  @override
+  String get exportMember => 'সদস্য';
+
+  @override
+  String get exportGuests => 'অতিথি';
+
+  @override
+  String get exportOpening => 'আগের ব্যালেন্স';
+
+  @override
+  String get exportAmount => 'টাকা';
+
+  @override
+  String get exportBuyer => 'বাজারকারী';
+
+  @override
+  String get exportPaidBy => 'টাকা দিয়েছে';
+
+  @override
+  String get exportItems => 'জিনিসপত্র';
+
+  @override
+  String get exportNote => 'নোট';
+
+  @override
+  String get exportCategory => 'খাত';
+
+  @override
+  String get exportSplit => 'ভাগ';
+
+  @override
+  String get exportMethod => 'মাধ্যম';
+
+  @override
+  String get exportStatus => 'অবস্থা';
+
+  @override
+  String get exportVerified => 'যাচাই হয়েছে';
+
+  @override
+  String get cookShare => 'রাঁধুনিকে কালকের মিল পাঠান';
 }
