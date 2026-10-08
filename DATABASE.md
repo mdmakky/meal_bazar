@@ -67,6 +67,15 @@ RPCs: `create_mess(name, month_start_day) → mess_id`, `join_mess(code) → mem
 ### Account deletion (0007)
 `delete_my_account()` RPC: refuses with `LAST_MANAGER` while the caller is the only manager of a mess that other app users still belong to. Otherwise pending requests are deleted, memberships become `left` and are unlinked (`user_id = null`, `display_name` kept), a mess with no other app users is soft-deleted, the profile is anonymised ("Former member", no phone/photo, `deleted_at`), and the user is queued in `deletion_requests (user_id, requested_at)`. Postgres cannot remove the Supabase auth user, so the gateway's daily cron (service role) calls `auth.admin.deleteUser` for each queued row and sets `processed_at` (0010); failures record `last_error` and retry next day. The app signs out after the RPC.
 
+### Recurring bills and meal defaults (0015)
+| Object | Purpose |
+|---|---|
+| `recurring_expenses` table | `mess_id`, `category_id`, `amount`, `split`, `note`, `active`, `day_of_period` 1–28, `created_by`. Standard RLS. |
+| `recurring_applied` table | `(recurring_id, period_start)` primary key, `mess_id`: marks a template as posted for a billing period. Standard RLS. |
+| `apply_recurring_expenses(mess, date) → int` | Manager. Posts each active, not-yet-posted template as an expense in the period containing `date`. Idempotent; refused with `MONTH_CLOSED` in a closed month. |
+| `pending_recurring_count(mess, date) → int` | Active templates not yet posted in that period. |
+| `meal_defaults` table | `(member_id, meal_type_id)` primary key, `mess_id`, `count numeric(3,1)` 0–5 in ½ steps. Standard RLS. `fill_meals_for_day` uses yesterday, else this, else 1. |
+
 ## Error codes
 RPCs and triggers raise `errcode 'P0001'` with a short message key that the app maps to bn/en text: `MONTH_CLOSED`, `LAST_MANAGER`, `INVALID_INVITE`, `ALREADY_MEMBER`, `NOT_MANAGER`, `REASON_REQUIRED`.
 
