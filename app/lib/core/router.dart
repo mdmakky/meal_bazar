@@ -8,6 +8,7 @@ import '../features/auth/application/auth_providers.dart';
 import '../features/auth/presentation/profile_setup_screen.dart';
 import '../features/auth/presentation/set_new_password_screen.dart';
 import '../features/auth/presentation/sign_in_screen.dart';
+import '../features/duty/presentation/duty_screen.dart';
 import '../features/meals/presentation/meal_types_screen.dart';
 import '../features/meals/presentation/meals_screen.dart';
 import '../features/mess/application/mess_providers.dart';
@@ -196,6 +197,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                     path: 'audit',
                     builder: (_, _) => const AuditScreen(),
                   ),
+                  GoRoute(path: 'duty', builder: (_, _) => const DutyScreen()),
                   GoRoute(
                     path: 'meal-types',
                     builder: (_, _) => const MealTypesScreen(),
