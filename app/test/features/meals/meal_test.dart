@@ -15,23 +15,30 @@ void main() {
         guestCount: guests,
       );
 
-  test('tap cycles 1 → ½ → 0 → 1', () {
-    var e = entry();
-    e = cycleMeal(e);
-    expect(e.count, 0.5);
-    e = cycleMeal(e);
-    expect(e.count, 0);
-    e = cycleMeal(e);
-    expect(e.count, 1);
+  test('tap cycles 0 → 0.5 → 1 → 1.5 → 2 → 0', () {
+    var e = entry(count: 0);
+    final seen = <double>[];
+    for (var i = 0; i < 5; i++) {
+      e = cycleMeal(e);
+      seen.add(e.count);
+    }
+    expect(seen, [0.5, 1, 1.5, 2, 0]);
   });
 
-  test('cycling an off meal turns it back on at 1, keeping guests', () {
+  test('cycling an off meal turns it on at 0.5, keeping guests', () {
     final e = cycleMeal(entry(count: 0, off: true, guests: 2));
-    expect((e.isOff, e.count, e.guestCount), (false, 1.0, 2));
+    expect((e.isOff, e.count, e.guestCount), (false, 0.5, 2));
   });
 
-  test('unusual counts restart at 1', () {
-    expect(cycleMeal(entry(count: 2)).count, 1);
+  test('counts above 2 restart at 0', () {
+    expect(cycleMeal(entry(count: 3)).count, 0);
+  });
+
+  test('stepper moves by 0.5 within 0–5', () {
+    expect(stepMeal(entry(count: 1), 0.5).count, 1.5);
+    expect(stepMeal(entry(count: 0), -0.5).count, 0);
+    expect(stepMeal(entry(count: 5), 0.5).count, 5);
+    expect(stepMeal(entry(off: true), 0.5).count, 0.5);
   });
 
   test('people counts guests but not an off member', () {

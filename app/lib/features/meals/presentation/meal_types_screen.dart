@@ -3,9 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/failure_text.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
+import '../../../core/prefs.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../mess/application/mess_providers.dart';
 import '../../mess/presentation/common.dart';
+import '../../today/presentation/setup_checklist.dart' show setupFlagMealTypes;
 import '../application/meal_providers.dart';
 import '../domain/meal.dart';
 import 'meal_widgets.dart';
@@ -21,6 +23,14 @@ class MealTypesScreen extends ConsumerStatefulWidget {
 class _MealTypesScreenState extends ConsumerState<MealTypesScreen> {
   /// Optimistic copy while a change is saving; null = show the server list.
   List<MealType>? _items;
+
+  @override
+  void initState() {
+    super.initState();
+    // Setup checklist: visiting here counts as "meal times set up".
+    final messId = ref.read(currentMessIdProvider);
+    if (messId != null) setMessFlag(ref, messId, setupFlagMealTypes);
+  }
 
   MealType _with(MealType t, {String? name, double? weight, bool? enabled}) =>
       MealType(

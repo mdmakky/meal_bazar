@@ -67,15 +67,17 @@ class MealEntry {
   double get people => (isOff ? 0.0 : count) + guestCount;
 }
 
-/// Tap cycle for a meal cell: 1 → ½ → 0 → 1. Off and other values restart at 1.
+/// Tap cycle for a meal value: 0 → 0.5 → 1 → 1.5 → 2 → 0. Off counts as 0;
+/// anything above 2 (set with the stepper) restarts at 0. Guests are kept.
 MealEntry cycleMeal(MealEntry e) {
-  if (e.isOff) return e.copyWith(isOff: false, count: 1);
-  final next = switch (e.count) {
-    1 => 0.5,
-    0.5 => 0.0,
-    _ => 1.0,
-  };
-  return e.copyWith(count: next);
+  final c = e.isOff ? 0.0 : e.count;
+  return e.copyWith(isOff: false, count: c >= 2 ? 0 : c + 0.5);
+}
+
+/// Stepper: ±0.5 within 0–5. Leaving "off" starts from 0.
+MealEntry stepMeal(MealEntry e, double delta) {
+  final c = e.isOff ? 0.0 : e.count;
+  return e.copyWith(isOff: false, count: (c + delta).clamp(0, 5).toDouble());
 }
 
 /// Member self-service toggle: off ↔ on (1). Guests are kept.

@@ -51,6 +51,39 @@ class DayGrid extends AsyncNotifier<Map<String, MealEntry>> {
     }
   }
 
+  /// [put] for many cells at once (bulk actions); all revert on failure.
+  Future<void> putAll(List<MealEntry> entries) async {
+    if (entries.isEmpty) return;
+    final before = {...?state.value};
+    final next = {...before};
+    for (final e in entries) {
+      final k = cellKey(e.memberId, e.mealTypeId);
+      _pending[k] = e;
+      next[k] = e;
+    }
+    state = AsyncData(next);
+    try {
+      await ref.read(mealControllerProvider).saveAll(day.messId, entries);
+    } catch (_) {
+      if (ref.mounted) {
+        final reverted = {...?state.value};
+        for (final e in entries) {
+          final k = cellKey(e.memberId, e.mealTypeId);
+          if (!identical(_pending[k], e)) continue;
+          final old = before[k];
+          old == null ? reverted.remove(k) : reverted[k] = old;
+        }
+        state = AsyncData(reverted);
+      }
+      rethrow;
+    } finally {
+      for (final e in entries) {
+        final k = cellKey(e.memberId, e.mealTypeId);
+        if (identical(_pending[k], e)) _pending.remove(k);
+      }
+    }
+  }
+
   void _set(String k, MealEntry? e) {
     final next = {...?state.value};
     e == null ? next.remove(k) : next[k] = e;

@@ -212,51 +212,60 @@ class MealRepository {
   /// so retries never duplicate. Waits for one sync attempt; offline it
   /// returns at once and the write waits in the queue.
   Future<void> save(String messId, MealEntry e, {String source = 'app'}) =>
-      guard(() async {
+      saveAll(messId, [e], source: source);
+
+  /// [save] for many entries: one transaction, one sync attempt.
+  Future<void> saveAll(
+    String messId,
+    List<MealEntry> entries, {
+    String source = 'app',
+  }) => guard(() async {
+    final now = DateTime.now().toUtc();
+    await _db.transaction(() async {
+      for (final e in entries) {
         final date = isoDate(e.date);
-        final now = DateTime.now().toUtc();
-        await _db.transaction(() async {
-          await _db
-              .into(_db.mealEntries)
-              .insert(
-                MealEntriesCompanion.insert(
-                  id: uuidV4(),
-                  messId: messId,
-                  memberId: e.memberId,
-                  mealTypeId: e.mealTypeId,
-                  date: date,
-                  count: e.count,
-                  guestCount: e.guestCount,
-                  isOff: e.isOff,
-                  updatedAt: now,
+        await _db
+            .into(_db.mealEntries)
+            .insert(
+              MealEntriesCompanion.insert(
+                id: uuidV4(),
+                messId: messId,
+                memberId: e.memberId,
+                mealTypeId: e.mealTypeId,
+                date: date,
+                count: e.count,
+                guestCount: e.guestCount,
+                isOff: e.isOff,
+                updatedAt: now,
+              ),
+              onConflict: DoUpdate(
+                (_) => MealEntriesCompanion(
+                  count: Value(e.count),
+                  guestCount: Value(e.guestCount),
+                  isOff: Value(e.isOff),
+                  updatedAt: Value(now),
                 ),
-                onConflict: DoUpdate(
-                  (_) => MealEntriesCompanion(
-                    count: Value(e.count),
-                    guestCount: Value(e.guestCount),
-                    isOff: Value(e.isOff),
-                    updatedAt: Value(now),
-                  ),
-                ),
-              );
-          await _db.enqueue(
-            'meal_entries',
-            mealRowKey(e.memberId, date, e.mealTypeId),
-            uuidV4(),
-            {
-              'mess_id': messId,
-              'member_id': e.memberId,
-              'meal_type_id': e.mealTypeId,
-              'date': date,
-              'count': e.count,
-              'guest_count': e.guestCount,
-              'is_off': e.isOff,
-              'source': source,
-            },
-          );
-        });
-        await _sync.drain();
-      });
+              ),
+            );
+        await _db.enqueue(
+          'meal_entries',
+          mealRowKey(e.memberId, date, e.mealTypeId),
+          uuidV4(),
+          {
+            'mess_id': messId,
+            'member_id': e.memberId,
+            'meal_type_id': e.mealTypeId,
+            'date': date,
+            'count': e.count,
+            'guest_count': e.guestCount,
+            'is_off': e.isOff,
+            'source': source,
+          },
+        );
+      }
+    });
+    await _sync.drain();
+  });
 
   /// Member self-service: switches my own meal off/on (SQL enforces cutoff).
   Future<void> setMyMealOff(

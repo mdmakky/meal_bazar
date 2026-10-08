@@ -67,6 +67,15 @@ class MealController {
     _refresh(messId, entry.date);
   }
 
+  /// One day's bulk change ("সবাই ১", "গতকালের মতো") in one write.
+  Future<void> saveAll(String messId, List<MealEntry> entries) async {
+    if (entries.isEmpty) return;
+    await _repo.saveAll(messId, entries);
+    for (final d in {for (final e in entries) e.date}) {
+      _refresh(messId, d);
+    }
+  }
+
   /// My own meal off/on via `set_my_meal_off` (members, before the cutoff).
   Future<void> setMyMealOff(String messId, MealEntry entry) async {
     await _repo.setMyMealOff(
