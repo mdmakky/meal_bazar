@@ -8,6 +8,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../../core/failure_text.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
 import '../../../core/widgets/widgets.dart';
+import '../../notices/application/notice_providers.dart';
 import '../application/mess_providers.dart';
 import '../domain/member.dart';
 import 'common.dart';
@@ -25,15 +26,23 @@ class MoreScreen extends ConsumerWidget {
         .where((m) => m.mess != null)
         .toList();
 
+    final unread = ref.watch(unreadNoticeCountProvider);
+    final bn = AppLocalizations.of(context).localeName == 'bn';
+
     Widget tile(
       IconData icon,
       String title,
-      VoidCallback onTap, [
+      VoidCallback onTap, {
       String? sub,
-    ]) => ListTile(
+      int badge = 0,
+    }) => ListTile(
       minTileHeight: AppSize.touch + AppSpace.md,
       contentPadding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
-      leading: Icon(icon),
+      leading: Badge(
+        isLabelVisible: badge > 0,
+        label: Text(Fmt.digits('$badge', bangla: bn)),
+        child: Icon(icon),
+      ),
       title: Text(title, style: text.titleSmall),
       subtitle: sub == null ? null : Text(sub),
       trailing: const Icon(Icons.chevron_right),
@@ -63,6 +72,12 @@ class MoreScreen extends ConsumerWidget {
           () => context.push('/more/meal-types'),
         ),
       ],
+      tile(
+        Icons.campaign_outlined,
+        l.noticeTitle,
+        () => context.push('/more/notices'),
+        badge: unread,
+      ),
       tile(Icons.history, l.auditTitle, () => context.push('/more/audit')),
       tile(
         Icons.person_outline,
@@ -74,7 +89,7 @@ class MoreScreen extends ConsumerWidget {
           Icons.swap_horiz,
           l.moreSwitchMess,
           () => _switchMess(context, ref, usable),
-          membership?.mess?.name,
+          sub: membership?.mess?.name,
         ),
     ];
 
