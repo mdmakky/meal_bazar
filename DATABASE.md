@@ -49,6 +49,7 @@ RPCs: `create_mess(name, month_start_day) → mess_id`, `join_mess(code) → mem
 | `bazar_items` | `bazar_id`, `name`, `qty numeric(10,3)`, `unit`, `price` |
 | `expense_categories` | `mess_id`, `name`, `default_split` (meal/equal), `sort_order` |
 | `expenses` | `mess_id`, `date`, `category_id`, `amount`, `split`, `paid_by_member_id`, `note`, `receipt_path` |
+| `expense_shares` (0012) | `expense_id`, `mess_id`, `member_id`, `weight numeric(6,2)` (default 1). When an equal-split expense has rows here, only those members pay, in proportion to weight. Write all at once with `set_expense_shares(expense_id, jsonb)`. The closed-month guard uses the parent expense's date. |
 | `deposits` | `mess_id`, `member_id`, `date`, `amount`, `method` (cash/bkash/nagad/bank/other), `trx_id`, `status` (verified/pending/rejected), `screenshot_path` |
 
 ### Phase 4 — months (the calculation engine)

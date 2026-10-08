@@ -19,6 +19,7 @@ These are the business rules. The SQL implementation is in `supabase/migrations`
 - **Expense** has a category and a `split`:
   - `meal`: added to the food cost (it affects the meal rate). Example: cooking gas, if the mess wants that.
   - `equal`: split equally among the members **present on the expense date**.
+    Or among **selected members** only, each with a weight (`ভাগ`, default 1): a member pays amount × weight / Σ weights.
 - **Who paid** (bazar and expense): `paid_by_member_id` is either null or set.
   - null means it was paid from the mess fund, and nobody gets a credit.
   - set means the member paid from their own pocket. The amount becomes a **credit** to that member, the same way a deposit is.
@@ -34,6 +35,7 @@ meal_rate         = food_total / total_meals          (0 if total_meals = 0; unr
 member_meals      = Σ billable meals of the member
 member_food_cost  = round(member_meals × meal_rate, 2)
 member_extra_cost = Σ over equal-split expenses: round(amount / present_members_on_date, 2)
+                    (an expense shared among selected members: round(amount × weight / Σ weights, 2) for each selected member only)
 member_credit     = Σ verified deposits + Σ own-pocket bazar/expense paid by member
 opening_balance   = previous closed month's closing_balance (0 for the first month)
 closing_balance   = opening_balance + member_credit − member_food_cost − member_extra_cost
