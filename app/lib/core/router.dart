@@ -2,14 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/account/presentation/account_screen.dart';
+import '../features/audit/presentation/audit_screen.dart';
 import '../features/auth/application/auth_providers.dart';
 import '../features/auth/presentation/phone_screen.dart';
 import '../features/auth/presentation/profile_setup_screen.dart';
+import '../features/meals/presentation/meal_types_screen.dart';
 import '../features/meals/presentation/meals_screen.dart';
 import '../features/mess/application/mess_providers.dart';
 import '../features/mess/domain/member.dart';
 import '../features/mess/presentation/mess_screens.dart';
 import '../features/money/presentation/money_screen.dart';
+import '../features/money/presentation/months_screen.dart';
 import '../features/today/presentation/today_screen.dart';
 import 'failure_text.dart';
 import 'shell.dart';
@@ -138,7 +142,16 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           StatefulShellBranch(
             routes: [
-              GoRoute(path: '/money', builder: (_, _) => const MoneyScreen()),
+              GoRoute(
+                path: '/money',
+                builder: (_, _) => const MoneyScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'months',
+                    builder: (_, _) => const MonthsScreen(),
+                  ),
+                ],
+              ),
             ],
           ),
           StatefulShellBranch(
@@ -158,6 +171,18 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'settings',
                     builder: (_, _) => const MessSettingsScreen(),
+                  ),
+                  GoRoute(
+                    path: 'account',
+                    builder: (_, _) => const AccountScreen(),
+                  ),
+                  GoRoute(
+                    path: 'audit',
+                    builder: (_, _) => const AuditScreen(),
+                  ),
+                  GoRoute(
+                    path: 'meal-types',
+                    builder: (_, _) => const MealTypesScreen(),
                   ),
                 ],
               ),

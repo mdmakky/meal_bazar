@@ -57,7 +57,18 @@ class MoreScreen extends ConsumerWidget {
           l.moreSettings,
           () => context.push('/more/settings'),
         ),
+        tile(
+          Icons.restaurant_menu,
+          l.mealTypesTitle,
+          () => context.push('/more/meal-types'),
+        ),
       ],
+      tile(Icons.history, l.auditTitle, () => context.push('/more/audit')),
+      tile(
+        Icons.person_outline,
+        l.accountTitle,
+        () => context.push('/more/account'),
+      ),
       if (usable.length > 1)
         tile(
           Icons.swap_horiz,
