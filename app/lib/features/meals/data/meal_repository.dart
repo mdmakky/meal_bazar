@@ -28,7 +28,8 @@ class MealRepository {
           .from('meal_types')
           .select()
           .eq('mess_id', messId)
-          .order('sort_order'),
+          .order('sort_order')
+          .retry(enabled: false),
     );
     return rows.map(MealType.fromJson).toList();
   });
@@ -55,7 +56,8 @@ class MealRepository {
             .gte('date', isoDate(from))
             .lt('date', isoDate(to));
         if (memberId != null) q = q.eq('member_id', memberId);
-        return await q;
+        // Offline answers from Drift at once instead of retrying for seconds.
+        return await q.retry(enabled: false);
       });
       await _merge(messId, from, to, memberId, rows);
     } on AppFailure catch (e) {

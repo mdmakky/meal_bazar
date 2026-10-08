@@ -37,7 +37,8 @@ class MoneyRepository {
                 .order('date', ascending: false)
                 .order('created_at', ascending: false)
                 .order('sort', referencedTable: 'bazar_items')
-                .range(from, from + moneyPageSize - 1),
+                .range(from, from + moneyPageSize - 1)
+                .retry(enabled: false),
           );
           await _mergeBazars(messId, p, rows, replace: from == 0);
         } on AppFailure catch (e) {

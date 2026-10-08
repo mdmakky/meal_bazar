@@ -103,7 +103,12 @@ class AuthRepository {
     final rows = await _db.cachedRows(
       'profile:$uid',
       () async => [
-        await _client.from('profiles').select().eq('id', uid).single(),
+        await _client
+            .from('profiles')
+            .select()
+            .eq('id', uid)
+            .single()
+            .retry(enabled: false),
       ],
     );
     return Profile.fromJson(rows.single);

@@ -24,7 +24,8 @@ class MessRepository {
           .select('*, messes(*)')
           .eq('user_id', uid)
           .neq('status', MemberStatus.left.name)
-          .order('created_at'),
+          .order('created_at')
+          .retry(enabled: false),
     );
     return rows.map(Membership.fromJson).toList();
   });
@@ -73,7 +74,8 @@ class MessRepository {
           .select()
           .eq('mess_id', messId)
           .order('joined_on')
-          .order('display_name'),
+          .order('display_name')
+          .retry(enabled: false),
     );
     return rows.map(Member.fromJson).toList();
   });
