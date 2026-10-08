@@ -1562,4 +1562,68 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dashNobodyThatDay => 'Nobody was in the mess on this day';
+
+  @override
+  String get exportTitle => 'Data export (CSV)';
+
+  @override
+  String get exportAction => 'Export CSV';
+
+  @override
+  String get exportPeriod => 'Which month';
+
+  @override
+  String get exportCurrent => 'Current month';
+
+  @override
+  String get exportHint =>
+      'Balances, meals, bazar, expenses and deposits as 5 CSV files that open in Excel or Google Sheets.';
+
+  @override
+  String get exportButton => 'Export and share';
+
+  @override
+  String get exportDate => 'Date';
+
+  @override
+  String get exportMember => 'Member';
+
+  @override
+  String get exportGuests => 'Guests';
+
+  @override
+  String get exportOpening => 'Opening balance';
+
+  @override
+  String get exportAmount => 'Amount';
+
+  @override
+  String get exportBuyer => 'Buyer';
+
+  @override
+  String get exportPaidBy => 'Paid by';
+
+  @override
+  String get exportItems => 'Items';
+
+  @override
+  String get exportNote => 'Note';
+
+  @override
+  String get exportCategory => 'Category';
+
+  @override
+  String get exportSplit => 'Split';
+
+  @override
+  String get exportMethod => 'Method';
+
+  @override
+  String get exportStatus => 'Status';
+
+  @override
+  String get exportVerified => 'Verified';
+
+  @override
+  String get cookShare => 'Send tomorrow\'s meal count to the cook';
 }

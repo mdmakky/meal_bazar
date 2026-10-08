@@ -2899,6 +2899,132 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'এই দিনে কেউ মেসে ছিল না'**
   String get dashNobodyThatDay;
+
+  /// No description provided for @exportTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'ডেটা এক্সপোর্ট (CSV)'**
+  String get exportTitle;
+
+  /// No description provided for @exportAction.
+  ///
+  /// In bn, this message translates to:
+  /// **'CSV এক্সপোর্ট'**
+  String get exportAction;
+
+  /// No description provided for @exportPeriod.
+  ///
+  /// In bn, this message translates to:
+  /// **'কোন মাসের হিসাব'**
+  String get exportPeriod;
+
+  /// No description provided for @exportCurrent.
+  ///
+  /// In bn, this message translates to:
+  /// **'চলতি মাস'**
+  String get exportCurrent;
+
+  /// No description provided for @exportHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'ব্যালেন্স, মিল, বাজার, খরচ আর জমা — ৫টি CSV ফাইল। Excel বা Google Sheets-এ খোলা যায়।'**
+  String get exportHint;
+
+  /// No description provided for @exportButton.
+  ///
+  /// In bn, this message translates to:
+  /// **'এক্সপোর্ট করে শেয়ার করুন'**
+  String get exportButton;
+
+  /// No description provided for @exportDate.
+  ///
+  /// In bn, this message translates to:
+  /// **'তারিখ'**
+  String get exportDate;
+
+  /// No description provided for @exportMember.
+  ///
+  /// In bn, this message translates to:
+  /// **'সদস্য'**
+  String get exportMember;
+
+  /// No description provided for @exportGuests.
+  ///
+  /// In bn, this message translates to:
+  /// **'অতিথি'**
+  String get exportGuests;
+
+  /// No description provided for @exportOpening.
+  ///
+  /// In bn, this message translates to:
+  /// **'আগের ব্যালেন্স'**
+  String get exportOpening;
+
+  /// No description provided for @exportAmount.
+  ///
+  /// In bn, this message translates to:
+  /// **'টাকা'**
+  String get exportAmount;
+
+  /// No description provided for @exportBuyer.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাজারকারী'**
+  String get exportBuyer;
+
+  /// No description provided for @exportPaidBy.
+  ///
+  /// In bn, this message translates to:
+  /// **'টাকা দিয়েছে'**
+  String get exportPaidBy;
+
+  /// No description provided for @exportItems.
+  ///
+  /// In bn, this message translates to:
+  /// **'জিনিসপত্র'**
+  String get exportItems;
+
+  /// No description provided for @exportNote.
+  ///
+  /// In bn, this message translates to:
+  /// **'নোট'**
+  String get exportNote;
+
+  /// No description provided for @exportCategory.
+  ///
+  /// In bn, this message translates to:
+  /// **'খাত'**
+  String get exportCategory;
+
+  /// No description provided for @exportSplit.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভাগ'**
+  String get exportSplit;
+
+  /// No description provided for @exportMethod.
+  ///
+  /// In bn, this message translates to:
+  /// **'মাধ্যম'**
+  String get exportMethod;
+
+  /// No description provided for @exportStatus.
+  ///
+  /// In bn, this message translates to:
+  /// **'অবস্থা'**
+  String get exportStatus;
+
+  /// No description provided for @exportVerified.
+  ///
+  /// In bn, this message translates to:
+  /// **'যাচাই হয়েছে'**
+  String get exportVerified;
+
+  /// No description provided for @cookShare.
+  ///
+  /// In bn, this message translates to:
+  /// **'রাঁধুনিকে কালকের মিল পাঠান'**
+  String get cookShare;
 }
 
 class _AppLocalizationsDelegate
