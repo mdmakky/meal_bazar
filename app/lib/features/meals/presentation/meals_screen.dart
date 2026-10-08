@@ -14,6 +14,8 @@ import '../../export/presentation/export_actions.dart';
 import '../../mess/domain/member.dart';
 import '../../mess/presentation/common.dart';
 import '../../money/presentation/money_sheets.dart';
+import '../../recurring/application/recurring_providers.dart';
+import '../../recurring/domain/recurring.dart';
 import '../../today/application/day_grid.dart';
 import '../application/meal_providers.dart';
 import '../domain/meal.dart';
@@ -415,11 +417,17 @@ class _BulkActionsState extends ConsumerState<_BulkActions> {
               )).future,
             )
           : null;
+      // Offline (or failing) defaults fall back to 1, like a mess with none.
+      final defaults = yesterday == null
+          ? const <MealDefaultKey, double>{}
+          : await ref
+                .read(mealDefaultsProvider(key.messId).future)
+                .catchError((Object _) => <MealDefaultKey, double>{});
       final now = ref.read(dayGridProvider(key)).value;
       final changes = [
         for (final m in widget.members)
           for (final t in widget.types)
-            ?_change(entryOrZero(now, key, m.id, t.id), yesterday),
+            ?_change(entryOrZero(now, key, m.id, t.id), yesterday, defaults),
       ];
       if (changes.isEmpty) {
         if (mounted) showSnack(context, l.mealGridNothingToChange);
@@ -433,16 +441,25 @@ class _BulkActionsState extends ConsumerState<_BulkActions> {
     }
   }
 
-  /// The new value of [e], or null when it would not change.
-  MealEntry? _change(MealEntry e, Map<String, MealEntry>? yesterday) {
+  /// The new value of [e], or null when it would not change. "Like
+  /// yesterday" with no row yesterday uses the member's default, else 1
+  /// (PRODUCT_RULES §1).
+  MealEntry? _change(
+    MealEntry e,
+    Map<String, MealEntry>? yesterday,
+    Map<MealDefaultKey, double> defaults,
+  ) {
     final y = yesterday?[cellKey(e.memberId, e.mealTypeId)];
     final next = yesterday == null
         ? e.copyWith(count: 1, isOff: false)
-        : e.copyWith(
-            count: y?.count ?? 0,
-            guestCount: y?.guestCount ?? 0,
-            isOff: y?.isOff ?? false,
-          );
+        : y == null
+        ? e.copyWith(
+            count:
+                defaults[(memberId: e.memberId, mealTypeId: e.mealTypeId)] ?? 1,
+            guestCount: 0,
+            isOff: false,
+          )
+        : e.copyWith(count: y.count, guestCount: y.guestCount, isOff: y.isOff);
     final same =
         next.count == e.count &&
         next.guestCount == e.guestCount &&

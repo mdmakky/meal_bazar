@@ -26,6 +26,8 @@ import 'package:meal_bazar/features/mess/domain/mess.dart';
 import 'package:meal_bazar/features/month/application/month_providers.dart';
 import 'package:meal_bazar/features/month/domain/month.dart';
 import 'package:meal_bazar/features/today/application/day_grid.dart';
+import 'package:meal_bazar/features/recurring/application/recurring_providers.dart';
+import 'package:meal_bazar/features/recurring/domain/recurring.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart'
     show AuthClientOptions, SupabaseClient;
@@ -102,6 +104,9 @@ const balances = [
 
 late MockMealRepository repo;
 
+/// Member default meals (meal_defaults) served to the grid.
+var defaults = <MealDefaultKey, double>{};
+
 Future<void> pump(
   WidgetTester tester, {
   bool manager = true,
@@ -132,6 +137,7 @@ Future<void> pump(
           ],
         ),
         amIManagerProvider.overrideWithValue(manager),
+        mealDefaultsProvider.overrideWith((ref, id) async => defaults),
         membersProvider.overrideWith(
           (ref, id) async =>
               members ??
@@ -181,6 +187,7 @@ void main() {
   setUp(() {
     repo = MockMealRepository();
     store = {};
+    defaults = {};
     when(() => repo.mealTypes(any())).thenAnswer(
       (_) async => [type('lunch', 'দুপুর', 1), type('dinner', 'রাত', 2)],
     );
@@ -338,7 +345,8 @@ void main() {
     expect(tester.widget<Text>(find.byKey(const Key('day-total'))).data, '৪');
   });
 
-  testWidgets('গতকালের মতো copies yesterday\'s changed cells', (tester) async {
+  testWidgets('গতকালের মতো: yesterday, else default, else 1', (tester) async {
+    defaults = {(memberId: 'karim', mealTypeId: 'dinner'): 1.5};
     stubDay(
       [entry('karim', 'lunch', 1)],
       [
@@ -355,9 +363,11 @@ void main() {
               () => repo.saveAll('mess1', captureAny(), source: 'app'),
             ).captured.single
             as List<MealEntry>;
-    expect(saved.single.memberId, 'rahim');
-    expect(saved.single.count, 2);
-    expect(saved.single.date, day);
+    expect(
+      {for (final e in saved) '${e.memberId}|${e.mealTypeId}': e.count},
+      {'rahim|lunch': 2, 'rahim|dinner': 1, 'karim|dinner': 1.5},
+    );
+    expect(saved.every((e) => e.date == day), isTrue);
     expect(cell('Rahim দুপুর: ২'), findsOneWidget);
   });
 
