@@ -8,7 +8,7 @@ These are the business rules. The SQL implementation is in `supabase/migrations`
   - `count`: the member's own meals. Allowed values are 0, 0.5, 1, 1.5 … 5 (steps of 0.5). Default 1 when the row is created by "fill today".
   - `guest_count`: a whole number from 0 to 20. Guests are charged to this member (the host).
   - `is_off`: the member switched this meal off. When it is true, `count` is forced to 0, and guests still count.
-- **No row means 0 meals.** The Today screen offers "Fill today", which creates rows from yesterday (or from the default of 1) for active members.
+- **No row means 0 meals.** The Today screen offers "Fill today", which creates missing rows for active members from yesterday's count, else the member's **default meal pattern** (`meal_defaults`, set by a manager per member and meal type, same 0–5 in ½ steps), else 1.
 - **Billable meals** for an entry = `(count + guest_count) × meal_type.weight`.
 - Disabling a meal type hides it from new entry. Its historical rows still count.
 - **Meal-off cutoff** (v1.1): a member may set `is_off` for a (date, meal type) only before `mess.meal_off_cutoff`, which is a time on the previous day (default 22:00 Asia/Dhaka). After the cutoff only a manager can change the meal.
@@ -24,6 +24,7 @@ These are the business rules. The SQL implementation is in `supabase/migrations`
   - null means it was paid from the mess fund, and nobody gets a credit.
   - set means the member paid from their own pocket. The amount becomes a **credit** to that member, the same way a deposit is.
 - **Deposit**: money a member gives to the mess fund. It is a credit to that member. In v1.1, a deposit a member records themselves is `pending` and does not count until a manager verifies it.
+- **Recurring monthly bill** (manager): a template with a category, amount, split and a `day_of_period` 1–28. "Post this month's bills" creates one expense (`source = 'system'`, paid from the mess fund) per *active* template not yet posted in the billing period containing the chosen date, dated period start + `day_of_period` − 1. Each template posts at most once per period, even if the posted expense is later deleted. Posting into a closed month is refused (`MONTH_CLOSED`).
 - A member is **present on date d** when `joined_on ≤ d` and (`left_on` is null or `d < left_on`). The *inactive* status only hides the member from the meal grid. It does not affect money.
 
 ## 3. Calculation (one source of truth: SQL)

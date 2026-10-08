@@ -71,6 +71,16 @@ class MoreScreen extends ConsumerWidget {
           l.mealTypesTitle,
           () => context.push('/more/meal-types'),
         ),
+        tile(
+          Icons.tune,
+          l.mealDefaultTitle,
+          () => context.push('/more/meal-defaults'),
+        ),
+        tile(
+          Icons.event_repeat,
+          l.recurringTitle,
+          () => context.push('/more/recurring'),
+        ),
       ],
       tile(
         Icons.campaign_outlined,
