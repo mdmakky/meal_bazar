@@ -1562,4 +1562,75 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dashNobodyThatDay => 'Nobody was in the mess on this day';
+
+  @override
+  String shareBillTitle(String mess) {
+    return '*$mess* · Monthly bill';
+  }
+
+  @override
+  String shareBillSummaryTitle(String mess) {
+    return '*$mess* · Month summary';
+  }
+
+  @override
+  String shareBillMeals(String meals, String rate, String cost) {
+    return 'Meals: $meals × $rate = $cost';
+  }
+
+  @override
+  String get shareBillPaid => 'Paid';
+
+  @override
+  String get shareBillFoodTotal => 'Total food cost';
+
+  @override
+  String get shareBillTotalMeals => 'Total meals';
+
+  @override
+  String get shareBillRate => 'Meal rate';
+
+  @override
+  String get shareBillExtraTotal => 'Other expenses';
+
+  @override
+  String get shareBillShare => 'Share bill';
+
+  @override
+  String get shareBillRemind => 'Remind';
+
+  @override
+  String get shareBillShareAll => 'Share everyone\'s balance';
+
+  @override
+  String get shareBillToneTitle => 'How should it sound?';
+
+  @override
+  String get shareBillTonePolite => 'Polite';
+
+  @override
+  String get shareBillToneShort => 'Short';
+
+  @override
+  String get shareBillToneFirm => 'Firm';
+
+  @override
+  String shareBillRemindPolite(String name, String amount) {
+    return 'Hi $name, your mess balance this month shows $amount due. Please pay whenever convenient. Thank you!';
+  }
+
+  @override
+  String shareBillRemindShort(String name, String amount) {
+    return '$name, mess due: $amount. Please pay.';
+  }
+
+  @override
+  String shareBillRemindFirm(String name, String amount) {
+    return '$name, your mess due of $amount is still unpaid. Please pay within 3 days.';
+  }
+
+  @override
+  String shareBillPayHint(String number) {
+    return 'bKash/Nagad: $number';
+  }
 }
