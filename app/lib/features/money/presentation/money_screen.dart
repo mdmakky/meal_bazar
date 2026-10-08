@@ -612,7 +612,7 @@ class _ExpenseList extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             spacing: AppSpace.sm,
             children: [
-              _Tag(splitLabel(l, e.split)),
+              _Tag(e.shares.isEmpty ? splitLabel(l, e.split) : l.splitSelected),
               Money(e.amount, banglaDigits: bn),
             ],
           ),

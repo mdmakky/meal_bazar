@@ -609,5 +609,15 @@
   "@dutyTodayOther": {"placeholders": {"name": {"type": "String"}}},
   "dutyTomorrowOther": "{name} does the bazar tomorrow",
   "@dutyTomorrowOther": {"placeholders": {"name": {"type": "String"}}},
-  "dutyNextMonth": "Next month"
+  "dutyNextMonth": "Next month",
+  "splitEqualAll": "Equal (everyone)",
+  "splitByMeal": "By meals",
+  "splitSelected": "Selected members",
+  "splitSelectedHelp": "Only the selected members pay, each by their share",
+  "splitPickMember": "Pick at least one member",
+  "splitWeight": "Share {weight}",
+  "@splitWeight": {"placeholders": {"weight": {"type": "String"}}},
+  "splitWeightLess": "Smaller share",
+  "splitWeightMore": "Bigger share",
+  "splitPreview": "Preview: who pays how much (final figures come from the month)"
 }

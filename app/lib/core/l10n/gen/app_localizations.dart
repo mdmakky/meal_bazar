@@ -3469,6 +3469,60 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'পরের মাস'**
   String get dutyNextMonth;
+
+  /// No description provided for @splitEqualAll.
+  ///
+  /// In bn, this message translates to:
+  /// **'সমান (সবাই)'**
+  String get splitEqualAll;
+
+  /// No description provided for @splitByMeal.
+  ///
+  /// In bn, this message translates to:
+  /// **'মিল অনুযায়ী'**
+  String get splitByMeal;
+
+  /// No description provided for @splitSelected.
+  ///
+  /// In bn, this message translates to:
+  /// **'নির্দিষ্ট সদস্য'**
+  String get splitSelected;
+
+  /// No description provided for @splitSelectedHelp.
+  ///
+  /// In bn, this message translates to:
+  /// **'শুধু বাছাই করা সদস্যরা দেবেন, যার যত ভাগ সে তত দেবে'**
+  String get splitSelectedHelp;
+
+  /// No description provided for @splitPickMember.
+  ///
+  /// In bn, this message translates to:
+  /// **'অন্তত একজন সদস্য বাছুন'**
+  String get splitPickMember;
+
+  /// No description provided for @splitWeight.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভাগ {weight}'**
+  String splitWeight(String weight);
+
+  /// No description provided for @splitWeightLess.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভাগ কমান'**
+  String get splitWeightLess;
+
+  /// No description provided for @splitWeightMore.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভাগ বাড়ান'**
+  String get splitWeightMore;
+
+  /// No description provided for @splitPreview.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রিভিউ: কে কত দেবে (আসল হিসাব মাস শেষে)'**
+  String get splitPreview;
 }
 
 class _AppLocalizationsDelegate

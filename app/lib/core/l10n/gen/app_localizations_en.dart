@@ -1875,4 +1875,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dutyNextMonth => 'Next month';
+
+  @override
+  String get splitEqualAll => 'Equal (everyone)';
+
+  @override
+  String get splitByMeal => 'By meals';
+
+  @override
+  String get splitSelected => 'Selected members';
+
+  @override
+  String get splitSelectedHelp =>
+      'Only the selected members pay, each by their share';
+
+  @override
+  String get splitPickMember => 'Pick at least one member';
+
+  @override
+  String splitWeight(String weight) {
+    return 'Share $weight';
+  }
+
+  @override
+  String get splitWeightLess => 'Smaller share';
+
+  @override
+  String get splitWeightMore => 'Bigger share';
+
+  @override
+  String get splitPreview =>
+      'Preview: who pays how much (final figures come from the month)';
 }

@@ -49,6 +49,12 @@ class Member {
   final String? notes;
 
   bool get hasAccount => userId != null;
+
+  /// Present on [d] (PRODUCT_RULES §2, SQL `is_present`).
+  bool presentOn(DateTime d) =>
+      status != MemberStatus.pending &&
+      !joinedOn.isAfter(d) &&
+      (leftOn == null || d.isBefore(leftOn!));
   bool get isActiveManager =>
       role == MemberRole.manager && status == MemberStatus.active;
 }

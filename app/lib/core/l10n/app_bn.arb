@@ -633,5 +633,15 @@
   "@dutyTodayOther": {"placeholders": {"name": {"type": "String"}}},
   "dutyTomorrowOther": "কাল বাজার করবেন {name}",
   "@dutyTomorrowOther": {"placeholders": {"name": {"type": "String"}}},
-  "dutyNextMonth": "পরের মাস"
+  "dutyNextMonth": "পরের মাস",
+  "splitEqualAll": "সমান (সবাই)",
+  "splitByMeal": "মিল অনুযায়ী",
+  "splitSelected": "নির্দিষ্ট সদস্য",
+  "splitSelectedHelp": "শুধু বাছাই করা সদস্যরা দেবেন, যার যত ভাগ সে তত দেবে",
+  "splitPickMember": "অন্তত একজন সদস্য বাছুন",
+  "splitWeight": "ভাগ {weight}",
+  "@splitWeight": {"placeholders": {"weight": {"type": "String"}}},
+  "splitWeightLess": "ভাগ কমান",
+  "splitWeightMore": "ভাগ বাড়ান",
+  "splitPreview": "প্রিভিউ: কে কত দেবে (আসল হিসাব মাস শেষে)"
 }

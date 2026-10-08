@@ -1114,6 +1114,115 @@ class _BazarDetail extends ConsumerWidget {
 
 // ── Expense ───────────────────────────────────────────────────────────────
 
+/// The sheet's split choice: `selected` saves `split = equal` plus shares.
+enum _Split { equal, meal, selected }
+
+/// Member checklist with a ভাগ (weight) stepper each, then a display-only
+/// preview of every selected member's part of the amount.
+class _ShareList extends ConsumerWidget {
+  const _ShareList({
+    required this.messId,
+    required this.amount,
+    required this.weights,
+    required this.onChanged,
+  });
+
+  static const maxWeight = 20.0;
+
+  final String messId;
+  final TextEditingController amount;
+  final Map<String, double> weights;
+  final ValueChanged<Map<String, double>> onChanged;
+
+  /// [w] null = unchecked.
+  void _set(String id, double? w) {
+    final next = {...weights};
+    w == null ? next.remove(id) : next[id] = w;
+    onChanged(next);
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final bn = banglaDigits(context);
+    final members = [
+      for (final m
+          in ref.watch(membersProvider(messId)).value ?? const <Member>[])
+        if (weights.containsKey(m.id) ||
+            m.status == MemberStatus.active ||
+            m.status == MemberStatus.inactive)
+          m,
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (final m in members)
+          Row(
+            children: [
+              Expanded(
+                child: MergeSemantics(
+                  child: InkWell(
+                    onTap: () =>
+                        _set(m.id, weights.containsKey(m.id) ? null : 1),
+                    child: Row(
+                      children: [
+                        Checkbox(
+                          value: weights.containsKey(m.id),
+                          onChanged: (v) => _set(m.id, v! ? 1 : null),
+                        ),
+                        Flexible(child: Text(m.displayName)),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              if (weights[m.id] case final w?) ...[
+                IconButton(
+                  tooltip: '${l.splitWeightLess} ${m.displayName}',
+                  onPressed: w > 1 ? () => _set(m.id, w - 1) : null,
+                  icon: const Icon(Icons.remove),
+                ),
+                Text(l.splitWeight(Fmt.digits(_num(w), bangla: bn))),
+                IconButton(
+                  tooltip: '${l.splitWeightMore} ${m.displayName}',
+                  onPressed: w < maxWeight ? () => _set(m.id, w + 1) : null,
+                  icon: const Icon(Icons.add),
+                ),
+              ],
+            ],
+          ),
+        ValueListenableBuilder(
+          valueListenable: amount,
+          builder: (context, v, _) {
+            final a = parseAmount(v.text);
+            if (a == null || weights.isEmpty) return const SizedBox.shrink();
+            final preview = sharePreview(a, weights);
+            return Padding(
+              padding: const EdgeInsets.only(top: AppSpace.sm),
+              child: Column(
+                key: const Key('share-preview'),
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: AppSpace.xs,
+                children: [
+                  _Label(l.splitPreview),
+                  for (final m in members)
+                    if (preview[m.id] case final p?)
+                      Row(
+                        children: [
+                          Expanded(child: Text(m.displayName)),
+                          Money(p, banglaDigits: bn),
+                        ],
+                      ),
+                ],
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+}
+
 class _ExpenseForm extends ConsumerStatefulWidget {
   const _ExpenseForm({this.existing});
 
@@ -1132,7 +1241,14 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm>
   late final _note = TextEditingController(text: _e?.note);
   late var _date = _e?.date ?? today();
   late var _category = _e?.categoryId;
-  late var _split = _e?.split ?? SplitMethod.equal;
+  late var _split = _e == null
+      ? _Split.equal
+      : _e.shares.isNotEmpty
+      ? _Split.selected
+      : _e.split == SplitMethod.meal
+      ? _Split.meal
+      : _Split.equal;
+  late var _weights = {...?_e?.shares};
   late var _pocket = _e?.paidByMemberId != null;
   late var _paidBy = _e?.paidByMemberId;
 
@@ -1147,6 +1263,20 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm>
     _amount.dispose();
     _note.dispose();
     super.dispose();
+  }
+
+  /// "Selected members" starts with everyone present on the date, ভাগ 1.
+  Future<void> _pickSplit(_Split s, String messId) async {
+    setState(() => _split = s);
+    if (s != _Split.selected || _weights.isNotEmpty) return;
+    final all = await ref.read(membersProvider(messId).future);
+    if (!mounted || _split != _Split.selected || _weights.isNotEmpty) return;
+    setState(
+      () => _weights = {
+        for (final m in all)
+          if (m.presentOn(_date)) m.id: 1,
+      },
+    );
   }
 
   @override
@@ -1182,27 +1312,47 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm>
                         selected: c.id == _category,
                         onSelected: (_) => setState(() {
                           _category = c.id;
-                          _split = c.defaultSplit;
+                          _split = c.defaultSplit == SplitMethod.meal
+                              ? _Split.meal
+                              : _Split.equal;
                         }),
                       ),
                   ],
                 ),
               ),
               _Label(l.expenseSplit),
-              SegmentedButton<SplitMethod>(
-                showSelectedIcon: false,
-                segments: [
-                  for (final s in SplitMethod.values)
-                    ButtonSegment(value: s, label: Text(splitLabel(l, s))),
+              Wrap(
+                spacing: AppSpace.sm,
+                runSpacing: AppSpace.sm,
+                children: [
+                  for (final (s, label) in [
+                    (_Split.equal, l.splitEqualAll),
+                    (_Split.meal, l.splitByMeal),
+                    (_Split.selected, l.splitSelected),
+                  ])
+                    ChoiceChip(
+                      label: Text(label),
+                      selected: s == _split,
+                      onSelected: (_) => _pickSplit(s, messId),
+                    ),
                 ],
-                selected: {_split},
-                onSelectionChanged: (s) => setState(() => _split = s.first),
               ),
-              _Label(
-                _split == SplitMethod.meal
-                    ? l.expenseSplitMealHelp
-                    : l.expenseSplitEqualHelp,
-              ),
+              _Label(switch (_split) {
+                _Split.equal => l.expenseSplitEqualHelp,
+                _Split.meal => l.expenseSplitMealHelp,
+                _Split.selected => l.splitSelectedHelp,
+              }),
+              if (_split == _Split.selected)
+                _Required(
+                  ok: () => _weights.isNotEmpty,
+                  message: l.splitPickMember,
+                  child: _ShareList(
+                    messId: messId,
+                    amount: _amount,
+                    weights: _weights,
+                    onChanged: (w) => setState(() => _weights = w),
+                  ),
+                ),
               _PaidFrom(
                 messId: messId,
                 pocket: _pocket,
@@ -1225,7 +1375,10 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm>
                       date: _date,
                       categoryId: _category!,
                       amount: parseAmount(_amount.text)!,
-                      split: _split,
+                      split: _split == _Split.meal
+                          ? SplitMethod.meal
+                          : SplitMethod.equal,
+                      shares: _split == _Split.selected ? _weights : const {},
                       paidByMemberId: _pocket ? _paidBy : null,
                       note: _trimmed(_note),
                       receiptPath: await uploadPhoto(messId),

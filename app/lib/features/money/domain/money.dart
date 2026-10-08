@@ -150,6 +150,7 @@ class Expense {
     this.paidByMemberId,
     this.note,
     this.receiptPath,
+    this.shares = const {},
   });
 
   factory Expense.fromJson(Map<String, dynamic> j) => Expense(
@@ -162,6 +163,10 @@ class Expense {
     paidByMemberId: j['paid_by_member_id'] as String?,
     note: j['note'] as String?,
     receiptPath: j['receipt_path'] as String?,
+    shares: {
+      for (final s in (j['expense_shares'] as List? ?? const []))
+        (s as Map<String, dynamic>)['member_id'] as String: _d(s['weight']),
+    },
   );
 
   final String id;
@@ -173,6 +178,14 @@ class Expense {
   final String? paidByMemberId;
   final String? note;
   final String? receiptPath;
+
+  /// `expense_shares`: member id → weight. Empty = the equal split among
+  /// everyone present; set = only these members pay, by weight.
+  final Map<String, double> shares;
+
+  List<Map<String, dynamic>> sharesJson() => [
+    for (final s in shares.entries) {'member_id': s.key, 'weight': s.value},
+  ];
 
   Map<String, dynamic> toJson() => {
     'id': id,
@@ -286,6 +299,17 @@ double? parseAmount(String raw) {
 /// bazar total; the stored amount is whatever the user confirms.
 double itemsTotal(Iterable<double> prices) =>
     prices.fold<int>(0, (s, p) => s + (p * 100).round()) / 100;
+
+/// Display-only preview of each selected member's part of [amount]
+/// (amount × w / Σw, rounded to paisa). The billed figure comes from SQL
+/// `member_balances`; this is never stored or used for balances.
+Map<String, double> sharePreview(double amount, Map<String, double> weights) {
+  final total = weights.values.fold<double>(0, (s, w) => s + w);
+  return {
+    for (final e in weights.entries)
+      e.key: total == 0 ? 0 : (amount * e.value / total * 100).round() / 100,
+  };
+}
 
 /// The parts of a member's bill, as the SQL reported them.
 enum BillPart { opening, credit, food, extra }

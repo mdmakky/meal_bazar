@@ -456,6 +456,82 @@ void main() {
       expect(e.amount, 800);
     });
 
+    testWidgets('expense among selected members: weights and preview', (
+      tester,
+    ) async {
+      await pump(tester, opener(showAddExpenseSheet));
+      await openSheet(tester);
+      await tester.enterText(find.byKey(const Key('amount')), '900');
+      await tester.tap(find.widgetWithText(ChoiceChip, 'ওয়াইফাই'));
+      await tester.tap(find.widgetWithText(ChoiceChip, l.splitSelected));
+      await tester.pumpAndSettle();
+
+      // Everyone present starts checked with ভাগ ১: ৳৪৫০ each (preview only).
+      final preview = find.byKey(const Key('share-preview'));
+      expect(find.text(l.splitPreview), findsOneWidget);
+      String shown(num v) => Fmt.money(v, banglaDigits: true);
+      expect(
+        find.descendant(of: preview, matching: find.text(shown(450))),
+        findsNWidgets(2),
+      );
+
+      final more = find.byTooltip('${l.splitWeightMore} Rahim');
+      await tester.ensureVisible(more);
+      await tester.tap(more);
+      await tester.pumpAndSettle();
+      expect(find.text(l.splitWeight('২')), findsOneWidget);
+      expect(
+        find.descendant(of: preview, matching: find.text(shown(600))),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: preview, matching: find.text(shown(300))),
+        findsOneWidget,
+      );
+
+      await tapSave(tester);
+      final e =
+          verify(() => repo.saveExpense(captureAny())).captured.single
+              as Expense;
+      expect(e.split, SplitMethod.equal);
+      expect(e.shares, {'me': 2.0, 'k': 1.0});
+      expect(e.sharesJson(), [
+        {'member_id': 'me', 'weight': 2.0},
+        {'member_id': 'k', 'weight': 1.0},
+      ]);
+    });
+
+    testWidgets('selected split needs a member; equal split sends no shares', (
+      tester,
+    ) async {
+      await pump(tester, opener(showAddExpenseSheet));
+      await openSheet(tester);
+      await tester.enterText(find.byKey(const Key('amount')), '500');
+      await tester.tap(find.widgetWithText(ChoiceChip, 'ওয়াইফাই'));
+      await tester.tap(find.widgetWithText(ChoiceChip, l.splitSelected));
+      await tester.pumpAndSettle();
+      for (final i in [0, 1]) {
+        final box = find.byType(Checkbox).at(i);
+        await tester.ensureVisible(box);
+        await tester.tap(box);
+        await tester.pumpAndSettle();
+      }
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('share-preview')), findsNothing);
+      await tapSave(tester);
+      expect(find.text(l.splitPickMember), findsOneWidget);
+      verifyNever(() => repo.saveExpense(any()));
+
+      await tester.tap(find.widgetWithText(ChoiceChip, l.splitEqualAll));
+      await tester.pumpAndSettle();
+      await tapSave(tester);
+      final e =
+          verify(() => repo.saveExpense(captureAny())).captured.single
+              as Expense;
+      expect(e.split, SplitMethod.equal);
+      expect(e.shares, isEmpty);
+    });
+
     testWidgets('deposit: member, method and TrxID', (tester) async {
       await pump(tester, opener(showAddDepositSheet));
       await openSheet(tester);
