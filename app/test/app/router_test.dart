@@ -91,6 +91,11 @@ void main() {
     expect(land('/pending', memberships: active), '/today');
     expect(land('/more/members', memberships: active), '/more/members');
     expect(land('/money', memberships: [...pending, ...active]), '/money');
+    // The 5 tabs.
+    for (final tab in ['/today', '/meals', '/bazar', '/money', '/more']) {
+      expect(land(tab, memberships: active), tab);
+    }
+    expect(land('/bazar', signedIn: false), '/auth/sign-in');
   });
 
   test('invite deep link survives sign-in and profile setup', () {

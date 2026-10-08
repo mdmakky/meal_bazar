@@ -70,13 +70,14 @@ Headings use sentence case. There are no eyebrows or kickers above headings.
 | `AppSheet.show()` | A modal bottom sheet with a drag handle, a title, a scrollable body and a sticky action row. It respects the keyboard (IME) inset. |
 | `Figure` | A large tabular number with a label and an optional **proof line**. Tapping expands the proof. Colored only for due/advance. |
 | `Money` | Formats ৳ in Bangla or Latin digits with tabular figures, and colors itself by sign when `signed: true`. |
-| `MealCell` (Phase 2) | A tap cycles 1 → ½ → 0. A long press opens Off / Guest / custom. *Off* renders as a struck-through dash, and *Guest* adds a small `+n`. Today's column carries the accent wash. |
+| Meal stepper grid | `− value +` per cell (28 dp circles in 40 × 56 dp hit areas). A tap on the value cycles 0 → 0.5 → 1 → 1.5 → 2 → 0; −/+ step 0.5 (0–5); long press opens Off / Guest / custom. Values are decimals (০.৫). Name column pinned; meal columns scroll sideways when they do not fit. |
+| `MealCell` (read-only views) | A tap cycles 1 → ½ → 0. A long press opens Off / Guest / custom. *Off* renders as a struck-through dash, and *Guest* adds a small `+n`. Today's column carries the accent wash. |
 | `SyncBadge` | A dot plus a label. Synced is quiet ink-tertiary with no dot. Syncing shows an accent dot that pulses. Offline shows a hollow dot ("অফলাইনে সেভ হয়েছে"), which is calm and never red. Failed shows a warning dot plus a Retry action. |
 | `LoadingView` / `EmptyView` / `ErrorView` | Every screen uses these three. Empty states name the next action ("+ আজকের মিল যোগ করুন"). Errors name the problem and the recovery, with a Retry button. Skeletons are hairline blocks, not shimmer. |
 | Snackbar | M3 floating snackbar, ink background. Used for transient feedback such as an undo after a delete. |
 
 ## Navigation
-An M3 `NavigationBar` with 4 destinations: **আজ (Today) · মিল (Meals) · হিসাব (Money) · আরও (More)**. Bazar, expenses and deposits live under হিসাব. Quick actions open on the Today screen as sheets. The system Back gesture is honored everywhere, and the app runs edge-to-edge with insets.
+An M3 `NavigationBar` with 5 destinations: **হোম (Home, `/today`) · মিল (Meals) · বাজার (Bazar) · হিসাব (Money) · আরও (More)**. Meals are entered on মিল (member × meal stepper grid); হোম shows the day in brief with a "মিল বসান" link. Expenses and deposits live under হিসাব. Quick actions open on হোম and from the মিল FAB as sheets. The system Back gesture is honored everywhere, and the app runs edge-to-edge with insets.
 
 ## Motion
 - One authored moment: the **proof reveal**. A figure's proof line rises 8 dp and fades in over 220 ms with an emphasized-decelerate curve.

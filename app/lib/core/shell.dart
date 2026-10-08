@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../features/mess/application/mess_providers.dart';
 import 'l10n/gen/app_localizations.dart';
 import 'widgets/widgets.dart';
 
-/// The 4-tab scaffold: আজ · মিল · হিসাব · আরও.
+/// The 5-tab scaffold: হোম · মিল · বাজার · হিসাব · আরও.
 class AppShell extends StatelessWidget {
   const AppShell({super.key, required this.shell});
 
@@ -27,14 +25,19 @@ class AppShell extends StatelessWidget {
               shell.goBranch(i, initialLocation: i == shell.currentIndex),
           destinations: [
             NavigationDestination(
-              icon: const Icon(Icons.today_outlined),
-              selectedIcon: const Icon(Icons.today),
-              label: l.navToday,
+              icon: const Icon(Icons.home_outlined),
+              selectedIcon: const Icon(Icons.home),
+              label: l.navHome,
             ),
             NavigationDestination(
               icon: const Icon(Icons.restaurant_outlined),
               selectedIcon: const Icon(Icons.restaurant),
               label: l.navMeals,
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.shopping_basket_outlined),
+              selectedIcon: const Icon(Icons.shopping_basket),
+              label: l.navBazar,
             ),
             NavigationDestination(
               icon: const Icon(Icons.account_balance_wallet_outlined),
@@ -49,24 +52,6 @@ class AppShell extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-/// Phase 1 tab body: mess name in the app bar, "coming soon" below.
-// ponytail: shared by Today/Meals/Money until Phase 2 replaces each.
-class ComingSoonTab extends ConsumerWidget {
-  const ComingSoonTab({super.key, required this.icon});
-
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = AppLocalizations.of(context);
-    final mess = ref.watch(currentMessProvider);
-    return Scaffold(
-      appBar: AppBar(title: Text(mess?.name ?? l.appName)),
-      body: EmptyView(icon: icon, message: l.shellComingSoon),
     );
   }
 }

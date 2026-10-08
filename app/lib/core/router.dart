@@ -158,6 +158,11 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           StatefulShellBranch(
             routes: [
+              GoRoute(path: '/bazar', builder: (_, _) => const BazarScreen()),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
               GoRoute(
                 path: '/money',
                 builder: (_, _) => const MoneyScreen(),
