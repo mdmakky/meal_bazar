@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/db/db.dart';
 import '../../../core/failure_text.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
 import '../../../core/widgets/widgets.dart';
@@ -68,13 +69,25 @@ Future<bool> confirmDialog(
   return ok ?? false;
 }
 
-/// Confirms, then signs out. The router takes the user to sign-in.
+/// Confirms, then signs out. The router takes the user to sign-in. Signing
+/// out wipes the local DB, so unsent offline writes are called out.
 Future<void> confirmSignOut(BuildContext context, WidgetRef ref) async {
   final l = AppLocalizations.of(context);
+  final unsent = await ref.read(appDbProvider).unsentCount();
+  if (!context.mounted) return;
   final ok = await confirmDialog(
     context,
     title: l.moreSignOutConfirmTitle,
-    body: l.moreSignOutConfirmBody,
+    body: [
+      l.moreSignOutConfirmBody,
+      if (unsent > 0)
+        l.moreSignOutUnsent(
+          Fmt.digits(
+            '$unsent',
+            bangla: Localizations.localeOf(context).languageCode == 'bn',
+          ),
+        ),
+    ].join('\n\n'),
     action: l.moreSignOut,
   );
   if (!ok) return;

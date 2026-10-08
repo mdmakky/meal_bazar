@@ -218,6 +218,12 @@ abstract class AppLocalizations {
   /// **'সিঙ্ক হয়নি'**
   String get syncFailed;
 
+  /// No description provided for @syncDiscard.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাদ দিন'**
+  String get syncDiscard;
+
   /// No description provided for @genericError.
   ///
   /// In bn, this message translates to:
@@ -763,6 +769,12 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'সাইন আউট করবেন?'**
   String get moreSignOutConfirmTitle;
+
+  /// No description provided for @moreSignOutUnsent.
+  ///
+  /// In bn, this message translates to:
+  /// **'অফলাইনে সেভ করা {count} টি এন্ট্রি এখনো পাঠানো হয়নি — সাইন আউট করলে মুছে যাবে'**
+  String moreSignOutUnsent(String count);
 
   /// No description provided for @moreSignOutConfirmBody.
   ///

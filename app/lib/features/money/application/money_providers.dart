@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show ProviderOrFamily;
 
+import '../../../core/db/db.dart';
+import '../../../core/db/sync.dart';
 import '../../../core/supabase.dart';
 import '../../month/application/month_providers.dart';
 import '../../month/domain/month.dart';
@@ -8,7 +10,11 @@ import '../data/money_repository.dart';
 import '../domain/money.dart';
 
 final moneyRepositoryProvider = Provider<MoneyRepository>(
-  (ref) => MoneyRepository(ref.watch(supabaseClientProvider)),
+  (ref) => MoneyRepository(
+    ref.watch(supabaseClientProvider),
+    ref.watch(appDbProvider),
+    ref.watch(syncServiceProvider),
+  ),
 );
 
 typedef Paged<T> = ({List<T> items, bool hasMore});

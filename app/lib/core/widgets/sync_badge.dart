@@ -5,12 +5,19 @@ import '../theme/tokens.dart';
 
 enum SyncState { synced, syncing, offline, failed }
 
-/// Dot + label. Offline is calm (hollow dot, never red); failed offers retry.
+/// Dot + label. Offline is calm (hollow dot, never red); failed offers retry
+/// and discard (drop the local write, keep the server's value).
 class SyncBadge extends StatelessWidget {
-  const SyncBadge({super.key, required this.state, this.onRetry});
+  const SyncBadge({
+    super.key,
+    required this.state,
+    this.onRetry,
+    this.onDiscard,
+  });
 
   final SyncState state;
   final VoidCallback? onRetry;
+  final VoidCallback? onDiscard;
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +45,8 @@ class SyncBadge extends StatelessWidget {
             const SizedBox(width: AppSpace.xs),
             TextButton(onPressed: onRetry, child: Text(l.retry)),
           ],
+          if (state == SyncState.failed && onDiscard != null)
+            TextButton(onPressed: onDiscard, child: Text(l.syncDiscard)),
         ],
       ),
     );

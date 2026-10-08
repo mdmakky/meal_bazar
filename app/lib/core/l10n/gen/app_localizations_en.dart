@@ -69,6 +69,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get syncFailed => 'Sync failed';
 
   @override
+  String get syncDiscard => 'Discard';
+
+  @override
   String get genericError => 'Something went wrong. Please try again.';
 
   @override
@@ -364,6 +367,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get moreSignOutConfirmTitle => 'Sign out?';
+
+  @override
+  String moreSignOutUnsent(String count) {
+    return '$count entries saved offline have not been sent yet — signing out will delete them';
+  }
 
   @override
   String get moreSignOutConfirmBody =>

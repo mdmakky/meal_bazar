@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/db/db.dart';
 import '../../../core/supabase.dart';
 import '../../auth/application/auth_providers.dart';
 import '../data/mess_repository.dart';
@@ -7,7 +8,10 @@ import '../domain/member.dart';
 import '../domain/mess.dart';
 
 final messRepositoryProvider = Provider<MessRepository>(
-  (ref) => MessRepository(ref.watch(supabaseClientProvider)),
+  (ref) => MessRepository(
+    ref.watch(supabaseClientProvider),
+    ref.watch(appDbProvider),
+  ),
 );
 
 /// My memberships; empty when signed out.

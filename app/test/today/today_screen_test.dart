@@ -1,10 +1,17 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:drift/drift.dart' show DatabaseConnection, driftRuntimeOptions;
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:http/testing.dart';
 import 'package:meal_bazar/core/dates.dart';
+import 'package:meal_bazar/core/db/db.dart';
+import 'package:meal_bazar/core/db/sync.dart';
 import 'package:meal_bazar/core/errors.dart';
 import 'package:meal_bazar/core/format.dart';
 import 'package:meal_bazar/core/l10n/gen/app_localizations.dart';
@@ -20,6 +27,8 @@ import 'package:meal_bazar/features/month/domain/month.dart';
 import 'package:meal_bazar/features/today/application/day_grid.dart';
 import 'package:meal_bazar/features/today/presentation/today_screen.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:supabase_flutter/supabase_flutter.dart'
+    show AuthClientOptions, SupabaseClient;
 
 class MockMealRepository extends Mock implements MealRepository {}
 
@@ -67,6 +76,7 @@ Future<void> pump(
   WidgetTester tester, {
   bool manager = true,
   DateTime? now,
+  List<Override> local = const [],
 }) async {
   final router = GoRouter(
     routes: [GoRoute(path: '/', builder: (_, _) => const TodayScreen())],
@@ -74,7 +84,8 @@ Future<void> pump(
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
-        mealRepositoryProvider.overrideWithValue(repo),
+        if (local.isEmpty) mealRepositoryProvider.overrideWithValue(repo),
+        ...local,
         if (now != null) nowProvider.overrideWithValue(() => now),
         myMembershipsProvider.overrideWith(
           (ref) async => [
@@ -351,5 +362,129 @@ void main() {
         () => repo.setMyMealOff(any(), any(), any(), off: any(named: 'off')),
       );
     });
+  });
+
+  testWidgets('offline: renders from Drift, saves locally, says so', (
+    tester,
+  ) async {
+    driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+    final db = AppDb(
+      DatabaseConnection(
+        NativeDatabase.memory(),
+        closeStreamsSynchronously: true,
+      ),
+    );
+    final sync = SyncService(db, (_, _) async {
+      throw const SocketException('offline');
+    });
+    final offline = SupabaseClient(
+      'http://localhost',
+      'anon',
+      httpClient: MockClient((_) async => throw const SocketException('x')),
+      authOptions: const AuthClientOptions(autoRefreshToken: false),
+    );
+    // What an earlier online session left behind.
+    await tester.runAsync(
+      () => db.cachedRows(
+        'meal_types:mess1',
+        () async => [
+          for (final (i, n) in ['lunch', 'dinner'].indexed)
+            {
+              'id': n,
+              'mess_id': 'mess1',
+              'name': n == 'lunch' ? 'দুপুর' : 'রাত',
+              'sort_order': i,
+              'weight': 1,
+              'enabled': true,
+            },
+        ],
+      ),
+    );
+    await tester.runAsync(
+      () => db
+          .into(db.mealEntries)
+          .insert(
+            MealEntriesCompanion.insert(
+              id: 'e1',
+              messId: 'mess1',
+              memberId: 'karim',
+              mealTypeId: 'lunch',
+              date: isoDate(day),
+              count: 1,
+              guestCount: 0,
+              isOff: false,
+              updatedAt: DateTime.now(),
+            ),
+          ),
+    );
+
+    await pump(
+      tester,
+      local: [
+        appDbProvider.overrideWithValue(db),
+        syncServiceProvider.overrideWithValue(sync),
+        mealRepositoryProvider.overrideWithValue(
+          MealRepository(offline, db, sync),
+        ),
+      ],
+    );
+    expect(find.text(l.syncSynced), findsOneWidget);
+    expect(find.bySemanticsLabel('Karim দুপুর: ১'), findsOneWidget);
+
+    await tester.tap(find.bySemanticsLabel('Karim দুপুর: ১'));
+    await tester.pumpAndSettle();
+    expect(find.bySemanticsLabel('Karim দুপুর: ½'), findsOneWidget);
+    expect(find.text(l.syncOffline), findsOneWidget);
+    expect(find.byType(SnackBar), findsNothing);
+    final local = await tester.runAsync(
+      () => db.select(db.mealEntries).getSingle(),
+    );
+    expect(local!.count, 0.5);
+
+    sync.dispose();
+    await tester.pumpWidget(const SizedBox());
+    await tester.runAsync(db.close);
+  });
+
+  testWidgets('sync badge counts this mess only; discard drops failed ops', (
+    tester,
+  ) async {
+    final db = AppDb(
+      DatabaseConnection(
+        NativeDatabase.memory(),
+        closeStreamsSynchronously: true,
+      ),
+    );
+    Future<void> failed(String id, String messId) async {
+      await db.enqueue('meal_entries', id, id, {'mess_id': messId});
+      await db.updateOp(id, status: opFailed, lastError: 'monthClosed');
+    }
+
+    when(
+      () => repo.entriesForDay(any(), any()),
+    ).thenAnswer((_) async => [entry('karim', 'lunch', 1)]);
+    await tester.runAsync(() => failed('other', 'mess2'));
+    await pump(
+      tester,
+      local: [
+        appDbProvider.overrideWithValue(db),
+        mealRepositoryProvider.overrideWithValue(repo),
+      ],
+    );
+    expect(find.text(l.syncSynced), findsOneWidget);
+
+    await failed('mine', 'mess1');
+    await tester.pumpAndSettle();
+    expect(find.text(l.syncFailed), findsOneWidget);
+    expect(find.text(l.failureMonthClosed), findsOneWidget);
+
+    await tester.tap(find.text(l.syncDiscard));
+    await tester.pumpAndSettle();
+    expect(find.text(l.syncSynced), findsOneWidget);
+    final left = await db.select(db.syncQueue).get();
+    expect(left.map((o) => o.id), ['other']);
+
+    await tester.pumpWidget(const SizedBox());
+    await tester.runAsync(db.close);
   });
 }

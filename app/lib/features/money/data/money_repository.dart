@@ -1,32 +1,193 @@
+import 'package:drift/drift.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/dates.dart';
+import '../../../core/db/db.dart';
+import '../../../core/db/sync.dart';
 import '../../../core/errors.dart';
+import '../../../core/ids.dart';
 import '../../month/domain/month.dart';
 import '../domain/money.dart';
 
 const moneyPageSize = 50;
 
+/// Bazars are offline-first (Drift + sync queue, keyed on the client UUID);
+/// expenses, deposits and months stay online-only.
 class MoneyRepository {
-  MoneyRepository(this._client);
+  MoneyRepository(this._client, this._db, this._sync);
 
   final SupabaseClient _client;
+  final AppDb _db;
+  final SyncService _sync;
 
+  /// Pulls a page when online, then answers from Drift (unsent bazars too).
+  // ponytail: offsets count local rows, so a page boundary may shift by the
+  // number of unsent bazars; fine below hundreds of bazars a month.
   Future<List<Bazar>> bazars(String messId, MonthPeriod p, {int from = 0}) =>
       guard(() async {
-        final rows = await _client
-            .from('bazars')
-            .select('*, bazar_items(*)')
-            .eq('mess_id', messId)
-            .isFilter('deleted_at', null)
-            .gte('date', isoDate(p.start))
-            .lt('date', isoDate(p.end))
-            .order('date', ascending: false)
-            .order('created_at', ascending: false)
-            .order('sort', referencedTable: 'bazar_items')
-            .range(from, from + moneyPageSize - 1);
-        return rows.map(Bazar.fromJson).toList();
+        try {
+          final rows = await guard(
+            () => _client
+                .from('bazars')
+                .select('*, bazar_items(*)')
+                .eq('mess_id', messId)
+                .isFilter('deleted_at', null)
+                .gte('date', isoDate(p.start))
+                .lt('date', isoDate(p.end))
+                .order('date', ascending: false)
+                .order('created_at', ascending: false)
+                .order('sort', referencedTable: 'bazar_items')
+                .range(from, from + moneyPageSize - 1)
+                .retry(enabled: false),
+          );
+          await _mergeBazars(messId, p, rows, replace: from == 0);
+        } on AppFailure catch (e) {
+          if (e.kind != FailureKind.network) rethrow;
+        }
+        final local =
+            await (_inPeriod(messId, p)
+                  ..orderBy([
+                    (b) => OrderingTerm.desc(b.date),
+                    (b) => OrderingTerm.desc(b.createdAt),
+                  ])
+                  ..limit(moneyPageSize, offset: from))
+                .get();
+        final items =
+            await (_db.select(_db.bazarItems)
+                  ..where((i) => i.bazarId.isIn(local.map((b) => b.id)))
+                  ..orderBy([(i) => OrderingTerm.asc(i.sort)]))
+                .get();
+        return [
+          for (final b in local)
+            Bazar(
+              id: b.id,
+              messId: b.messId,
+              date: DateTime.parse(b.date),
+              amount: b.amount,
+              buyerMemberId: b.buyerMemberId,
+              paidByMemberId: b.paidByMemberId,
+              note: b.note,
+              source: b.source,
+              receiptPath: b.receiptPath,
+              items: [
+                for (final i in items)
+                  if (i.bazarId == b.id)
+                    BazarItem(
+                      id: i.id,
+                      name: i.name,
+                      price: i.price,
+                      qty: i.qty,
+                      unit: i.unit,
+                    ),
+              ],
+            ),
+        ];
       });
+
+  SimpleSelectStatement<$BazarsTable, LocalBazar> _inPeriod(
+    String messId,
+    MonthPeriod p,
+  ) => _db.select(_db.bazars)
+    ..where(
+      (b) =>
+          b.messId.equals(messId) &
+          b.date.isBiggerOrEqualValue(isoDate(p.start)) &
+          b.date.isSmallerThanValue(isoDate(p.end)),
+    );
+
+  /// Server rows replace local ones, except bazars with a queued write: those
+  /// keep the local copy unless the server's is newer (last write wins).
+  /// [replace]: first page, so synced bazars missing from it are dropped.
+  Future<void> _mergeBazars(
+    String messId,
+    MonthPeriod p,
+    List<Map<String, dynamic>> rows, {
+    required bool replace,
+  }) => _db.transaction(() async {
+    final ops = await _db.opsFor('bazars');
+    final local = {for (final b in await _inPeriod(messId, p).get()) b.id: b};
+    if (replace) {
+      for (final id in local.keys) {
+        if (!ops.containsKey(id)) await _deleteLocal(id);
+      }
+    }
+    for (final r in rows) {
+      final b = Bazar.fromJson(r);
+      final theirs = DateTime.parse(r['updated_at'] as String);
+      final op = ops[b.id];
+      if (op != null) {
+        final mine = local[b.id]?.updatedAt;
+        if (op.status == opSyncing || (mine != null && !theirs.isAfter(mine))) {
+          continue;
+        }
+        await _db.deleteOp(op.id);
+      }
+      await _writeLocal(
+        b,
+        createdAt: DateTime.parse(r['created_at'] as String),
+        updatedAt: theirs,
+      );
+    }
+  });
+
+  Future<void> _writeLocal(
+    Bazar b, {
+    required DateTime createdAt,
+    required DateTime updatedAt,
+  }) async {
+    await _db
+        .into(_db.bazars)
+        .insert(
+          BazarsCompanion.insert(
+            id: b.id,
+            messId: b.messId,
+            date: isoDate(b.date),
+            amount: b.amount,
+            buyerMemberId: Value(b.buyerMemberId),
+            paidByMemberId: Value(b.paidByMemberId),
+            note: Value(b.note),
+            source: b.source,
+            receiptPath: Value(b.receiptPath),
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+          ),
+          // An edit keeps the bazar's place in the list.
+          onConflict: DoUpdate.withExcluded(
+            (old, excluded) => BazarsCompanion.custom(
+              date: excluded.date,
+              amount: excluded.amount,
+              buyerMemberId: excluded.buyerMemberId,
+              paidByMemberId: excluded.paidByMemberId,
+              note: excluded.note,
+              source: excluded.source,
+              receiptPath: excluded.receiptPath,
+              updatedAt: excluded.updatedAt,
+            ),
+          ),
+        );
+    await (_db.delete(
+      _db.bazarItems,
+    )..where((i) => i.bazarId.equals(b.id))).go();
+    await _db.batch(
+      (batch) => batch.insertAll(_db.bazarItems, [
+        for (final (n, i) in b.items.indexed)
+          BazarItemsCompanion.insert(
+            id: i.id,
+            bazarId: b.id,
+            name: i.name,
+            price: i.price,
+            qty: Value(i.qty),
+            unit: Value(i.unit),
+            sort: n,
+          ),
+      ]),
+    );
+  }
+
+  Future<void> _deleteLocal(String id) async {
+    await (_db.delete(_db.bazarItems)..where((i) => i.bazarId.equals(id))).go();
+    await (_db.delete(_db.bazars)..where((b) => b.id.equals(id))).go();
+  }
 
   Future<List<Expense>> expenses(
     String messId,
@@ -72,13 +233,18 @@ class MoneyRepository {
     return rows.map(ExpenseCategory.fromJson).toList();
   });
 
-  /// Create or update (client id → idempotent), then replace its item lines.
+  /// Saves locally and queues the upsert (client id → idempotent; item lines
+  /// are replaced). Waits for one sync attempt; offline it returns at once.
   Future<void> saveBazar(Bazar b) => guard(() async {
-    requireRows(await _client.from('bazars').upsert(b.toJson()).select('id'));
-    await _client.from('bazar_items').delete().eq('bazar_id', b.id);
-    if (b.items.isNotEmpty) {
-      await _client.from('bazar_items').insert(b.itemsJson());
-    }
+    final now = DateTime.now().toUtc();
+    await _db.transaction(() async {
+      await _writeLocal(b, createdAt: now, updatedAt: now);
+      await _db.enqueue('bazars', b.id, uuidV4(), {
+        ...b.toJson(),
+        'bazar_items': b.itemsJson(),
+      });
+    });
+    await _sync.drain();
   });
 
   Future<void> saveExpense(Expense e) => guard(() async {
@@ -115,7 +281,16 @@ class MoneyRepository {
     ),
   );
 
-  Future<void> deleteBazar(String id) => _softDelete('bazars', id);
+  /// Online only. A bazar whose sync failed (e.g. month closed) is dropped
+  /// locally; the next pull restores any copy the server already has.
+  Future<void> deleteBazar(String id) => guard(() async {
+    final op = (await _db.opsFor('bazars'))[id];
+    if (op?.status != opFailed) await _softDelete('bazars', id);
+    await _db.transaction(() async {
+      if (op != null) await _db.deleteOp(op.id);
+      await _deleteLocal(id);
+    });
+  });
   Future<void> deleteExpense(String id) => _softDelete('expenses', id);
   Future<void> deleteDeposit(String id) => _softDelete('deposits', id);
 

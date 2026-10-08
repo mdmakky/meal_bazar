@@ -69,6 +69,9 @@ class AppLocalizationsBn extends AppLocalizations {
   String get syncFailed => 'সিঙ্ক হয়নি';
 
   @override
+  String get syncDiscard => 'বাদ দিন';
+
+  @override
   String get genericError => 'কিছু একটা সমস্যা হয়েছে। আবার চেষ্টা করুন।';
 
   @override
@@ -359,6 +362,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get moreSignOutConfirmTitle => 'সাইন আউট করবেন?';
+
+  @override
+  String moreSignOutUnsent(String count) {
+    return 'অফলাইনে সেভ করা $count টি এন্ট্রি এখনো পাঠানো হয়নি — সাইন আউট করলে মুছে যাবে';
+  }
 
   @override
   String get moreSignOutConfirmBody =>

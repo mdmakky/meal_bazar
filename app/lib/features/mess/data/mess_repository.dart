@@ -1,25 +1,32 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../core/db/db.dart';
 import '../../../core/errors.dart';
 import '../domain/member.dart';
 import '../domain/mess.dart';
 
 class MessRepository {
-  MessRepository(this._client);
+  MessRepository(this._client, this._db);
 
   final SupabaseClient _client;
+  final AppDb _db;
 
-  /// My memberships (pending, active, inactive), oldest first.
+  /// My memberships (pending, active, inactive), oldest first. Cached for
+  /// offline start.
   Future<List<Membership>> myMemberships() => guard(() async {
     final uid =
         _client.auth.currentUser?.id ??
         (throw const AppFailure(FailureKind.notAuthenticated));
-    final rows = await _client
-        .from('mess_members')
-        .select('*, messes(*)')
-        .eq('user_id', uid)
-        .neq('status', MemberStatus.left.name)
-        .order('created_at');
+    final rows = await _db.cachedRows(
+      'memberships:$uid',
+      () => _client
+          .from('mess_members')
+          .select('*, messes(*)')
+          .eq('user_id', uid)
+          .neq('status', MemberStatus.left.name)
+          .order('created_at')
+          .retry(enabled: false),
+    );
     return rows.map(Membership.fromJson).toList();
   });
 
@@ -60,12 +67,16 @@ class MessRepository {
 
   /// All members including pending and left, by join date.
   Future<List<Member>> members(String messId) => guard(() async {
-    final rows = await _client
-        .from('mess_members')
-        .select()
-        .eq('mess_id', messId)
-        .order('joined_on')
-        .order('display_name');
+    final rows = await _db.cachedRows(
+      'members:$messId',
+      () => _client
+          .from('mess_members')
+          .select()
+          .eq('mess_id', messId)
+          .order('joined_on')
+          .order('display_name')
+          .retry(enabled: false),
+    );
     return rows.map(Member.fromJson).toList();
   });
 
