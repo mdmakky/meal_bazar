@@ -4,13 +4,18 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:meal_bazar/core/dates.dart';
 import 'package:meal_bazar/core/l10n/gen/app_localizations.dart';
 import 'package:meal_bazar/core/theme/app_theme.dart';
+import 'package:meal_bazar/features/duty/application/duty_providers.dart';
 import 'package:meal_bazar/features/duty/data/duty_repository.dart';
 import 'package:meal_bazar/features/duty/domain/duty.dart';
 import 'package:meal_bazar/features/duty/presentation/duty_screen.dart';
 import 'package:meal_bazar/features/duty/presentation/today_duty_card.dart';
 import 'package:meal_bazar/features/mess/application/mess_providers.dart';
 import 'package:meal_bazar/features/mess/domain/member.dart';
+import 'package:meal_bazar/features/reminders/application/reminder_service.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:timezone/data/latest.dart' as tzdata;
+
+import '../reminders/reminders_test.dart' show FakeNotifications;
 
 class MockDutyRepository extends Mock implements DutyRepository {}
 
@@ -204,5 +209,38 @@ void main() {
 
       expect(find.byType(Card), findsNothing);
     });
+  });
+
+  test('loading duties schedules reminders for my upcoming duties', () async {
+    tzdata.initializeTimeZones();
+    final repo = MockDutyRepository();
+    when(() => repo.duties(any(), any(), any())).thenAnswer(
+      (_) async => [
+        duty('a', DateTime(2026, 10, 12), karim.id),
+        duty('b', DateTime(2026, 10, 13), karim.id, done: true),
+        duty('c', DateTime(2026, 10, 14), rahim.id),
+        duty('d', DateTime(2026, 10, 8), karim.id),
+      ],
+    );
+    final fake = FakeNotifications();
+    final container = ProviderContainer(
+      overrides: [
+        dutyRepositoryProvider.overrideWithValue(repo),
+        currentMembershipProvider.overrideWithValue(Membership(member: karim)),
+        reminderServiceProvider.overrideWithValue(
+          ReminderService(fake, clock: () => DateTime.utc(2026, 10, 9, 4)),
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+    await container.read(
+      dutiesProvider((
+        'mess1',
+        DateTime(2026, 10),
+        DateTime(2026, 10, 31),
+      )).future,
+    );
+    await pumpEventQueue();
+    expect(fake.scheduled.keys, [20261012]);
   });
 }

@@ -1,14 +1,31 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../mess/application/mess_providers.dart';
+import '../../reminders/application/reminder_service.dart';
 import '../data/duty_repository.dart';
 import '../domain/duty.dart';
 
-/// Duties for (messId, from, to), both days inclusive.
+/// Duties for (messId, from, to), both days inclusive. Each load also
+/// schedules a reminder for my own upcoming, not-done duties.
 final dutiesProvider = FutureProvider.autoDispose
-    .family<List<BazarDuty>, (String, DateTime, DateTime)>(
-      (ref, k) => ref.watch(dutyRepositoryProvider).duties(k.$1, k.$2, k.$3),
-    );
+    .family<List<BazarDuty>, (String, DateTime, DateTime)>((ref, k) async {
+      final list = await ref
+          .watch(dutyRepositoryProvider)
+          .duties(k.$1, k.$2, k.$3);
+      final me = ref.read(currentMembershipProvider);
+      if (me != null) {
+        final reminders = ref.read(reminderServiceProvider);
+        for (final d in list) {
+          if (d.memberId != me.member.id || d.done) continue;
+          // Best-effort: past dates and "duty off" are skipped by the service.
+          reminders
+              .scheduleDutyReminder(d.date, me.mess?.name ?? '')
+              .catchError((Object e) => debugPrint('duty reminder: $e'));
+        }
+      }
+      return list;
+    });
 
 /// Mutations. Each throws `AppFailure` and refreshes every duty list.
 final dutyControllerProvider = Provider<DutyController>(DutyController.new);
