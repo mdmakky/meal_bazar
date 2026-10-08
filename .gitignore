@@ -20,3 +20,10 @@ node_modules/
 .impeccable/questions/
 .impeccable/*.webp
 .impeccable/*.png
+
+# Local app config (copy env.example.json)
+app/env.json
+
+# Supabase CLI local state
+supabase/.temp/
+supabase/.branches/

@@ -16,12 +16,11 @@ ai-gateway/     Vercel functions (Phase 6)
 ## Running the app
 ```sh
 cd app
+cp env.example.json env.json   # fill in the URL + publishable key (env.json is gitignored)
 flutter pub get
-flutter run \
-  --dart-define=SUPABASE_URL=https://<project>.supabase.co \
-  --dart-define=SUPABASE_ANON_KEY=<anon key>
+flutter run --dart-define-from-file=env.json
 ```
-Only the anon key goes into the app. RLS protects the data. Never put the service-role key or any AI key into the app.
+Only the publishable/anon key goes into the app; RLS protects the data. Never put the secret/service-role key or any AI key into the app.
 
 ## Database
 - Apply migrations: in the Supabase dashboard SQL editor, run `supabase/migrations/*.sql` in order. With the CLI, run `npx supabase db push`.
