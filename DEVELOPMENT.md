@@ -36,11 +36,14 @@ cd app && dart format . && flutter analyze && flutter test
 Don't move to the next phase while any of these fail. Commit each part to `main` once its gate passes.
 
 ## Roadmap
-- [x] **Phase 0**: specs (REQUIREMENTS, PRODUCT_RULES, ARCHITECTURE, DATABASE, AI, DESIGN_SYSTEM, PRODUCT)
-- [ ] **Phase 1**: Flutter scaffold, theme and core widgets, l10n bn/en, core migration and RLS, phone OTP auth, create/join mess, members
-- [ ] **Phase 2**: meal types, meal grid, Today screen, meal SQL views (then the impeccable finish review plus DESIGN.md)
-- [ ] **Phase 3**: bazar, expenses, deposits, guest meals
-- [ ] **Phase 4**: month totals and balances, close/reopen, closed-month guard, PDF/share
-- [ ] **Phase 5**: Drift, sync queue, sync badges
-- [ ] **Phase 6**: AI gateway, meal draft, bazar-receipt draft
-- [ ] **Phase 7**: FCM, audit UI, meal-off, v1.1 items
+- [x] **Phase 0**: specs
+- [x] **Phase 1**: scaffold, design system, l10n, core migration and RLS, phone OTP, create/join mess, members, invites
+- [x] **Phase 2**: meal types, Today screen and meal grid, Meals tab (impeccable finish review and DESIGN.md still pending)
+- [x] **Phase 3**: bazar, expenses, deposits, guest meals
+- [x] **Phase 4**: SQL engine, close/reopen, closed-month guard, PDF report and share
+- [ ] **Phase 5**: Drift offline mirror and sync queue (blocked: drift_dev needs Dart 3.10, so upgrade Flutter first)
+- [x] **Phase 6**: AI gateway, meal draft, receipt scan
+- [ ] **Phase 7**: FCM (needs a Firebase project), meal-off cutoff for members, deposit verification
+- [x] Account deletion and audit log screen (Play Store and v1.1)
+- [ ] Hard-delete auth users from `deletion_requests` (admin job)
+- [ ] Receipt photo upload to Storage
