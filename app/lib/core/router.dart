@@ -5,8 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../features/account/presentation/account_screen.dart';
 import '../features/audit/presentation/audit_screen.dart';
 import '../features/auth/application/auth_providers.dart';
-import '../features/auth/presentation/phone_screen.dart';
 import '../features/auth/presentation/profile_setup_screen.dart';
+import '../features/auth/presentation/sign_in_screen.dart';
 import '../features/meals/presentation/meal_types_screen.dart';
 import '../features/meals/presentation/meals_screen.dart';
 import '../features/mess/application/mess_providers.dart';
@@ -46,7 +46,9 @@ String? decideRedirect({
       : null;
 
   if (!signedIn) {
-    return path == '/auth/phone' ? null : _withCode('/auth/phone', inviteCode);
+    return path == '/auth/sign-in'
+        ? null
+        : _withCode('/auth/sign-in', inviteCode);
   }
   if (!profileComplete) {
     return path == '/auth/profile'
@@ -106,7 +108,8 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(path: '/', builder: (_, _) => const _SplashScreen()),
       GoRoute(path: '/join/:code', builder: (_, _) => const _SplashScreen()),
-      GoRoute(path: '/auth/phone', builder: (_, _) => const PhoneScreen()),
+      // Phone login (PhoneScreen) disabled until an SMS provider is funded.
+      GoRoute(path: '/auth/sign-in', builder: (_, _) => const SignInScreen()),
       GoRoute(
         path: '/auth/profile',
         builder: (_, _) => const ProfileSetupScreen(),

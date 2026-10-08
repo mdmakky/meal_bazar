@@ -37,19 +37,19 @@ void main() {
   final active = [m(MemberStatus.active)];
   final pending = [m(MemberStatus.pending)];
 
-  test('signed out always lands on phone', () {
-    expect(land('/', signedIn: false), '/auth/phone');
-    expect(land('/today', signedIn: false), '/auth/phone');
-    expect(land('/auth/profile', signedIn: false), '/auth/phone');
+  test('signed out always lands on sign-in', () {
+    expect(land('/', signedIn: false), '/auth/sign-in');
+    expect(land('/today', signedIn: false), '/auth/sign-in');
+    expect(land('/auth/profile', signedIn: false), '/auth/sign-in');
   });
 
   test('missing name lands on profile setup', () {
     expect(land('/today', profileComplete: false), '/auth/profile');
-    expect(land('/auth/phone', profileComplete: false), '/auth/profile');
+    expect(land('/auth/sign-in', profileComplete: false), '/auth/profile');
   });
 
   test('memberships still loading: stay put', () {
-    expect(land('/auth/phone', memberships: null), '/auth/phone');
+    expect(land('/auth/sign-in', memberships: null), '/auth/sign-in');
   });
 
   test('no memberships → onboarding, create/join allowed', () {
@@ -73,16 +73,20 @@ void main() {
 
   test('active → shell, default /today', () {
     expect(land('/', memberships: active), '/today');
-    expect(land('/auth/phone', memberships: active), '/today');
+    expect(land('/auth/sign-in', memberships: active), '/today');
     expect(land('/pending', memberships: active), '/today');
     expect(land('/more/members', memberships: active), '/more/members');
     expect(land('/money', memberships: [...pending, ...active]), '/money');
   });
 
   test('invite deep link survives sign-in and profile setup', () {
-    expect(land('/join/AB12', signedIn: false), '/auth/phone?code=AB12');
+    expect(land('/join/AB12', signedIn: false), '/auth/sign-in?code=AB12');
     expect(
-      land('/auth/phone?code=AB12', profileComplete: false),
+      land('/auth/sign-in?code=AB12', signedIn: false),
+      '/auth/sign-in?code=AB12',
+    );
+    expect(
+      land('/auth/sign-in?code=AB12', profileComplete: false),
       '/auth/profile?code=AB12',
     );
     expect(land('/auth/profile?code=AB12'), '/onboarding/join?code=AB12');
