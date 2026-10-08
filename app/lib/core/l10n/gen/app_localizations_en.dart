@@ -1287,4 +1287,74 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bazarScan => 'Scan receipt or list';
+
+  @override
+  String get mealOffCutoffPassed => 'Too late — ask the manager';
+
+  @override
+  String mealOffHint(String time) {
+    return 'To switch off tomorrow\'s meals, do it before $time pm today';
+  }
+
+  @override
+  String get mealOffTomorrow => 'Tomorrow off';
+
+  @override
+  String get mealOffTomorrowTitle => 'Which meals are off tomorrow?';
+
+  @override
+  String get mealOffSave => 'Done';
+
+  @override
+  String get mealOffSaved => 'Tomorrow\'s meals updated';
+
+  @override
+  String get receiptAttach => 'Receipt photo';
+
+  @override
+  String get receiptScreenshot => 'Payment screenshot (optional)';
+
+  @override
+  String get receiptRemove => 'Remove photo';
+
+  @override
+  String get receiptView => 'View receipt';
+
+  @override
+  String get depositVerifyMine => 'Record my deposit';
+
+  @override
+  String get depositVerifyHelp =>
+      'This deposit won\'t count until the manager verifies it.';
+
+  @override
+  String get depositVerifySent => 'Deposit sent. The manager will verify it';
+
+  @override
+  String get depositVerifyApprove => 'Verify';
+
+  @override
+  String get depositVerifyReject => 'Reject';
+
+  @override
+  String get depositVerifyApproveTitle => 'Verify this deposit?';
+
+  @override
+  String depositVerifyApproveBody(String name, String amount) {
+    return '$amount from $name will count in the accounts.';
+  }
+
+  @override
+  String get depositVerifyRejectTitle => 'Reject this deposit?';
+
+  @override
+  String depositVerifyRejectBody(String name, String amount) {
+    return '$amount from $name will not count.';
+  }
+
+  @override
+  String get depositVerifyDone => 'Deposit verified';
+
+  @override
+  String get depositVerifyRejected => 'Deposit rejected';
 }

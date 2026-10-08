@@ -1279,4 +1279,74 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get bazarScan => 'রসিদ/ফর্দ স্ক্যান';
+
+  @override
+  String get mealOffCutoffPassed => 'সময় শেষ — ম্যানেজারকে বলুন';
+
+  @override
+  String mealOffHint(String time) {
+    return 'কালকের মিল বন্ধ করতে আজ রাত $timeটার আগে';
+  }
+
+  @override
+  String get mealOffTomorrow => 'কাল মিল বন্ধ';
+
+  @override
+  String get mealOffTomorrowTitle => 'কাল কোন মিল বন্ধ থাকবে?';
+
+  @override
+  String get mealOffSave => 'ঠিক আছে';
+
+  @override
+  String get mealOffSaved => 'কালকের মিল আপডেট হলো';
+
+  @override
+  String get receiptAttach => 'রসিদের ছবি';
+
+  @override
+  String get receiptScreenshot => 'পেমেন্টের স্ক্রিনশট (না দিলেও চলবে)';
+
+  @override
+  String get receiptRemove => 'ছবি সরান';
+
+  @override
+  String get receiptView => 'রসিদ দেখুন';
+
+  @override
+  String get depositVerifyMine => 'আমার জমা দিন';
+
+  @override
+  String get depositVerifyHelp =>
+      'ম্যানেজার যাচাই না করা পর্যন্ত এই জমা হিসাবে ধরা হবে না।';
+
+  @override
+  String get depositVerifySent => 'জমা পাঠানো হয়েছে, ম্যানেজার যাচাই করবেন';
+
+  @override
+  String get depositVerifyApprove => 'যাচাই করুন';
+
+  @override
+  String get depositVerifyReject => 'বাতিল করুন';
+
+  @override
+  String get depositVerifyApproveTitle => 'জমা যাচাই করবেন?';
+
+  @override
+  String depositVerifyApproveBody(String name, String amount) {
+    return '$name-এর $amount জমা হিসাবে যোগ হবে।';
+  }
+
+  @override
+  String get depositVerifyRejectTitle => 'জমা বাতিল করবেন?';
+
+  @override
+  String depositVerifyRejectBody(String name, String amount) {
+    return '$name-এর $amount জমা হিসাবে ধরা হবে না।';
+  }
+
+  @override
+  String get depositVerifyDone => 'জমা যাচাই হয়েছে';
+
+  @override
+  String get depositVerifyRejected => 'জমা বাতিল হয়েছে';
 }

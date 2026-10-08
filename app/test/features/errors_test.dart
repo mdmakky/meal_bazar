@@ -18,6 +18,7 @@ void main() {
       'MONTH_CLOSED': FailureKind.monthClosed,
       'PREVIOUS_MONTH_OPEN': FailureKind.previousMonthOpen,
       'LATER_MONTH_CLOSED': FailureKind.laterMonthClosed,
+      'CUTOFF_PASSED': FailureKind.cutoffPassed,
       'REASON_REQUIRED': FailureKind.validation,
       'USER_LINK_FORBIDDEN': FailureKind.unknown,
     };

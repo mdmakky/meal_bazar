@@ -2407,6 +2407,132 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'রসিদ/ফর্দ স্ক্যান'**
   String get bazarScan;
+
+  /// No description provided for @mealOffCutoffPassed.
+  ///
+  /// In bn, this message translates to:
+  /// **'সময় শেষ — ম্যানেজারকে বলুন'**
+  String get mealOffCutoffPassed;
+
+  /// No description provided for @mealOffHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'কালকের মিল বন্ধ করতে আজ রাত {time}টার আগে'**
+  String mealOffHint(String time);
+
+  /// No description provided for @mealOffTomorrow.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাল মিল বন্ধ'**
+  String get mealOffTomorrow;
+
+  /// No description provided for @mealOffTomorrowTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাল কোন মিল বন্ধ থাকবে?'**
+  String get mealOffTomorrowTitle;
+
+  /// No description provided for @mealOffSave.
+  ///
+  /// In bn, this message translates to:
+  /// **'ঠিক আছে'**
+  String get mealOffSave;
+
+  /// No description provided for @mealOffSaved.
+  ///
+  /// In bn, this message translates to:
+  /// **'কালকের মিল আপডেট হলো'**
+  String get mealOffSaved;
+
+  /// No description provided for @receiptAttach.
+  ///
+  /// In bn, this message translates to:
+  /// **'রসিদের ছবি'**
+  String get receiptAttach;
+
+  /// No description provided for @receiptScreenshot.
+  ///
+  /// In bn, this message translates to:
+  /// **'পেমেন্টের স্ক্রিনশট (না দিলেও চলবে)'**
+  String get receiptScreenshot;
+
+  /// No description provided for @receiptRemove.
+  ///
+  /// In bn, this message translates to:
+  /// **'ছবি সরান'**
+  String get receiptRemove;
+
+  /// No description provided for @receiptView.
+  ///
+  /// In bn, this message translates to:
+  /// **'রসিদ দেখুন'**
+  String get receiptView;
+
+  /// No description provided for @depositVerifyMine.
+  ///
+  /// In bn, this message translates to:
+  /// **'আমার জমা দিন'**
+  String get depositVerifyMine;
+
+  /// No description provided for @depositVerifyHelp.
+  ///
+  /// In bn, this message translates to:
+  /// **'ম্যানেজার যাচাই না করা পর্যন্ত এই জমা হিসাবে ধরা হবে না।'**
+  String get depositVerifyHelp;
+
+  /// No description provided for @depositVerifySent.
+  ///
+  /// In bn, this message translates to:
+  /// **'জমা পাঠানো হয়েছে, ম্যানেজার যাচাই করবেন'**
+  String get depositVerifySent;
+
+  /// No description provided for @depositVerifyApprove.
+  ///
+  /// In bn, this message translates to:
+  /// **'যাচাই করুন'**
+  String get depositVerifyApprove;
+
+  /// No description provided for @depositVerifyReject.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাতিল করুন'**
+  String get depositVerifyReject;
+
+  /// No description provided for @depositVerifyApproveTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'জমা যাচাই করবেন?'**
+  String get depositVerifyApproveTitle;
+
+  /// No description provided for @depositVerifyApproveBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name}-এর {amount} জমা হিসাবে যোগ হবে।'**
+  String depositVerifyApproveBody(String name, String amount);
+
+  /// No description provided for @depositVerifyRejectTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'জমা বাতিল করবেন?'**
+  String get depositVerifyRejectTitle;
+
+  /// No description provided for @depositVerifyRejectBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name}-এর {amount} জমা হিসাবে ধরা হবে না।'**
+  String depositVerifyRejectBody(String name, String amount);
+
+  /// No description provided for @depositVerifyDone.
+  ///
+  /// In bn, this message translates to:
+  /// **'জমা যাচাই হয়েছে'**
+  String get depositVerifyDone;
+
+  /// No description provided for @depositVerifyRejected.
+  ///
+  /// In bn, this message translates to:
+  /// **'জমা বাতিল হয়েছে'**
+  String get depositVerifyRejected;
 }
 
 class _AppLocalizationsDelegate

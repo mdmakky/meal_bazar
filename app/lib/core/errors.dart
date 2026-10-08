@@ -14,6 +14,7 @@ enum FailureKind {
   monthClosed,
   previousMonthOpen,
   laterMonthClosed,
+  cutoffPassed,
   invalidOtp,
   rateLimited,
   validation,
@@ -34,13 +35,19 @@ class AppFailure implements Exception {
 const _sqlKeys = {
   'NOT_AUTHENTICATED': FailureKind.notAuthenticated,
   'NOT_MANAGER': FailureKind.notManager,
+  // Not an active member of this mess: same "no permission" message.
+  'NOT_MEMBER': FailureKind.notManager,
   'INVALID_INVITE': FailureKind.invalidInvite,
   'ALREADY_MEMBER': FailureKind.alreadyMember,
   'LAST_MANAGER': FailureKind.lastManager,
   'MONTH_CLOSED': FailureKind.monthClosed,
   'PREVIOUS_MONTH_OPEN': FailureKind.previousMonthOpen,
   'LATER_MONTH_CLOSED': FailureKind.laterMonthClosed,
+  'CUTOFF_PASSED': FailureKind.cutoffPassed,
+  'MEAL_TYPE_INVALID': FailureKind.validation,
   'REASON_REQUIRED': FailureKind.validation,
+  'DEPOSIT_NOT_PENDING': FailureKind.validation,
+  'RECEIPT_PATH_INVALID': FailureKind.validation,
 };
 
 AppFailure mapError(Object error) {
