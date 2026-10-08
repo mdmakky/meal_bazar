@@ -24,7 +24,10 @@ Only the publishable/anon key goes into the app; RLS protects the data. Never pu
 
 ## Database
 - Apply migrations: in the Supabase dashboard SQL editor, run `supabase/migrations/*.sql` in order. With the CLI, run `npx supabase db push`.
-- Enable **Phone** auth in Supabase. It needs an SMS provider such as Twilio. For development, use Supabase's test phone numbers and OTPs.
+- Auth (Supabase → Authentication → Providers):
+  - **Email**: on. With "Confirm email" on, sign-up shows a "click the emailed link" step; set the Site URL / redirect URLs for the confirm and password-reset links.
+  - **Google**: in Google Cloud Console create a **Web** OAuth client (its client id + secret go into Supabase's Google provider) and an **Android** OAuth client with package `com.mealbazar.meal_bazar` and the debug keystore SHA-1 (`keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android`; add the release SHA-1 before shipping). Put the **web** client id in `env.json` as `GOOGLE_WEB_CLIENT_ID`; empty hides the Google button.
+  - **Phone**: off. Phone OTP code is kept but unrouted until an SMS provider (e.g. Twilio) is funded.
 - Run the tests with `./supabase/tests/run.sh`. It creates a throwaway local database, stubs `auth.uid()` and the Supabase roles, applies all migrations, and runs every `supabase/tests/*_test.sql`.
 
 ## Quality gate (every phase)

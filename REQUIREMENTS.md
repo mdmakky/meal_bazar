@@ -38,11 +38,11 @@ MoSCoW: **M** = MVP (v1.0, Play Store launch), **S** = v1.1, **C** = v1.2, **W**
 ### 3.1 Auth and account
 | Req | Pri |
 |---|---|
-| Phone OTP sign-in (`+8801XXXXXXXXX`, 11-digit local input normalised to E.164) | M |
+| Google sign-in (one tap) and email + password, both free | M |
+| Phone OTP sign-in (`+8801XXXXXXXXX`). The code exists but is switched off until an SMS provider is funded | W |
 | Profile: name, photo, preferred language | M |
 | Sessions handled by the Supabase Auth refresh token, with a logout action | M |
 | **In-app account deletion** (a Play Store requirement). Personal data is anonymised and the financial rows are kept, attributed to "Former member". | M |
-| Email login as an alternative to OTP (for when SMS costs become a problem) | S |
 
 ### 3.2 Mess and members
 | Req | Pri |
@@ -143,7 +143,7 @@ Full design: [AI.md](AI.md). The rules: **AI drafts, a human confirms. SQL is th
 | Supabase Free | Pauses after 7 days idle. 500 MB DB, 1 GB storage, 2 GB egress. | The daily cron keeps the project awake. Receipts are compressed on the device to about 200 KB. Aggregates are cached. |
 | Gemini free tier | Low RPM/RPD limits. Google may use prompts to improve its products. | Per-mess quotas, the OpenRouter fallback, name pseudonymisation, and disclosure in the AI settings. |
 | OpenRouter free models | About 50 requests per day without credits | Used only as the fallback. Adding $10 of credit raises the limit. |
-| SMS OTP | Supabase phone auth needs a paid SMS provider (Twilio and similar) | Budget item before launch. Email or magic-link login is the fallback. |
+| SMS OTP | Supabase phone auth needs a paid SMS provider | Phone login is off. Google and email are free; phone comes back when there is budget. |
 
 ## 7. Releases
 - **v1.0 (MVP, Play Store):** every **M** item above, plus AI #1 and #2.
