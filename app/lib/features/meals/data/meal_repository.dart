@@ -1,32 +1,40 @@
+import 'package:drift/drift.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/dates.dart';
+import '../../../core/db/db.dart';
+import '../../../core/db/sync.dart';
 import '../../../core/errors.dart';
+import '../../../core/ids.dart';
 import '../domain/meal.dart';
 
+/// [SyncQueue] row key of a meal entry: its natural key.
+String mealRowKey(String memberId, String date, String mealTypeId) =>
+    '$memberId|$date|$mealTypeId';
+
+/// Entries are written to Drift first and synced through the queue. Reads
+/// pull from Supabase when online and always answer from Drift.
 class MealRepository {
-  MealRepository(this._client);
+  MealRepository(this._client, this._db, this._sync);
 
   final SupabaseClient _client;
+  final AppDb _db;
+  final SyncService _sync;
 
   Future<List<MealType>> mealTypes(String messId) => guard(() async {
-    final rows = await _client
-        .from('meal_types')
-        .select()
-        .eq('mess_id', messId)
-        .order('sort_order');
+    final rows = await _db.cachedRows(
+      'meal_types:$messId',
+      () => _client
+          .from('meal_types')
+          .select()
+          .eq('mess_id', messId)
+          .order('sort_order'),
+    );
     return rows.map(MealType.fromJson).toList();
   });
 
   Future<List<MealEntry>> entriesForDay(String messId, DateTime day) =>
-      guard(() async {
-        final rows = await _client
-            .from('meal_entries')
-            .select('member_id, meal_type_id, date, count, guest_count, is_off')
-            .eq('mess_id', messId)
-            .eq('date', isoDate(day));
-        return rows.map(MealEntry.fromJson).toList();
-      });
+      entriesForRange(messId, day, DateTime(day.year, day.month, day.day + 1));
 
   /// Entries in `[from, to)`, optionally for one member, oldest first.
   Future<List<MealEntry>> entriesForRange(
@@ -35,15 +43,107 @@ class MealRepository {
     DateTime to, {
     String? memberId,
   }) => guard(() async {
-    var q = _client
-        .from('meal_entries')
-        .select('member_id, meal_type_id, date, count, guest_count, is_off')
-        .eq('mess_id', messId)
-        .gte('date', isoDate(from))
-        .lt('date', isoDate(to));
-    if (memberId != null) q = q.eq('member_id', memberId);
-    final rows = await q.order('date');
-    return rows.map(MealEntry.fromJson).toList();
+    try {
+      final rows = await guard(() async {
+        var q = _client
+            .from('meal_entries')
+            .select(
+              'id, member_id, meal_type_id, date, count, guest_count, is_off, '
+              'updated_at',
+            )
+            .eq('mess_id', messId)
+            .gte('date', isoDate(from))
+            .lt('date', isoDate(to));
+        if (memberId != null) q = q.eq('member_id', memberId);
+        return await q;
+      });
+      await _merge(messId, from, to, memberId, rows);
+    } on AppFailure catch (e) {
+      if (e.kind != FailureKind.network) rethrow;
+    }
+    return [
+      for (final r in await _range(messId, from, to, memberId).get())
+        MealEntry(
+          memberId: r.memberId,
+          mealTypeId: r.mealTypeId,
+          date: DateTime.parse(r.date),
+          count: r.count,
+          guestCount: r.guestCount,
+          isOff: r.isOff,
+        ),
+    ];
+  });
+
+  SimpleSelectStatement<$MealEntriesTable, LocalMeal> _range(
+    String messId,
+    DateTime from,
+    DateTime to,
+    String? memberId,
+  ) => _db.select(_db.mealEntries)
+    ..where(
+      (t) =>
+          t.messId.equals(messId) &
+          t.date.isBiggerOrEqualValue(isoDate(from)) &
+          t.date.isSmallerThanValue(isoDate(to)) &
+          (memberId == null
+              ? const Constant(true)
+              : t.memberId.equals(memberId)),
+    )
+    ..orderBy([(t) => OrderingTerm.asc(t.date)]);
+
+  /// Server rows replace local ones, except rows with a queued write: those
+  /// keep the local value unless the server's is newer (last write wins).
+  // ponytail: device vs server clock skew decides near-simultaneous edits.
+  Future<void> _merge(
+    String messId,
+    DateTime from,
+    DateTime to,
+    String? memberId,
+    List<Map<String, dynamic>> rows,
+  ) => _db.transaction(() async {
+    final ops = await _db.opsFor('meal_entries');
+    final local = {
+      for (final r in await _range(messId, from, to, memberId).get())
+        mealRowKey(r.memberId, r.date, r.mealTypeId): r,
+    };
+    // Gone from the server (e.g. deleted elsewhere), unless still unsent.
+    for (final MapEntry(:key, :value) in local.entries) {
+      if (!ops.containsKey(key)) {
+        await _db.delete(_db.mealEntries).delete(value);
+      }
+    }
+    for (final r in rows) {
+      final date = r['date'] as String;
+      final key = mealRowKey(
+        r['member_id'] as String,
+        date,
+        r['meal_type_id'] as String,
+      );
+      final theirs = DateTime.parse(r['updated_at'] as String);
+      final op = ops[key];
+      if (op != null) {
+        final mine = local[key]?.updatedAt;
+        if (op.status == opSyncing || (mine != null && !theirs.isAfter(mine))) {
+          continue;
+        }
+        await _db.deleteOp(op.id);
+      }
+      await _db
+          .into(_db.mealEntries)
+          .insertOnConflictUpdate(
+            MealEntriesCompanion.insert(
+              id: r['id'] as String,
+              messId: messId,
+              memberId: r['member_id'] as String,
+              mealTypeId: r['meal_type_id'] as String,
+              date: date,
+              count: (r['count'] as num).toDouble(),
+              guestCount: r['guest_count'] as int,
+              isOff: r['is_off'] as bool,
+              updatedAt: theirs,
+            ),
+          );
+    }
   });
 
   /// Guest meals per member in `[from, to)`, from SQL `member_meal_totals`.
@@ -106,23 +206,54 @@ class MealRepository {
     requireRows(rows);
   });
 
-  /// Idempotent: keyed on (member, date, meal type), so retries never duplicate.
+  /// Saves locally and queues an upsert keyed on (member, date, meal type),
+  /// so retries never duplicate. Waits for one sync attempt; offline it
+  /// returns at once and the write waits in the queue.
   Future<void> save(String messId, MealEntry e, {String source = 'app'}) =>
       guard(() async {
-        final rows = await _client
-            .from('meal_entries')
-            .upsert({
+        final date = isoDate(e.date);
+        final now = DateTime.now().toUtc();
+        await _db.transaction(() async {
+          await _db
+              .into(_db.mealEntries)
+              .insert(
+                MealEntriesCompanion.insert(
+                  id: uuidV4(),
+                  messId: messId,
+                  memberId: e.memberId,
+                  mealTypeId: e.mealTypeId,
+                  date: date,
+                  count: e.count,
+                  guestCount: e.guestCount,
+                  isOff: e.isOff,
+                  updatedAt: now,
+                ),
+                onConflict: DoUpdate(
+                  (_) => MealEntriesCompanion(
+                    count: Value(e.count),
+                    guestCount: Value(e.guestCount),
+                    isOff: Value(e.isOff),
+                    updatedAt: Value(now),
+                  ),
+                ),
+              );
+          await _db.enqueue(
+            'meal_entries',
+            mealRowKey(e.memberId, date, e.mealTypeId),
+            uuidV4(),
+            {
               'mess_id': messId,
               'member_id': e.memberId,
               'meal_type_id': e.mealTypeId,
-              'date': isoDate(e.date),
+              'date': date,
               'count': e.count,
               'guest_count': e.guestCount,
               'is_off': e.isOff,
               'source': source,
-            }, onConflict: 'member_id,date,meal_type_id')
-            .select('id');
-        requireRows(rows);
+            },
+          );
+        });
+        await _sync.drain();
       });
 
   /// Member self-service: switches my own meal off/on (SQL enforces cutoff).

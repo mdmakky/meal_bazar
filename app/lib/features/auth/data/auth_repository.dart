@@ -1,6 +1,7 @@
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../core/db/db.dart';
 import '../../../core/env.dart';
 import '../../../core/errors.dart';
 import '../domain/profile.dart';
@@ -10,9 +11,10 @@ import '../domain/profile.dart';
 const authRedirectUrl = 'mealbazar://auth-callback';
 
 class AuthRepository {
-  AuthRepository(this._client);
+  AuthRepository(this._client, this._db);
 
   final SupabaseClient _client;
+  final AppDb _db;
 
   GoTrueClient get _auth => _client.auth;
 
@@ -95,13 +97,16 @@ class AuthRepository {
 
   Future<void> signOut() => guard(() => _auth.signOut());
 
+  /// Cached, so an offline cold start still gets past the router.
   Future<Profile> fetchMyProfile() => guard(() async {
-    final row = await _client
-        .from('profiles')
-        .select()
-        .eq('id', _requireUserId())
-        .single();
-    return Profile.fromJson(row);
+    final uid = _requireUserId();
+    final rows = await _db.cachedRows(
+      'profile:$uid',
+      () async => [
+        await _client.from('profiles').select().eq('id', uid).single(),
+      ],
+    );
+    return Profile.fromJson(rows.single);
   });
 
   Future<Profile> updateProfile({String? fullName, String? locale}) =>

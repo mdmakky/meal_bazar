@@ -1,12 +1,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/db/db.dart';
+import '../../../core/db/sync.dart';
 import '../../../core/supabase.dart';
 import '../../month/application/month_providers.dart';
 import '../data/meal_repository.dart';
 import '../domain/meal.dart';
 
 final mealRepositoryProvider = Provider<MealRepository>(
-  (ref) => MealRepository(ref.watch(supabaseClientProvider)),
+  (ref) => MealRepository(
+    ref.watch(supabaseClientProvider),
+    ref.watch(appDbProvider),
+    ref.watch(syncServiceProvider),
+  ),
 );
 
 /// All meal types (enabled and disabled), in display order.

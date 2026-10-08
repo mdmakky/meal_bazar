@@ -1,0 +1,10 @@
+targets:
+  $default:
+    builders:
+      drift_dev:
+        generate_for:
+          - lib/core/db/db.dart
+        options:
+          generate_manager: false
+          # Millisecond precision for queue ordering and last-write-wins.
+          store_date_time_values_as_text: true
