@@ -664,5 +664,22 @@
   "exportMethod": "মাধ্যম",
   "exportStatus": "অবস্থা",
   "exportVerified": "যাচাই হয়েছে",
-  "cookShare": "রাঁধুনিকে কালকের মিল পাঠান"
+  "cookShare": "রাঁধুনিকে কালকের মিল পাঠান",
+  "remindTitle": "রিমাইন্ডার",
+  "remindCutoffTitle": "মিল বন্ধের সময় শেষ হচ্ছে",
+  "remindCutoffBody": "কালকের মিল বন্ধ করতে চাইলে এখনই করুন",
+  "remindNudgeTitle": "আজকের মিল বসানো হয়নি",
+  "remindNudgeBody": "আজকের মিল বসানো হয়নি? এখনই বসিয়ে দিন",
+  "remindDutyTitle": "কাল আপনার বাজার",
+  "remindDutyBody": "{mess}: কাল বাজারের দায়িত্ব আপনার",
+  "@remindDutyBody": {"placeholders": {"mess": {"type": "String"}}},
+  "remindCutoffToggle": "মিল বন্ধের সময়ের আগে",
+  "remindCutoffToggleSub": "শেষ সময়ের ৩০ মিনিট আগে মনে করিয়ে দেবে",
+  "remindNudgeToggle": "রাতে মিল বসানোর কথা",
+  "remindNudgeToggleSub": "প্রতিদিন রাত ৯টায়, ম্যানেজারদের জন্য",
+  "remindDutyToggle": "বাজারের দায়িত্ব",
+  "remindDutyToggleSub": "দায়িত্বের আগের দিন রাত ৮টায়",
+  "remindPermissionOff": "নোটিফিকেশন বন্ধ আছে",
+  "remindPermissionBody": "রিমাইন্ডার পেতে নোটিফিকেশন চালু করুন",
+  "remindPermissionButton": "চালু করুন"
 }

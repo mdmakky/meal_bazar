@@ -1970,4 +1970,54 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cookShare => 'Send tomorrow\'s meal count to the cook';
+
+  @override
+  String get remindTitle => 'Reminders';
+
+  @override
+  String get remindCutoffTitle => 'Meal-off cutoff soon';
+
+  @override
+  String get remindCutoffBody => 'Want tomorrow\'s meal off? Do it now';
+
+  @override
+  String get remindNudgeTitle => 'Today\'s meals not entered';
+
+  @override
+  String get remindNudgeBody => 'Haven\'t entered today\'s meals? Do it now';
+
+  @override
+  String get remindDutyTitle => 'Your bazar tomorrow';
+
+  @override
+  String remindDutyBody(String mess) {
+    return '$mess: you\'re on bazar duty tomorrow';
+  }
+
+  @override
+  String get remindCutoffToggle => 'Before the meal-off cutoff';
+
+  @override
+  String get remindCutoffToggleSub => '30 minutes before the cutoff';
+
+  @override
+  String get remindNudgeToggle => 'Evening meal entry';
+
+  @override
+  String get remindNudgeToggleSub => 'Every day at 9 PM, for managers';
+
+  @override
+  String get remindDutyToggle => 'Bazar duty';
+
+  @override
+  String get remindDutyToggleSub => '8 PM the day before your duty';
+
+  @override
+  String get remindPermissionOff => 'Notifications are off';
+
+  @override
+  String get remindPermissionBody => 'Turn on notifications to get reminders';
+
+  @override
+  String get remindPermissionButton => 'Turn on';
 }

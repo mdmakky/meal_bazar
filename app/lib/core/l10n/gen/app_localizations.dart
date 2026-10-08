@@ -3649,6 +3649,102 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'রাঁধুনিকে কালকের মিল পাঠান'**
   String get cookShare;
+
+  /// No description provided for @remindTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'রিমাইন্ডার'**
+  String get remindTitle;
+
+  /// No description provided for @remindCutoffTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'মিল বন্ধের সময় শেষ হচ্ছে'**
+  String get remindCutoffTitle;
+
+  /// No description provided for @remindCutoffBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'কালকের মিল বন্ধ করতে চাইলে এখনই করুন'**
+  String get remindCutoffBody;
+
+  /// No description provided for @remindNudgeTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'আজকের মিল বসানো হয়নি'**
+  String get remindNudgeTitle;
+
+  /// No description provided for @remindNudgeBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'আজকের মিল বসানো হয়নি? এখনই বসিয়ে দিন'**
+  String get remindNudgeBody;
+
+  /// No description provided for @remindDutyTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাল আপনার বাজার'**
+  String get remindDutyTitle;
+
+  /// No description provided for @remindDutyBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'{mess}: কাল বাজারের দায়িত্ব আপনার'**
+  String remindDutyBody(String mess);
+
+  /// No description provided for @remindCutoffToggle.
+  ///
+  /// In bn, this message translates to:
+  /// **'মিল বন্ধের সময়ের আগে'**
+  String get remindCutoffToggle;
+
+  /// No description provided for @remindCutoffToggleSub.
+  ///
+  /// In bn, this message translates to:
+  /// **'শেষ সময়ের ৩০ মিনিট আগে মনে করিয়ে দেবে'**
+  String get remindCutoffToggleSub;
+
+  /// No description provided for @remindNudgeToggle.
+  ///
+  /// In bn, this message translates to:
+  /// **'রাতে মিল বসানোর কথা'**
+  String get remindNudgeToggle;
+
+  /// No description provided for @remindNudgeToggleSub.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রতিদিন রাত ৯টায়, ম্যানেজারদের জন্য'**
+  String get remindNudgeToggleSub;
+
+  /// No description provided for @remindDutyToggle.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাজারের দায়িত্ব'**
+  String get remindDutyToggle;
+
+  /// No description provided for @remindDutyToggleSub.
+  ///
+  /// In bn, this message translates to:
+  /// **'দায়িত্বের আগের দিন রাত ৮টায়'**
+  String get remindDutyToggleSub;
+
+  /// No description provided for @remindPermissionOff.
+  ///
+  /// In bn, this message translates to:
+  /// **'নোটিফিকেশন বন্ধ আছে'**
+  String get remindPermissionOff;
+
+  /// No description provided for @remindPermissionBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'রিমাইন্ডার পেতে নোটিফিকেশন চালু করুন'**
+  String get remindPermissionBody;
+
+  /// No description provided for @remindPermissionButton.
+  ///
+  /// In bn, this message translates to:
+  /// **'চালু করুন'**
+  String get remindPermissionButton;
 }
 
 class _AppLocalizationsDelegate

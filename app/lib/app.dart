@@ -5,12 +5,14 @@ import 'core/l10n/gen/app_localizations.dart';
 import 'core/router.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/application/auth_providers.dart';
+import 'features/reminders/application/reminder_service.dart';
 
 class MealBazarApp extends ConsumerWidget {
   const MealBazarApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(reminderSyncProvider);
     final locale = ref.watch(myProfileProvider.select((p) => p.value?.locale));
     return MaterialApp.router(
       onGenerateTitle: (c) => AppLocalizations.of(c).appName,

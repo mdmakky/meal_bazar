@@ -1960,4 +1960,54 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get cookShare => 'রাঁধুনিকে কালকের মিল পাঠান';
+
+  @override
+  String get remindTitle => 'রিমাইন্ডার';
+
+  @override
+  String get remindCutoffTitle => 'মিল বন্ধের সময় শেষ হচ্ছে';
+
+  @override
+  String get remindCutoffBody => 'কালকের মিল বন্ধ করতে চাইলে এখনই করুন';
+
+  @override
+  String get remindNudgeTitle => 'আজকের মিল বসানো হয়নি';
+
+  @override
+  String get remindNudgeBody => 'আজকের মিল বসানো হয়নি? এখনই বসিয়ে দিন';
+
+  @override
+  String get remindDutyTitle => 'কাল আপনার বাজার';
+
+  @override
+  String remindDutyBody(String mess) {
+    return '$mess: কাল বাজারের দায়িত্ব আপনার';
+  }
+
+  @override
+  String get remindCutoffToggle => 'মিল বন্ধের সময়ের আগে';
+
+  @override
+  String get remindCutoffToggleSub => 'শেষ সময়ের ৩০ মিনিট আগে মনে করিয়ে দেবে';
+
+  @override
+  String get remindNudgeToggle => 'রাতে মিল বসানোর কথা';
+
+  @override
+  String get remindNudgeToggleSub => 'প্রতিদিন রাত ৯টায়, ম্যানেজারদের জন্য';
+
+  @override
+  String get remindDutyToggle => 'বাজারের দায়িত্ব';
+
+  @override
+  String get remindDutyToggleSub => 'দায়িত্বের আগের দিন রাত ৮টায়';
+
+  @override
+  String get remindPermissionOff => 'নোটিফিকেশন বন্ধ আছে';
+
+  @override
+  String get remindPermissionBody => 'রিমাইন্ডার পেতে নোটিফিকেশন চালু করুন';
+
+  @override
+  String get remindPermissionButton => 'চালু করুন';
 }
