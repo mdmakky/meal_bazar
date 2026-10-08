@@ -134,6 +134,7 @@ Future<void> pump(
   Widget home, {
   List<Object>? extra,
   bool manager = true,
+  MonthTotals monthTotals = totals,
 }) {
   tester.view.physicalSize = const Size(1080, 2400);
   tester.view.devicePixelRatio = 3;
@@ -150,7 +151,7 @@ Future<void> pump(
         receiptPickerProvider.overrideWithValue((_) async => pngBytes),
         membersProvider.overrideWith((ref, id) async => members),
         currentPeriodProvider.overrideWith((ref, id) async => period),
-        monthTotalsProvider.overrideWith((ref, id) async => totals),
+        monthTotalsProvider.overrideWith((ref, id) async => monthTotals),
         periodTotalsProvider.overrideWith((ref, key) async => (period, totals)),
         expenseCategoriesProvider.overrideWith(
           (ref, id) async => const [
@@ -621,6 +622,36 @@ void main() {
     expect(find.text(l.balanceFood('১২', '৳৬৮.৭৮')), findsOneWidget);
     expect(find.text('৳৪২৪.৬৩'), findsWidgets);
     expect(find.text(l.shareBillShare), findsOneWidget);
+  });
+
+  testWidgets('fixed rate: proof, gap line and fixed food line', (
+    tester,
+  ) async {
+    const fixed = MonthTotals(
+      foodTotal: 1410,
+      totalMeals: 20.5,
+      mealRate: 60,
+      extraTotal: 500,
+      creditTotal: 1500,
+      fixedRate: true,
+      rateGap: 180,
+    );
+    await pump(tester, const MoneyScreen(), monthTotals: fixed);
+    await tester.pumpAndSettle();
+    // The proof opens on tap.
+    await tester.tap(find.text('৳৬০'));
+    await tester.pumpAndSettle();
+    expect(find.text(l.rateFixed), findsOneWidget);
+    expect(find.text(l.moneyMealRateProof('৳১,৪১০', '২০½')), findsNothing);
+    expect(find.text(l.rateDeficit('৳১৮০')), findsOneWidget);
+
+    await tester.tap(find.text('Rahim'));
+    await tester.pumpAndSettle();
+    expect(find.text(l.rateBalanceFood('১২', '৳৬০')), findsOneWidget);
+    expect(
+      find.text('খাবার খরচ = ১২ মিল × ৳৬০ (নির্দিষ্ট রেট)'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('balances: managers share all; export in the menu', (
