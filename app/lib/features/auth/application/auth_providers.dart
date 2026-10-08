@@ -16,10 +16,18 @@ final authRepositoryProvider = Provider<AuthRepository>(
   ),
 );
 
-/// Signed-in user id, or null when signed out.
-final authStateProvider = StreamProvider<String?>(
-  (ref) => ref.watch(authRepositoryProvider).authStateChanges(),
-);
+/// Signed-in user id, or null when signed out. Each change first hands the
+/// local DB to that user (wiped on sign-out, account deletion or a different
+/// user), so nothing downstream sees or syncs another user's data.
+final authStateProvider = StreamProvider<String?>((ref) {
+  final db = ref.watch(appDbProvider);
+  return ref.watch(authRepositoryProvider).authStateChanges().asyncMap((
+    uid,
+  ) async {
+    await db.claimFor(uid);
+    return uid;
+  });
+});
 
 /// True after a password-reset link opened the app, until the new password
 /// is saved. The router holds the user on `/auth/reset-password` meanwhile.

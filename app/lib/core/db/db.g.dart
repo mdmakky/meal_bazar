@@ -1918,6 +1918,15 @@ class $SyncQueueTable extends SyncQueue
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _messIdMeta = const VerificationMeta('messId');
+  @override
+  late final GeneratedColumn<String> messId = GeneratedColumn<String>(
+    'mess_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
   static const VerificationMeta _opMeta = const VerificationMeta('op');
   @override
   late final GeneratedColumn<String> op = GeneratedColumn<String>(
@@ -1988,6 +1997,7 @@ class $SyncQueueTable extends SyncQueue
     id,
     entity,
     rowKey,
+    messId,
     op,
     payload,
     attempts,
@@ -2027,6 +2037,14 @@ class $SyncQueueTable extends SyncQueue
       );
     } else if (isInserting) {
       context.missing(_rowKeyMeta);
+    }
+    if (data.containsKey('mess_id')) {
+      context.handle(
+        _messIdMeta,
+        messId.isAcceptableOrUnknown(data['mess_id']!, _messIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_messIdMeta);
     }
     if (data.containsKey('op')) {
       context.handle(_opMeta, op.isAcceptableOrUnknown(data['op']!, _opMeta));
@@ -2086,6 +2104,10 @@ class $SyncQueueTable extends SyncQueue
         DriftSqlType.string,
         data['${effectivePrefix}row_key'],
       )!,
+      messId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}mess_id'],
+      )!,
       op: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}op'],
@@ -2123,6 +2145,7 @@ class SyncOp extends DataClass implements Insertable<SyncOp> {
   final String id;
   final String entity;
   final String rowKey;
+  final String messId;
   final String op;
   final String payload;
   final int attempts;
@@ -2137,6 +2160,7 @@ class SyncOp extends DataClass implements Insertable<SyncOp> {
     required this.id,
     required this.entity,
     required this.rowKey,
+    required this.messId,
     required this.op,
     required this.payload,
     required this.attempts,
@@ -2150,6 +2174,7 @@ class SyncOp extends DataClass implements Insertable<SyncOp> {
     map['id'] = Variable<String>(id);
     map['entity'] = Variable<String>(entity);
     map['row_key'] = Variable<String>(rowKey);
+    map['mess_id'] = Variable<String>(messId);
     map['op'] = Variable<String>(op);
     map['payload'] = Variable<String>(payload);
     map['attempts'] = Variable<int>(attempts);
@@ -2166,6 +2191,7 @@ class SyncOp extends DataClass implements Insertable<SyncOp> {
       id: Value(id),
       entity: Value(entity),
       rowKey: Value(rowKey),
+      messId: Value(messId),
       op: Value(op),
       payload: Value(payload),
       attempts: Value(attempts),
@@ -2186,6 +2212,7 @@ class SyncOp extends DataClass implements Insertable<SyncOp> {
       id: serializer.fromJson<String>(json['id']),
       entity: serializer.fromJson<String>(json['entity']),
       rowKey: serializer.fromJson<String>(json['rowKey']),
+      messId: serializer.fromJson<String>(json['messId']),
       op: serializer.fromJson<String>(json['op']),
       payload: serializer.fromJson<String>(json['payload']),
       attempts: serializer.fromJson<int>(json['attempts']),
@@ -2201,6 +2228,7 @@ class SyncOp extends DataClass implements Insertable<SyncOp> {
       'id': serializer.toJson<String>(id),
       'entity': serializer.toJson<String>(entity),
       'rowKey': serializer.toJson<String>(rowKey),
+      'messId': serializer.toJson<String>(messId),
       'op': serializer.toJson<String>(op),
       'payload': serializer.toJson<String>(payload),
       'attempts': serializer.toJson<int>(attempts),
@@ -2214,6 +2242,7 @@ class SyncOp extends DataClass implements Insertable<SyncOp> {
     String? id,
     String? entity,
     String? rowKey,
+    String? messId,
     String? op,
     String? payload,
     int? attempts,
@@ -2224,6 +2253,7 @@ class SyncOp extends DataClass implements Insertable<SyncOp> {
     id: id ?? this.id,
     entity: entity ?? this.entity,
     rowKey: rowKey ?? this.rowKey,
+    messId: messId ?? this.messId,
     op: op ?? this.op,
     payload: payload ?? this.payload,
     attempts: attempts ?? this.attempts,
@@ -2236,6 +2266,7 @@ class SyncOp extends DataClass implements Insertable<SyncOp> {
       id: data.id.present ? data.id.value : this.id,
       entity: data.entity.present ? data.entity.value : this.entity,
       rowKey: data.rowKey.present ? data.rowKey.value : this.rowKey,
+      messId: data.messId.present ? data.messId.value : this.messId,
       op: data.op.present ? data.op.value : this.op,
       payload: data.payload.present ? data.payload.value : this.payload,
       attempts: data.attempts.present ? data.attempts.value : this.attempts,
@@ -2251,6 +2282,7 @@ class SyncOp extends DataClass implements Insertable<SyncOp> {
           ..write('id: $id, ')
           ..write('entity: $entity, ')
           ..write('rowKey: $rowKey, ')
+          ..write('messId: $messId, ')
           ..write('op: $op, ')
           ..write('payload: $payload, ')
           ..write('attempts: $attempts, ')
@@ -2266,6 +2298,7 @@ class SyncOp extends DataClass implements Insertable<SyncOp> {
     id,
     entity,
     rowKey,
+    messId,
     op,
     payload,
     attempts,
@@ -2280,6 +2313,7 @@ class SyncOp extends DataClass implements Insertable<SyncOp> {
           other.id == this.id &&
           other.entity == this.entity &&
           other.rowKey == this.rowKey &&
+          other.messId == this.messId &&
           other.op == this.op &&
           other.payload == this.payload &&
           other.attempts == this.attempts &&
@@ -2292,6 +2326,7 @@ class SyncQueueCompanion extends UpdateCompanion<SyncOp> {
   final Value<String> id;
   final Value<String> entity;
   final Value<String> rowKey;
+  final Value<String> messId;
   final Value<String> op;
   final Value<String> payload;
   final Value<int> attempts;
@@ -2303,6 +2338,7 @@ class SyncQueueCompanion extends UpdateCompanion<SyncOp> {
     this.id = const Value.absent(),
     this.entity = const Value.absent(),
     this.rowKey = const Value.absent(),
+    this.messId = const Value.absent(),
     this.op = const Value.absent(),
     this.payload = const Value.absent(),
     this.attempts = const Value.absent(),
@@ -2315,6 +2351,7 @@ class SyncQueueCompanion extends UpdateCompanion<SyncOp> {
     required String id,
     required String entity,
     required String rowKey,
+    required String messId,
     this.op = const Value.absent(),
     required String payload,
     this.attempts = const Value.absent(),
@@ -2325,12 +2362,14 @@ class SyncQueueCompanion extends UpdateCompanion<SyncOp> {
   }) : id = Value(id),
        entity = Value(entity),
        rowKey = Value(rowKey),
+       messId = Value(messId),
        payload = Value(payload),
        createdAt = Value(createdAt);
   static Insertable<SyncOp> custom({
     Expression<String>? id,
     Expression<String>? entity,
     Expression<String>? rowKey,
+    Expression<String>? messId,
     Expression<String>? op,
     Expression<String>? payload,
     Expression<int>? attempts,
@@ -2343,6 +2382,7 @@ class SyncQueueCompanion extends UpdateCompanion<SyncOp> {
       if (id != null) 'id': id,
       if (entity != null) 'entity': entity,
       if (rowKey != null) 'row_key': rowKey,
+      if (messId != null) 'mess_id': messId,
       if (op != null) 'op': op,
       if (payload != null) 'payload': payload,
       if (attempts != null) 'attempts': attempts,
@@ -2357,6 +2397,7 @@ class SyncQueueCompanion extends UpdateCompanion<SyncOp> {
     Value<String>? id,
     Value<String>? entity,
     Value<String>? rowKey,
+    Value<String>? messId,
     Value<String>? op,
     Value<String>? payload,
     Value<int>? attempts,
@@ -2369,6 +2410,7 @@ class SyncQueueCompanion extends UpdateCompanion<SyncOp> {
       id: id ?? this.id,
       entity: entity ?? this.entity,
       rowKey: rowKey ?? this.rowKey,
+      messId: messId ?? this.messId,
       op: op ?? this.op,
       payload: payload ?? this.payload,
       attempts: attempts ?? this.attempts,
@@ -2390,6 +2432,9 @@ class SyncQueueCompanion extends UpdateCompanion<SyncOp> {
     }
     if (rowKey.present) {
       map['row_key'] = Variable<String>(rowKey.value);
+    }
+    if (messId.present) {
+      map['mess_id'] = Variable<String>(messId.value);
     }
     if (op.present) {
       map['op'] = Variable<String>(op.value);
@@ -2421,6 +2466,7 @@ class SyncQueueCompanion extends UpdateCompanion<SyncOp> {
           ..write('id: $id, ')
           ..write('entity: $entity, ')
           ..write('rowKey: $rowKey, ')
+          ..write('messId: $messId, ')
           ..write('op: $op, ')
           ..write('payload: $payload, ')
           ..write('attempts: $attempts, ')

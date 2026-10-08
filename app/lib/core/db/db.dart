@@ -75,6 +75,7 @@ class SyncQueue extends Table {
   TextColumn get id => text()();
   TextColumn get entity => text()();
   TextColumn get rowKey => text()();
+  TextColumn get messId => text()();
   TextColumn get op => text().withDefault(const Constant('upsert'))();
   TextColumn get payload => text()();
   IntColumn get attempts => integer().withDefault(const Constant(0))();
@@ -142,6 +143,7 @@ class AppDb extends _$AppDb {
         id: id,
         entity: entity,
         rowKey: rowKey,
+        messId: payload['mess_id'] as String,
         payload: jsonEncode(payload),
         createdAt: DateTime.now().toUtc(),
       ),
@@ -190,6 +192,31 @@ class AppDb extends _$AppDb {
       );
 
   Stream<List<SyncOp>> watchQueue() => select(syncQueue).watch();
+
+  /// Drops failed ops; the next pull restores those rows from the server.
+  Future<void> discard(Iterable<String> ids) => (delete(
+    syncQueue,
+  )..where((q) => q.id.isIn(ids) & q.status.equals(opFailed))).go();
+
+  Future<int> unsentCount() async => (await select(syncQueue).get()).length;
+
+  /// Local data belongs to one signed-in user. Signed out ([uid] null) or a
+  /// different user: everything, unsent writes included, is wiped.
+  Future<void> claimFor(String? uid) => transaction(() async {
+    const key = 'owner';
+    final owner = await (select(
+      jsonCache,
+    )..where((c) => c.key.equals(key))).getSingleOrNull();
+    if (uid != null && owner?.json == uid) return;
+    for (final t in allTables) {
+      await delete(t).go();
+    }
+    if (uid != null) {
+      await into(
+        jsonCache,
+      ).insert(JsonCacheCompanion.insert(key: key, json: uid));
+    }
+  });
 }
 
 /// Overridden with `AppDb(NativeDatabase.memory())` in tests.

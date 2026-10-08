@@ -34,6 +34,7 @@ void main() {
 
   Future<void> enqueue(String opId, {double count = 1}) =>
       db.enqueue('meal_entries', 'm1|2026-10-08|lunch', opId, {
+        'mess_id': 'mess1',
         'member_id': 'm1',
         'date': '2026-10-08',
         'meal_type_id': 'lunch',
@@ -148,5 +149,41 @@ void main() {
       db.cachedRows('k', () async => throw Exception('500')),
       throwsA(isA<AppFailure>()),
     );
+  });
+
+  test('discard removes only failed ops', () async {
+    await enqueue('op1');
+    await db.discard(['op1']);
+    expect(await queue(), hasLength(1), reason: 'pending is kept');
+
+    remote.error = const AppFailure(FailureKind.notManager);
+    await sync.drain();
+    await db.discard(['op1']);
+    expect(await queue(), isEmpty);
+  });
+
+  test('sign-out or another user wipes everything; same user keeps', () async {
+    Future<int> cacheRows() async =>
+        (await db.select(db.jsonCache).get()).length;
+
+    await db.claimFor('alice');
+    await enqueue('op1');
+    await db.cachedRows(
+      'members:mess1',
+      () async => [
+        {'id': 'm1'},
+      ],
+    );
+    await db.claimFor('alice');
+    expect(await db.unsentCount(), 1);
+
+    await db.claimFor('bob');
+    expect(await db.unsentCount(), 0);
+    expect(await cacheRows(), 1, reason: 'only the owner marker');
+
+    await enqueue('op2');
+    await db.claimFor(null);
+    expect(await db.unsentCount(), 0);
+    expect(await cacheRows(), 0);
   });
 }
