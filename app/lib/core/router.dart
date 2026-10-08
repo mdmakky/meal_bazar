@@ -15,6 +15,8 @@ import '../features/mess/domain/member.dart';
 import '../features/mess/presentation/mess_screens.dart';
 import '../features/money/presentation/money_screen.dart';
 import '../features/money/presentation/months_screen.dart';
+import '../features/recurring/presentation/meal_defaults_screen.dart';
+import '../features/recurring/presentation/recurring_screen.dart';
 import '../features/today/presentation/today_screen.dart';
 import 'failure_text.dart';
 import 'shell.dart';
@@ -199,6 +201,14 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'meal-types',
                     builder: (_, _) => const MealTypesScreen(),
+                  ),
+                  GoRoute(
+                    path: 'meal-defaults',
+                    builder: (_, _) => const MealDefaultsScreen(),
+                  ),
+                  GoRoute(
+                    path: 'recurring',
+                    builder: (_, _) => const RecurringScreen(),
                   ),
                 ],
               ),
