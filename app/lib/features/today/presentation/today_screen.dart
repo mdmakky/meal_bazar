@@ -16,12 +16,15 @@ import '../../meals/presentation/meal_widgets.dart';
 import '../../mess/application/mess_providers.dart';
 import '../../mess/domain/member.dart';
 import '../../mess/presentation/common.dart';
+import '../../money/application/money_providers.dart';
 import '../../money/presentation/money_sheets.dart';
 import '../../month/application/month_providers.dart';
 import '../application/day_grid.dart';
+import 'dashboard.dart';
 
 /// The daily routine: date, the day's headcount with its proof, the month's
-/// meal rate with its proof, the member × meal grid, quick actions.
+/// meal rate with its proof, the member × meal grid, quick actions; then the
+/// month dashboard ("এই মাস") below the grid.
 class TodayScreen extends ConsumerStatefulWidget {
   const TodayScreen({super.key});
 
@@ -45,7 +48,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     // Queued writes reached the server: the SQL figures changed.
     ref.listen(syncQueueProvider, (prev, next) {
       if ((prev?.value?.isNotEmpty ?? false) && next.value?.isEmpty == true) {
-        ref.invalidate(monthTotalsProvider(messId));
+        monthProviders(messId).forEach(ref.invalidate);
       }
     });
     final manager = ref.watch(amIManagerProvider);
@@ -82,7 +85,18 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
       ref.invalidate(membersProvider(messId));
       ref.invalidate(mealTypesProvider(messId));
       ref.invalidate(dayEntriesProvider(key));
-      ref.invalidate(monthTotalsProvider(messId));
+      monthProviders(messId).forEach(ref.invalidate);
+    }
+
+    Future<void> refresh() async {
+      retry();
+      ref.invalidate(currentPeriodProvider(messId));
+      ref.invalidate(bazarsProvider(messId));
+      // Each section shows its own error; the spinner only waits.
+      await Future.wait([
+        ref.read(membersProvider(messId).future),
+        ref.read(monthTotalsProvider(messId).future),
+      ]).catchError((_) => const <Object>[]);
     }
 
     final error = [
@@ -113,7 +127,11 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
       types = typesAsync.value!
           .where((t) => t.enabled || typesUsed.split(',').contains(t.id))
           .toList();
+      final hasMembers = membersAsync.value!.any(
+        (m) => m.status != MemberStatus.pending,
+      );
       body = CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
           SliverToBoxAdapter(
             child: _Header(
@@ -124,7 +142,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
               onToday: () => setState(() => _day = today()),
             ),
           ),
-          if (rows.isEmpty)
+          if (rows.isEmpty && !hasMembers)
             SliverFillRemaining(
               hasScrollBody: false,
               child: EmptyView(
@@ -134,9 +152,18 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                 onAction: () => context.push('/more/members'),
               ),
             )
+          else if (rows.isEmpty)
+            // The mess has members, just none present on this day.
+            SliverToBoxAdapter(
+              child: EmptyView(
+                icon: Icons.event_busy_outlined,
+                message: l.dashNobodyThatDay,
+                actionLabel: _day == today() ? null : l.todayBackToToday,
+                onAction: () => setState(() => _day = today()),
+              ),
+            )
           else if (types.isEmpty)
-            SliverFillRemaining(
-              hasScrollBody: false,
+            SliverToBoxAdapter(
               child: EmptyView(
                 icon: Icons.restaurant_outlined,
                 message: l.todayNoMealTypes,
@@ -173,13 +200,20 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                 child: _MealOffHint(cutoff: mess.mealOffCutoff),
               ),
           ],
+          if (hasMembers)
+            SliverToBoxAdapter(
+              child: MonthDashboard(messId: messId, manager: manager),
+            ),
           const SliverToBoxAdapter(child: SizedBox(height: AppSpace.xl)),
         ],
       );
     }
 
     return Scaffold(
-      body: SafeArea(bottom: false, child: body),
+      body: SafeArea(
+        bottom: false,
+        child: RefreshIndicator(onRefresh: refresh, child: body),
+      ),
       bottomNavigationBar: types.isEmpty
           ? null
           : manager && rows.isNotEmpty

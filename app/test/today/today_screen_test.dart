@@ -159,8 +159,9 @@ void main() {
     );
     expect(find.text('৩½'), findsOneWidget);
     expect(find.text('দুপুর ১½ · রাত ২ · অতিথি ১'), findsOneWidget);
-    expect(find.text('৳৬৮.৭৮'), findsOneWidget);
-    expect(find.text('৳১,৪১০ ÷ ২০.৫ মিল'), findsOneWidget);
+    // The header's rate (the dashboard below repeats it).
+    expect(find.text('৳৬৮.৭৮').first, findsOneWidget);
+    expect(find.text('৳১,৪১০ ÷ ২০.৫ মিল').first, findsOneWidget);
     expect(find.text('Karim'), findsOneWidget);
     expect(find.bySemanticsLabel('Rahim রাত: ১, +১ জন অতিথি'), findsOneWidget);
     expect(find.text(l.todayActionBazar), findsOneWidget);
