@@ -2659,6 +2659,48 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'জমা বাতিল হয়েছে'**
   String get depositVerifyRejected;
+
+  /// No description provided for @resetTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'নতুন পাসওয়ার্ড দিন'**
+  String get resetTitle;
+
+  /// No description provided for @resetHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই অ্যাকাউন্টের জন্য একটা নতুন পাসওয়ার্ড ঠিক করুন'**
+  String get resetHint;
+
+  /// No description provided for @resetNewPasswordLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'নতুন পাসওয়ার্ড'**
+  String get resetNewPasswordLabel;
+
+  /// No description provided for @resetConfirmLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'আবার নতুন পাসওয়ার্ড'**
+  String get resetConfirmLabel;
+
+  /// No description provided for @resetMismatch.
+  ///
+  /// In bn, this message translates to:
+  /// **'দুটো পাসওয়ার্ড মিলছে না'**
+  String get resetMismatch;
+
+  /// No description provided for @resetSave.
+  ///
+  /// In bn, this message translates to:
+  /// **'পাসওয়ার্ড সেভ করুন'**
+  String get resetSave;
+
+  /// No description provided for @resetDone.
+  ///
+  /// In bn, this message translates to:
+  /// **'পাসওয়ার্ড বদলানো হয়েছে'**
+  String get resetDone;
 }
 
 class _AppLocalizationsDelegate

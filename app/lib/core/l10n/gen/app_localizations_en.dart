@@ -1424,4 +1424,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get depositVerifyRejected => 'Deposit rejected';
+
+  @override
+  String get resetTitle => 'Set a new password';
+
+  @override
+  String get resetHint => 'Choose a new password for this account';
+
+  @override
+  String get resetNewPasswordLabel => 'New password';
+
+  @override
+  String get resetConfirmLabel => 'Confirm new password';
+
+  @override
+  String get resetMismatch => 'Passwords don\'t match';
+
+  @override
+  String get resetSave => 'Save password';
+
+  @override
+  String get resetDone => 'Password changed';
 }

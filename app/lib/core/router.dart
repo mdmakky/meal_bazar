@@ -6,6 +6,7 @@ import '../features/account/presentation/account_screen.dart';
 import '../features/audit/presentation/audit_screen.dart';
 import '../features/auth/application/auth_providers.dart';
 import '../features/auth/presentation/profile_setup_screen.dart';
+import '../features/auth/presentation/set_new_password_screen.dart';
 import '../features/auth/presentation/sign_in_screen.dart';
 import '../features/meals/presentation/meal_types_screen.dart';
 import '../features/meals/presentation/meals_screen.dart';
@@ -26,8 +27,11 @@ const homePath = '/today';
 /// [memberships] null means "still loading". An invite `code` query param is
 /// carried through sign-in and profile setup so a deep link survives them.
 /// Each call is one step; go_router re-runs it on the redirected location.
+/// [recovering]: a reset-password link opened the app; hold the user on
+/// `/auth/reset-password` until the new password is saved.
 String? decideRedirect({
   required bool signedIn,
+  bool recovering = false,
   required bool profileComplete,
   required List<Membership>? memberships,
   required String location,
@@ -49,6 +53,9 @@ String? decideRedirect({
     return path == '/auth/sign-in'
         ? null
         : _withCode('/auth/sign-in', inviteCode);
+  }
+  if (recovering) {
+    return path == '/auth/reset-password' ? null : '/auth/reset-password';
   }
   if (!profileComplete) {
     return path == '/auth/profile'
@@ -84,6 +91,7 @@ final routerProvider = Provider<GoRouter>((ref) {
   final refresh = ValueNotifier(0);
   void bump(Object? _, Object? _) => refresh.value++;
   ref.listen(authStateProvider, bump);
+  ref.listen(passwordRecoveryProvider, bump);
   ref.listen(myProfileProvider, bump);
   ref.listen(myMembershipsProvider, bump);
   ref.onDispose(refresh.dispose);
@@ -100,6 +108,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       final memberships = ref.read(myMembershipsProvider);
       return decideRedirect(
         signedIn: signedIn,
+        recovering: ref.read(passwordRecoveryProvider),
         profileComplete: profile.value?.fullName.trim().isNotEmpty ?? false,
         memberships: memberships.isLoading ? null : memberships.value,
         location: state.uri.toString(),
@@ -110,6 +119,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/join/:code', builder: (_, _) => const _SplashScreen()),
       // Phone login (PhoneScreen) disabled until an SMS provider is funded.
       GoRoute(path: '/auth/sign-in', builder: (_, _) => const SignInScreen()),
+      GoRoute(
+        path: '/auth/reset-password',
+        builder: (_, _) => const SetNewPasswordScreen(),
+      ),
       GoRoute(
         path: '/auth/profile',
         builder: (_, _) => const ProfileSetupScreen(),

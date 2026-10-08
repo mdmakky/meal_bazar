@@ -5,6 +5,10 @@ import '../../../core/env.dart';
 import '../../../core/errors.dart';
 import '../domain/profile.dart';
 
+/// Where emailed auth links (confirm sign-up, reset password) land. Must be
+/// listed under Supabase → Authentication → URL Configuration → Redirect URLs.
+const authRedirectUrl = 'mealbazar://auth-callback';
+
 class AuthRepository {
   AuthRepository(this._client);
 
@@ -19,6 +23,13 @@ class AuthRepository {
   Stream<String?> authStateChanges() =>
       _auth.onAuthStateChange.map((s) => s.session?.user.id);
 
+  /// Fires when a password-reset link opened the app. supabase_flutter
+  /// exchanges the deep link for a session itself; the stream replays, so a
+  /// late listener still sees it.
+  Stream<void> passwordRecoveryEvents() => _auth.onAuthStateChange.where(
+    (s) => s.event == AuthChangeEvent.passwordRecovery,
+  );
+
   Future<void> signInWithEmail(String email, String password) => guard(
     () => _auth.signInWithPassword(email: email.trim(), password: password),
   );
@@ -27,12 +38,22 @@ class AuthRepository {
   /// yet): the user must click the emailed link, then log in.
   Future<bool> signUpWithEmail(String email, String password) => guard(
     () async =>
-        (await _auth.signUp(email: email.trim(), password: password)).session !=
+        (await _auth.signUp(
+          email: email.trim(),
+          password: password,
+          emailRedirectTo: authRedirectUrl,
+        )).session !=
         null,
   );
 
-  Future<void> sendPasswordReset(String email) =>
-      guard(() => _auth.resetPasswordForEmail(email.trim()));
+  /// PKCE: the link only works in the app install that requested it.
+  Future<void> sendPasswordReset(String email) => guard(
+    () =>
+        _auth.resetPasswordForEmail(email.trim(), redirectTo: authRedirectUrl),
+  );
+
+  Future<void> updatePassword(String password) =>
+      guard(() => _auth.updateUser(UserAttributes(password: password)));
 
   Future<void>? _googleInit;
 

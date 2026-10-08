@@ -17,12 +17,14 @@ Membership m(MemberStatus status) => Membership(
 String land(
   String location, {
   bool signedIn = true,
+  bool recovering = false,
   bool profileComplete = true,
   List<Membership>? memberships = const [],
 }) {
   for (var i = 0; i < 10; i++) {
     final next = decideRedirect(
       signedIn: signedIn,
+      recovering: recovering,
       profileComplete: profileComplete,
       memberships: memberships,
       location: location,
@@ -41,6 +43,18 @@ void main() {
     expect(land('/', signedIn: false), '/auth/sign-in');
     expect(land('/today', signedIn: false), '/auth/sign-in');
     expect(land('/auth/profile', signedIn: false), '/auth/sign-in');
+  });
+
+  test('password recovery holds the user on reset-password', () {
+    for (final from in ['/', '/today', '/auth/sign-in', '/onboarding']) {
+      expect(land(from, recovering: true), '/auth/reset-password');
+    }
+    expect(
+      land('/auth/reset-password', recovering: true, profileComplete: false),
+      '/auth/reset-password',
+    );
+    expect(land('/auth/reset-password', memberships: active), '/today');
+    expect(land('/auth/reset-password', signedIn: false), '/auth/sign-in');
   });
 
   test('missing name lands on profile setup', () {

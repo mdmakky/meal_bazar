@@ -17,6 +17,26 @@ final authStateProvider = StreamProvider<String?>(
   (ref) => ref.watch(authRepositoryProvider).authStateChanges(),
 );
 
+/// True after a password-reset link opened the app, until the new password
+/// is saved. The router holds the user on `/auth/reset-password` meanwhile.
+final passwordRecoveryProvider = NotifierProvider<PasswordRecovery, bool>(
+  PasswordRecovery.new,
+);
+
+class PasswordRecovery extends Notifier<bool> {
+  @override
+  bool build() {
+    final sub = ref
+        .watch(authRepositoryProvider)
+        .passwordRecoveryEvents()
+        .listen((_) => state = true);
+    ref.onDispose(sub.cancel);
+    return false;
+  }
+
+  void clear() => state = false;
+}
+
 /// My profile; null when signed out.
 final myProfileProvider = AsyncNotifierProvider<MyProfileNotifier, Profile?>(
   MyProfileNotifier.new,

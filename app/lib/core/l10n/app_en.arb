@@ -451,5 +451,12 @@
   "depositVerifyRejectTitle": "Reject this deposit?",
   "depositVerifyRejectBody": "{amount} from {name} will not count.",
   "depositVerifyDone": "Deposit verified",
-  "depositVerifyRejected": "Deposit rejected"
+  "depositVerifyRejected": "Deposit rejected",
+  "resetTitle": "Set a new password",
+  "resetHint": "Choose a new password for this account",
+  "resetNewPasswordLabel": "New password",
+  "resetConfirmLabel": "Confirm new password",
+  "resetMismatch": "Passwords don't match",
+  "resetSave": "Save password",
+  "resetDone": "Password changed"
 }

@@ -475,5 +475,12 @@
   "depositVerifyRejectBody": "{name}-এর {amount} জমা হিসাবে ধরা হবে না।",
   "@depositVerifyRejectBody": {"placeholders": {"name": {"type": "String"}, "amount": {"type": "String"}}},
   "depositVerifyDone": "জমা যাচাই হয়েছে",
-  "depositVerifyRejected": "জমা বাতিল হয়েছে"
+  "depositVerifyRejected": "জমা বাতিল হয়েছে",
+  "resetTitle": "নতুন পাসওয়ার্ড দিন",
+  "resetHint": "এই অ্যাকাউন্টের জন্য একটা নতুন পাসওয়ার্ড ঠিক করুন",
+  "resetNewPasswordLabel": "নতুন পাসওয়ার্ড",
+  "resetConfirmLabel": "আবার নতুন পাসওয়ার্ড",
+  "resetMismatch": "দুটো পাসওয়ার্ড মিলছে না",
+  "resetSave": "পাসওয়ার্ড সেভ করুন",
+  "resetDone": "পাসওয়ার্ড বদলানো হয়েছে"
 }

@@ -1415,4 +1415,25 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get depositVerifyRejected => 'জমা বাতিল হয়েছে';
+
+  @override
+  String get resetTitle => 'নতুন পাসওয়ার্ড দিন';
+
+  @override
+  String get resetHint => 'এই অ্যাকাউন্টের জন্য একটা নতুন পাসওয়ার্ড ঠিক করুন';
+
+  @override
+  String get resetNewPasswordLabel => 'নতুন পাসওয়ার্ড';
+
+  @override
+  String get resetConfirmLabel => 'আবার নতুন পাসওয়ার্ড';
+
+  @override
+  String get resetMismatch => 'দুটো পাসওয়ার্ড মিলছে না';
+
+  @override
+  String get resetSave => 'পাসওয়ার্ড সেভ করুন';
+
+  @override
+  String get resetDone => 'পাসওয়ার্ড বদলানো হয়েছে';
 }
