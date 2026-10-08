@@ -2899,6 +2899,126 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'এই দিনে কেউ মেসে ছিল না'**
   String get dashNobodyThatDay;
+
+  /// No description provided for @noticeTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'নোটিশ'**
+  String get noticeTitle;
+
+  /// No description provided for @noticeEmpty.
+  ///
+  /// In bn, this message translates to:
+  /// **'এখনো কোনো নোটিশ নেই'**
+  String get noticeEmpty;
+
+  /// No description provided for @noticeAdd.
+  ///
+  /// In bn, this message translates to:
+  /// **'নোটিশ দিন'**
+  String get noticeAdd;
+
+  /// No description provided for @noticeEdit.
+  ///
+  /// In bn, this message translates to:
+  /// **'নোটিশ বদলান'**
+  String get noticeEdit;
+
+  /// No description provided for @noticeTitleLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'শিরোনাম'**
+  String get noticeTitleLabel;
+
+  /// No description provided for @noticeTitleRequired.
+  ///
+  /// In bn, this message translates to:
+  /// **'শিরোনাম লিখুন'**
+  String get noticeTitleRequired;
+
+  /// No description provided for @noticeBodyLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'বিস্তারিত'**
+  String get noticeBodyLabel;
+
+  /// No description provided for @noticePin.
+  ///
+  /// In bn, this message translates to:
+  /// **'সবার উপরে পিন করুন'**
+  String get noticePin;
+
+  /// No description provided for @noticePinned.
+  ///
+  /// In bn, this message translates to:
+  /// **'পিন করা'**
+  String get noticePinned;
+
+  /// No description provided for @noticeUnread.
+  ///
+  /// In bn, this message translates to:
+  /// **'নতুন'**
+  String get noticeUnread;
+
+  /// No description provided for @noticeExpiry.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেয়াদ'**
+  String get noticeExpiry;
+
+  /// No description provided for @noticeNoExpiry.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেয়াদ নেই'**
+  String get noticeNoExpiry;
+
+  /// No description provided for @noticeClearExpiry.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেয়াদ সরান'**
+  String get noticeClearExpiry;
+
+  /// No description provided for @noticeUntil.
+  ///
+  /// In bn, this message translates to:
+  /// **'{date} পর্যন্ত'**
+  String noticeUntil(String date);
+
+  /// No description provided for @noticeSave.
+  ///
+  /// In bn, this message translates to:
+  /// **'নোটিশ সেভ করুন'**
+  String get noticeSave;
+
+  /// No description provided for @noticeSaved.
+  ///
+  /// In bn, this message translates to:
+  /// **'নোটিশ সেভ হয়েছে'**
+  String get noticeSaved;
+
+  /// No description provided for @noticeDeleted.
+  ///
+  /// In bn, this message translates to:
+  /// **'নোটিশ মুছে ফেলা হয়েছে'**
+  String get noticeDeleted;
+
+  /// No description provided for @noticeDeleteConfirmTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'নোটিশটি মুছবেন?'**
+  String get noticeDeleteConfirmTitle;
+
+  /// No description provided for @noticeDeleteConfirmBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'সবার কাছ থেকে নোটিশটি সরে যাবে।'**
+  String get noticeDeleteConfirmBody;
+
+  /// No description provided for @noticeGone.
+  ///
+  /// In bn, this message translates to:
+  /// **'নোটিশটি আর নেই'**
+  String get noticeGone;
 }
 
 class _AppLocalizationsDelegate
