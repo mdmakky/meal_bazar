@@ -58,6 +58,7 @@ class Bazar {
     this.note,
     this.items = const [],
     this.source = 'app',
+    this.receiptPath,
   });
 
   factory Bazar.fromJson(Map<String, dynamic> j) => Bazar(
@@ -69,6 +70,7 @@ class Bazar {
     paidByMemberId: j['paid_by_member_id'] as String?,
     note: j['note'] as String?,
     source: j['source'] as String? ?? 'app',
+    receiptPath: j['receipt_path'] as String?,
     items: [
       for (final i in (j['bazar_items'] as List? ?? const []))
         BazarItem.fromJson(i as Map<String, dynamic>),
@@ -89,6 +91,9 @@ class Bazar {
   /// 'ai' when prefilled from a confirmed AI draft.
   final String source;
 
+  /// Storage path in the `receipts` bucket.
+  final String? receiptPath;
+
   Map<String, dynamic> toJson() => {
     'id': id,
     'mess_id': messId,
@@ -98,6 +103,7 @@ class Bazar {
     'paid_by_member_id': paidByMemberId,
     'note': note,
     'source': source,
+    'receipt_path': receiptPath,
   };
 
   List<Map<String, dynamic>> itemsJson() => [
@@ -143,6 +149,7 @@ class Expense {
     required this.split,
     this.paidByMemberId,
     this.note,
+    this.receiptPath,
   });
 
   factory Expense.fromJson(Map<String, dynamic> j) => Expense(
@@ -154,6 +161,7 @@ class Expense {
     split: SplitMethod.values.byName(j['split'] as String),
     paidByMemberId: j['paid_by_member_id'] as String?,
     note: j['note'] as String?,
+    receiptPath: j['receipt_path'] as String?,
   );
 
   final String id;
@@ -164,6 +172,7 @@ class Expense {
   final SplitMethod split;
   final String? paidByMemberId;
   final String? note;
+  final String? receiptPath;
 
   Map<String, dynamic> toJson() => {
     'id': id,
@@ -174,6 +183,7 @@ class Expense {
     'split': split.name,
     'paid_by_member_id': paidByMemberId,
     'note': note,
+    'receipt_path': receiptPath,
   };
 }
 
@@ -188,6 +198,7 @@ class Deposit {
     this.trxId,
     this.status = DepositStatus.verified,
     this.note,
+    this.screenshotPath,
   });
 
   factory Deposit.fromJson(Map<String, dynamic> j) => Deposit(
@@ -200,6 +211,7 @@ class Deposit {
     trxId: j['trx_id'] as String?,
     status: DepositStatus.values.byName(j['status'] as String),
     note: j['note'] as String?,
+    screenshotPath: j['screenshot_path'] as String?,
   );
 
   final String id;
@@ -212,6 +224,9 @@ class Deposit {
   final DepositStatus status;
   final String? note;
 
+  /// Payment screenshot in the `receipts` bucket.
+  final String? screenshotPath;
+
   Map<String, dynamic> toJson() => {
     'id': id,
     'mess_id': messId,
@@ -222,6 +237,7 @@ class Deposit {
     'trx_id': trxId,
     'status': status.name,
     'note': note,
+    'screenshot_path': screenshotPath,
   };
 }
 

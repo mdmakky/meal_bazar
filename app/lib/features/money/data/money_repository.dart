@@ -89,6 +89,32 @@ class MoneyRepository {
     requireRows(await _client.from('deposits').upsert(d.toJson()).select('id'));
   });
 
+  /// A member's own deposit; the server stores it as `pending` for the caller's
+  /// member row (`record_my_deposit`). Idempotent on [Deposit.id].
+  Future<void> recordMyDeposit(Deposit d) => guard(
+    () => _client.rpc(
+      'record_my_deposit',
+      params: {
+        'p_mess': d.messId,
+        'p_id': d.id,
+        'p_date': isoDate(d.date),
+        'p_amount': d.amount,
+        'p_method': d.method.name,
+        'p_trx_id': d.trxId,
+        'p_note': d.note,
+        'p_screenshot_path': d.screenshotPath,
+      },
+    ),
+  );
+
+  /// Manager: pending → verified ([approve]) or rejected.
+  Future<void> verifyDeposit(String id, {required bool approve}) => guard(
+    () => _client.rpc(
+      'verify_deposit',
+      params: {'p_id': id, 'p_approve': approve},
+    ),
+  );
+
   Future<void> deleteBazar(String id) => _softDelete('bazars', id);
   Future<void> deleteExpense(String id) => _softDelete('expenses', id);
   Future<void> deleteDeposit(String id) => _softDelete('deposits', id);

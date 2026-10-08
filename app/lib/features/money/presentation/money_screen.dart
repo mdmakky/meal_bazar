@@ -71,7 +71,11 @@ class _MoneyScreenState extends ConsumerState<MoneyScreen> {
               label: Text(addLabel),
               onPressed: () => add(context),
             )
-          : null,
+          : FloatingActionButton.extended(
+              icon: const Icon(Icons.add),
+              label: Text(l.depositVerifyMine),
+              onPressed: () => showMyDepositSheet(context),
+            ),
       body: RefreshIndicator(
         onRefresh: () {
           ref.invalidate(currentPeriodProvider(messId));
@@ -534,7 +538,11 @@ class _ExpenseList extends ConsumerWidget {
               Money(e.amount, banglaDigits: bn),
             ],
           ),
-          onTap: isManager ? () => showExpenseForm(context, existing: e) : null,
+          onTap: isManager
+              ? () => showExpenseForm(context, existing: e)
+              : e.receiptPath == null
+              ? null
+              : () => showReceipt(context, e.receiptPath!),
         ),
       ),
     );
@@ -557,28 +565,133 @@ class _DepositList extends ConsumerWidget {
       ref.watch(depositsProvider(messId)),
       onRetry: () => ref.invalidate(depositsProvider(messId)),
       data: (page) => _PagedSliver<Deposit>(
-        page: page,
+        // Pending first: they need the manager's attention.
+        // ponytail: only reorders loaded rows; a server-side order if pages get long.
+        page: (
+          items: [
+            ...page.items.where((d) => d.status == DepositStatus.pending),
+            ...page.items.where((d) => d.status != DepositStatus.pending),
+          ],
+          hasMore: page.hasMore,
+        ),
         empty: l.depositEmpty,
         loadMore: ref.read(depositsProvider(messId).notifier).loadMore,
-        row: (d) => _row(
-          context,
-          title: names[d.memberId] ?? l.moneyTabDeposit,
-          subtitle: [
-            shortDate(context, d.date),
-            if (d.trxId != null) 'TrxID ${d.trxId}',
-            if (d.status == DepositStatus.pending) l.depositPending,
-            if (d.status == DepositStatus.rejected) l.depositRejected,
-          ].join(' · '),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            spacing: AppSpace.sm,
-            children: [
-              _Tag(methodLabel(l, d.method)),
-              Money(d.amount, banglaDigits: bn),
-            ],
-          ),
-          onTap: isManager ? () => showDepositForm(context, existing: d) : null,
+        row: (d) => Column(
+          children: [
+            _depositRow(context, l, bn, names, isManager, d),
+            if (isManager && d.status == DepositStatus.pending)
+              _VerifyActions(deposit: d, name: names[d.memberId] ?? ''),
+          ],
         ),
+      ),
+    );
+  }
+
+  Widget _depositRow(
+    BuildContext context,
+    AppLocalizations l,
+    bool bn,
+    Map<String, String> names,
+    bool isManager,
+    Deposit d,
+  ) => _row(
+    context,
+    title: names[d.memberId] ?? l.moneyTabDeposit,
+    subtitle: [
+      shortDate(context, d.date),
+      if (d.trxId != null) 'TrxID ${d.trxId}',
+      if (d.status == DepositStatus.pending) l.depositPending,
+      if (d.status == DepositStatus.rejected) l.depositRejected,
+    ].join(' · '),
+    trailing: Row(
+      mainAxisSize: MainAxisSize.min,
+      spacing: AppSpace.sm,
+      children: [
+        _Tag(methodLabel(l, d.method)),
+        Money(d.amount, banglaDigits: bn),
+      ],
+    ),
+    onTap: isManager
+        ? () => showDepositForm(context, existing: d)
+        : d.screenshotPath == null
+        ? null
+        : () => showReceipt(context, d.screenshotPath!),
+  );
+}
+
+/// Verify / reject a member's pending deposit, each behind a confirmation.
+class _VerifyActions extends ConsumerStatefulWidget {
+  const _VerifyActions({required this.deposit, required this.name});
+
+  final Deposit deposit;
+  final String name;
+
+  @override
+  ConsumerState<_VerifyActions> createState() => _VerifyActionsState();
+}
+
+class _VerifyActionsState extends ConsumerState<_VerifyActions> {
+  bool? _busy; // the approve value in flight
+
+  Future<void> _decide(bool approve) async {
+    final l = AppLocalizations.of(context);
+    final amount = money(context, widget.deposit.amount);
+    final ok = await confirmDialog(
+      context,
+      title: approve ? l.depositVerifyApproveTitle : l.depositVerifyRejectTitle,
+      body: approve
+          ? l.depositVerifyApproveBody(widget.name, amount)
+          : l.depositVerifyRejectBody(widget.name, amount),
+      action: approve ? l.depositVerifyApprove : l.depositVerifyReject,
+    );
+    if (!ok || !mounted) return;
+    setState(() => _busy = approve);
+    try {
+      await ref
+          .read(moneyControllerProvider)
+          .verifyDeposit(widget.deposit, approve: approve);
+      if (mounted) {
+        showSnack(
+          context,
+          approve ? l.depositVerifyDone : l.depositVerifyRejected,
+        );
+      }
+    } catch (e) {
+      if (mounted) showFailure(context, e);
+    } finally {
+      if (mounted) setState(() => _busy = null);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpace.gutter,
+        0,
+        AppSpace.gutter,
+        AppSpace.md,
+      ),
+      child: Row(
+        spacing: AppSpace.sm,
+        children: [
+          Expanded(
+            child: AppButton(
+              label: l.depositVerifyReject,
+              variant: AppButtonVariant.secondary,
+              loading: _busy == false,
+              onPressed: _busy == null ? () => _decide(false) : null,
+            ),
+          ),
+          Expanded(
+            child: AppButton(
+              label: l.depositVerifyApprove,
+              loading: _busy == true,
+              onPressed: _busy == null ? () => _decide(true) : null,
+            ),
+          ),
+        ],
       ),
     );
   }

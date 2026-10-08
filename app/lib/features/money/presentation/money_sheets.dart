@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../core/dates.dart';
 import '../../../core/failure_text.dart';
 import '../../../core/ids.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
+import '../../../core/storage.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../ai/presentation/ai_entry.dart';
+import '../../meals/presentation/meal_widgets.dart' show pickOne;
 import '../../mess/application/mess_providers.dart';
 import '../../mess/domain/member.dart';
 import '../../mess/presentation/common.dart';
@@ -51,6 +54,13 @@ Future<void> showDepositForm(BuildContext context, {Deposit? existing}) {
     _DepositForm(existing: existing),
   );
 }
+
+/// A member records their own deposit; it stays pending until verified.
+Future<void> showMyDepositSheet(BuildContext context) => _showForm(
+  context,
+  AppLocalizations.of(context).depositVerifyMine,
+  const _MyDepositForm(),
+);
 
 /// The form pops with the snackbar text (saved / deleted).
 Future<void> _showForm(BuildContext context, String title, Widget form) async {
@@ -394,6 +404,183 @@ class _WithMess extends ConsumerWidget {
   }
 }
 
+// ── Receipt photos ────────────────────────────────────────────────────────
+
+/// Camera / gallery → compressed JPEG bytes, or null. Overridden in tests.
+final receiptPickerProvider =
+    Provider<Future<Uint8List?> Function(BuildContext)>((ref) => _pickPhoto);
+
+Future<Uint8List?> _pickPhoto(BuildContext context) async {
+  final l = AppLocalizations.of(context);
+  final source = await pickOne<ImageSource>(
+    context,
+    title: l.receiptAttach,
+    options: [
+      (ImageSource.camera, l.aiCamera),
+      (ImageSource.gallery, l.aiGallery),
+    ],
+  );
+  if (source == null) return null;
+  try {
+    final file = await ImagePicker().pickImage(
+      source: source,
+      maxWidth: 1280,
+      imageQuality: 70,
+    );
+    return await file?.readAsBytes();
+  } catch (e) {
+    // Permission denied, no camera, …
+    if (context.mounted) showFailure(context, e);
+    return null;
+  }
+}
+
+/// A form's optional photo: picked bytes until saved, then the storage path.
+mixin _Photo<W extends ConsumerStatefulWidget> on ConsumerState<W> {
+  Uint8List? photo;
+  String? photoPath;
+
+  /// Uploads a newly picked photo once, so a retry after a failed save does
+  /// not upload again. Throws `AppFailure`; the caller keeps the sheet open.
+  Future<String?> uploadPhoto(String messId) async {
+    final bytes = photo;
+    if (bytes != null) {
+      photoPath = await ref
+          .read(storageServiceProvider)
+          .uploadReceipt(messId, bytes);
+      photo = null;
+    }
+    return photoPath;
+  }
+
+  Widget photoField(String label) {
+    final l = AppLocalizations.of(context);
+    final bytes = photo;
+    final path = photoPath;
+    if (bytes == null && path == null) {
+      return Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: TextButton.icon(
+          icon: const Icon(Icons.add_a_photo_outlined),
+          label: Text(label),
+          onPressed: () async {
+            final picked = await ref.read(receiptPickerProvider)(context);
+            if (picked != null && mounted) setState(() => photo = picked);
+          },
+        ),
+      );
+    }
+    return Row(
+      spacing: AppSpace.md,
+      children: [
+        bytes != null
+            ? ClipRRect(
+                borderRadius: BorderRadius.circular(AppRadius.sm),
+                child: Image.memory(
+                  bytes,
+                  width: _thumb,
+                  height: _thumb,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, _, _) => const SizedBox.square(
+                    dimension: _thumb,
+                    child: Icon(Icons.broken_image_outlined),
+                  ),
+                ),
+              )
+            : ReceiptThumb(path: path!),
+        Expanded(child: _Label(label)),
+        IconButton(
+          tooltip: l.receiptRemove,
+          icon: const Icon(Icons.close),
+          onPressed: () => setState(() {
+            // ponytail: the old object stays in storage; sweep orphans if it matters.
+            photo = null;
+            photoPath = null;
+          }),
+        ),
+      ],
+    );
+  }
+}
+
+const double _thumb = 72;
+
+/// Signed-URL thumbnail of a stored receipt; tap for the full image.
+class ReceiptThumb extends ConsumerWidget {
+  const ReceiptThumb({super.key, required this.path, this.size = _thumb});
+
+  final String path;
+  final double size;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final box = ref
+        .watch(receiptUrlProvider(path))
+        .when(
+          loading: () => const Center(
+            child: SizedBox.square(
+              dimension: AppSize.spinner,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          ),
+          error: (_, _) => IconButton(
+            tooltip: l.retry,
+            icon: const Icon(Icons.broken_image_outlined),
+            onPressed: () => ref.invalidate(receiptUrlProvider(path)),
+          ),
+          data: (url) => Image.network(
+            url,
+            fit: BoxFit.cover,
+            errorBuilder: (_, _, _) => const Icon(Icons.broken_image_outlined),
+          ),
+        );
+    return Semantics(
+      button: true,
+      label: l.receiptView,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        onTap: () => showReceipt(context, path),
+        child: Container(
+          width: size,
+          height: size,
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            border: Border.all(color: context.palette.border),
+            borderRadius: BorderRadius.circular(AppRadius.sm),
+          ),
+          child: box,
+        ),
+      ),
+    );
+  }
+}
+
+/// Full-screen, zoomable view of a stored receipt.
+Future<void> showReceipt(BuildContext context, String path) => showDialog<void>(
+  context: context,
+  builder: (context) => Dialog.fullscreen(
+    child: Scaffold(
+      appBar: AppBar(title: Text(AppLocalizations.of(context).receiptView)),
+      body: Consumer(
+        builder: (context, ref, _) => ref
+            .watch(receiptUrlProvider(path))
+            .when(
+              loading: () => const LoadingView(rows: 0),
+              error: (e, _) => ErrorView(
+                message: failureText(context, e),
+                onRetry: () => ref.invalidate(receiptUrlProvider(path)),
+              ),
+              data: (url) => InteractiveViewer(
+                maxScale: 5,
+                child: Center(child: Image.network(url)),
+              ),
+            ),
+      ),
+    ),
+  ),
+);
+
 // ── Bazar ─────────────────────────────────────────────────────────────────
 
 class _ItemCtrls {
@@ -429,7 +616,7 @@ class _BazarForm extends ConsumerStatefulWidget {
 }
 
 class _BazarFormState extends ConsumerState<_BazarForm>
-    with _Submit<_BazarForm> {
+    with _Submit<_BazarForm>, _Photo<_BazarForm> {
   late final Bazar? _b = widget.existing;
   late final _amount = TextEditingController(
     text: _b == null ? '' : _num(_b.amount),
@@ -441,6 +628,12 @@ class _BazarFormState extends ConsumerState<_BazarForm>
   late var _paidBy = _b?.paidByMemberId;
   late final _items = [for (final i in _b?.items ?? const []) _ItemCtrls(i)];
   late var _source = _b?.source ?? 'app';
+
+  @override
+  void initState() {
+    super.initState();
+    photoPath = _b?.receiptPath;
+  }
 
   /// AI reads a receipt or ফর্দ into a draft; the user still reviews and saves.
   Future<void> _scan() async {
@@ -484,7 +677,7 @@ class _BazarFormState extends ConsumerState<_BazarForm>
   double get _itemsSum =>
       itemsTotal([for (final i in _items) parseAmount(i.price.text) ?? 0]);
 
-  Bazar _build(String messId) => Bazar(
+  Bazar _build(String messId, String? receiptPath) => Bazar(
     id: _b?.id ?? uuidV4(),
     messId: messId,
     date: _date,
@@ -493,6 +686,7 @@ class _BazarFormState extends ConsumerState<_BazarForm>
     paidByMemberId: _pocket ? _paidBy : null,
     note: _trimmed(_note),
     source: _source,
+    receiptPath: receiptPath,
     items: [
       for (final i in _items)
         if (!i.isEmpty)
@@ -568,13 +762,17 @@ class _BazarFormState extends ConsumerState<_BazarForm>
                 onPressed: () => setState(() => _items.add(_ItemCtrls())),
               ),
             ),
+            photoField(l.receiptAttach),
             TextFormField(
               controller: _note,
               maxLength: 300,
               decoration: InputDecoration(labelText: l.moneyNote),
             ),
             footer(
-              () => save(() => ctrl.saveBazar(_build(messId))),
+              () => save(
+                () async =>
+                    ctrl.saveBazar(_build(messId, await uploadPhoto(messId))),
+              ),
               onDelete: _b == null
                   ? null
                   : () => delete(() => ctrl.deleteBazar(_b)),
@@ -761,6 +959,11 @@ class _BazarDetail extends ConsumerWidget {
           style: text.titleSmall,
         ),
         if (bazar.note != null) Text(bazar.note!),
+        if (bazar.receiptPath != null)
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: ReceiptThumb(path: bazar.receiptPath!, size: 96),
+          ),
         const SizedBox(height: AppSpace.sm),
         Row(
           spacing: AppSpace.sm,
@@ -800,7 +1003,7 @@ class _ExpenseForm extends ConsumerStatefulWidget {
 }
 
 class _ExpenseFormState extends ConsumerState<_ExpenseForm>
-    with _Submit<_ExpenseForm> {
+    with _Submit<_ExpenseForm>, _Photo<_ExpenseForm> {
   late final Expense? _e = widget.existing;
   late final _amount = TextEditingController(
     text: _e == null ? '' : _num(_e.amount),
@@ -811,6 +1014,12 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm>
   late var _split = _e?.split ?? SplitMethod.equal;
   late var _pocket = _e?.paidByMemberId != null;
   late var _paidBy = _e?.paidByMemberId;
+
+  @override
+  void initState() {
+    super.initState();
+    photoPath = _e?.receiptPath;
+  }
 
   @override
   void dispose() {
@@ -880,6 +1089,7 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm>
                 onPocket: (v) => setState(() => _pocket = v),
                 onPaidBy: (id) => setState(() => _paidBy = id),
               ),
+              photoField(l.receiptAttach),
               TextFormField(
                 controller: _note,
                 maxLength: 300,
@@ -887,7 +1097,7 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm>
               ),
               footer(
                 () => save(
-                  () => ctrl.saveExpense(
+                  () async => ctrl.saveExpense(
                     Expense(
                       id: _e?.id ?? uuidV4(),
                       messId: messId,
@@ -897,6 +1107,7 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm>
                       split: _split,
                       paidByMemberId: _pocket ? _paidBy : null,
                       note: _trimmed(_note),
+                      receiptPath: await uploadPhoto(messId),
                     ),
                   ),
                 ),
@@ -924,7 +1135,7 @@ class _DepositForm extends ConsumerStatefulWidget {
 }
 
 class _DepositFormState extends ConsumerState<_DepositForm>
-    with _Submit<_DepositForm> {
+    with _Submit<_DepositForm>, _Photo<_DepositForm> {
   late final Deposit? _d = widget.existing;
   late final _amount = TextEditingController(
     text: _d == null ? '' : _num(_d.amount),
@@ -934,6 +1145,12 @@ class _DepositFormState extends ConsumerState<_DepositForm>
   late var _date = _d?.date ?? today();
   late var _member = _d?.memberId;
   late var _method = _d?.method ?? PayMethod.cash;
+
+  @override
+  void initState() {
+    super.initState();
+    photoPath = _d?.screenshotPath;
+  }
 
   @override
   void dispose() {
@@ -973,25 +1190,13 @@ class _DepositFormState extends ConsumerState<_DepositForm>
                 onSelected: (id) => setState(() => _member = id),
               ),
             ),
-            _Label(l.depositMethod),
-            Wrap(
-              spacing: AppSpace.sm,
-              runSpacing: AppSpace.sm,
-              children: [
-                for (final m in PayMethod.values)
-                  ChoiceChip(
-                    label: Text(methodLabel(l, m)),
-                    selected: m == _method,
-                    onSelected: (_) => setState(() => _method = m),
-                  ),
-              ],
+            ..._methodFields(
+              l,
+              _method,
+              _trx,
+              (m) => setState(() => _method = m),
             ),
-            if (_method.hasTrxId)
-              TextFormField(
-                controller: _trx,
-                maxLength: 40,
-                decoration: InputDecoration(labelText: l.depositTrxId),
-              ),
+            photoField(l.receiptScreenshot),
             TextFormField(
               controller: _note,
               maxLength: 300,
@@ -999,7 +1204,7 @@ class _DepositFormState extends ConsumerState<_DepositForm>
             ),
             footer(
               () => save(
-                () => ctrl.saveDeposit(
+                () async => ctrl.saveDeposit(
                   Deposit(
                     id: _d?.id ?? uuidV4(),
                     messId: messId,
@@ -1010,6 +1215,7 @@ class _DepositFormState extends ConsumerState<_DepositForm>
                     trxId: _method.hasTrxId ? _trimmed(_trx) : null,
                     status: _d?.status ?? DepositStatus.verified,
                     note: _trimmed(_note),
+                    screenshotPath: await uploadPhoto(messId),
                   ),
                 ),
               ),
@@ -1017,6 +1223,113 @@ class _DepositFormState extends ConsumerState<_DepositForm>
                   ? null
                   : () => delete(() => ctrl.deleteDeposit(_d)),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Method chips, then TrxID for mobile/bank payments.
+List<Widget> _methodFields(
+  AppLocalizations l,
+  PayMethod method,
+  TextEditingController trx,
+  ValueChanged<PayMethod> onMethod,
+) => [
+  _Label(l.depositMethod),
+  Wrap(
+    spacing: AppSpace.sm,
+    runSpacing: AppSpace.sm,
+    children: [
+      for (final m in PayMethod.values)
+        ChoiceChip(
+          label: Text(methodLabel(l, m)),
+          selected: m == method,
+          onSelected: (_) => onMethod(m),
+        ),
+    ],
+  ),
+  if (method.hasTrxId)
+    TextFormField(
+      controller: trx,
+      maxLength: 40,
+      decoration: InputDecoration(labelText: l.depositTrxId),
+    ),
+];
+
+// ── My deposit (member, pending until verified) ───────────────────────────
+
+class _MyDepositForm extends ConsumerStatefulWidget {
+  const _MyDepositForm();
+
+  @override
+  ConsumerState<_MyDepositForm> createState() => _MyDepositFormState();
+}
+
+class _MyDepositFormState extends ConsumerState<_MyDepositForm>
+    with _Submit<_MyDepositForm>, _Photo<_MyDepositForm> {
+  /// Fixed for the sheet's life, so a retry after a failure is idempotent.
+  final _id = uuidV4();
+  final _amount = TextEditingController();
+  final _trx = TextEditingController();
+  var _date = today();
+  var _method = PayMethod.bkash;
+
+  @override
+  void dispose() {
+    _amount.dispose();
+    _trx.dispose();
+    super.dispose();
+  }
+
+  Future<void> _send(String messId) async {
+    if (!formKey.currentState!.validate()) return;
+    final l = AppLocalizations.of(context);
+    final ctrl = ref.read(moneyControllerProvider);
+    await run(() async {
+      final path = await uploadPhoto(messId);
+      await ctrl.recordMyDeposit(
+        Deposit(
+          id: _id,
+          messId: messId,
+          // The server uses the caller's own member row.
+          memberId: '',
+          date: _date,
+          amount: parseAmount(_amount.text)!,
+          method: _method,
+          trxId: _method.hasTrxId ? _trimmed(_trx) : null,
+          status: DepositStatus.pending,
+          screenshotPath: path,
+        ),
+      );
+    }, l.depositVerifySent);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return _WithMess(
+      builder: (messId) => Form(
+        key: formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: AppSpace.lg,
+          children: [
+            _Label(l.depositVerifyHelp),
+            _AmountField(controller: _amount, autofocus: true, positive: true),
+            _DateChip(
+              value: _date,
+              onChanged: (d) => setState(() => _date = d),
+            ),
+            ..._methodFields(
+              l,
+              _method,
+              _trx,
+              (m) => setState(() => _method = m),
+            ),
+            photoField(l.receiptScreenshot),
+            footer(() => _send(messId)),
           ],
         ),
       ),

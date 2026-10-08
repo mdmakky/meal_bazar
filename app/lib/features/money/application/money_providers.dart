@@ -134,6 +134,16 @@ class MoneyController {
     _changed(d.messId, depositsProvider(d.messId));
   }
 
+  Future<void> recordMyDeposit(Deposit d) async {
+    await _repo.recordMyDeposit(d);
+    _changed(d.messId, depositsProvider(d.messId));
+  }
+
+  Future<void> verifyDeposit(Deposit d, {required bool approve}) async {
+    await _repo.verifyDeposit(d.id, approve: approve);
+    _changed(d.messId, depositsProvider(d.messId));
+  }
+
   Future<void> deleteDeposit(Deposit d) async {
     await _repo.deleteDeposit(d.id);
     _changed(d.messId, depositsProvider(d.messId));

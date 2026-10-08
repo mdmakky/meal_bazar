@@ -1,7 +1,11 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:meal_bazar/core/errors.dart';
 import 'package:meal_bazar/core/l10n/gen/app_localizations.dart';
+import 'package:meal_bazar/core/storage.dart';
 import 'package:meal_bazar/core/theme/app_theme.dart';
 import 'package:meal_bazar/core/widgets/widgets.dart';
 import 'package:meal_bazar/features/mess/application/mess_providers.dart';
@@ -18,6 +22,80 @@ import 'package:meal_bazar/features/month/domain/month.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockMoneyRepository extends Mock implements MoneyRepository {}
+
+class MockStorage extends Mock implements StorageService {}
+
+/// A valid 1×1 PNG, so Image.memory can decode it.
+final pngBytes = Uint8List.fromList([
+  0x89,
+  0x50,
+  0x4E,
+  0x47,
+  0x0D,
+  0x0A,
+  0x1A,
+  0x0A,
+  0x00,
+  0x00,
+  0x00,
+  0x0D,
+  0x49,
+  0x48,
+  0x44,
+  0x52,
+  0x00,
+  0x00,
+  0x00,
+  0x01,
+  0x00,
+  0x00,
+  0x00,
+  0x01,
+  0x08,
+  0x06,
+  0x00,
+  0x00,
+  0x00,
+  0x1F,
+  0x15,
+  0xC4,
+  0x89,
+  0x00,
+  0x00,
+  0x00,
+  0x0B,
+  0x49,
+  0x44,
+  0x41,
+  0x54,
+  0x78,
+  0x9C,
+  0x63,
+  0x60,
+  0x00,
+  0x02,
+  0x00,
+  0x00,
+  0x05,
+  0x00,
+  0x01,
+  0x7A,
+  0x5E,
+  0xAB,
+  0x3F,
+  0x00,
+  0x00,
+  0x00,
+  0x00,
+  0x49,
+  0x45,
+  0x4E,
+  0x44,
+  0xAE,
+  0x42,
+  0x60,
+  0x82,
+]);
 
 final l = lookupAppLocalizations(const Locale('bn'));
 
@@ -49,8 +127,14 @@ const totals = MonthTotals(
 );
 
 late MockMoneyRepository repo;
+late MockStorage storage;
 
-Future<void> pump(WidgetTester tester, Widget home, {List<Object>? extra}) {
+Future<void> pump(
+  WidgetTester tester,
+  Widget home, {
+  List<Object>? extra,
+  bool manager = true,
+}) {
   tester.view.physicalSize = const Size(1080, 2400);
   tester.view.devicePixelRatio = 3;
   addTearDown(tester.view.reset);
@@ -61,7 +145,9 @@ Future<void> pump(WidgetTester tester, Widget home, {List<Object>? extra}) {
         myMembershipsProvider.overrideWith(
           (ref) async => [Membership(member: members.first, mess: mess)],
         ),
-        amIManagerProvider.overrideWithValue(true),
+        amIManagerProvider.overrideWithValue(manager),
+        storageServiceProvider.overrideWithValue(storage),
+        receiptPickerProvider.overrideWithValue((_) async => pngBytes),
         membersProvider.overrideWith((ref, id) async => members),
         currentPeriodProvider.overrideWith((ref, id) async => period),
         monthTotalsProvider.overrideWith((ref, id) async => totals),
@@ -172,10 +258,13 @@ void main() {
       ),
     );
     registerFallbackValue(DateTime(2026));
+    registerFallbackValue(period);
+    registerFallbackValue(Uint8List(0));
   });
 
   setUp(() {
     repo = MockMoneyRepository();
+    storage = MockStorage();
     when(() => repo.saveBazar(any())).thenAnswer((_) async {});
     when(() => repo.saveExpense(any())).thenAnswer((_) async {});
     when(() => repo.saveDeposit(any())).thenAnswer((_) async {});
@@ -360,6 +449,155 @@ void main() {
       await tester.pumpAndSettle();
       verify(() => repo.reopenMonth('sep', 'ভুল বাজার ঠিক করব')).called(1);
       expect(find.text(l.monthReopened), findsOneWidget);
+    });
+  });
+
+  group('receipts and member deposits', () {
+    test('receipt path is {messId}/{uuid}.jpg', () {
+      expect(
+        receiptPath('mess1'),
+        matches(
+          RegExp(r'^mess1/[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}\.jpg$'),
+        ),
+      );
+      expect(receiptPath('mess1'), isNot(receiptPath('mess1')));
+    });
+
+    testWidgets('failed upload keeps the sheet open; retry saves the path', (
+      tester,
+    ) async {
+      when(
+        () => storage.uploadReceipt(any(), any()),
+      ).thenThrow(const AppFailure(FailureKind.network));
+      await pump(tester, opener(showAddBazarSheet));
+      await openSheet(tester);
+      await tester.enterText(find.byKey(const Key('amount')), '200');
+      final attach = find.text(l.receiptAttach);
+      await tester.ensureVisible(attach);
+      await tester.tap(attach);
+      await tester.pumpAndSettle();
+      expect(find.byType(Image), findsOneWidget);
+
+      await tapSave(tester);
+      expect(find.text(l.networkError), findsOneWidget);
+      expect(find.text(l.bazarAdd), findsOneWidget); // sheet still open
+      expect(find.byKey(const Key('amount')), findsOneWidget);
+      verifyNever(() => repo.saveBazar(any()));
+
+      when(
+        () => storage.uploadReceipt(any(), any()),
+      ).thenAnswer((_) async => 'mess1/r.jpg');
+      when(
+        () => storage.signedUrl(any()),
+      ).thenAnswer((_) async => 'https://x/r.jpg');
+      await tapSave(tester);
+      final b =
+          verify(() => repo.saveBazar(captureAny())).captured.single as Bazar;
+      expect(b.receiptPath, 'mess1/r.jpg');
+      expect(b.amount, 200);
+      verify(() => storage.uploadReceipt('mess1', any())).called(2);
+    });
+
+    testWidgets('member records own deposit as pending via the RPC', (
+      tester,
+    ) async {
+      when(() => repo.recordMyDeposit(any())).thenAnswer((_) async {});
+      when(
+        () => storage.uploadReceipt(any(), any()),
+      ).thenAnswer((_) async => 'mess1/s.jpg');
+      when(
+        () => storage.signedUrl(any()),
+      ).thenAnswer((_) async => 'https://x/s.jpg');
+      await pump(tester, const MoneyScreen(), manager: false);
+      await tester.pumpAndSettle();
+      expect(find.text(l.depositAdd), findsNothing);
+      await tester.tap(find.text(l.depositVerifyMine));
+      await tester.pumpAndSettle();
+      expect(find.text(l.depositVerifyHelp), findsOneWidget);
+      await tester.enterText(find.byKey(const Key('amount')), '৫০০');
+      await tester.enterText(
+        find.widgetWithText(TextFormField, l.depositTrxId),
+        'BK9',
+      );
+      final shot = find.text(l.receiptScreenshot);
+      await tester.ensureVisible(shot);
+      await tester.tap(shot);
+      await tester.pumpAndSettle();
+      await tapSave(tester);
+
+      final d =
+          verify(() => repo.recordMyDeposit(captureAny())).captured.single
+              as Deposit;
+      expect(d.messId, 'mess1');
+      expect(d.amount, 500);
+      expect(d.method, PayMethod.bkash);
+      expect(d.trxId, 'BK9');
+      expect(d.status, DepositStatus.pending);
+      expect(d.screenshotPath, 'mess1/s.jpg');
+      verifyNever(() => repo.saveDeposit(any()));
+      expect(find.text(l.depositVerifySent), findsOneWidget);
+    });
+
+    Deposit dep(String id, DepositStatus status) => Deposit(
+      id: id,
+      messId: 'mess1',
+      memberId: 'k',
+      date: DateTime(2026, 10, 3),
+      amount: 700,
+      status: status,
+    );
+
+    Future<void> depositsTab(
+      WidgetTester tester, {
+      required bool manager,
+    }) async {
+      when(
+        () => repo.deposits(any(), any(), from: any(named: 'from')),
+      ).thenAnswer(
+        (_) async => [
+          dep('v', DepositStatus.verified),
+          dep('p', DepositStatus.pending),
+        ],
+      );
+      await pump(tester, const MoneyScreen(), manager: manager);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(l.moneyTabDeposit));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('manager verifies pending deposits only, after confirming', (
+      tester,
+    ) async {
+      when(
+        () => repo.verifyDeposit(any(), approve: any(named: 'approve')),
+      ).thenAnswer((_) async {});
+      await depositsTab(tester, manager: true);
+      expect(find.textContaining(l.depositPending), findsOneWidget);
+      expect(find.widgetWithText(AppButton, l.depositVerifyApprove), findsOne);
+      expect(find.widgetWithText(AppButton, l.depositVerifyReject), findsOne);
+
+      await tester.tap(find.widgetWithText(AppButton, l.depositVerifyApprove));
+      await tester.pumpAndSettle();
+      verifyNever(
+        () => repo.verifyDeposit(any(), approve: any(named: 'approve')),
+      );
+      await tester.tap(
+        find.descendant(
+          of: find.byType(AlertDialog),
+          matching: find.text(l.depositVerifyApprove),
+        ),
+      );
+      await tester.pumpAndSettle();
+      verify(() => repo.verifyDeposit('p', approve: true)).called(1);
+      expect(find.text(l.depositVerifyDone), findsOneWidget);
+    });
+
+    testWidgets('members see no verify actions', (tester) async {
+      await depositsTab(tester, manager: false);
+      expect(
+        find.widgetWithText(AppButton, l.depositVerifyApprove),
+        findsNothing,
+      );
     });
   });
 }
