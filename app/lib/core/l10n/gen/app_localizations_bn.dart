@@ -1553,4 +1553,34 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get dashNobodyThatDay => 'এই দিনে কেউ মেসে ছিল না';
+
+  @override
+  String get splitEqualAll => 'সমান (সবাই)';
+
+  @override
+  String get splitByMeal => 'মিল অনুযায়ী';
+
+  @override
+  String get splitSelected => 'নির্দিষ্ট সদস্য';
+
+  @override
+  String get splitSelectedHelp =>
+      'শুধু বাছাই করা সদস্যরা দেবেন, যার যত ভাগ সে তত দেবে';
+
+  @override
+  String get splitPickMember => 'অন্তত একজন সদস্য বাছুন';
+
+  @override
+  String splitWeight(String weight) {
+    return 'ভাগ $weight';
+  }
+
+  @override
+  String get splitWeightLess => 'ভাগ কমান';
+
+  @override
+  String get splitWeightMore => 'ভাগ বাড়ান';
+
+  @override
+  String get splitPreview => 'প্রিভিউ: কে কত দেবে (আসল হিসাব মাস শেষে)';
 }

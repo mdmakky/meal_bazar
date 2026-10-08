@@ -524,5 +524,15 @@
   "dashMonthlyTitle": "মিল রেট, গত ৬ মাস",
   "dashChartEmpty": "এই মাসে এখনো কিছু নেই",
   "dashRecentBazar": "সাম্প্রতিক বাজার",
-  "dashNobodyThatDay": "এই দিনে কেউ মেসে ছিল না"
+  "dashNobodyThatDay": "এই দিনে কেউ মেসে ছিল না",
+  "splitEqualAll": "সমান (সবাই)",
+  "splitByMeal": "মিল অনুযায়ী",
+  "splitSelected": "নির্দিষ্ট সদস্য",
+  "splitSelectedHelp": "শুধু বাছাই করা সদস্যরা দেবেন, যার যত ভাগ সে তত দেবে",
+  "splitPickMember": "অন্তত একজন সদস্য বাছুন",
+  "splitWeight": "ভাগ {weight}",
+  "@splitWeight": {"placeholders": {"weight": {"type": "String"}}},
+  "splitWeightLess": "ভাগ কমান",
+  "splitWeightMore": "ভাগ বাড়ান",
+  "splitPreview": "প্রিভিউ: কে কত দেবে (আসল হিসাব মাস শেষে)"
 }

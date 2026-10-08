@@ -500,5 +500,15 @@
   "dashMonthlyTitle": "Meal rate, last 6 months",
   "dashChartEmpty": "Nothing this month yet",
   "dashRecentBazar": "Recent bazar",
-  "dashNobodyThatDay": "Nobody was in the mess on this day"
+  "dashNobodyThatDay": "Nobody was in the mess on this day",
+  "splitEqualAll": "Equal (everyone)",
+  "splitByMeal": "By meals",
+  "splitSelected": "Selected members",
+  "splitSelectedHelp": "Only the selected members pay, each by their share",
+  "splitPickMember": "Pick at least one member",
+  "splitWeight": "Share {weight}",
+  "@splitWeight": {"placeholders": {"weight": {"type": "String"}}},
+  "splitWeightLess": "Smaller share",
+  "splitWeightMore": "Bigger share",
+  "splitPreview": "Preview: who pays how much (final figures come from the month)"
 }
