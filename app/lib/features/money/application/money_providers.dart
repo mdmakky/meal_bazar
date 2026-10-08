@@ -167,8 +167,7 @@ class MoneyController {
 
   void _changed(String messId, ProviderOrFamily list) {
     _ref.invalidate(list);
-    _ref.invalidate(monthTotalsProvider(messId));
-    _ref.invalidate(memberBalancesProvider(messId));
+    monthProviders(messId).forEach(_ref.invalidate);
     _ref.invalidate(periodTotalsProvider);
   }
 }

@@ -2713,6 +2713,192 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'পাসওয়ার্ড বদলানো হয়েছে'**
   String get resetDone;
+
+  /// No description provided for @dashTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই মাস'**
+  String get dashTitle;
+
+  /// No description provided for @dashMembers.
+  ///
+  /// In bn, this message translates to:
+  /// **'সদস্য'**
+  String get dashMembers;
+
+  /// No description provided for @dashMembersProof.
+  ///
+  /// In bn, this message translates to:
+  /// **'সক্রিয় সদস্য'**
+  String get dashMembersProof;
+
+  /// No description provided for @dashMembersPending.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count} জন অনুমোদনের অপেক্ষায়'**
+  String dashMembersPending(String count);
+
+  /// No description provided for @dashBazar.
+  ///
+  /// In bn, this message translates to:
+  /// **'মোট বাজার'**
+  String get dashBazar;
+
+  /// No description provided for @dashBazarProof.
+  ///
+  /// In bn, this message translates to:
+  /// **'মিলে ভাগের খরচসহ খাবার খরচ {food}'**
+  String dashBazarProof(String food);
+
+  /// No description provided for @dashExtra.
+  ///
+  /// In bn, this message translates to:
+  /// **'অন্যান্য খরচ'**
+  String get dashExtra;
+
+  /// No description provided for @dashExtraProof.
+  ///
+  /// In bn, this message translates to:
+  /// **'সমান ভাগে · মাসের মোট খরচ {total}'**
+  String dashExtraProof(String total);
+
+  /// No description provided for @dashDeposits.
+  ///
+  /// In bn, this message translates to:
+  /// **'মোট জমা'**
+  String get dashDeposits;
+
+  /// No description provided for @dashDues.
+  ///
+  /// In bn, this message translates to:
+  /// **'মোট বাকি'**
+  String get dashDues;
+
+  /// No description provided for @dashDuesProof.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count} জনের বাকি'**
+  String dashDuesProof(String count);
+
+  /// No description provided for @dashAdvances.
+  ///
+  /// In bn, this message translates to:
+  /// **'মোট অগ্রিম'**
+  String get dashAdvances;
+
+  /// No description provided for @dashAdvancesProof.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count} জনের অগ্রিম'**
+  String dashAdvancesProof(String count);
+
+  /// No description provided for @dashMeals.
+  ///
+  /// In bn, this message translates to:
+  /// **'মোট মিল'**
+  String get dashMeals;
+
+  /// No description provided for @dashPeriod.
+  ///
+  /// In bn, this message translates to:
+  /// **'{from} – {to}'**
+  String dashPeriod(String from, String to);
+
+  /// No description provided for @dashRate.
+  ///
+  /// In bn, this message translates to:
+  /// **'মিল রেট'**
+  String get dashRate;
+
+  /// No description provided for @dashWhoOwes.
+  ///
+  /// In bn, this message translates to:
+  /// **'কার কত বাকি'**
+  String get dashWhoOwes;
+
+  /// No description provided for @dashMine.
+  ///
+  /// In bn, this message translates to:
+  /// **'আমার হিসাব'**
+  String get dashMine;
+
+  /// No description provided for @dashMyMeals.
+  ///
+  /// In bn, this message translates to:
+  /// **'আমার মিল'**
+  String get dashMyMeals;
+
+  /// No description provided for @dashMyFood.
+  ///
+  /// In bn, this message translates to:
+  /// **'খাবার খরচ'**
+  String get dashMyFood;
+
+  /// No description provided for @dashMyFoodProof.
+  ///
+  /// In bn, this message translates to:
+  /// **'{meals} মিল × {rate}'**
+  String dashMyFoodProof(String meals, String rate);
+
+  /// No description provided for @dashMyPaid.
+  ///
+  /// In bn, this message translates to:
+  /// **'জমা দিয়েছি'**
+  String get dashMyPaid;
+
+  /// No description provided for @dashExplain.
+  ///
+  /// In bn, this message translates to:
+  /// **'হিসাবটা বুঝিয়ে দিন'**
+  String get dashExplain;
+
+  /// No description provided for @dashNotInMonth.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই মাসে আপনার কোনো হিসাব নেই'**
+  String get dashNotInMonth;
+
+  /// No description provided for @dashDailyTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'দৈনিক মিল'**
+  String get dashDailyTitle;
+
+  /// No description provided for @dashDailySummary.
+  ///
+  /// In bn, this message translates to:
+  /// **'দৈনিক মিল: মোট {total}, সবচেয়ে বেশি {max} ({date})'**
+  String dashDailySummary(String total, String max, String date);
+
+  /// No description provided for @dashCategoryTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'কোথায় খরচ হলো'**
+  String get dashCategoryTitle;
+
+  /// No description provided for @dashMonthlyTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'মিল রেট, গত ৬ মাস'**
+  String get dashMonthlyTitle;
+
+  /// No description provided for @dashChartEmpty.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই মাসে এখনো কিছু নেই'**
+  String get dashChartEmpty;
+
+  /// No description provided for @dashRecentBazar.
+  ///
+  /// In bn, this message translates to:
+  /// **'সাম্প্রতিক বাজার'**
+  String get dashRecentBazar;
+
+  /// No description provided for @dashNobodyThatDay.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই দিনে কেউ মেসে ছিল না'**
+  String get dashNobodyThatDay;
 }
 
 class _AppLocalizationsDelegate

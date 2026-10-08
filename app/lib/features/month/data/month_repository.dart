@@ -39,6 +39,27 @@ class MonthRepository {
             .toList();
       });
 
+  Future<List<DayMeals>> dailyMeals(String messId, MonthPeriod p) =>
+      _list('daily_meal_totals', _range(messId, p), dayMealsFromJson);
+
+  Future<List<CategoryTotal>> byCategory(String messId, MonthPeriod p) =>
+      _list('expense_by_category', _range(messId, p), categoryTotalFromJson);
+
+  Future<List<MonthPoint>> history(String messId, {int months = 6}) => _list(
+    'month_history',
+    {'p_mess': messId, 'p_months': months, 'p_until': isoDate(today())},
+    monthPointFromJson,
+  );
+
+  Future<List<T>> _list<T>(
+    String fn,
+    Map<String, dynamic> params,
+    T Function(Map<String, dynamic>) parse,
+  ) => guard(() async {
+    final rows = await _client.rpc(fn, params: params) as List;
+    return [for (final r in rows) parse(r as Map<String, dynamic>)];
+  });
+
   Map<String, dynamic> _range(String messId, MonthPeriod p) => {
     'p_mess': messId,
     'p_from': isoDate(p.start),

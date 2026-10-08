@@ -129,8 +129,7 @@ class MealController {
   }
 
   void _refreshMonth(String messId) {
-    _ref.invalidate(monthTotalsProvider(messId));
-    _ref.invalidate(memberBalancesProvider(messId));
+    monthProviders(messId).forEach(_ref.invalidate);
     _ref.invalidate(guestMealsProvider(messId));
   }
 }

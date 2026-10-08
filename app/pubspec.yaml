@@ -49,6 +49,7 @@ dependencies:
   google_sign_in: ^7.2.0
   drift: ^2.29.0
   drift_flutter: ^0.2.7
+  fl_chart: ^1.2.0
 
 dev_dependencies:
   flutter_test:

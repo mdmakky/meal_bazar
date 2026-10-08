@@ -1444,4 +1444,113 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get resetDone => 'পাসওয়ার্ড বদলানো হয়েছে';
+
+  @override
+  String get dashTitle => 'এই মাস';
+
+  @override
+  String get dashMembers => 'সদস্য';
+
+  @override
+  String get dashMembersProof => 'সক্রিয় সদস্য';
+
+  @override
+  String dashMembersPending(String count) {
+    return '$count জন অনুমোদনের অপেক্ষায়';
+  }
+
+  @override
+  String get dashBazar => 'মোট বাজার';
+
+  @override
+  String dashBazarProof(String food) {
+    return 'মিলে ভাগের খরচসহ খাবার খরচ $food';
+  }
+
+  @override
+  String get dashExtra => 'অন্যান্য খরচ';
+
+  @override
+  String dashExtraProof(String total) {
+    return 'সমান ভাগে · মাসের মোট খরচ $total';
+  }
+
+  @override
+  String get dashDeposits => 'মোট জমা';
+
+  @override
+  String get dashDues => 'মোট বাকি';
+
+  @override
+  String dashDuesProof(String count) {
+    return '$count জনের বাকি';
+  }
+
+  @override
+  String get dashAdvances => 'মোট অগ্রিম';
+
+  @override
+  String dashAdvancesProof(String count) {
+    return '$count জনের অগ্রিম';
+  }
+
+  @override
+  String get dashMeals => 'মোট মিল';
+
+  @override
+  String dashPeriod(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String get dashRate => 'মিল রেট';
+
+  @override
+  String get dashWhoOwes => 'কার কত বাকি';
+
+  @override
+  String get dashMine => 'আমার হিসাব';
+
+  @override
+  String get dashMyMeals => 'আমার মিল';
+
+  @override
+  String get dashMyFood => 'খাবার খরচ';
+
+  @override
+  String dashMyFoodProof(String meals, String rate) {
+    return '$meals মিল × $rate';
+  }
+
+  @override
+  String get dashMyPaid => 'জমা দিয়েছি';
+
+  @override
+  String get dashExplain => 'হিসাবটা বুঝিয়ে দিন';
+
+  @override
+  String get dashNotInMonth => 'এই মাসে আপনার কোনো হিসাব নেই';
+
+  @override
+  String get dashDailyTitle => 'দৈনিক মিল';
+
+  @override
+  String dashDailySummary(String total, String max, String date) {
+    return 'দৈনিক মিল: মোট $total, সবচেয়ে বেশি $max ($date)';
+  }
+
+  @override
+  String get dashCategoryTitle => 'কোথায় খরচ হলো';
+
+  @override
+  String get dashMonthlyTitle => 'মিল রেট, গত ৬ মাস';
+
+  @override
+  String get dashChartEmpty => 'এই মাসে এখনো কিছু নেই';
+
+  @override
+  String get dashRecentBazar => 'সাম্প্রতিক বাজার';
+
+  @override
+  String get dashNobodyThatDay => 'এই দিনে কেউ মেসে ছিল না';
 }

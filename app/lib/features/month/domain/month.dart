@@ -72,5 +72,35 @@ class MemberBalance {
   final double closingBalance;
 }
 
+/// Billable meals on one day (`daily_meal_totals`).
+typedef DayMeals = ({DateTime date, double meals});
+
+/// One spending line (`expense_by_category`); [isBazar] marks the bazar total.
+typedef CategoryTotal = ({String category, double total, bool isBazar});
+
+/// One billing period's live totals (`month_history`).
+typedef MonthPoint = ({
+  DateTime start,
+  double foodTotal,
+  double extraTotal,
+  double mealRate,
+});
+
+DayMeals dayMealsFromJson(Map<String, dynamic> j) =>
+    (date: DateTime.parse(j['date'] as String), meals: _d(j['meals']));
+
+CategoryTotal categoryTotalFromJson(Map<String, dynamic> j) => (
+  category: j['category'] as String,
+  total: _d(j['total']),
+  isBazar: j['is_bazar'] as bool,
+);
+
+MonthPoint monthPointFromJson(Map<String, dynamic> j) => (
+  start: DateTime.parse(j['start_date'] as String),
+  foodTotal: _d(j['food_total']),
+  extraTotal: _d(j['extra_total']),
+  mealRate: _d(j['meal_rate']),
+);
+
 // PostgREST returns numeric as a JSON number, or a string for very long values.
 double _d(Object? v) => v is num ? v.toDouble() : double.parse(v as String);

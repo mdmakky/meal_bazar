@@ -1453,4 +1453,113 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get resetDone => 'Password changed';
+
+  @override
+  String get dashTitle => 'This month';
+
+  @override
+  String get dashMembers => 'Members';
+
+  @override
+  String get dashMembersProof => 'Active members';
+
+  @override
+  String dashMembersPending(String count) {
+    return '$count awaiting approval';
+  }
+
+  @override
+  String get dashBazar => 'Bazar total';
+
+  @override
+  String dashBazarProof(String food) {
+    return 'Food cost with meal-split costs $food';
+  }
+
+  @override
+  String get dashExtra => 'Other costs';
+
+  @override
+  String dashExtraProof(String total) {
+    return 'Split equally · month\'s total cost $total';
+  }
+
+  @override
+  String get dashDeposits => 'Deposits';
+
+  @override
+  String get dashDues => 'Total due';
+
+  @override
+  String dashDuesProof(String count) {
+    return '$count members owe';
+  }
+
+  @override
+  String get dashAdvances => 'Total advance';
+
+  @override
+  String dashAdvancesProof(String count) {
+    return '$count members in advance';
+  }
+
+  @override
+  String get dashMeals => 'Total meals';
+
+  @override
+  String dashPeriod(String from, String to) {
+    return '$from – $to';
+  }
+
+  @override
+  String get dashRate => 'Meal rate';
+
+  @override
+  String get dashWhoOwes => 'Who owes what';
+
+  @override
+  String get dashMine => 'My account';
+
+  @override
+  String get dashMyMeals => 'My meals';
+
+  @override
+  String get dashMyFood => 'Food cost';
+
+  @override
+  String dashMyFoodProof(String meals, String rate) {
+    return '$meals meals × $rate';
+  }
+
+  @override
+  String get dashMyPaid => 'Paid';
+
+  @override
+  String get dashExplain => 'Explain my bill';
+
+  @override
+  String get dashNotInMonth => 'You have nothing on this month\'s bill';
+
+  @override
+  String get dashDailyTitle => 'Daily meals';
+
+  @override
+  String dashDailySummary(String total, String max, String date) {
+    return 'Daily meals: $total in all, most $max on $date';
+  }
+
+  @override
+  String get dashCategoryTitle => 'Where the money went';
+
+  @override
+  String get dashMonthlyTitle => 'Meal rate, last 6 months';
+
+  @override
+  String get dashChartEmpty => 'Nothing this month yet';
+
+  @override
+  String get dashRecentBazar => 'Recent bazar';
+
+  @override
+  String get dashNobodyThatDay => 'Nobody was in the mess on this day';
 }

@@ -12,6 +12,7 @@ class Figure extends StatefulWidget {
     this.proof,
     this.valueColor,
     this.initiallyExpanded = false,
+    this.compact = false,
   });
 
   /// Already formatted, e.g. `Fmt.money(...)`.
@@ -22,6 +23,9 @@ class Figure extends StatefulWidget {
   /// Only for due/advance: pass `context.palette.due` / `.advance`.
   final Color? valueColor;
   final bool initiallyExpanded;
+
+  /// Smaller value (headlineSmall), for figures in a stat grid.
+  final bool compact;
 
   @override
   State<Figure> createState() => _FigureState();
@@ -75,7 +79,11 @@ class _FigureState extends State<Figure> {
           Text(widget.label, style: text.bodyMedium),
           Text(
             widget.value,
-            style: text.displaySmall?.copyWith(color: widget.valueColor),
+            style: (widget.compact ? text.headlineSmall : text.displaySmall)
+                ?.copyWith(
+                  color: widget.valueColor,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
           ),
           ?proofLine,
         ],
