@@ -33,9 +33,16 @@ class _DutyScreenState extends ConsumerState<DutyScreen> {
 
   Future<void> _generate(String messId) async {
     final l = AppLocalizations.of(context);
-    final members = (ref.read(membersProvider(messId)).value ?? const [])
-        .where((m) => m.status == MemberStatus.active)
-        .toList();
+    final List<Member> members;
+    try {
+      members = (await ref.read(
+        membersProvider(messId).future,
+      )).where((m) => m.status == MemberStatus.active).toList();
+    } catch (e) {
+      if (mounted) showFailure(context, e);
+      return;
+    }
+    if (!mounted) return;
     final r = await AppSheet.show<DutyRotation>(
       context,
       title: l.dutyGenerate,

@@ -64,6 +64,9 @@ RPCs: `create_mess(name, month_start_day) → mess_id`, `join_mess(code) → mem
 ### Later
 `ai_usage` (mess_id, day, feature, count), `ai_drafts` (status draft/confirmed/rejected), `announcements`, `notifications`, `meal_off_requests` (folded into `meal_entries.is_off` plus the cutoff check), `price_observations` (v1.2).
 
+### Bazar duty (0014)
+`bazar_duties (mess_id, date, member_id, note, done)`, unique on `(mess_id, date, member_id)`, hard-deleted. Members read, managers write. `mark_my_duty_done(id, done default true)` lets the assigned member tick their own row (`NOT_YOUR_DUTY` otherwise). `generate_duty_rotation(mess, from, days, member_ids[], every default 1)` (manager) assigns members round-robin on `from, from+every, …` within `days`, skipping dates that already have a duty (`INVALID_ROTATION` for bad input).
+
 ### Account deletion (0007)
 `delete_my_account()` RPC: refuses with `LAST_MANAGER` while the caller is the only manager of a mess that other app users still belong to. Otherwise pending requests are deleted, memberships become `left` and are unlinked (`user_id = null`, `display_name` kept), a mess with no other app users is soft-deleted, the profile is anonymised ("Former member", no phone/photo, `deleted_at`), and the user is queued in `deletion_requests (user_id, requested_at)`. Postgres cannot remove the Supabase auth user, so the gateway's daily cron (service role) calls `auth.admin.deleteUser` for each queued row and sets `processed_at` (0010); failures record `last_error` and retry next day. The app signs out after the RPC.
 
