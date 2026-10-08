@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/db/db.dart';
+import '../../../core/db/sync.dart';
 import '../../../core/failure_text.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
 import '../../../core/widgets/widgets.dart';
@@ -311,11 +313,17 @@ Widget _row(
   required String subtitle,
   required Widget trailing,
   VoidCallback? onTap,
+  Widget? status,
 }) => ListTile(
   minTileHeight: AppSize.touch + AppSpace.md,
   contentPadding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
   title: Text(title, style: Theme.of(context).textTheme.titleSmall),
-  subtitle: Text(subtitle),
+  subtitle: status == null
+      ? Text(subtitle)
+      : Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [Text(subtitle), status],
+        ),
   trailing: trailing,
   onTap: onTap,
 );
@@ -474,6 +482,10 @@ class _BazarList extends ConsumerWidget {
     final l = AppLocalizations.of(context);
     final bn = banglaDigits(context);
     final names = _names(ref, messId);
+    final ops = {
+      for (final o in ref.watch(syncQueueProvider).value ?? const <SyncOp>[])
+        if (o.entity == 'bazars') o.rowKey: o,
+    };
     return _asyncSliver(
       context,
       ref.watch(bazarsProvider(messId)),
@@ -492,6 +504,10 @@ class _BazarList extends ConsumerWidget {
             _paidFrom(l, names, b.paidByMemberId),
           ].join(' · '),
           trailing: Money(b.amount, banglaDigits: bn),
+          status: SyncBadge(
+            state: opState(ops[b.id]),
+            onRetry: () => ref.read(syncServiceProvider).retryFailed(),
+          ),
           onTap: () => showBazarDetail(context, b),
         ),
       ),

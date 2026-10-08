@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/dates.dart';
+import '../../../core/db/db.dart';
+import '../../../core/db/sync.dart';
+import '../../../core/errors.dart';
 import '../../../core/failure_text.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
 import '../../../core/widgets/widgets.dart';
@@ -39,6 +42,12 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     if (messId == null) return const Scaffold(body: LoadingView());
 
     final key = (messId: messId, day: _day);
+    // Queued writes reached the server: the SQL figures changed.
+    ref.listen(syncQueueProvider, (prev, next) {
+      if ((prev?.value?.isNotEmpty ?? false) && next.value?.isEmpty == true) {
+        ref.invalidate(monthTotalsProvider(messId));
+      }
+    });
     final manager = ref.watch(amIManagerProvider);
     // A plain active member may switch their own meal off before the cutoff.
     final me = ref.watch(currentMembershipProvider)?.member;
@@ -284,6 +293,7 @@ class _Header extends ConsumerWidget {
               ),
             ],
           ),
+          const _SyncLine(),
           const SizedBox(height: AppSpace.lg),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpace.md),
@@ -304,6 +314,39 @@ class _Header extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// The queue's worst state; a failed write names why and offers retry.
+class _SyncLine extends ConsumerWidget {
+  const _SyncLine();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ops = ref.watch(syncQueueProvider).value ?? const <SyncOp>[];
+    final error = ops.where((o) => o.status == opFailed).firstOrNull?.lastError;
+    return Column(
+      children: [
+        SyncBadge(
+          state: queueState(ops),
+          onRetry: () => ref.read(syncServiceProvider).retryFailed(),
+        ),
+        if (error != null)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpace.md),
+            child: Text(
+              failureText(
+                context,
+                AppFailure(
+                  FailureKind.values.asNameMap()[error] ?? FailureKind.unknown,
+                ),
+              ),
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.labelSmall,
+            ),
+          ),
+      ],
     );
   }
 }
