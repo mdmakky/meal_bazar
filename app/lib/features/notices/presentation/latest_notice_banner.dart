@@ -7,7 +7,7 @@ import '../../../core/widgets/widgets.dart';
 import '../application/notice_providers.dart';
 
 /// The newest unread pinned notice; nothing when there is none.
-/// Tap opens the notice (which marks it read and hides the banner).
+/// Padded for the Home screen. Tap opens the notice (which marks it read and hides the banner).
 class LatestNoticeBanner extends ConsumerWidget {
   const LatestNoticeBanner({super.key});
 
@@ -18,37 +18,45 @@ class LatestNoticeBanner extends ConsumerWidget {
     final text = Theme.of(context).textTheme;
     final p = context.palette;
 
-    return Semantics(
-      label: AppLocalizations.of(context).noticePinned,
-      child: AppCard(
-        onTap: () => context.push('/more/notices/${n.id}'),
-        child: Row(
-          spacing: AppSpace.md,
-          children: [
-            const Icon(Icons.push_pin_outlined),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: AppSpace.xs,
-                children: [
-                  Text(
-                    n.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: text.titleSmall,
-                  ),
-                  if (n.body.isNotEmpty)
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpace.gutter,
+        AppSpace.md,
+        AppSpace.gutter,
+        0,
+      ),
+      child: Semantics(
+        label: AppLocalizations.of(context).noticePinned,
+        child: AppCard(
+          onTap: () => context.push('/more/notices/${n.id}'),
+          child: Row(
+            spacing: AppSpace.md,
+            children: [
+              const Icon(Icons.push_pin_outlined),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: AppSpace.xs,
+                  children: [
                     Text(
-                      n.body,
-                      maxLines: 1,
+                      n.title,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: text.bodyMedium?.copyWith(color: p.inkSecondary),
+                      style: text.titleSmall,
                     ),
-                ],
+                    if (n.body.isNotEmpty)
+                      Text(
+                        n.body,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: text.bodyMedium?.copyWith(color: p.inkSecondary),
+                      ),
+                  ],
+                ),
               ),
-            ),
-            const Icon(Icons.chevron_right),
-          ],
+              const Icon(Icons.chevron_right),
+            ],
+          ),
         ),
       ),
     );

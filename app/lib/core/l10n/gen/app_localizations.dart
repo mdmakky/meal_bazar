@@ -2516,6 +2516,24 @@ abstract class AppLocalizations {
   /// **'মেসের সেটিংস'**
   String get auditMessSettings;
 
+  /// No description provided for @auditDutyOf.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name}-এর বাজার ডিউটি'**
+  String auditDutyOf(String name);
+
+  /// No description provided for @auditNotice.
+  ///
+  /// In bn, this message translates to:
+  /// **'নোটিশ {title}'**
+  String auditNotice(String title);
+
+  /// No description provided for @auditRecurring.
+  ///
+  /// In bn, this message translates to:
+  /// **'মাসিক বিল'**
+  String get auditRecurring;
+
   /// No description provided for @auditMonthClosed.
   ///
   /// In bn, this message translates to:

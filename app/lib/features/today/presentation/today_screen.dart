@@ -8,6 +8,7 @@ import '../../../core/failure_text.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../ai/presentation/ai_entry.dart';
+import '../../duty/presentation/today_duty_card.dart';
 import '../../meals/application/meal_providers.dart';
 import '../../meals/domain/meal.dart';
 import '../../meals/presentation/meal_grid.dart';
@@ -17,6 +18,8 @@ import '../../mess/domain/member.dart';
 import '../../money/application/money_providers.dart';
 import '../../money/presentation/money_sheets.dart';
 import '../../month/application/month_providers.dart';
+import '../../notices/presentation/latest_notice_banner.dart';
+import '../../recurring/presentation/recurring_screen.dart';
 import '../application/day_grid.dart';
 import 'dashboard.dart';
 import 'setup_checklist.dart';
@@ -106,6 +109,8 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
         slivers: [
           if (manager)
             SliverToBoxAdapter(child: SetupChecklist(messId: messId)),
+          const SliverToBoxAdapter(child: LatestNoticeBanner()),
+          const SliverToBoxAdapter(child: RecurringPromptCard()),
           SliverToBoxAdapter(
             child: _Header(
               day: _day,
@@ -139,6 +144,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
             SliverToBoxAdapter(
               child: _DayMeals(dayKey: key, types: types),
             ),
+            const SliverToBoxAdapter(child: TodayDutyCard()),
             if (myId != null && mess != null)
               SliverToBoxAdapter(
                 child: MealOffHint(cutoff: mess.mealOffCutoff),

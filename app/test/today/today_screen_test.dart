@@ -10,6 +10,8 @@ import 'package:meal_bazar/core/db/db.dart';
 import 'package:meal_bazar/core/format.dart';
 import 'package:meal_bazar/core/l10n/gen/app_localizations.dart';
 import 'package:meal_bazar/core/theme/app_theme.dart';
+import 'package:meal_bazar/features/duty/application/duty_providers.dart';
+import 'package:meal_bazar/features/duty/domain/duty.dart';
 import 'package:meal_bazar/features/meals/application/meal_providers.dart';
 import 'package:meal_bazar/features/meals/data/meal_repository.dart';
 import 'package:meal_bazar/features/meals/domain/meal.dart';
@@ -18,6 +20,9 @@ import 'package:meal_bazar/features/mess/domain/member.dart';
 import 'package:meal_bazar/features/mess/domain/mess.dart';
 import 'package:meal_bazar/features/month/application/month_providers.dart';
 import 'package:meal_bazar/features/month/domain/month.dart';
+import 'package:meal_bazar/features/notices/application/notice_providers.dart';
+import 'package:meal_bazar/features/notices/domain/notice.dart';
+import 'package:meal_bazar/features/recurring/application/recurring_providers.dart';
 import 'package:meal_bazar/features/today/application/day_grid.dart';
 import 'package:meal_bazar/features/today/presentation/today_screen.dart';
 import 'package:mocktail/mocktail.dart';
@@ -70,6 +75,7 @@ Future<void> pump(
   bool manager = true,
   DateTime? now,
   List<Override> local = const [],
+  List<Override> extra = const [],
 }) async {
   final router = GoRouter(
     routes: [
@@ -82,6 +88,7 @@ Future<void> pump(
       overrides: [
         if (local.isEmpty) mealRepositoryProvider.overrideWithValue(repo),
         ...local,
+        ...extra,
         if (now != null) nowProvider.overrideWithValue(() => now),
         myMembershipsProvider.overrideWith(
           (ref) async => [
@@ -189,6 +196,42 @@ void main() {
     expect(find.text(l.todayActionBazar), findsNothing);
     expect(find.text(l.todayAiEntry), findsNothing);
     expect(find.text(l.mealOffHint('১০')), findsOneWidget);
+  });
+
+  testWidgets('Home: notice banner, monthly bills prompt, duty card', (
+    tester,
+  ) async {
+    when(() => repo.entriesForDay(any(), any())).thenAnswer((_) async => []);
+    final extra = [
+      latestPinnedUnreadProvider.overrideWithValue(
+        Notice(
+          id: 'n1',
+          messId: 'mess1',
+          title: 'Rent due Friday',
+          createdAt: DateTime(2026),
+          pinned: true,
+        ),
+      ),
+      pendingRecurringProvider.overrideWith((ref, id) async => 2),
+      dutiesProvider.overrideWith(
+        (ref, k) async => [
+          BazarDuty(id: 'd1', messId: 'mess1', date: day, memberId: 'karim'),
+        ],
+      ),
+    ];
+    await pump(tester, extra: extra);
+    expect(find.text('Rent due Friday'), findsOneWidget);
+    expect(find.text(l.recurringPending('২')), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text(l.dutyTodayOther('Karim')),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text(l.dutyTodayOther('Karim')), findsOneWidget);
+
+    await pump(tester, manager: false, extra: extra);
+    expect(find.text('Rent due Friday'), findsOneWidget);
+    expect(find.text(l.recurringPending('২')), findsNothing);
   });
 
   testWidgets('sync badge counts this mess only; discard drops failed ops', (

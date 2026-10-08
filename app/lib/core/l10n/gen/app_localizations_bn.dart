@@ -1334,6 +1334,19 @@ class AppLocalizationsBn extends AppLocalizations {
   String get auditMessSettings => 'মেসের সেটিংস';
 
   @override
+  String auditDutyOf(String name) {
+    return '$name-এর বাজার ডিউটি';
+  }
+
+  @override
+  String auditNotice(String title) {
+    return 'নোটিশ $title';
+  }
+
+  @override
+  String get auditRecurring => 'মাসিক বিল';
+
+  @override
   String auditMonthClosed(String actor) {
     return '$actor মাস বন্ধ করেছেন';
   }

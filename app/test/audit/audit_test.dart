@@ -123,6 +123,37 @@ void main() {
       );
     });
 
+    test('duties, notices, monthly bills', () {
+      expect(
+        describeAudit(
+          bn,
+          entry(
+            'bazar_duties',
+            'insert',
+            newRow: {'member_id': 'm-karim', 'date': '2026-10-12'},
+          ),
+          names,
+        ),
+        'রহিম করিম-এর বাজার ডিউটি যোগ করেছেন ১২ অক্টোবর ২০২৬',
+      );
+      expect(
+        describeAudit(
+          en,
+          entry('announcements', 'insert', newRow: {'title': 'Rent'}),
+          names,
+        ),
+        contains('notice Rent'),
+      );
+      expect(
+        describeAudit(
+          bn,
+          entry('recurring_expenses', 'delete', oldRow: {'amount': 500}),
+          names,
+        ),
+        'রহিম মাসিক বিল মুছেছেন ৳৫০০',
+      );
+    });
+
     test('months, account deletion, unknown actor, system, fallback', () {
       expect(
         describeAudit(

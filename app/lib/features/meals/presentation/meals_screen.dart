@@ -10,6 +10,7 @@ import '../../mess/application/mess_providers.dart';
 import '../../month/application/month_providers.dart';
 import '../../month/domain/month.dart';
 import '../../ai/presentation/ai_entry.dart';
+import '../../export/presentation/export_actions.dart';
 import '../../mess/domain/member.dart';
 import '../../mess/presentation/common.dart';
 import '../../money/presentation/money_sheets.dart';
@@ -379,7 +380,8 @@ class _DaySwitcher extends StatelessWidget {
   }
 }
 
-/// "সবাই ১" and "গতকালের মতো", each one batched write (managers).
+/// "সবাই ১" and "গতকালের মতো", each one batched write, and the cook share
+/// (managers).
 class _BulkActions extends ConsumerStatefulWidget {
   const _BulkActions({
     required this.dayKey,
@@ -476,6 +478,7 @@ class _BulkActionsState extends ConsumerState<_BulkActions> {
               Icons.content_copy_outlined,
             ),
           ),
+          CookShareButton(messId: widget.dayKey.messId),
         ],
       ),
     );

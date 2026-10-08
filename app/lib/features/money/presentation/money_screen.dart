@@ -8,6 +8,7 @@ import '../../../core/failure_text.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../mess/application/mess_providers.dart';
+import '../../share_bills/presentation/share_bill_actions.dart';
 import '../../mess/presentation/common.dart';
 import '../../month/application/month_providers.dart';
 import '../../month/domain/month.dart';
@@ -56,13 +57,16 @@ class _MoneyScreenState extends ConsumerState<MoneyScreen> {
             icon: const Icon(Icons.event_note_outlined),
             onPressed: () => context.push('/money/months'),
           ),
-          PopupMenuButton<bool>(
-            onSelected: (share) => share
-                ? shareMonthReport(context, messId: messId)
-                : printMonthReport(context, messId: messId),
+          PopupMenuButton<String>(
+            onSelected: (v) => switch (v) {
+              'share' => shareMonthReport(context, messId: messId),
+              'print' => printMonthReport(context, messId: messId),
+              _ => context.push('/more/export'),
+            },
             itemBuilder: (_) => [
-              PopupMenuItem(value: true, child: Text(l.reportShare)),
-              PopupMenuItem(value: false, child: Text(l.reportPrint)),
+              PopupMenuItem(value: 'share', child: Text(l.reportShare)),
+              PopupMenuItem(value: 'print', child: Text(l.reportPrint)),
+              PopupMenuItem(value: 'export', child: Text(l.exportTitle)),
             ],
           ),
         ],
@@ -405,6 +409,7 @@ class _Balances extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final bn = banglaDigits(context);
+    final isManager = ref.watch(amIManagerProvider);
     return _asyncSliver(
       context,
       ref.watch(memberBalancesProvider(messId)),
@@ -413,6 +418,16 @@ class _Balances extends ConsumerWidget {
           ? SliverToBoxAdapter(child: EmptyView(message: l.balanceEmpty))
           : SliverList.list(
               children: [
+                if (isManager)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpace.gutter,
+                      0,
+                      AppSpace.gutter,
+                      AppSpace.md,
+                    ),
+                    child: ShareMessSummaryButton(messId: messId),
+                  ),
                 const Divider(),
                 for (final b in list) ...[
                   _row(
@@ -523,6 +538,10 @@ class BillBreakdown extends ConsumerWidget {
           ),
           style: text.titleSmall,
         ),
+        if (ref.watch(amIManagerProvider)) ...[
+          const SizedBox(height: AppSpace.md),
+          MemberShareActions(balance: balance),
+        ],
       ],
     );
   }

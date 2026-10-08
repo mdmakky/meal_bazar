@@ -346,34 +346,42 @@ class _RecurringPromptCardState extends ConsumerState<RecurringPromptCard> {
     }
     final n = ref.watch(pendingRecurringProvider(messId)).value ?? 0;
     if (n == 0) return const SizedBox.shrink();
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: AppSpace.md,
-        children: [
-          Row(
-            spacing: AppSpace.md,
-            children: [
-              Icon(Icons.event_repeat, color: context.palette.inkSecondary),
-              Expanded(
-                child: Text(
-                  l.recurringPending(Fmt.digits('$n', bangla: _bn(context))),
-                  style: Theme.of(context).textTheme.titleSmall,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpace.gutter,
+        AppSpace.md,
+        AppSpace.gutter,
+        0,
+      ),
+      child: AppCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: AppSpace.md,
+          children: [
+            Row(
+              spacing: AppSpace.md,
+              children: [
+                Icon(Icons.event_repeat, color: context.palette.inkSecondary),
+                Expanded(
+                  child: Text(
+                    l.recurringPending(Fmt.digits('$n', bangla: _bn(context))),
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          AppButton(
-            label: l.recurringApply,
-            variant: AppButtonVariant.secondary,
-            loading: _applying,
-            onPressed: () async {
-              setState(() => _applying = true);
-              await _apply(context, ref, messId);
-              if (mounted) setState(() => _applying = false);
-            },
-          ),
-        ],
+              ],
+            ),
+            AppButton(
+              label: l.recurringApply,
+              variant: AppButtonVariant.secondary,
+              loading: _applying,
+              onPressed: () async {
+                setState(() => _applying = true);
+                await _apply(context, ref, messId);
+                if (mounted) setState(() => _applying = false);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

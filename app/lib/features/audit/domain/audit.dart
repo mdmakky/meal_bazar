@@ -110,6 +110,12 @@ String describeAudit(
     'meal_types' => (l.auditMealType('${row['name'] ?? ''}'.trim()), ''),
     'mess_members' => (l.auditMember('${row['display_name'] ?? ''}'), ''),
     'messes' => (l.auditMessSettings, ''),
+    'bazar_duties' => (
+      l.auditDutyOf(name(row['member_id'])),
+      date(row['date']),
+    ),
+    'announcements' => (l.auditNotice('${row['title'] ?? ''}'.trim()), ''),
+    'recurring_expenses' => (l.auditRecurring, money()),
     _ => (e.entity, ''),
   };
   return '${l.auditSentence(actor, thing, verb)} $detail'.trim();

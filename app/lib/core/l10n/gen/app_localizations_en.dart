@@ -1343,6 +1343,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auditMessSettings => 'mess settings';
 
   @override
+  String auditDutyOf(String name) {
+    return 'bazar duty for $name';
+  }
+
+  @override
+  String auditNotice(String title) {
+    return 'notice $title';
+  }
+
+  @override
+  String get auditRecurring => 'a monthly bill';
+
+  @override
   String auditMonthClosed(String actor) {
     return '$actor closed the month';
   }

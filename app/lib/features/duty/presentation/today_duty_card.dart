@@ -47,55 +47,63 @@ class TodayDutyCard extends ConsumerWidget {
 
     final lines = [line(t), line(tomorrow)].where((s) => s.isNotEmpty);
 
-    return AppCard(
-      onTap: () => context.push('/more/duty'),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: AppSpace.md,
-        children: [
-          Icon(
-            Icons.shopping_basket_outlined,
-            color: myToday != null ? p.accent : p.inkSecondary,
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: AppSpace.xs,
-              children: [
-                for (final (i, s) in lines.indexed)
-                  Text(
-                    s,
-                    style: i == 0
-                        ? text.titleSmall
-                        : text.bodyMedium?.copyWith(color: p.inkSecondary),
-                  ),
-                if (myToday != null)
-                  myToday.done
-                      ? Text(
-                          l.dutyDone,
-                          style: text.bodyMedium?.copyWith(color: p.advance),
-                        )
-                      : Align(
-                          alignment: AlignmentDirectional.centerStart,
-                          child: AppButton(
-                            label: l.dutyMarkDone,
-                            icon: Icons.check,
-                            variant: AppButtonVariant.secondary,
-                            onPressed: () async {
-                              try {
-                                await ref
-                                    .read(dutyControllerProvider)
-                                    .setDone(myToday, true);
-                              } catch (e) {
-                                if (context.mounted) showFailure(context, e);
-                              }
-                            },
-                          ),
-                        ),
-              ],
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpace.gutter,
+        AppSpace.md,
+        AppSpace.gutter,
+        0,
+      ),
+      child: AppCard(
+        onTap: () => context.push('/more/duty'),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: AppSpace.md,
+          children: [
+            Icon(
+              Icons.shopping_basket_outlined,
+              color: myToday != null ? p.accent : p.inkSecondary,
             ),
-          ),
-        ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: AppSpace.xs,
+                children: [
+                  for (final (i, s) in lines.indexed)
+                    Text(
+                      s,
+                      style: i == 0
+                          ? text.titleSmall
+                          : text.bodyMedium?.copyWith(color: p.inkSecondary),
+                    ),
+                  if (myToday != null)
+                    myToday.done
+                        ? Text(
+                            l.dutyDone,
+                            style: text.bodyMedium?.copyWith(color: p.advance),
+                          )
+                        : Align(
+                            alignment: AlignmentDirectional.centerStart,
+                            child: AppButton(
+                              label: l.dutyMarkDone,
+                              icon: Icons.check,
+                              variant: AppButtonVariant.secondary,
+                              onPressed: () async {
+                                try {
+                                  await ref
+                                      .read(dutyControllerProvider)
+                                      .setDone(myToday, true);
+                                } catch (e) {
+                                  if (context.mounted) showFailure(context, e);
+                                }
+                              },
+                            ),
+                          ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

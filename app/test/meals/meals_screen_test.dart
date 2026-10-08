@@ -213,6 +213,7 @@ void main() {
     await pump(tester);
 
     expect(find.text('Mirpur Mess'), findsOneWidget);
+    expect(find.byTooltip(l.cookShare), findsOneWidget);
     expect(find.text(l.mealGridManager('Rahim')), findsOneWidget);
     final long = Fmt.dateLong(day, locale: 'bn', banglaDigits: true);
     expect(find.text(long.substring(long.indexOf(' ') + 1)), findsOneWidget);
@@ -368,6 +369,7 @@ void main() {
 
     expect(cell('${l.mealCellIncrease} Karim দুপুর'), findsNothing);
     expect(find.text(l.mealGridAllOne), findsNothing);
+    expect(find.byTooltip(l.cookShare), findsNothing);
     expect(find.byType(FloatingActionButton), findsNothing);
     await tester.tap(cell('Karim দুপুর: ১'));
     await tester.pumpAndSettle();

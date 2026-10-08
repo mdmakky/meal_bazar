@@ -620,6 +620,28 @@ void main() {
     expect(find.text('− ৳২৫০'), findsOneWidget);
     expect(find.text(l.balanceFood('১২', '৳৬৮.৭৮')), findsOneWidget);
     expect(find.text('৳৪২৪.৬৩'), findsWidgets);
+    expect(find.text(l.shareBillShare), findsOneWidget);
+  });
+
+  testWidgets('balances: managers share all; export in the menu', (
+    tester,
+  ) async {
+    await pump(tester, const MoneyScreen());
+    await tester.pumpAndSettle();
+    expect(find.text(l.shareBillShareAll), findsOneWidget);
+    await tester.tap(find.byType(PopupMenuButton<String>));
+    await tester.pumpAndSettle();
+    expect(find.text(l.exportTitle), findsOneWidget);
+  });
+
+  testWidgets('balances: members get no share actions', (tester) async {
+    await pump(tester, const MoneyScreen(), manager: false);
+    await tester.pumpAndSettle();
+    expect(find.text(l.shareBillShareAll), findsNothing);
+    await tester.tap(find.text('Rahim'));
+    await tester.pumpAndSettle();
+    expect(find.text(l.balanceExplainTitle('Rahim')), findsOneWidget);
+    expect(find.text(l.shareBillShare), findsNothing);
   });
 
   group('months', () {
