@@ -83,6 +83,9 @@ RPCs: `create_mess(name, month_start_day) → mess_id`, `join_mess(code) → mem
 | `pending_recurring_count(mess, date) → int` | Active templates not yet posted in that period. |
 | `meal_defaults` table | `(member_id, meal_type_id)` primary key, `mess_id`, `count numeric(3,1)` 0–5 in ½ steps. Standard RLS. `fill_meals_for_day` uses yesterday, else this, else 1. |
 
+### Fixed meal rate (0016)
+`messes.meal_rate_mode` ('calculated'/'fixed', default calculated), `messes.fixed_meal_rate numeric(12,2)` (> 0, required when fixed), `months.fixed_meal_rate` (per-month override). `month_totals.meal_rate` returns the fixed rate when one is in force, so `member_balances`/`close_month` follow. `month_rate_info(mess, from, to)` → `mode, rate, calculated_rate, food_total, total_meals, surplus_or_deficit` (= food_total − rate × total_meals). `set_month_meal_rate(mess, date, rate|null)` (manager; `MONTH_CLOSED` in a closed month).
+
 ## Error codes
 RPCs and triggers raise `errcode 'P0001'` with a short message key that the app maps to bn/en text: `MONTH_CLOSED`, `LAST_MANAGER`, `INVALID_INVITE`, `ALREADY_MEMBER`, `NOT_MANAGER`, `REASON_REQUIRED`.
 
