@@ -16,9 +16,10 @@ import '../application/money_providers.dart';
 import '../domain/money.dart';
 import 'money_sheets.dart';
 
-enum MoneyTab { members, bazar, expense, deposit }
+enum MoneyTab { members, expense, deposit }
 
-/// হিসাব: this month's figures, then members / bazar / expenses / deposits.
+/// হিসাব: this month's figures, then members / expenses / deposits.
+/// Bazar has its own tab ([BazarScreen]).
 class MoneyScreen extends ConsumerStatefulWidget {
   const MoneyScreen({super.key});
 
@@ -42,7 +43,6 @@ class _MoneyScreenState extends ConsumerState<MoneyScreen> {
       );
     }
     final (addLabel, add) = switch (_tab) {
-      MoneyTab.bazar => (l.bazarAdd, showAddBazarSheet),
       MoneyTab.expense => (l.expenseAdd, showAddExpenseSheet),
       MoneyTab.members ||
       MoneyTab.deposit => (l.depositAdd, showAddDepositSheet),
@@ -81,7 +81,6 @@ class _MoneyScreenState extends ConsumerState<MoneyScreen> {
       body: RefreshIndicator(
         onRefresh: () {
           ref.invalidate(currentPeriodProvider(messId));
-          ref.invalidate(bazarsProvider(messId));
           ref.invalidate(expensesProvider(messId));
           ref.invalidate(depositsProvider(messId));
           return ref.refresh(monthTotalsProvider(messId).future);
@@ -105,10 +104,6 @@ class _MoneyScreenState extends ConsumerState<MoneyScreen> {
                       label: Text(l.moneyTabMembers),
                     ),
                     ButtonSegment(
-                      value: MoneyTab.bazar,
-                      label: Text(l.moneyTabBazar),
-                    ),
-                    ButtonSegment(
                       value: MoneyTab.expense,
                       label: Text(l.moneyTabExpense),
                     ),
@@ -124,10 +119,73 @@ class _MoneyScreenState extends ConsumerState<MoneyScreen> {
             ),
             switch (_tab) {
               MoneyTab.members => _Balances(messId: messId),
-              MoneyTab.bazar => _BazarList(messId: messId),
               MoneyTab.expense => _ExpenseList(messId: messId),
               MoneyTab.deposit => _DepositList(messId: messId),
             },
+            const SliverToBoxAdapter(
+              child: SizedBox(height: AppSpace.xxxl * 2),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Bazar tab ─────────────────────────────────────────────────────────────
+
+/// বাজার: the month's bazar total (SQL), then every bazar with its sync
+/// state; managers add one from the FAB.
+class BazarScreen extends ConsumerWidget {
+  const BazarScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final messId = ref.watch(currentMessIdProvider);
+    if (messId == null) {
+      return Scaffold(
+        appBar: AppBar(title: Text(l.navBazar)),
+        body: EmptyView(message: l.moneyNoMess),
+      );
+    }
+    final total = ref
+        .watch(spendingByCategoryProvider(messId))
+        .whenData((c) => c.where((x) => x.isBazar).firstOrNull?.total ?? 0);
+    return Scaffold(
+      appBar: AppBar(title: Text(l.navBazar)),
+      floatingActionButton: ref.watch(amIManagerProvider)
+          ? FloatingActionButton.extended(
+              icon: const Icon(Icons.add),
+              label: Text(l.bazarAdd),
+              onPressed: () => showAddBazarSheet(context),
+            )
+          : null,
+      body: RefreshIndicator(
+        onRefresh: () {
+          ref.invalidate(currentPeriodProvider(messId));
+          ref.invalidate(bazarsProvider(messId));
+          return ref.refresh(spendingByCategoryProvider(messId).future);
+        },
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpace.gutter,
+                  AppSpace.sm,
+                  AppSpace.gutter,
+                  AppSpace.lg,
+                ),
+                child: Figure(
+                  label: l.bazarTabTotal,
+                  value: total.value == null
+                      ? '…'
+                      : money(context, total.value!),
+                ),
+              ),
+            ),
+            _BazarList(messId: messId),
             const SliverToBoxAdapter(
               child: SizedBox(height: AppSpace.xxxl * 2),
             ),

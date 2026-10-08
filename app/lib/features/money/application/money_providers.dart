@@ -7,6 +7,7 @@ import '../../../core/supabase.dart';
 import '../../month/application/month_providers.dart';
 import '../../month/domain/month.dart';
 import '../data/money_repository.dart';
+import '../domain/bazar_catalogue.dart';
 import '../domain/money.dart';
 
 final moneyRepositoryProvider = Provider<MoneyRepository>(
@@ -83,6 +84,12 @@ final depositsProvider =
           PagedList(messId, (r, m, p, from) => r.deposits(m, p, from: from)),
     );
 
+/// The bazar picker's "বেশি কেনা হয়": top 6 item names by frequency.
+final frequentItemsProvider = FutureProvider.family<List<String>, String>(
+  (ref, messId) async =>
+      frequentItems(await ref.watch(moneyRepositoryProvider).itemNames(messId)),
+);
+
 final expenseCategoriesProvider =
     FutureProvider.family<List<ExpenseCategory>, String>(
       (ref, messId) => ref.watch(moneyRepositoryProvider).categories(messId),
@@ -117,6 +124,7 @@ class MoneyController {
 
   Future<void> saveBazar(Bazar b) async {
     await _repo.saveBazar(b);
+    _ref.invalidate(frequentItemsProvider(b.messId));
     _changed(b.messId, bazarsProvider(b.messId));
   }
 

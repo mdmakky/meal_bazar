@@ -50,6 +50,30 @@ final monthHistoryProvider = FutureProvider.family<List<MonthPoint>, String>(
   (ref, messId) => ref.watch(monthRepositoryProvider).history(messId),
 );
 
+/// Totals and per-member balances of the period that starts on `start`
+/// (any month, not just the current one). Key by the period start so
+/// flipping days inside one month reuses the result.
+final periodSummaryProvider =
+    FutureProvider.family<
+      (MonthPeriod, MonthTotals, List<MemberBalance>),
+      ({String messId, DateTime start})
+    >((ref, k) async {
+      final repo = ref.watch(monthRepositoryProvider);
+      final p = await repo.period(k.messId, k.start);
+      final (t, b) = await (
+        repo.totals(k.messId, p),
+        repo.balances(k.messId, p),
+      ).wait;
+      return (p, t, b);
+    });
+
+/// The start of the mess month containing [day], for [periodSummaryProvider]
+/// keys only; SQL `month_period` still decides the real range.
+DateTime periodStartFor(DateTime day, int monthStartDay) =>
+    day.day >= monthStartDay
+    ? DateTime(day.year, day.month, monthStartDay)
+    : DateTime(day.year, day.month - 1, monthStartDay);
+
 /// Everything that shows the month's SQL figures; invalidate all on a change.
 List<ProviderOrFamily> monthProviders(String messId) => [
   monthTotalsProvider(messId),
@@ -57,4 +81,5 @@ List<ProviderOrFamily> monthProviders(String messId) => [
   dailyMealsProvider(messId),
   spendingByCategoryProvider(messId),
   monthHistoryProvider(messId),
+  periodSummaryProvider,
 ];

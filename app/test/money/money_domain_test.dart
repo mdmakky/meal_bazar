@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:meal_bazar/core/ids.dart';
+import 'package:meal_bazar/features/money/domain/bazar_catalogue.dart';
 import 'package:meal_bazar/features/money/domain/money.dart';
 import 'package:meal_bazar/features/month/domain/month.dart';
 
@@ -52,5 +53,37 @@ void main() {
       isTrue,
     );
     expect(uuidV4(), isNot(id));
+  });
+
+  test('frequent items: most bought first, ties by name, top n, trimmed', () {
+    final names = [
+      'ডিম',
+      ' চাল ',
+      'ডিম',
+      'আলু',
+      'চাল',
+      'ডিম',
+      '',
+      'মুরগি',
+      'আলু',
+      'পেঁয়াজ',
+      'লবণ',
+      'তেল',
+      'চিনি',
+    ];
+    expect(frequentItems(names), [
+      'ডিম',
+      'আলু',
+      'চাল',
+      ...(['চিনি', 'তেল', 'পেঁয়াজ', 'মুরগি', 'লবণ']..sort()).take(3),
+    ]);
+    expect(frequentItems(names, n: 1), ['ডিম']);
+    expect(frequentItems(const []), isEmpty);
+  });
+
+  test('catalogue units', () {
+    expect(catalogueUnit('ডিম'), 'হালি');
+    expect(catalogueUnit('সয়াবিন তেল'), 'লিটার');
+    expect(catalogueUnit('কিছু একটা'), isNull);
   });
 }

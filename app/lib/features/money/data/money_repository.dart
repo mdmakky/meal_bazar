@@ -84,6 +84,15 @@ class MoneyRepository {
         ];
       });
 
+  /// Every item name on this mess's bazars kept on the device (frequency
+  /// source for the item picker).
+  Future<List<String>> itemNames(String messId) async {
+    final q = _db.select(_db.bazarItems).join([
+      innerJoin(_db.bazars, _db.bazars.id.equalsExp(_db.bazarItems.bazarId)),
+    ])..where(_db.bazars.messId.equals(messId));
+    return [for (final r in await q.get()) r.readTable(_db.bazarItems).name];
+  }
+
   SimpleSelectStatement<$BazarsTable, LocalBazar> _inPeriod(
     String messId,
     MonthPeriod p,

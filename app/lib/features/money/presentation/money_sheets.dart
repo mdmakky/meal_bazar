@@ -16,6 +16,7 @@ import '../../mess/application/mess_providers.dart';
 import '../../mess/domain/member.dart';
 import '../../mess/presentation/common.dart';
 import '../application/money_providers.dart';
+import '../domain/bazar_catalogue.dart';
 import '../domain/money.dart';
 
 // ── Public entry points (also used by the Today quick actions) ────────────
@@ -247,10 +248,12 @@ class _AmountField extends StatelessWidget {
     required this.controller,
     this.autofocus = false,
     this.positive = false,
+    this.onChanged,
   });
 
   final TextEditingController controller;
   final bool autofocus;
+  final ValueChanged<String>? onChanged;
 
   /// Deposits must be > 0; bazar and expenses may be 0.
   final bool positive;
@@ -262,6 +265,7 @@ class _AmountField extends StatelessWidget {
       key: const Key('amount'),
       controller: controller,
       autofocus: autofocus,
+      onChanged: onChanged,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       inputFormatters: [FilteringTextInputFormatter.allow(RegExp('[0-9০-৯.]'))],
       style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -629,6 +633,9 @@ class _BazarFormState extends ConsumerState<_BazarForm>
   late final _items = [for (final i in _b?.items ?? const []) _ItemCtrls(i)];
   late var _source = _b?.source ?? 'app';
 
+  /// The user typed an amount: item changes stop overwriting it.
+  late var _amountTyped = _b != null;
+
   @override
   void initState() {
     super.initState();
@@ -660,6 +667,7 @@ class _BazarFormState extends ConsumerState<_BazarForm>
       _amount.text = _num(
         draft.total ?? itemsTotal(draft.items.map((d) => d.price)),
       );
+      _amountTyped = draft.total != null;
       _source = 'ai';
     });
   }
@@ -676,6 +684,38 @@ class _BazarFormState extends ConsumerState<_BazarForm>
 
   double get _itemsSum =>
       itemsTotal([for (final i in _items) parseAmount(i.price.text) ?? 0]);
+
+  /// Items changed: the amount follows their sum until the user types one.
+  void _itemsChanged() => setState(() {
+    if (_amountTyped) return;
+    final sum = _itemsSum;
+    _amount.text = sum == 0 ? '' : _num(sum);
+  });
+
+  _ItemCtrls? _line(String name) =>
+      _items.where((i) => i.name.text.trim() == name).firstOrNull;
+
+  /// Picker chip: adds a line (1 × the default unit), or removes it.
+  void _toggle(String name) {
+    final line = _line(name);
+    if (line != null) {
+      _items.remove(line);
+      line.dispose();
+    } else {
+      _items.add(
+        _ItemCtrls(
+          BazarItem(
+            id: '',
+            name: name,
+            price: 0,
+            qty: 1,
+            unit: catalogueUnit(name),
+          ),
+        )..price.clear(),
+      );
+    }
+    _itemsChanged();
+  }
 
   Bazar _build(String messId, String? receiptPath) => Bazar(
     id: _b?.id ?? uuidV4(),
@@ -721,7 +761,10 @@ class _BazarFormState extends ConsumerState<_BazarForm>
                   onPressed: saving ? null : _scan,
                 ),
               ),
-            _AmountField(controller: _amount, autofocus: _b == null),
+            _AmountField(
+              controller: _amount,
+              onChanged: (_) => setState(() => _amountTyped = true),
+            ),
             _DateChip(
               value: _date,
               onChanged: (d) => setState(() => _date = d),
@@ -740,28 +783,36 @@ class _BazarFormState extends ConsumerState<_BazarForm>
               onPaidBy: (id) => setState(() => _paidBy = id),
             ),
             _Label(l.bazarItems),
+            _Picker(
+              messId: messId,
+              selected: {for (final i in _items) i.name.text.trim()},
+              onToggle: _toggle,
+            ),
             for (final i in _items) _itemRow(i),
-            if (_items.any((i) => !i.isEmpty))
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TextButton.icon(
+                icon: const Icon(Icons.add),
+                label: Text(l.bazarPickerCustom),
+                onPressed: () => setState(() => _items.add(_ItemCtrls())),
+              ),
+            ),
+            if (_items.any((i) => !i.isEmpty) &&
+                parseAmount(_amount.text) != _itemsSum)
               Row(
                 children: [
                   Expanded(
                     child: _Label(l.bazarItemsSum(money(context, _itemsSum))),
                   ),
                   TextButton(
-                    onPressed: () =>
-                        setState(() => _amount.text = _num(_itemsSum)),
+                    onPressed: () => setState(() {
+                      _amountTyped = false;
+                      _amount.text = _num(_itemsSum);
+                    }),
                     child: Text(l.bazarUseSum),
                   ),
                 ],
               ),
-            Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: TextButton.icon(
-                icon: const Icon(Icons.add),
-                label: Text(l.bazarAddItem),
-                onPressed: () => setState(() => _items.add(_ItemCtrls())),
-              ),
-            ),
             photoField(l.receiptAttach),
             TextFormField(
               controller: _note,
@@ -783,10 +834,14 @@ class _BazarFormState extends ConsumerState<_BazarForm>
     );
   }
 
+  /// Name and price, then a qty stepper and the unit.
   Widget _itemRow(_ItemCtrls i) {
     final l = AppLocalizations.of(context);
+    final bn = banglaDigits(context);
     String? need(String? v) =>
         !i.isEmpty && (v ?? '').trim().isEmpty ? l.bazarItemInvalid : null;
+    final qty = parseAmount(i.qty.text);
+    void setQty(double v) => setState(() => i.qty.text = _num(v));
     return Column(
       spacing: AppSpace.sm,
       children: [
@@ -803,6 +858,7 @@ class _BazarFormState extends ConsumerState<_BazarForm>
                   labelText: l.bazarItemName,
                   counterText: '',
                 ),
+                onChanged: (_) => setState(() {}),
                 validator: need,
               ),
             ),
@@ -817,7 +873,7 @@ class _BazarFormState extends ConsumerState<_BazarForm>
                   labelText: l.bazarItemPrice,
                   prefixText: '৳ ',
                 ),
-                onChanged: (_) => setState(() {}),
+                onChanged: (_) => _itemsChanged(),
                 validator: (v) =>
                     need(v) ??
                     (i.isEmpty || parseAmount(v!) != null
@@ -828,21 +884,30 @@ class _BazarFormState extends ConsumerState<_BazarForm>
           ],
         ),
         Row(
-          spacing: AppSpace.sm,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: AppSpace.xs,
           children: [
-            Expanded(
-              child: TextFormField(
-                controller: i.qty,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
+            IconButton(
+              tooltip: '${l.mealCellDecrease} ${l.bazarItemQty}',
+              onPressed: qty == null || qty <= 0.5
+                  ? null
+                  : () => setQty(qty - (qty > 1 ? 1 : 0.5)),
+              icon: const Icon(Icons.remove),
+            ),
+            SizedBox(
+              width: AppSize.touch,
+              child: Text(
+                qty == null ? '—' : Fmt.digits(_num(qty), bangla: bn),
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontFeatures: const [FontFeature.tabularFigures()],
                 ),
-                decoration: InputDecoration(labelText: l.bazarItemQty),
-                validator: (v) =>
-                    (v ?? '').trim().isEmpty || parseAmount(v!) != null
-                    ? null
-                    : l.moneyAmountInvalid,
               ),
+            ),
+            IconButton(
+              tooltip: '${l.mealCellIncrease} ${l.bazarItemQty}',
+              onPressed: () =>
+                  setQty(qty == null ? 1 : (qty < 1 ? qty + 0.5 : qty + 1)),
+              icon: const Icon(Icons.add),
             ),
             Expanded(
               child: TextFormField(
@@ -857,13 +922,69 @@ class _BazarFormState extends ConsumerState<_BazarForm>
             IconButton(
               tooltip: l.bazarRemoveItem,
               icon: const Icon(Icons.close),
-              onPressed: () => setState(() {
+              onPressed: () {
                 _items.remove(i);
                 i.dispose();
-              }),
+                _itemsChanged();
+              },
             ),
           ],
         ),
+      ],
+    );
+  }
+}
+
+/// Categorized item chips: this mess's most bought, then the catalogue.
+/// A chip is selected while its line is in the form.
+class _Picker extends ConsumerWidget {
+  const _Picker({
+    required this.messId,
+    required this.selected,
+    required this.onToggle,
+  });
+
+  final String messId;
+  final Set<String> selected;
+  final ValueChanged<String> onToggle;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final frequent = ref.watch(frequentItemsProvider(messId)).value ?? [];
+    final groups = <(String, List<String>)>[
+      if (frequent.isNotEmpty) (l.bazarPickerFrequent, frequent),
+      for (final MapEntry(:key, :value) in bazarCatalogue.entries)
+        (
+          switch (key) {
+            BazarGroup.staples => l.bazarPickerStaples,
+            BazarGroup.veg => l.bazarPickerVeg,
+            BazarGroup.protein => l.bazarPickerProtein,
+            BazarGroup.spice => l.bazarPickerSpice,
+          },
+          [for (final i in value) i.name],
+        ),
+    ];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: AppSpace.sm,
+      children: [
+        Text(l.bazarPickerHelp, style: Theme.of(context).textTheme.bodySmall),
+        for (final (title, names) in groups) ...[
+          Text(title, style: Theme.of(context).textTheme.labelMedium),
+          Wrap(
+            spacing: AppSpace.sm,
+            runSpacing: AppSpace.sm,
+            children: [
+              for (final n in names)
+                FilterChip(
+                  label: Text(n),
+                  selected: selected.contains(n),
+                  onSelected: (_) => onToggle(n),
+                ),
+            ],
+          ),
+        ],
       ],
     );
   }
