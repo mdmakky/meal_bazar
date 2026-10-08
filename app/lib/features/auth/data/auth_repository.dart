@@ -1,5 +1,7 @@
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../core/env.dart';
 import '../../../core/errors.dart';
 import '../domain/profile.dart';
 
@@ -16,6 +18,51 @@ class AuthRepository {
   /// current session.
   Stream<String?> authStateChanges() =>
       _auth.onAuthStateChange.map((s) => s.session?.user.id);
+
+  Future<void> signInWithEmail(String email, String password) => guard(
+    () => _auth.signInWithPassword(email: email.trim(), password: password),
+  );
+
+  /// Returns false when the project requires email confirmation (no session
+  /// yet): the user must click the emailed link, then log in.
+  Future<bool> signUpWithEmail(String email, String password) => guard(
+    () async =>
+        (await _auth.signUp(email: email.trim(), password: password)).session !=
+        null,
+  );
+
+  Future<void> sendPasswordReset(String email) =>
+      guard(() => _auth.resetPasswordForEmail(email.trim()));
+
+  Future<void>? _googleInit;
+
+  /// Native Google account picker, then a Supabase session from its ID token.
+  /// Returns false when the user cancels.
+  Future<bool> signInWithGoogle() => guard(() async {
+    final google = GoogleSignIn.instance;
+    await (_googleInit ??= google.initialize(
+      serverClientId: Env.googleWebClientId,
+    ));
+    final GoogleSignInAccount account;
+    try {
+      account = await google.authenticate();
+    } on GoogleSignInException catch (e) {
+      if (e.code == GoogleSignInExceptionCode.canceled) return false;
+      rethrow;
+    }
+    final idToken = account.authentication.idToken;
+    if (idToken == null) {
+      throw const AppFailure(FailureKind.unknown, 'Google: no idToken');
+    }
+    // Supabase's Google provider accepts the ID token alone.
+    await _auth.signInWithIdToken(
+      provider: OAuthProvider.google,
+      idToken: idToken,
+    );
+    return true;
+  });
+
+  // Phone OTP: unrouted until an SMS provider is funded (see router.dart).
 
   /// [phone] must already be E.164 (see `normalizeBdPhone`).
   Future<void> sendOtp(String phone) =>
