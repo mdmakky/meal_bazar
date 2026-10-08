@@ -7,5 +7,6 @@ export 'empty_view.dart';
 export 'error_view.dart';
 export 'figure.dart';
 export 'loading_view.dart';
+export 'meal_cell.dart';
 export 'money.dart';
 export 'sync_badge.dart';

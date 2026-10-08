@@ -21,6 +21,28 @@ final dayEntriesProvider = FutureProvider.family<List<MealEntry>, MessDay>(
       ref.watch(mealRepositoryProvider).entriesForDay(key.messId, key.day),
 );
 
+typedef MealRange = ({
+  String messId,
+  DateTime from,
+  DateTime to,
+  String? memberId,
+});
+
+final rangeEntriesProvider = FutureProvider.family<List<MealEntry>, MealRange>(
+  (ref, k) => ref
+      .watch(mealRepositoryProvider)
+      .entriesForRange(k.messId, k.from, k.to, memberId: k.memberId),
+);
+
+/// Guest meals per member for the current period (SQL `member_meal_totals`).
+final guestMealsProvider = FutureProvider.family<Map<String, double>, String>((
+  ref,
+  messId,
+) async {
+  final p = await ref.watch(currentPeriodProvider(messId).future);
+  return ref.watch(mealRepositoryProvider).guestMeals(messId, p.start, p.end);
+});
+
 final mealControllerProvider = Provider<MealController>(MealController.new);
 
 class MealController {
@@ -45,9 +67,53 @@ class MealController {
     return n;
   }
 
+  Future<void> createMealType(
+    String messId, {
+    required String name,
+    required int sortOrder,
+  }) async {
+    await _repo.createMealType(messId, name: name, sortOrder: sortOrder);
+    _ref.invalidate(mealTypesProvider(messId));
+  }
+
+  /// A weight change re-prices the month, so money figures refresh too.
+  Future<void> updateMealType(
+    MealType t, {
+    String? name,
+    double? weight,
+    bool? enabled,
+  }) async {
+    await _repo.updateMealType(
+      t.id,
+      name: name,
+      weight: weight,
+      enabled: enabled,
+    );
+    _ref.invalidate(mealTypesProvider(t.messId));
+    if (weight != null) _refreshMonth(t.messId);
+  }
+
+  /// Writes `sort_order` = position for every type whose position changed.
+  Future<void> reorderMealTypes(String messId, List<MealType> ordered) async {
+    try {
+      await Future.wait([
+        for (final (i, t) in ordered.indexed)
+          if (t.sortOrder != i) _repo.updateMealType(t.id, sortOrder: i),
+      ]);
+    } finally {
+      _ref.invalidate(mealTypesProvider(messId));
+    }
+  }
+
   void _refresh(String messId, DateTime day) {
     _ref.invalidate(dayEntriesProvider((messId: messId, day: day)));
+    _ref.invalidate(rangeEntriesProvider);
+    _refreshMonth(messId);
+  }
+
+  void _refreshMonth(String messId) {
     _ref.invalidate(monthTotalsProvider(messId));
     _ref.invalidate(memberBalancesProvider(messId));
+    _ref.invalidate(guestMealsProvider(messId));
   }
 }
