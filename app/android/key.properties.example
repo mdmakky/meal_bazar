@@ -1,0 +1,6 @@
+# Copy to android/key.properties (gitignored) and fill in. Never commit the real file or the .jks.
+storePassword=CHANGE_ME
+keyPassword=CHANGE_ME
+keyAlias=upload
+# Absolute path, or relative to android/app/
+storeFile=/Users/you/keys/meal_bazar-upload.jks

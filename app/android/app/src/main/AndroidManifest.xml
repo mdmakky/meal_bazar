@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Flutter templates only add INTERNET to debug/profile; release needs it for Supabase. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
-        android:label="meal_bazar"
+        android:label="মিল বাজার"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -24,7 +26,25 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- Supabase auth redirects (password reset / email confirm), read by app_links. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="mealbazar" android:host="auth-callback"/>
+            </intent-filter>
+            <!-- Invite links, routed by go_router (/join/:code). autoVerify needs assetlinks.json on mealbazar.app first. -->
+            <intent-filter android:autoVerify="false">
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="https" android:host="mealbazar.app" android:pathPrefix="/join/"/>
+            </intent-filter>
         </activity>
+        <!-- Ask Play Services to fetch the unbundled ML Kit barcode model at install time. -->
+        <meta-data
+            android:name="com.google.mlkit.vision.DEPENDENCIES"
+            android:value="barcode" />
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

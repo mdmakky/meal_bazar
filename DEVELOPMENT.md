@@ -26,9 +26,27 @@ Only the publishable/anon key goes into the app; RLS protects the data. Never pu
 - Apply migrations: in the Supabase dashboard SQL editor, run `supabase/migrations/*.sql` in order. With the CLI, run `npx supabase db push`.
 - Auth (Supabase → Authentication → Providers):
   - **Email**: on. With "Confirm email" on, sign-up shows a "click the emailed link" step; set the Site URL / redirect URLs for the confirm and password-reset links.
+  - **Redirect URL**: Supabase → Authentication → URL Configuration → add `mealbazar://auth-callback` (confirm and reset-password links open the app; a reset link only works on the device that requested it).
   - **Google**: in Google Cloud Console create a **Web** OAuth client (its client id + secret go into Supabase's Google provider) and an **Android** OAuth client with package `com.mealbazar.meal_bazar` and the debug keystore SHA-1 (`keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android`; add the release SHA-1 before shipping). Put the **web** client id in `env.json` as `GOOGLE_WEB_CLIENT_ID`; empty hides the Google button.
   - **Phone**: off. Phone OTP code is kept but unrouted until an SMS provider (e.g. Twilio) is funded.
 - Run the tests with `./supabase/tests/run.sh`. It creates a throwaway local database, stubs `auth.uid()` and the Supabase roles, applies all migrations, and runs every `supabase/tests/*_test.sql`.
+
+## Release (Android)
+1. **Upload keystore** (once; back it up outside the repo, since losing it means asking Play for an upload-key reset):
+   ```sh
+   keytool -genkey -v -keystore ~/keys/meal_bazar-upload.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+   ```
+2. **key.properties**: `cp app/android/key.properties.example app/android/key.properties` and fill it in. Both it and `*.jks` are gitignored. Without it, release builds are debug-signed and Gradle prints a warning; that's fine for local testing but Play rejects them.
+3. **Build** (R8 minify and resource shrinking are on for release):
+   ```sh
+   cd app
+   flutter build appbundle --release --dart-define-from-file=env.json              # Play upload
+   flutter build apk --release --split-per-abi --dart-define-from-file=env.json   # sideload/testing, target under 30 MB per ABI
+   ```
+4. **Play App Signing**: Play re-signs the app with its own app-signing key, so the installed app's SHA-1 is not your upload key's SHA-1.
+5. **Google login in release**: add both the **upload-key SHA-1** (`keytool -list -v -keystore ~/keys/meal_bazar-upload.jks -alias upload`) and the **Play app-signing SHA-1** (Play Console → Test and release → App integrity → App signing) to the Google Cloud **Android** OAuth client(s) for `com.mealbazar.meal_bazar`. If one is missing, Google sign-in fails silently in that build.
+6. **Versioning**: bump `version: x.y.z+N` in `app/pubspec.yaml` for every upload. `x.y.z` becomes versionName and `N` becomes versionCode, which must strictly increase. Split-per-ABI APKs add an ABI offset to the versionCode automatically.
+7. **Invite App Links**: the `https://mealbazar.app/join/` filter has `autoVerify="false"`, so Android shows a chooser. To make links open the app directly, host `/.well-known/assetlinks.json` with the Play app-signing SHA-256, then switch it to `true`.
 
 ## Quality gate (every phase)
 ```sh
