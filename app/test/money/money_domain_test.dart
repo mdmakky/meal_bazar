@@ -1,0 +1,56 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:meal_bazar/core/ids.dart';
+import 'package:meal_bazar/features/money/domain/money.dart';
+import 'package:meal_bazar/features/month/domain/month.dart';
+
+void main() {
+  test('parseAmount accepts ≥0 with at most 2 decimals, Bangla digits', () {
+    expect(parseAmount('250'), 250);
+    expect(parseAmount(' 250.5 '), 250.5);
+    expect(parseAmount('0'), 0);
+    expect(parseAmount('১,৪১০.৫০'), 1410.5);
+    expect(parseAmount(''), isNull);
+    expect(parseAmount('-5'), isNull);
+    expect(parseAmount('1.234'), isNull);
+    expect(parseAmount('1.'), isNull);
+    expect(parseAmount('abc'), isNull);
+    expect(parseAmount('10000000000'), isNull);
+  });
+
+  test('itemsTotal sums exactly in paisa', () {
+    expect(itemsTotal([0.1, 0.2]), 0.3);
+    expect(itemsTotal([]), 0);
+  });
+
+  test(
+    'bill lines add up to the closing balance (PRODUCT_RULES §3 fixture)',
+    () {
+      const rahim = MemberBalance(
+        memberId: 'r',
+        displayName: 'Rahim',
+        meals: 12,
+        foodCost: 825.37,
+        extraCost: 250,
+        credit: 1500,
+        openingBalance: 0,
+        closingBalance: 424.63,
+      );
+      final lines = billLines(rahim);
+      expect(lines.map((l) => l.part), BillPart.values);
+      expect(lines.firstWhere((l) => l.part == BillPart.food).amount, -825.37);
+      final sum = lines.fold<double>(0, (s, l) => s + l.amount);
+      expect(sum, closeTo(rahim.closingBalance, 0.001));
+    },
+  );
+
+  test('uuidV4 is a v4 UUID', () {
+    final id = uuidV4();
+    expect(
+      RegExp(
+        r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$',
+      ).hasMatch(id),
+      isTrue,
+    );
+    expect(uuidV4(), isNot(id));
+  });
+}
