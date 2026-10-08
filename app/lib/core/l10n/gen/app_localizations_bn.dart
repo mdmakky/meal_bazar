@@ -1724,4 +1724,66 @@ class AppLocalizationsBn extends AppLocalizations {
   String shareBillPayHint(String number) {
     return 'বিকাশ/নগদ: $number';
   }
+
+  @override
+  String get noticeTitle => 'নোটিশ';
+
+  @override
+  String get noticeEmpty => 'এখনো কোনো নোটিশ নেই';
+
+  @override
+  String get noticeAdd => 'নোটিশ দিন';
+
+  @override
+  String get noticeEdit => 'নোটিশ বদলান';
+
+  @override
+  String get noticeTitleLabel => 'শিরোনাম';
+
+  @override
+  String get noticeTitleRequired => 'শিরোনাম লিখুন';
+
+  @override
+  String get noticeBodyLabel => 'বিস্তারিত';
+
+  @override
+  String get noticePin => 'সবার উপরে পিন করুন';
+
+  @override
+  String get noticePinned => 'পিন করা';
+
+  @override
+  String get noticeUnread => 'নতুন';
+
+  @override
+  String get noticeExpiry => 'মেয়াদ';
+
+  @override
+  String get noticeNoExpiry => 'মেয়াদ নেই';
+
+  @override
+  String get noticeClearExpiry => 'মেয়াদ সরান';
+
+  @override
+  String noticeUntil(String date) {
+    return '$date পর্যন্ত';
+  }
+
+  @override
+  String get noticeSave => 'নোটিশ সেভ করুন';
+
+  @override
+  String get noticeSaved => 'নোটিশ সেভ হয়েছে';
+
+  @override
+  String get noticeDeleted => 'নোটিশ মুছে ফেলা হয়েছে';
+
+  @override
+  String get noticeDeleteConfirmTitle => 'নোটিশটি মুছবেন?';
+
+  @override
+  String get noticeDeleteConfirmBody => 'সবার কাছ থেকে নোটিশটি সরে যাবে।';
+
+  @override
+  String get noticeGone => 'নোটিশটি আর নেই';
 }

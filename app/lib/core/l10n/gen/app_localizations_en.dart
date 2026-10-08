@@ -1733,4 +1733,66 @@ class AppLocalizationsEn extends AppLocalizations {
   String shareBillPayHint(String number) {
     return 'bKash/Nagad: $number';
   }
+
+  @override
+  String get noticeTitle => 'Notices';
+
+  @override
+  String get noticeEmpty => 'No notices yet';
+
+  @override
+  String get noticeAdd => 'Post a notice';
+
+  @override
+  String get noticeEdit => 'Edit notice';
+
+  @override
+  String get noticeTitleLabel => 'Title';
+
+  @override
+  String get noticeTitleRequired => 'Enter a title';
+
+  @override
+  String get noticeBodyLabel => 'Details';
+
+  @override
+  String get noticePin => 'Pin to the top';
+
+  @override
+  String get noticePinned => 'Pinned';
+
+  @override
+  String get noticeUnread => 'New';
+
+  @override
+  String get noticeExpiry => 'Expires';
+
+  @override
+  String get noticeNoExpiry => 'No expiry';
+
+  @override
+  String get noticeClearExpiry => 'Remove expiry';
+
+  @override
+  String noticeUntil(String date) {
+    return 'Until $date';
+  }
+
+  @override
+  String get noticeSave => 'Save notice';
+
+  @override
+  String get noticeSaved => 'Notice saved';
+
+  @override
+  String get noticeDeleted => 'Notice deleted';
+
+  @override
+  String get noticeDeleteConfirmTitle => 'Delete this notice?';
+
+  @override
+  String get noticeDeleteConfirmBody => 'It will disappear for everyone.';
+
+  @override
+  String get noticeGone => 'This notice is no longer available';
 }

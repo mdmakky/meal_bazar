@@ -15,6 +15,7 @@ import '../features/mess/domain/member.dart';
 import '../features/mess/presentation/mess_screens.dart';
 import '../features/money/presentation/money_screen.dart';
 import '../features/money/presentation/months_screen.dart';
+import '../features/notices/presentation/notices_screen.dart';
 import '../features/today/presentation/today_screen.dart';
 import 'failure_text.dart';
 import 'shell.dart';
@@ -204,6 +205,17 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'meal-types',
                     builder: (_, _) => const MealTypesScreen(),
+                  ),
+                  GoRoute(
+                    path: 'notices',
+                    builder: (_, _) => const NoticesScreen(),
+                    routes: [
+                      GoRoute(
+                        path: ':id',
+                        builder: (_, state) =>
+                            NoticeDetailScreen(id: state.pathParameters['id']!),
+                      ),
+                    ],
                   ),
                 ],
               ),
