@@ -1,0 +1,10 @@
+# Source PNGs are rendered from Hind Siliguri SemiBold (see assets/icon/).
+flutter_launcher_icons:
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  image_path: assets/icon/icon.png
+  adaptive_icon_background: "#141413"
+  adaptive_icon_foreground: assets/icon/icon_foreground.png
+  adaptive_icon_monochrome: assets/icon/icon_monochrome.png
+  adaptive_icon_foreground_inset: 0
