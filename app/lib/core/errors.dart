@@ -12,6 +12,8 @@ enum FailureKind {
   alreadyMember,
   lastManager,
   monthClosed,
+  previousMonthOpen,
+  laterMonthClosed,
   invalidOtp,
   rateLimited,
   validation,
@@ -36,6 +38,8 @@ const _sqlKeys = {
   'ALREADY_MEMBER': FailureKind.alreadyMember,
   'LAST_MANAGER': FailureKind.lastManager,
   'MONTH_CLOSED': FailureKind.monthClosed,
+  'PREVIOUS_MONTH_OPEN': FailureKind.previousMonthOpen,
+  'LATER_MONTH_CLOSED': FailureKind.laterMonthClosed,
   'REASON_REQUIRED': FailureKind.validation,
 };
 

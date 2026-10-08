@@ -27,7 +27,9 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Scan a mess invite QR code</string>
+	<string>Scan a mess invite QR code or photograph a bazar receipt</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Choose a bazar receipt photo to fill in a bazar entry</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
