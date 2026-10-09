@@ -1,9 +1,36 @@
 import 'package:flutter/material.dart';
 
 import '../l10n/gen/app_localizations.dart';
+import '../motion/effects.dart';
 import '../theme/tokens.dart';
 
-/// Hairline skeleton blocks. No shimmer.
+/// A muted block standing in for content. Compose them into the shape of
+/// what is loading and wrap the lot in one [SkeletonPulse].
+class SkeletonBox extends StatelessWidget {
+  const SkeletonBox({
+    super.key,
+    this.width,
+    required this.height,
+    this.radius = AppRadius.sm,
+  });
+
+  final double? width;
+  final double height;
+  final double radius;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: width,
+    height: height,
+    decoration: BoxDecoration(
+      color: context.palette.surfaceMuted,
+      borderRadius: BorderRadius.circular(radius),
+    ),
+  );
+}
+
+/// The default skeleton: a title, a hero figure card and [rows] list rows,
+/// pulsing calmly (opacity .55 ↔ 1, 1200 ms). No shimmer.
 class LoadingView extends StatelessWidget {
   const LoadingView({super.key, this.rows = 3});
 
@@ -11,28 +38,30 @@ class LoadingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final p = context.palette;
-    Widget block(double height, {double? width}) => Container(
-      height: height,
-      width: width,
-      decoration: BoxDecoration(
-        border: Border.all(color: p.border),
-        borderRadius: BorderRadius.circular(AppRadius.sm),
-      ),
-    );
     return Semantics(
       label: AppLocalizations.of(context).loading,
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpace.gutter),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: AppSpace.md,
-          children: [
-            block(AppSpace.lg, width: AppSpace.xxxl * 2),
-            block(AppSpace.xxxl, width: AppSpace.xxxl * 3),
-            const SizedBox(height: AppSpace.sm),
-            for (var i = 0; i < rows; i++) block(AppSpace.xxxl + AppSpace.lg),
-          ],
+      child: SkeletonPulse(
+        // Clips instead of overflowing when the slot is shorter than rows.
+        child: SingleChildScrollView(
+          physics: const NeverScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(AppSpace.gutter),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: AppSpace.md,
+            children: [
+              const SkeletonBox(height: AppSpace.lg, width: AppSpace.xxxl * 2),
+              const SkeletonBox(
+                height: AppSpace.xxxl + AppSpace.xxl,
+                radius: AppRadius.xl,
+              ),
+              const SizedBox(height: AppSpace.sm),
+              for (var i = 0; i < rows; i++)
+                const SkeletonBox(
+                  height: AppSpace.xxxl + AppSpace.lg,
+                  radius: AppRadius.md,
+                ),
+            ],
+          ),
         ),
       ),
     );
