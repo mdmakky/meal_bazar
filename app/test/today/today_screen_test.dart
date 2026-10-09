@@ -22,6 +22,7 @@ import 'package:meal_bazar/features/month/application/month_providers.dart';
 import 'package:meal_bazar/features/month/domain/month.dart';
 import 'package:meal_bazar/features/notices/application/notice_providers.dart';
 import 'package:meal_bazar/features/notices/domain/notice.dart';
+import 'package:meal_bazar/features/messages/application/message_providers.dart';
 import 'package:meal_bazar/features/today/application/day_grid.dart';
 import 'package:meal_bazar/features/today/presentation/today_screen.dart';
 import 'package:mocktail/mocktail.dart';
@@ -306,6 +307,11 @@ void main() {
     ];
     await pump(tester, extra: extra);
     expect(find.text('Rent due Friday'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text(l.recurringPending('২')),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.text(l.recurringPending('২')), findsOneWidget);
     await tester.scrollUntilVisible(
       find.text(l.dutyTodayOther('Karim')),
@@ -432,5 +438,82 @@ void main() {
 
     await tester.pumpWidget(const SizedBox());
     await tester.runAsync(db.close);
+  });
+
+  group('message shortcuts', () {
+    Override unread(int direct, bool group) => unreadSplitProvider.overrideWith(
+      (ref, id) async => (direct: direct, group: group),
+    );
+
+    testWidgets('member: message manager + mess group with unread marks', (
+      tester,
+    ) async {
+      when(() => repo.entriesForDay(any(), any())).thenAnswer((_) async => []);
+      await pump(tester, manager: false, extra: [unread(2, true)]);
+      expect(find.text(l.homeMsgManager), findsOneWidget);
+      expect(find.text(l.msgGroupShort), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('homeMsgShortcut')),
+          matching: find.text('২'),
+        ),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('homeUnreadDot')), findsOneWidget);
+      expect(
+        find.bySemanticsLabel('${l.homeMsgManager}, ${l.homeUnreadCount('২')}'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('manager: inbox + mess group; nothing unread, no marks', (
+      tester,
+    ) async {
+      when(() => repo.entriesForDay(any(), any())).thenAnswer((_) async => []);
+      await pump(tester, extra: [unread(0, false)]);
+      expect(
+        find.descendant(
+          of: find.byKey(const Key('homeMsgShortcut')),
+          matching: find.text(l.msgTitle),
+        ),
+        findsOneWidget,
+      );
+      expect(find.text(l.homeMsgManager), findsNothing);
+      expect(find.byKey(const Key('homeGroupShortcut')), findsOneWidget);
+      expect(find.byKey(const Key('homeUnreadCount')), findsNothing);
+      expect(find.byKey(const Key('homeUnreadDot')), findsNothing);
+    });
+
+    testWidgets('flags: mess_group off hides the group', (tester) async {
+      when(() => repo.entriesForDay(any(), any())).thenAnswer((_) async => []);
+      await pump(
+        tester,
+        manager: false,
+        extra: [
+          unread(0, false),
+          platformConfig({
+            'features': {'mess_group': false},
+          }),
+        ],
+      );
+      expect(find.byKey(const Key('homeMsgShortcut')), findsOneWidget);
+      expect(find.byKey(const Key('homeGroupShortcut')), findsNothing);
+    });
+
+    testWidgets('flags: messages off hides both', (tester) async {
+      when(() => repo.entriesForDay(any(), any())).thenAnswer((_) async => []);
+      await pump(
+        tester,
+        manager: false,
+        extra: [
+          unread(0, false),
+          platformConfig({
+            'features': {'messages': false},
+          }),
+        ],
+      );
+      expect(find.byKey(const Key('homeMsgShortcut')), findsNothing);
+      expect(find.byKey(const Key('homeGroupShortcut')), findsNothing);
+    });
   });
 }

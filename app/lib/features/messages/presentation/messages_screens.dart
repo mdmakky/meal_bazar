@@ -1,12 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/failure_text.dart';
 import '../../../core/ids.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
+import '../../../core/platform/platform_config.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../mess/application/mess_providers.dart';
 import '../../mess/domain/member.dart';
@@ -162,9 +164,7 @@ class _InboxState extends ConsumerState<MessagesInboxScreen> {
               AsyncValue(:final value?) => _list(
                 context,
                 messId,
-                isManager
-                    ? value.where((t) => t.resolved == _resolved).toList()
-                    : value,
+                value,
                 isManager: isManager,
                 onCompose: compose,
               ),
@@ -180,11 +180,18 @@ class _InboxState extends ConsumerState<MessagesInboxScreen> {
   Widget _list(
     BuildContext context,
     String messId,
-    List<MessageThread> threads, {
+    List<MessageThread> all, {
     required bool isManager,
     required VoidCallback onCompose,
   }) {
     final l = AppLocalizations.of(context);
+    final group = ref.featureOn('mess_group')
+        ? all.where((t) => t.isGroup).firstOrNull
+        : null;
+    final threads = [
+      for (final t in all)
+        if (!t.isGroup && (!isManager || t.resolved == _resolved)) t,
+    ];
     final filter = isManager
         ? Padding(
             padding: const EdgeInsets.fromLTRB(
@@ -205,6 +212,16 @@ class _InboxState extends ConsumerState<MessagesInboxScreen> {
       child: CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
+          if (group != null)
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpace.gutter,
+                AppSpace.md,
+                AppSpace.gutter,
+                AppSpace.sm,
+              ),
+              sliver: SliverToBoxAdapter(child: GroupThreadTile(thread: group)),
+            ),
           if (filter != null) SliverToBoxAdapter(child: filter),
           if (threads.isEmpty)
             SliverFillRemaining(
@@ -241,6 +258,153 @@ class _InboxState extends ConsumerState<MessagesInboxScreen> {
       ),
     );
   }
+}
+
+/// `user id → display name` for a mess (left members included).
+Map<String, String> memberNames(WidgetRef ref, String messId) => {
+  for (final m in ref.watch(membersProvider(messId)).value ?? const <Member>[])
+    if (m.userId != null) m.userId!: m.displayName,
+};
+
+/// Members who can read the group (active and inactive).
+int groupMemberCount(WidgetRef ref, String messId) =>
+    (ref.watch(membersProvider(messId)).value ?? const <Member>[])
+        .where(
+          (m) =>
+              m.status == MemberStatus.active ||
+              m.status == MemberStatus.inactive,
+        )
+        .length;
+
+/// "Mirpur Mess গ্রুপ", or the generic name before the mess has loaded.
+String groupTitle(AppLocalizations l, WidgetRef ref) {
+  final name = ref.watch(currentMessProvider)?.name;
+  return name == null ? l.msgGroupShort : l.msgGroupTitle(name);
+}
+
+/// The mess group, pinned above the inbox: an ink roundel (the group is the
+/// mess itself), member count, the last line with its author.
+class GroupThreadTile extends ConsumerWidget {
+  const GroupThreadTile({super.key, required this.thread});
+
+  final MessageThread thread;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final p = context.palette;
+    final t = thread;
+    final bn = l.localeName == 'bn';
+    final me = ref.watch(messageControllerProvider).myUserId;
+    final count = Fmt.digits('${groupMemberCount(ref, t.messId)}', bangla: bn);
+    final String? preview;
+    if (t.lastSenderId == null && t.lastBody == null) {
+      preview = null;
+    } else if (t.lastHidden) {
+      preview = l.msgHidden;
+    } else if (t.lastSenderId != null && t.lastSenderId == me) {
+      preview = l.msgYou(t.lastBody ?? '');
+    } else {
+      final who =
+          memberNames(ref, t.messId)[t.lastSenderId] ?? l.msgDeletedUser;
+      preview = '$who: ${t.lastBody ?? ''}';
+    }
+
+    return AppCard.raised(
+      key: const Key('msgGroupTile'),
+      onTap: () => context.push('/more/messages/${t.id}'),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: AppSpace.md,
+        children: [
+          ExcludeSemantics(
+            child: CircleAvatar(
+              radius: 20,
+              backgroundColor: p.ink,
+              child: Icon(Icons.groups_rounded, size: 22, color: p.onInk),
+            ),
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: AppSpace.xs,
+              children: [
+                Row(
+                  spacing: AppSpace.sm,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        groupTitle(l, ref),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: text.titleSmall?.copyWith(
+                          fontWeight: t.isUnread
+                              ? FontWeight.w700
+                              : FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    if (t.isUnread) const UnreadDot(),
+                  ],
+                ),
+                // The mess name gets the whole first line; time sits here.
+                Row(
+                  spacing: AppSpace.sm,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        l.msgGroupMembers(count),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: text.labelMedium?.copyWith(color: p.inkTertiary),
+                      ),
+                    ),
+                    if (preview != null)
+                      Text(
+                        messageTime(context, t.lastMessageAt),
+                        style: text.labelSmall?.copyWith(
+                          color: t.isUnread ? p.ink : p.inkTertiary,
+                        ),
+                      ),
+                  ],
+                ),
+                if (preview != null)
+                  Text(
+                    preview,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: text.bodyMedium?.copyWith(
+                      color: p.inkSecondary,
+                      fontStyle: t.lastHidden ? FontStyle.italic : null,
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The turmeric "unread" dot.
+class UnreadDot extends StatelessWidget {
+  const UnreadDot({super.key});
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    label: AppLocalizations.of(context).msgUnread,
+    child: Container(
+      key: const Key('msgUnreadDot'),
+      width: AppSize.dot + 2,
+      height: AppSize.dot + 2,
+      decoration: BoxDecoration(
+        color: context.palette.accent,
+        shape: BoxShape.circle,
+      ),
+    ),
+  );
 }
 
 class ThreadTile extends ConsumerWidget {
@@ -298,19 +462,7 @@ class ThreadTile extends ConsumerWidget {
                         color: t.isUnread ? p.ink : p.inkTertiary,
                       ),
                     ),
-                    if (t.isUnread)
-                      Semantics(
-                        label: l.msgUnread,
-                        child: Container(
-                          key: const Key('msgUnreadDot'),
-                          width: AppSize.dot + 2,
-                          height: AppSize.dot + 2,
-                          decoration: BoxDecoration(
-                            color: p.accent,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ),
+                    if (t.isUnread) const UnreadDot(),
                   ],
                 ),
                 if (showMember)
@@ -346,6 +498,37 @@ class ThreadTile extends ConsumerWidget {
 }
 
 // ── thread ──────────────────────────────────────────────────────────────────
+
+/// `/more/messages/group`: finds (or creates) the mess group, then shows it.
+class GroupThreadScreen extends ConsumerWidget {
+  const GroupThreadScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final messId = ref.watch(currentMessIdProvider);
+    if (messId == null) {
+      return Scaffold(
+        appBar: AppBar(title: Text(l.msgGroupShort)),
+        body: const LoadingView(),
+      );
+    }
+    return switch (ref.watch(groupThreadIdProvider(messId))) {
+      AsyncValue(:final value?) => ThreadScreen(id: value),
+      AsyncValue(:final error?) => Scaffold(
+        appBar: AppBar(title: Text(l.msgGroupShort)),
+        body: ErrorView(
+          message: failureText(context, error),
+          onRetry: () => ref.invalidate(groupThreadIdProvider(messId)),
+        ),
+      ),
+      _ => Scaffold(
+        appBar: AppBar(title: Text(l.msgGroupShort)),
+        body: const LoadingView(),
+      ),
+    };
+  }
+}
 
 class ThreadScreen extends ConsumerStatefulWidget {
   const ThreadScreen({super.key, required this.id});
@@ -443,6 +626,53 @@ class _ThreadState extends ConsumerState<ThreadScreen> {
     }
   }
 
+  /// Long-press on a group message: copy, and remove for whoever may.
+  Future<void> _actions(MessageThread t, ChatMessage m, bool canHide) async {
+    final l = AppLocalizations.of(context);
+    final action = await AppSheet.show<String>(
+      context,
+      title: l.msgTitle,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.copy_rounded),
+            title: Text(l.platformCopy),
+            onTap: () => Navigator.pop(context, 'copy'),
+          ),
+          if (canHide)
+            ListTile(
+              key: const Key('msgHide'),
+              leading: Icon(Icons.delete_outline, color: context.palette.due),
+              title: Text(
+                l.msgHide,
+                style: TextStyle(color: context.palette.due),
+              ),
+              onTap: () => Navigator.pop(context, 'hide'),
+            ),
+        ],
+      ),
+    );
+    if (!mounted) return;
+    if (action == 'copy') {
+      await Clipboard.setData(ClipboardData(text: m.body));
+      if (mounted) showSnack(context, l.platformCopied);
+    } else if (action == 'hide') {
+      final ok = await confirmDialog(
+        context,
+        title: l.msgHide,
+        body: l.msgHideBody,
+        action: l.msgHideAction,
+      );
+      if (!ok || !mounted) return;
+      try {
+        await ref.read(messageControllerProvider).hide(t, m.id);
+      } catch (e) {
+        if (mounted) showFailure(context, e);
+      }
+    }
+  }
+
   /// Marks read once per newest message seen.
   void _markRead(MessageThread t, List<ChatMessage> server) {
     final last = server.lastOrNull?.id;
@@ -459,6 +689,7 @@ class _ThreadState extends ConsumerState<ThreadScreen> {
     final threadAsync = ref.watch(threadProvider(widget.id));
     final msgsAsync = ref.watch(threadMessagesProvider(widget.id));
     final t = threadAsync.value;
+    final group = t?.isGroup ?? false;
     ref.listen(pushArrivalProvider, (_, next) {
       if (next.value == '/more/messages/${widget.id}') _refresh();
     });
@@ -479,13 +710,20 @@ class _ThreadState extends ConsumerState<ThreadScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              t?.subject ?? l.msgTitle,
+              group ? groupTitle(l, ref) : t?.subject ?? l.msgTitle,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            if (isManager && t != null)
+            if (t != null && (group || isManager))
               Text(
-                t.memberName,
+                group
+                    ? l.msgGroupMembers(
+                        Fmt.digits(
+                          '${groupMemberCount(ref, t.messId)}',
+                          bangla: l.localeName == 'bn',
+                        ),
+                      )
+                    : t.memberName,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: text.labelMedium?.copyWith(
@@ -498,12 +736,13 @@ class _ThreadState extends ConsumerState<ThreadScreen> {
       body: t != null && server != null
           ? Column(
               children: [
-                _StatusBar(
-                  thread: t,
-                  isManager: isManager,
-                  busy: _statusBusy,
-                  onSet: (r) => _setResolved(t, r),
-                ),
+                if (!group)
+                  _StatusBar(
+                    thread: t,
+                    isManager: isManager,
+                    busy: _statusBusy,
+                    onSet: (r) => _setResolved(t, r),
+                  ),
                 Expanded(child: _messages(context, t, [...server, ..._outbox])),
                 _Composer(controller: _input, onSend: () => _send(t)),
               ],
@@ -529,12 +768,39 @@ class _ThreadState extends ConsumerState<ThreadScreen> {
   ) {
     final isManager = ref.watch(amIManagerProvider);
     final me = ref.watch(messageControllerProvider).myUserId;
-    final names = <String, String>{
-      for (final m
-          in ref.watch(membersProvider(t.messId)).value ?? const <Member>[])
-        if (m.userId != null) m.userId!: m.displayName,
-    };
+    final names = memberNames(ref, t.messId);
     final l = AppLocalizations.of(context);
+    final p = context.palette;
+    final children = <Widget>[];
+    for (var i = 0; i < all.length; i++) {
+      final m = all[i];
+      final prev = i == 0 ? null : all[i - 1];
+      final mine = m.senderId != null && m.senderId == me;
+      if (prev == null ||
+          !DateUtils.isSameDay(
+            prev.createdAt.toLocal(),
+            m.createdAt.toLocal(),
+          )) {
+        children.add(_DaySeparator(day: m.createdAt));
+      }
+      final actionable = t.isGroup && !m.hidden && !m.pending && !m.failed;
+      children.add(
+        _Bubble(
+          message: m,
+          mine: mine,
+          // The group names every incoming message; in a direct thread
+          // managers see who wrote, consecutive ones sharing the name.
+          name: t.isGroup || (isManager && prev?.senderId != m.senderId)
+              ? (names[m.senderId] ?? l.msgDeletedUser)
+              : null,
+          avatar: t.isGroup,
+          onRetry: m.failed ? () => _send(t, m) : null,
+          onLongPress: actionable
+              ? () => _actions(t, m, isManager || mine)
+              : null,
+        ),
+      );
+    }
     return RefreshIndicator(
       onRefresh: () async {
         _refresh();
@@ -554,29 +820,66 @@ class _ThreadState extends ConsumerState<ThreadScreen> {
             RefCard(type: t.refType, label: t.refLabel!),
             const SizedBox(height: AppSpace.lg),
           ],
-          for (var i = 0; i < all.length; i++)
-            _Bubble(
-              message: all[i],
-              mine: all[i].senderId != null && all[i].senderId == me,
-              // Managers see who wrote; consecutive ones share the name.
-              name:
-                  isManager &&
-                      (i == 0 || all[i - 1].senderId != all[i].senderId)
-                  ? (names[all[i].senderId] ?? l.msgDeletedUser)
-                  : null,
-              onRetry: all[i].failed ? () => _send(t, all[i]) : null,
+          if (t.isGroup && all.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: AppSpace.xxxl),
+              child: EmptyView(
+                message: l.msgGroupEmpty,
+                icon: Icons.groups_outlined,
+              ),
             ),
-          if (t.resolved)
+          ...children,
+          if (t.resolved && !t.isGroup)
             Padding(
               padding: const EdgeInsets.only(top: AppSpace.md),
               child: Text(
                 l.msgResolvedNote,
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: context.palette.inkTertiary,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.labelMedium?.copyWith(color: p.inkTertiary),
               ),
             ),
+        ],
+      ),
+    );
+  }
+}
+
+/// "আজ" / "গতকাল" / "৮ অক্টোবর ২০২৬" between messages of different days.
+class _DaySeparator extends StatelessWidget {
+  const _DaySeparator({required this.day});
+
+  final DateTime day;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final p = context.palette;
+    final bn = l.localeName == 'bn';
+    final local = DateUtils.dateOnly(day.toLocal());
+    final today = DateUtils.dateOnly(DateTime.now());
+    final label = local == today
+        ? l.msgDayToday
+        : local == DateUtils.addDaysToDate(today, -1)
+        ? l.msgDayYesterday
+        : Fmt.dateLong(local, locale: l.localeName, banglaDigits: bn);
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpace.sm, bottom: AppSpace.lg),
+      child: Row(
+        spacing: AppSpace.md,
+        children: [
+          Expanded(child: Divider(color: p.border, height: 1)),
+          Semantics(
+            header: true,
+            child: Text(
+              label,
+              style: Theme.of(
+                context,
+              ).textTheme.labelMedium?.copyWith(color: p.inkTertiary),
+            ),
+          ),
+          Expanded(child: Divider(color: p.border, height: 1)),
         ],
       ),
     );
@@ -645,13 +948,21 @@ class _Bubble extends StatelessWidget {
     required this.message,
     required this.mine,
     this.name,
+    this.avatar = false,
     this.onRetry,
+    this.onLongPress,
   });
 
   final ChatMessage message;
   final bool mine;
   final String? name;
+
+  /// The sender's initial beside incoming bubbles (the group).
+  final bool avatar;
   final VoidCallback? onRetry;
+
+  /// Copy / remove sheet; the text is then not selectable in place.
+  final VoidCallback? onLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -673,7 +984,11 @@ class _Bubble extends StatelessWidget {
         vertical: AppSpace.sm + 2,
       ),
       decoration: BoxDecoration(
-        color: mine ? p.ink : p.surfaceRaised,
+        color: m.hidden
+            ? Colors.transparent
+            : mine
+            ? p.ink
+            : p.surfaceRaised,
         borderRadius: BorderRadius.only(
           topLeft: r,
           topRight: r,
@@ -682,17 +997,46 @@ class _Bubble extends StatelessWidget {
         ),
         border: m.failed
             ? Border.all(color: p.due, width: 1.5)
-            : mine
+            : mine && !m.hidden
             ? null
             : Border.all(color: p.border),
-        boxShadow: mine ? null : AppElevation.raised(p),
+        boxShadow: mine || m.hidden ? null : AppElevation.raised(p),
       ),
-      child: SelectableText(
-        m.body,
-        style: text.bodyLarge?.copyWith(color: mine ? p.onInk : p.ink),
-      ),
+      child: m.hidden
+          ? Row(
+              mainAxisSize: MainAxisSize.min,
+              spacing: AppSpace.xs,
+              children: [
+                Icon(Icons.block, size: 16, color: p.inkTertiary),
+                Flexible(
+                  child: Text(
+                    l.msgHidden,
+                    style: text.bodyMedium?.copyWith(
+                      color: p.inkTertiary,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ),
+              ],
+            )
+          : onLongPress != null
+          ? Text(
+              m.body,
+              style: text.bodyLarge?.copyWith(color: mine ? p.onInk : p.ink),
+            )
+          : SelectableText(
+              m.body,
+              style: text.bodyLarge?.copyWith(color: mine ? p.onInk : p.ink),
+            ),
     );
     if (m.pending) bubble = Opacity(opacity: 0.6, child: bubble);
+    if (onLongPress != null) {
+      bubble = GestureDetector(
+        key: Key('msgBubble-${m.id}'),
+        onLongPress: onLongPress,
+        child: bubble,
+      );
+    }
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpace.md),
@@ -704,48 +1048,64 @@ class _Bubble extends StatelessWidget {
           constraints: BoxConstraints(
             maxWidth: MediaQuery.sizeOf(context).width * 0.8,
           ),
-          child: Column(
-            crossAxisAlignment: mine
-                ? CrossAxisAlignment.end
-                : CrossAxisAlignment.start,
-            spacing: AppSpace.xs,
-            children: [
-              if (name != null && !mine)
-                Text(
-                  name!,
-                  style: text.labelMedium?.copyWith(color: p.inkSecondary),
-                ),
-              bubble,
-              InkWell(
-                onTap: onRetry,
-                borderRadius: BorderRadius.circular(AppRadius.sm),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: AppSpace.xs,
-                    vertical: onRetry == null ? 0 : AppSpace.sm,
+          child: _withAvatar(
+            avatar && !mine ? name : null,
+            Column(
+              crossAxisAlignment: mine
+                  ? CrossAxisAlignment.end
+                  : CrossAxisAlignment.start,
+              spacing: AppSpace.xs,
+              children: [
+                if (name != null && !mine)
+                  Text(
+                    name!,
+                    style: text.labelMedium?.copyWith(color: p.inkSecondary),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    spacing: AppSpace.xs,
-                    children: [
-                      if (m.failed)
-                        Icon(Icons.error_outline, size: 16, color: p.due),
-                      Text(
-                        meta,
-                        style: text.labelSmall?.copyWith(
-                          color: m.failed ? p.due : p.inkTertiary,
+                bubble,
+                InkWell(
+                  onTap: onRetry,
+                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: AppSpace.xs,
+                      vertical: onRetry == null ? 0 : AppSpace.sm,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: AppSpace.xs,
+                      children: [
+                        if (m.failed)
+                          Icon(Icons.error_outline, size: 16, color: p.due),
+                        Text(
+                          meta,
+                          style: text.labelSmall?.copyWith(
+                            color: m.failed ? p.due : p.inkTertiary,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+
+  /// Puts the sender's initial at the bubble's top start.
+  static Widget _withAvatar(String? name, Widget column) => name == null
+      ? column
+      : Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          spacing: AppSpace.sm,
+          children: [
+            InitialsAvatar(name, size: 32),
+            Flexible(child: column),
+          ],
+        );
 }
 
 /// Text field + send. Send is off while the field is empty.

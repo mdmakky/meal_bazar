@@ -11,7 +11,8 @@ enum PushType {
   expenseAdded('expense_added'),
   monthClosed('month_closed'),
   dueReminder('due_reminder'),
-  message('message');
+  message('message'),
+  groupMessage('group_message');
 
   const PushType(this.key, {this.managerOnly = false});
 

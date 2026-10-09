@@ -138,6 +138,18 @@ Member ↔ manager messages (not real-time chat) and "report a problem" about an
 | `mark_thread_read(p_thread)`, `unread_thread_count(p_mess) → int` | My read mark; my unread threads in a mess. |
 | push `message` | AFTER INSERT on `messages`: the member writes → every active manager; a manager writes → the member. Title `বার্তা: <subject>` / `Message: <subject>`, body `<sender>: <text>`, route `/more/messages/<thread_id>`. Off when the `push` or `messages` flag is false or the user's `message` pref is false. |
 
+### Mess group (0023)
+One group conversation per mess on the 0022 tables (not separate ones: the feed, read marks, `post_message`, push routing and the app's thread screen all apply unchanged).
+| Object | Purpose |
+|---|---|
+| `message_threads.kind` | `direct` (default, 0022 behaviour) or `group`. A group has `member_id` null (check: group ⇔ no member); unique index: one group per mess. `can_see_thread(mess, null)` = the mess's managers and active/inactive members; pending, left and outsiders see nothing. |
+| `ensure_mess_group(p_mess) → uuid` | Any current member; returns the group's thread id, creating it on first use (also while the mess is suspended: a system row). `NOT_MEMBER`. |
+| `messages.hidden_at`, `hidden_by` | Soft delete. `hide_message(p_id)`: group messages only; managers any, a member their own; idempotent; otherwise `NOT_MANAGER` (direct-thread messages stay append-only). The text moves to `message_hidden_bodies` (no client access) and `body` becomes `''`; audited as `hide_message` with `{thread_id, sender_id}` (never the text). |
+| `message_thread_feed` | + `kind`, `last_hidden`; `member_name` null for the group. Hidden messages are never unread. |
+| `unread_thread_count(mess)` | Now direct threads only ("needs attention"); the app counts group unread from the feed. |
+| `push_enqueue(…, p_route, p_tag)` | 8-argument form; `p_tag` lands in `data.tag` (the gateway sets the Android notification tag, so a newer push with the same tag replaces the older). The 7-argument form delegates with no tag. |
+| push `group_message` | AFTER INSERT on a group message → every other active member. Title `<mess> · গ্রুপ` / `<mess> · group`, body `<sender>: <first 80 chars>`, route `/more/messages/<thread_id>`, tag = thread id. Off when `push`, `messages` or `mess_group` is false, or the user's `group_message` pref is false (the in-app "mute group"). |
+
 ## Error codes
 RPCs and triggers raise `errcode 'P0001'` with a short message key that the app maps to bn/en text: `MONTH_CLOSED`, `LAST_MANAGER`, `INVALID_INVITE`, `ALREADY_MEMBER`, `NOT_MANAGER`, `REASON_REQUIRED`, `MESS_SUSPENDED`, `USER_SUSPENDED`, `NOT_PLATFORM_ADMIN`, `LAST_ADMIN`, `INVALID_CONFIG`, `TOO_SOON`.
 

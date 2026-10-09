@@ -65,6 +65,10 @@ type SendResult = 'ok' | 'dead' | string; // anything else = retryable error cod
 async function sendOne(sa: ServiceAccount, bearer: string, token: string, row: OutboxRow): Promise<SendResult> {
   // FCM data values must be strings.
   const data = Object.fromEntries(Object.entries(row.data ?? {}).map(([k, v]) => [k, String(v)]));
+  // data.tag (e.g. the mess group's thread id): a newer push with the same tag
+  // replaces the older on the device, and FCM collapses queued ones.
+  const tag = data.tag ? { tag: data.tag } : {};
+  const collapse = data.tag ? { collapse_key: data.tag } : {};
   try {
     const res = await fetch(`https://fcm.googleapis.com/v1/projects/${sa.project_id}/messages:send`, {
       method: 'POST',
@@ -74,7 +78,7 @@ async function sendOne(sa: ServiceAccount, bearer: string, token: string, row: O
           token,
           notification: { title: row.title, body: row.body },
           data,
-          android: { priority: 'high', notification: { channel_id: CHANNEL } },
+          android: { priority: 'high', ...collapse, notification: { channel_id: CHANNEL, ...tag } },
         },
       }),
       signal: AbortSignal.timeout(TIMEOUT_MS),

@@ -3216,4 +3216,55 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get messagesComingSoon =>
       'Messages are coming soon. Until then, tell the manager directly.';
+
+  @override
+  String get msgGroupShort => 'Mess group';
+
+  @override
+  String msgGroupTitle(String mess) {
+    return '$mess group';
+  }
+
+  @override
+  String msgGroupMembers(String count) {
+    return '$count members';
+  }
+
+  @override
+  String get msgGroupEmpty =>
+      'No messages yet. Write below to tell the whole mess.';
+
+  @override
+  String get msgHidden => 'This message was removed';
+
+  @override
+  String get msgHide => 'Remove message';
+
+  @override
+  String get msgHideBody =>
+      'The message will be removed for everyone. This can\'t be undone.';
+
+  @override
+  String get msgHideAction => 'Remove';
+
+  @override
+  String get msgDayToday => 'Today';
+
+  @override
+  String get msgDayYesterday => 'Yesterday';
+
+  @override
+  String get homeMsgManager => 'Message manager';
+
+  @override
+  String homeUnreadCount(String count) {
+    return '$count unread';
+  }
+
+  @override
+  String get pushGroup => 'Mess group';
+
+  @override
+  String get pushGroupSub =>
+      'New messages in the mess group. Off mutes the group';
 }

@@ -150,6 +150,15 @@ describe('push dispatch', () => {
     });
   });
 
+  it('sets the Android tag and collapse key from data.tag', async () => {
+    state.rows = [{ ...row(1, ['g1']), data: { route: '/more/messages/th', type: 'group_message', tag: 'th' } }];
+    await poke('env-secret');
+    expect(sends[0]!.message.android).toEqual({
+      priority: 'high', collapse_key: 'th', notification: { channel_id: 'mealbazar_default', tag: 'th' },
+    });
+    expect(sends[0]!.message.data.tag).toBe('th');
+  });
+
   it('mints the OAuth token with an RS256 JWT from the service account', async () => {
     state.rows = [row(1, ['ok1'])];
     await poke('env-secret');

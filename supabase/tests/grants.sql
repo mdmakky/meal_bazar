@@ -16,3 +16,7 @@ revoke all on public.push_outbox from anon, authenticated;
 revoke execute on function public.push_kick(), public.push_mess_users(uuid, public.member_role, uuid),
   public.push_enqueue(uuid[], text, text, text, text, text, text), public.push_claim(int)
   from public, anon, authenticated;
+-- 0023: hidden message texts and the tagged enqueue are server-only.
+revoke all on public.message_hidden_bodies from anon, authenticated;
+revoke execute on function public.push_enqueue(uuid[], text, text, text, text, text, text, text)
+  from public, anon, authenticated;

@@ -3,12 +3,45 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/message_repository.dart';
 import '../domain/message.dart';
 import '../domain/message_draft.dart';
+import '../../push/application/push_service.dart';
 import 'unread_provider.dart';
 
-/// My visible threads in a mess, newest activity first.
-final threadsProvider = FutureProvider.family<List<MessageThread>, String>(
-  (ref, messId) => ref.watch(messageRepositoryProvider).threads(messId),
+/// My visible threads in a mess, newest activity first. The mess group is
+/// created the first time the inbox loads without it (best effort).
+final threadsProvider = FutureProvider.family<List<MessageThread>, String>((
+  ref,
+  messId,
+) async {
+  final repo = ref.watch(messageRepositoryProvider);
+  final list = await repo.threads(messId);
+  if (list.any((t) => t.isGroup)) return list;
+  try {
+    await repo.groupId(messId);
+    return await repo.threads(messId);
+  } catch (_) {
+    return list;
+  }
+});
+
+/// The mess group's thread id (Home shortcut, `/more/messages/group`).
+final groupThreadIdProvider = FutureProvider.family<String, String>(
+  (ref, messId) => ref.watch(messageRepositoryProvider).groupId(messId),
 );
+
+/// Unread direct threads and whether the group has unread messages, for the
+/// Home shortcuts. Refreshes when a push arrives while the app is open.
+final unreadSplitProvider =
+    FutureProvider.family<({int direct, bool group}), String>((
+      ref,
+      messId,
+    ) async {
+      ref.watch(pushArrivalProvider);
+      final list = await ref.watch(messageRepositoryProvider).threads(messId);
+      return (
+        direct: list.where((t) => !t.isGroup && t.isUnread).length,
+        group: list.any((t) => t.isGroup && t.isUnread),
+      );
+    });
 
 final threadProvider = FutureProvider.family<MessageThread?, String>(
   (ref, id) => ref.watch(messageRepositoryProvider).thread(id),
@@ -68,12 +101,19 @@ class MessageController {
     _refresh(t);
   }
 
+  /// Removes a group message for everyone.
+  Future<void> hide(MessageThread t, String messageId) async {
+    await _repo.hide(messageId);
+    _refresh(t);
+  }
+
   /// Best effort: a failed read mark just leaves the dot on.
   Future<void> markRead(MessageThread t) async {
     try {
       await _repo.markRead(t.id);
       _ref
         ..invalidate(unreadMessagesCountProvider(t.messId))
+        ..invalidate(unreadSplitProvider(t.messId))
         ..invalidate(threadsProvider(t.messId));
     } catch (_) {}
   }

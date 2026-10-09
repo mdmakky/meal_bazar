@@ -3207,4 +3207,55 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get messagesComingSoon =>
       'বার্তা পাঠানোর সুবিধা শিগগিরই আসছে। ততক্ষণ ম্যানেজারকে সরাসরি জানান।';
+
+  @override
+  String get msgGroupShort => 'মেস গ্রুপ';
+
+  @override
+  String msgGroupTitle(String mess) {
+    return '$mess গ্রুপ';
+  }
+
+  @override
+  String msgGroupMembers(String count) {
+    return '$count জন সদস্য';
+  }
+
+  @override
+  String get msgGroupEmpty =>
+      'এখনো কোনো বার্তা নেই। মেসের সবাইকে কিছু জানাতে নিচে লিখুন।';
+
+  @override
+  String get msgHidden => 'বার্তাটি মুছে ফেলা হয়েছে';
+
+  @override
+  String get msgHide => 'বার্তাটি মুছুন';
+
+  @override
+  String get msgHideBody =>
+      'বার্তাটি সবার কাছ থেকে সরে যাবে। এটা ফেরানো যাবে না।';
+
+  @override
+  String get msgHideAction => 'মুছুন';
+
+  @override
+  String get msgDayToday => 'আজ';
+
+  @override
+  String get msgDayYesterday => 'গতকাল';
+
+  @override
+  String get homeMsgManager => 'ম্যানেজারকে বার্তা';
+
+  @override
+  String homeUnreadCount(String count) {
+    return '$countটি অপঠিত';
+  }
+
+  @override
+  String get pushGroup => 'মেস গ্রুপ';
+
+  @override
+  String get pushGroupSub =>
+      'গ্রুপে নতুন বার্তা এলে। বন্ধ করলে গ্রুপ মিউট থাকবে';
 }

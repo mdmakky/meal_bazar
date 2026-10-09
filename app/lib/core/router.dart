@@ -244,6 +244,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                         ),
                       ),
                       GoRoute(
+                        path: 'group',
+                        builder: (_, _) => const GroupThreadScreen(),
+                      ),
+                      GoRoute(
                         path: ':id',
                         builder: (_, state) =>
                             ThreadScreen(id: state.pathParameters['id']!),

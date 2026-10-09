@@ -3,8 +3,8 @@ class MessageThread {
   const MessageThread({
     required this.id,
     required this.messId,
-    required this.memberId,
     required this.subject,
+    this.memberId,
     required this.lastMessageAt,
     this.memberName = '',
     this.refType,
@@ -14,12 +14,14 @@ class MessageThread {
     this.lastBody,
     this.lastSenderId,
     this.isUnread = false,
+    this.isGroup = false,
+    this.lastHidden = false,
   });
 
   factory MessageThread.fromJson(Map<String, dynamic> j) => MessageThread(
     id: j['id'] as String,
     messId: j['mess_id'] as String,
-    memberId: j['member_id'] as String,
+    memberId: j['member_id'] as String?,
     subject: j['subject'] as String,
     memberName: j['member_name'] as String? ?? '',
     refType: j['ref_type'] as String?,
@@ -29,14 +31,16 @@ class MessageThread {
     lastBody: j['last_body'] as String?,
     lastSenderId: j['last_sender_id'] as String?,
     isUnread: j['is_unread'] as bool? ?? false,
+    isGroup: j['kind'] == 'group',
+    lastHidden: j['last_hidden'] as bool? ?? false,
     lastMessageAt: DateTime.parse(j['last_message_at'] as String),
   );
 
   final String id;
   final String messId;
 
-  /// The member side (`mess_members.id`).
-  final String memberId;
+  /// The member side (`mess_members.id`); null for the mess group.
+  final String? memberId;
   final String memberName;
   final String subject;
   final String? refType;
@@ -46,6 +50,12 @@ class MessageThread {
   final String? lastBody;
   final String? lastSenderId;
   final bool isUnread;
+
+  /// The mess's one group conversation (supabase 0023).
+  final bool isGroup;
+
+  /// The last message was removed (shown as a placeholder).
+  final bool lastHidden;
   final DateTime lastMessageAt;
 }
 
@@ -59,6 +69,7 @@ class ChatMessage {
     this.senderId,
     this.pending = false,
     this.failed = false,
+    this.hidden = false,
   });
 
   factory ChatMessage.fromJson(Map<String, dynamic> j) => ChatMessage(
@@ -67,6 +78,7 @@ class ChatMessage {
     senderId: j['sender_id'] as String?,
     body: j['body'] as String,
     createdAt: DateTime.parse(j['created_at'] as String),
+    hidden: j['hidden_at'] != null,
   );
 
   final String id;
@@ -78,6 +90,9 @@ class ChatMessage {
   final DateTime createdAt;
   final bool pending;
   final bool failed;
+
+  /// Removed from the group; [body] is empty.
+  final bool hidden;
 }
 
 const messageSubjectMax = 80;

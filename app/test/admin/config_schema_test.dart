@@ -25,21 +25,25 @@ ModelInfo model(
 );
 
 void main() {
-  test('feature list has all 30 flags (v2 + push + messages), each once', () {
-    expect(allFlags.length, 30);
-    expect(allFlags.toSet().length, 30);
-    for (final f in [
-      'ai',
-      'push',
-      'messages',
-      'invite_qr',
-      'offline_mode',
-      'cook_share',
-      'email_login',
-    ]) {
-      expect(allFlags, contains(f));
-    }
-  });
+  test(
+    'feature list has all 31 flags (v2 + push + messages + mess_group), each once',
+    () {
+      expect(allFlags.length, 31);
+      expect(allFlags.toSet().length, 31);
+      for (final f in [
+        'ai',
+        'push',
+        'messages',
+        'mess_group',
+        'invite_qr',
+        'offline_mode',
+        'cook_share',
+        'email_login',
+      ]) {
+        expect(allFlags, contains(f));
+      }
+    },
+  );
 
   test('features: missing flags default to true, unknown keys kept', () {
     final f = withDefaults('features', {'ai': false, 'legacy': 1}) as Map;

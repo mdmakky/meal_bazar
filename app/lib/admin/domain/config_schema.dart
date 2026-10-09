@@ -96,6 +96,7 @@ const featureGroups = <FlagGroup>[
         bn: 'ম্যানেজারকে বার্তা ও সমস্যা জানানো',
         en: 'Member–manager messages',
       ),
+      (key: 'mess_group', bn: 'মেস গ্রুপ (সবার বার্তা)', en: 'Mess group chat'),
       (
         key: 'reminders',
         bn: 'রিমাইন্ডার নোটিফিকেশন',
