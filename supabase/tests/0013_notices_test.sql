@@ -59,4 +59,4 @@ select test.expect_error(format($$insert into announcement_reads (announcement_i
 select test.expect_error(format($$insert into announcements (mess_id, title) values (%L, 'hi')$$, :'mess'), 'row-level security');
 
 select test.act_as(null);
-select test.check((select count(*) from audit_log where entity = 'announcements') = 6, 'notices audited');
+select test.check((select count(*) from audit_log where entity = 'announcements') = 0, 'notices not audited (0030)');

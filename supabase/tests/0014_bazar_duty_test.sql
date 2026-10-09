@@ -31,7 +31,7 @@ select test.check(generate_duty_rotation(:'mess', '2099-05-01', 7, array[:'rahim
 -- Every 3 days over 10 days → 05-20, 05-23, 05-26, 05-29.
 select test.check(generate_duty_rotation(:'mess', '2099-05-20', 10, array[:'karim', :'rahim']::uuid[], 3) = 4, 'every 3 days');
 select test.check((select member_id from bazar_duties where mess_id = :'mess' and date = '2099-05-26') = :'karim', 'every-3 order');
-select test.check((select count(*) from audit_log where entity = 'bazar_duties') = 11, 'audited');
+select test.check((select count(*) from audit_log where entity = 'bazar_duties') = 0, 'duties not audited (0030)');
 
 -- Bad input.
 select test.expect_error(format($$select generate_duty_rotation(%L, '2099-06-01', 5, '{}'::uuid[])$$, :'mess'), 'INVALID_ROTATION');

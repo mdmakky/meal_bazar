@@ -30,7 +30,7 @@ select test.check((select paid_by_member_id from bazars where id = :'bz') = :'b'
 select set_bazar_buyers(:'bz', array[:'mgr']::uuid[]);
 select test.check((select array_agg(member_id) from bazar_buyers where bazar_id = :'bz') = array[:'mgr']::uuid[], 'set replaced');
 select test.check((select buyer_member_id from bazars where id = :'bz') = :'mgr', 'mirror follows');
-select test.check((select count(*) from audit_log where entity = 'bazar_buyers') >= 3, 'buyers audited');
+select test.check((select count(*) from audit_log where entity = 'bazar_buyers') = 0, 'buyers not audited (0030)');
 
 -- Members of another mess are refused.
 select create_mess('Other Buyer Mess', 'Manager') as other \gset

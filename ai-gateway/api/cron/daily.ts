@@ -11,8 +11,9 @@ const PUSH_BATCH = 500;
 // 1. keep-alive: one trivial query so the free Supabase project is not paused;
 // 2. hard-delete auth users queued by delete_my_account() (DATABASE.md, 0007/0010);
 // 3. queue today's bazar-duty reminders (send_duty_reminders, 0028; 03:00 UTC = 09:00 Dhaka);
-// 4. prune messages and audit rows older than 2 months (prune_old_data, 0029);
-// 5. send push_outbox leftovers (a missed pg_net kick); skipped without FIREBASE_SERVICE_ACCOUNT.
+// 4. automatic due reminders to members in debt (send_auto_due_reminders, 0030);
+// 5. prune messages and audit rows older than 2 months (prune_old_data, 0029);
+// 6. send push_outbox leftovers (a missed pg_net kick); skipped without FIREBASE_SERVICE_ACCOUNT.
 export const GET = handle(async (req) => {
   const secret = process.env.CRON_SECRET;
   if (!secret || req.headers.get('authorization') !== `Bearer ${secret}`) throw new HttpError(401, 'unauthorized');
@@ -33,6 +34,16 @@ export const GET = handle(async (req) => {
     console.log('duty reminders failed');
   }
 
+  // Automatic due reminders (send_auto_due_reminders, 0030).
+  let dueReminders = 0;
+  try {
+    const { data, error } = await sb.rpc('send_auto_due_reminders');
+    if (error) console.log('due reminders failed', error.code);
+    else dueReminders = Number(data ?? 0);
+  } catch {
+    console.log('due reminders failed');
+  }
+
   let pruned: unknown = null;
   try {
     const { data, error } = await sb.rpc('prune_old_data');
@@ -50,7 +61,7 @@ export const GET = handle(async (req) => {
       push = { error: e instanceof HttpError ? e.code : 'internal' }; // never undoes the work above
     }
   }
-  return json({ kept_alive: true, deleted, failed, duty_reminders: dutyReminders, pruned, push });
+  return json({ kept_alive: true, deleted, failed, duty_reminders: dutyReminders, due_reminders: dueReminders, pruned, push });
 });
 
 async function processDeletions(sb: SupabaseClient) {

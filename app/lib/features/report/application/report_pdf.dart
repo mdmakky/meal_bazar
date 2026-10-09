@@ -531,8 +531,12 @@ Future<pw.Document> buildMonthReport(ReportData d) async {
         : v > 1
         ? (_ink, PdfColors.white, true)
         : (null, _ink, true);
+    // Day cells use plain 1 / ½ / 2: a Bangla ১ at this size prints as a
+    // squiggle. Totals keep the locale's digits.
+    final whole = v.truncate();
+    final cellText = v % 1 == 0 ? '$whole' : (whole == 0 ? '½' : '$whole½');
     final text = small(
-      v == 0 ? '–' : meals(v),
+      v == 0 ? '–' : cellText,
       bold: bold,
       color: fg,
       size: 8.5,
@@ -546,7 +550,7 @@ Future<pw.Document> buildMonthReport(ReportData d) async {
               children: [
                 text,
                 pw.Text(
-                  '+${n(g)}',
+                  '+$g',
                   style: pw.TextStyle(
                     fontSize: 7,
                     color: bg == _ink ? _tint : _turmericInk,

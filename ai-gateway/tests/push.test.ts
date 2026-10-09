@@ -219,7 +219,7 @@ describe('daily cron drains the outbox', () => {
   it('sends leftovers', async () => {
     state.rows = [row(1, ['ok1'])];
     expect(await (await run()).json()).toEqual({
-      kept_alive: true, deleted: 0, failed: 0, duty_reminders: 0, pruned: null, push: { claimed: 1, sent: 1, failed: 0, dropped_tokens: 0 },
+      kept_alive: true, deleted: 0, failed: 0, duty_reminders: 0, due_reminders: 0, pruned: null, push: { claimed: 1, sent: 1, failed: 0, dropped_tokens: 0 },
     });
   });
 
