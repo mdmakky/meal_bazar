@@ -6,6 +6,8 @@ import 'package:meal_bazar/core/l10n/gen/app_localizations.dart';
 import 'package:meal_bazar/core/theme/app_theme.dart';
 import 'package:meal_bazar/features/auth/application/auth_providers.dart';
 import 'package:meal_bazar/features/auth/domain/profile.dart';
+import 'package:meal_bazar/features/meals/application/meal_providers.dart';
+import 'package:meal_bazar/features/meals/domain/meal.dart';
 import 'package:meal_bazar/features/mess/application/mess_providers.dart';
 import 'package:meal_bazar/features/mess/data/mess_repository.dart';
 import 'package:meal_bazar/features/mess/domain/member.dart';
@@ -79,6 +81,19 @@ Future<void> pump(
         ),
         amIManagerProvider.overrideWithValue(manager),
         membersProvider.overrideWith((ref, id) async => members),
+        mealTypesProvider.overrideWith(
+          (ref, id) async => const [
+            MealType(
+              id: 'dinner',
+              messId: 'mess1',
+              name: 'রাত',
+              sortOrder: 2,
+              weight: 1,
+              enabled: true,
+              serveTime: '21:00:00',
+            ),
+          ],
+        ),
       ],
       child: MaterialApp.router(
         theme: AppTheme.light(),
@@ -233,6 +248,7 @@ void main() {
           address: any(named: 'address'),
           monthStartDay: any(named: 'monthStartDay'),
           mealOffCutoff: any(named: 'mealOffCutoff'),
+          mealOffLead: any(named: 'mealOffLead'),
           fixedRate: any(named: 'fixedRate'),
           fixedMealRate: any(named: 'fixedMealRate'),
         ),
@@ -259,8 +275,89 @@ void main() {
           address: '',
           monthStartDay: 1,
           mealOffCutoff: '22:00:00',
+          mealOffLead: (minutes: null),
           fixedRate: true,
           fixedMealRate: 60,
+        ),
+      ).called(1);
+    });
+
+    testWidgets('meal-off deadline presets, example and custom hours', (
+      tester,
+    ) async {
+      when(
+        () => repo.updateMess(
+          any(),
+          name: any(named: 'name'),
+          address: any(named: 'address'),
+          monthStartDay: any(named: 'monthStartDay'),
+          mealOffCutoff: any(named: 'mealOffCutoff'),
+          mealOffLead: any(named: 'mealOffLead'),
+          fixedRate: any(named: 'fixedRate'),
+          fixedMealRate: any(named: 'fixedMealRate'),
+        ),
+      ).thenAnswer((_) async => mess);
+      await pump(tester, const MessSettingsScreen());
+      await tester.pumpAndSettle();
+
+      // No lead yet: the previous-day rule is selected, with its time.
+      expect(find.text(l.settingsLeadTitle), findsOneWidget);
+      expect(
+        tester
+            .widget<ChoiceChip>(find.byKey(const ValueKey('lead--1')))
+            .selected,
+        isTrue,
+      );
+      expect(find.text(l.settingsCutoff), findsOneWidget);
+      expect(
+        find.text(l.settingsLeadExample('রাতের', 'গতকাল রাত ১০টা')),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.text(l.settingsLeadHours('২')));
+      await tester.pumpAndSettle();
+      expect(find.text(l.settingsCutoff), findsNothing);
+      expect(
+        find.text(l.settingsLeadExample('রাতের', 'সন্ধ্যা ৭টা')),
+        findsOneWidget,
+      );
+      await save(tester);
+      verify(
+        () => repo.updateMess(
+          'mess1',
+          name: any(named: 'name'),
+          address: any(named: 'address'),
+          monthStartDay: any(named: 'monthStartDay'),
+          mealOffCutoff: any(named: 'mealOffCutoff'),
+          mealOffLead: (minutes: 120),
+          fixedRate: any(named: 'fixedRate'),
+          fixedMealRate: any(named: 'fixedMealRate'),
+        ),
+      ).called(1);
+
+      // Custom: hours (Bangla digits too), validated 0–48.
+      await tester.tap(find.text(l.settingsLeadCustom));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const ValueKey('lead-hours')), '৪৯');
+      await save(tester);
+      expect(find.text(l.settingsLeadCustomInvalid), findsOneWidget);
+      await tester.enterText(find.byKey(const ValueKey('lead-hours')), '০.৫');
+      await tester.pumpAndSettle();
+      expect(
+        find.text(l.settingsLeadExample('রাতের', 'রাত ৮:৩০')),
+        findsOneWidget,
+      );
+      await save(tester);
+      verify(
+        () => repo.updateMess(
+          'mess1',
+          name: any(named: 'name'),
+          address: any(named: 'address'),
+          monthStartDay: any(named: 'monthStartDay'),
+          mealOffCutoff: any(named: 'mealOffCutoff'),
+          mealOffLead: (minutes: 30),
+          fixedRate: any(named: 'fixedRate'),
+          fixedMealRate: any(named: 'fixedMealRate'),
         ),
       ).called(1);
     });
@@ -273,6 +370,7 @@ void main() {
           address: any(named: 'address'),
           monthStartDay: any(named: 'monthStartDay'),
           mealOffCutoff: any(named: 'mealOffCutoff'),
+          mealOffLead: any(named: 'mealOffLead'),
           fixedRate: any(named: 'fixedRate'),
           fixedMealRate: any(named: 'fixedMealRate'),
         ),
@@ -287,6 +385,7 @@ void main() {
           address: any(named: 'address'),
           monthStartDay: any(named: 'monthStartDay'),
           mealOffCutoff: any(named: 'mealOffCutoff'),
+          mealOffLead: any(named: 'mealOffLead'),
           fixedRate: false,
           fixedMealRate: null,
         ),

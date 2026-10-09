@@ -27,6 +27,14 @@ final dayEntriesProvider = FutureProvider.family<List<MealEntry>, MessDay>(
       ref.watch(mealRepositoryProvider).entriesForDay(key.messId, key.day),
 );
 
+/// Meal-off deadlines on a day by meal type id (SQL `meal_off_deadlines`).
+final mealOffDeadlinesProvider =
+    FutureProvider.family<Map<String, DateTime>, MessDay>(
+      (ref, key) => ref
+          .watch(mealRepositoryProvider)
+          .mealOffDeadlines(key.messId, key.day),
+    );
+
 typedef MealRange = ({
   String messId,
   DateTime from,
@@ -108,14 +116,17 @@ class MealController {
     String? name,
     double? weight,
     bool? enabled,
+    String? serveTime,
   }) async {
     await _repo.updateMealType(
       t.id,
       name: name,
       weight: weight,
       enabled: enabled,
+      serveTime: serveTime,
     );
     _ref.invalidate(mealTypesProvider(t.messId));
+    if (serveTime != null) _ref.invalidate(mealOffDeadlinesProvider);
     if (weight != null) _refreshMonth(t.messId);
   }
 

@@ -81,6 +81,8 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
       ref.invalidate(myActivityProvider(messId));
       ref.invalidate(unreadMessagesCountProvider(messId));
       ref.invalidate(unreadSplitProvider(messId));
+      ref.invalidate(mealOffDeadlinesProvider);
+      ref.invalidate(dayEntriesProvider);
       // Each section shows its own error; the spinner only waits.
       await Future.wait([
         ref.read(membersProvider(messId).future),
@@ -615,8 +617,8 @@ class _MemberHero extends ConsumerWidget {
   }
 }
 
-/// Member: today's meals for me, each with its on/off switch while the
-/// meal-off cutoff allows; after it, the way to switch tomorrow off.
+/// Member: my meals today, then tomorrow, each with its off/on switch and
+/// the SQL deadline ("সন্ধ্যা ৭টা পর্যন্ত"); past it the switch is disabled.
 class _MyToday extends ConsumerWidget {
   const _MyToday({required this.dayKey, required this.types});
 
@@ -626,21 +628,16 @@ class _MyToday extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
-    final bn = bnDigits(context);
     final text = Theme.of(context).textTheme;
     final p = context.palette;
     final myId = plainMemberId(ref);
-    final mess = ref.watch(currentMessProvider);
-    final mealOff = ref.featureOn('member_meal_off');
-    final canSwitch = mealOff && ownOffId(ref, dayKey.day) != null;
-    final grid = ref.watch(dayGridProvider(dayKey)).value;
     if (myId == null) return const SizedBox.shrink();
-    String value(MealEntry e) {
-      final own = e.isOff ? l.auditOff : Fmt.meals(e.count, banglaDigits: bn);
-      return e.guestCount > 0
-          ? '$own · ${l.todayGuestsProof(Fmt.digits('${e.guestCount}', bangla: bn))}'
-          : own;
-    }
+    final d = dayKey.day;
+    final tomorrow = (
+      messId: dayKey.messId,
+      day: DateTime(d.year, d.month, d.day + 1),
+    );
+    final enabled = types.where((t) => t.enabled).toList();
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -654,7 +651,7 @@ class _MyToday extends ConsumerWidget {
           AppSpace.lg,
           AppSpace.md,
           AppSpace.sm,
-          AppSpace.lg,
+          AppSpace.sm,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -663,54 +660,108 @@ class _MyToday extends ConsumerWidget {
               header: true,
               child: Text(l.myTodayTitle, style: text.titleMedium),
             ),
-            for (final t in types.where((t) => t.enabled))
-              Builder(
-                builder: (context) {
-                  final e = entryOrZero(grid, dayKey, myId, t.id);
-                  return SwitchListTile(
-                    key: ValueKey('my-${t.id}'),
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(t.name, style: text.bodyLarge),
-                    subtitle: Text(
-                      value(e),
-                      style: text.bodyMedium?.copyWith(
-                        color: e.isOff ? p.inkTertiary : p.inkSecondary,
-                        fontFeatures: const [FontFeature.tabularFigures()],
-                      ),
-                    ),
-                    value: !e.isOff,
-                    onChanged: canSwitch
-                        ? (_) => putEntry(
-                            context,
-                            ref,
-                            dayKey,
-                            toggleMealOff(e),
-                            own: true,
-                          )
-                        : null,
-                  );
-                },
+            for (final t in enabled)
+              _MyMealRow(dayKey: dayKey, type: t, memberId: myId),
+            Padding(
+              padding: const EdgeInsets.only(
+                top: AppSpace.md,
+                bottom: AppSpace.xs,
               ),
-            if (mealOff && mess != null) ...[
-              if (!canSwitch)
-                Text(
-                  l.mealOffCutoffPassed,
-                  style: text.bodySmall?.copyWith(color: p.inkTertiary),
-                ),
-              MealOffHint(cutoff: mess.mealOffCutoff, padded: false),
-              const SizedBox(height: AppSpace.md),
-              Padding(
-                padding: const EdgeInsetsDirectional.only(end: AppSpace.sm),
-                child: AppButton(
-                  label: l.mealOffTomorrow,
-                  icon: Icons.no_meals_outlined,
-                  variant: AppButtonVariant.secondary,
-                  expand: true,
-                  onPressed: () => offTomorrow(context, ref),
+              child: Semantics(
+                header: true,
+                child: Text(
+                  l.myTomorrow,
+                  style: text.labelLarge?.copyWith(color: p.inkSecondary),
                 ),
               ),
-            ],
+            ),
+            for (final t in enabled)
+              _MyMealRow(dayKey: tomorrow, type: t, memberId: myId),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// One meal of mine on a day: name, deadline line, my count, switch.
+class _MyMealRow extends ConsumerWidget {
+  const _MyMealRow({
+    required this.dayKey,
+    required this.type,
+    required this.memberId,
+  });
+
+  final MessDay dayKey;
+  final MealType type;
+  final String memberId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final bn = bnDigits(context);
+    final text = Theme.of(context).textTheme;
+    final p = context.palette;
+    final grid = ref.watch(dayGridProvider(dayKey)).value;
+    final e = entryOrZero(grid, dayKey, memberId, type.id);
+    final canOff = ownOffId(ref) != null;
+    final open = canOff && mealOffOpen(ref, dayKey, type.id);
+    final deadline = mealOffDeadlineOf(ref, dayKey, type.id);
+    final note = [
+      if (e.guestCount > 0)
+        l.todayGuestsProof(Fmt.digits('${e.guestCount}', bangla: bn)),
+      if (canOff && !open)
+        l.mealOffCutoffPassed
+      else if (canOff && deadline != null)
+        deadlineText(context, deadline, ref.watch(nowProvider)()),
+    ].join(' · ');
+    final VoidCallback? toggle = open
+        ? () => putEntry(context, ref, dayKey, toggleMealOff(e), own: true)
+        : null;
+
+    return MergeSemantics(
+      key: ValueKey('my-${isoDate(dayKey.day)}-${type.id}'),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        onTap: toggle,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: AppSize.touch + 8),
+          child: Row(
+            spacing: AppSpace.sm,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(type.name, style: text.bodyLarge),
+                    if (note.isNotEmpty)
+                      Text(
+                        note,
+                        style: text.bodySmall?.copyWith(color: p.inkSecondary),
+                      ),
+                  ],
+                ),
+              ),
+              Text(
+                e.isOff
+                    ? l.myMealOff
+                    : l.myMealCount(Fmt.meals(e.count, banglaDigits: bn)),
+                style: text.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: e.isOff ? p.inkTertiary : p.ink,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+              if (canOff)
+                Switch(
+                  value: !e.isOff,
+                  onChanged: toggle == null ? null : (_) => toggle(),
+                )
+              else
+                const SizedBox(width: AppSpace.sm),
+            ],
+          ),
         ),
       ),
     );

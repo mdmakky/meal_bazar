@@ -167,7 +167,6 @@
   "settingsTitle": "Mess settings",
   "settingsAddress": "Address (optional)",
   "settingsCutoff": "Meal-off cutoff",
-  "settingsCutoffHelp": "Members can switch a meal off until this time the day before",
   "settingsSave": "Save settings",
   "settingsSaved": "Settings saved",
   "settingsManagerOnly": "Only a manager can change settings",
@@ -711,10 +710,6 @@
       }
     }
   },
-  "mealOffTomorrow": "Tomorrow off",
-  "mealOffTomorrowTitle": "Which meals are off tomorrow?",
-  "mealOffSave": "Done",
-  "mealOffSaved": "Tomorrow's meals updated",
   "receiptAttach": "Receipt photo",
   "receiptScreenshot": "Payment screenshot (optional)",
   "receiptRemove": "Remove photo",
@@ -1617,5 +1612,23 @@
   "homeMsgManager": "Message manager",
   "homeUnreadCount": "{count} unread",
   "pushGroup": "Mess group",
-  "pushGroupSub": "New messages in the mess group. Off mutes the group"
+  "pushGroupSub": "New messages in the mess group. Off mutes the group",
+  "mealOffUntil": "until {time}",
+  "myMealCount": "Meals: {count}",
+  "myMealOff": "Off",
+  "myTomorrow": "Tomorrow",
+  "dayTomorrow": "tomorrow",
+  "dayYesterday": "yesterday",
+  "settingsLeadTitle": "Meal-off deadline",
+  "settingsLeadHelp": "How long before a meal members can still switch their own meal off or on",
+  "settingsLeadHours": "{hours} h before the meal",
+  "settingsLeadPrevDay": "Day before, {time}",
+  "settingsLeadCustom": "Custom",
+  "settingsLeadCustomLabel": "Hours before the meal (0–48)",
+  "settingsLeadCustomInvalid": "Enter 0 to 48 hours",
+  "settingsLeadExample": "Today's {meal} can be switched off until {time}",
+  "mealTypesServeTime": "Serving time",
+  "mealOffHintLead": "You can switch your meal off up to {hours} h before it",
+  "msgMealOff": "{name} switched off {meal} ({day})",
+  "msgMealOn": "{name} switched {meal} back on ({day})"
 }

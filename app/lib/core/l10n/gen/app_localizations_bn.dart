@@ -530,10 +530,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get settingsCutoff => 'মিল বন্ধের শেষ সময়';
 
   @override
-  String get settingsCutoffHelp =>
-      'সদস্যরা আগের দিন এই সময়ের মধ্যে মিল বন্ধ করতে পারবেন';
-
-  @override
   String get settingsSave => 'সেটিংস সেভ করুন';
 
   @override
@@ -1516,18 +1512,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String mealOffHint(String time) {
     return 'কালকের মিল বন্ধ করতে আজ রাত $timeটার আগে';
   }
-
-  @override
-  String get mealOffTomorrow => 'কাল মিল বন্ধ';
-
-  @override
-  String get mealOffTomorrowTitle => 'কাল কোন মিল বন্ধ থাকবে?';
-
-  @override
-  String get mealOffSave => 'ঠিক আছে';
-
-  @override
-  String get mealOffSaved => 'কালকের মিল আপডেট হলো';
 
   @override
   String get receiptAttach => 'রসিদের ছবি';
@@ -3259,4 +3243,75 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get pushGroupSub =>
       'গ্রুপে নতুন বার্তা এলে। বন্ধ করলে গ্রুপ মিউট থাকবে';
+
+  @override
+  String mealOffUntil(String time) {
+    return '$time পর্যন্ত';
+  }
+
+  @override
+  String myMealCount(String count) {
+    return '$count মিল';
+  }
+
+  @override
+  String get myMealOff => 'বন্ধ';
+
+  @override
+  String get myTomorrow => 'কাল';
+
+  @override
+  String get dayTomorrow => 'কাল';
+
+  @override
+  String get dayYesterday => 'গতকাল';
+
+  @override
+  String get settingsLeadTitle => 'মিল বন্ধের সময়সীমা';
+
+  @override
+  String get settingsLeadHelp =>
+      'খাবারের কতক্ষণ আগ পর্যন্ত সদস্যরা নিজের মিল বন্ধ বা চালু করতে পারবেন';
+
+  @override
+  String settingsLeadHours(String hours) {
+    return 'খাবারের $hours ঘণ্টা আগে';
+  }
+
+  @override
+  String settingsLeadPrevDay(String time) {
+    return 'আগের দিন $time';
+  }
+
+  @override
+  String get settingsLeadCustom => 'নিজে ঠিক করুন';
+
+  @override
+  String get settingsLeadCustomLabel => 'খাবারের কত ঘণ্টা আগে (০–৪৮)';
+
+  @override
+  String get settingsLeadCustomInvalid => '০ থেকে ৪৮ ঘণ্টার মধ্যে দিন';
+
+  @override
+  String settingsLeadExample(String meal, String time) {
+    return 'আজ $meal মিল বন্ধ করা যাবে $time পর্যন্ত';
+  }
+
+  @override
+  String get mealTypesServeTime => 'খাবারের সময়';
+
+  @override
+  String mealOffHintLead(String hours) {
+    return 'খাবারের $hours ঘণ্টা আগ পর্যন্ত নিজের মিল বন্ধ করা যায়';
+  }
+
+  @override
+  String msgMealOff(String name, String day, String meal) {
+    return '$name $day $meal মিল বন্ধ করেছেন';
+  }
+
+  @override
+  String msgMealOn(String name, String day, String meal) {
+    return '$name $day $meal মিল আবার চালু করেছেন';
+  }
 }

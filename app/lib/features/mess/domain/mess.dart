@@ -1,3 +1,6 @@
+/// A meal-off lead to save: `(minutes: null)` = the previous-day cutoff rule.
+typedef MealOffLead = ({int? minutes});
+
 class Mess {
   const Mess({
     required this.id,
@@ -5,6 +8,7 @@ class Mess {
     required this.monthStartDay,
     required this.currency,
     required this.mealOffCutoff,
+    this.mealOffLeadMinutes,
     this.address,
     this.createdBy,
     this.fixedRate = false,
@@ -17,6 +21,7 @@ class Mess {
     monthStartDay: (json['month_start_day'] as num).toInt(),
     currency: json['currency'] as String? ?? '৳',
     mealOffCutoff: json['meal_off_cutoff'] as String? ?? '22:00:00',
+    mealOffLeadMinutes: (json['meal_off_lead_minutes'] as num?)?.toInt(),
     address: json['address'] as String?,
     createdBy: json['created_by'] as String?,
     fixedRate: json['meal_rate_mode'] == 'fixed',
@@ -32,6 +37,10 @@ class Mess {
 
   /// Postgres `time`, e.g. '22:00:00'.
   final String mealOffCutoff;
+
+  /// How long before a meal's serve time a member may still switch it off
+  /// (0–2880). Null: the previous day at [mealOffCutoff] (PRODUCT_RULES §1).
+  final int? mealOffLeadMinutes;
   final String? address;
   final String? createdBy;
 

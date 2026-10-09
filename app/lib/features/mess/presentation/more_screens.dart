@@ -9,6 +9,10 @@ import '../../../core/failure_text.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
 import '../../../core/platform/platform_config.dart';
 import '../../../core/widgets/widgets.dart';
+import '../../meals/application/meal_providers.dart';
+import '../../meals/presentation/meal_grid.dart'
+    show clockText, mealOf, relativeDay;
+import '../../meals/presentation/meal_widgets.dart' show bnDigits;
 import '../../money/domain/money.dart' show parseAmount;
 import '../../messages/application/unread_provider.dart';
 import '../../notices/application/notice_providers.dart';
@@ -423,6 +427,10 @@ class _InviteScreenState extends ConsumerState<InviteScreen> {
   }
 }
 
+const _prevDay = -1;
+const _custom = -2;
+const _leadPresets = [60, 120, 240];
+
 class MessSettingsScreen extends ConsumerStatefulWidget {
   const MessSettingsScreen({super.key});
 
@@ -439,6 +447,11 @@ class _MessSettingsScreenState extends ConsumerState<MessSettingsScreen> {
   var _fixedRate = false;
   var _startDay = 1;
   var _cutoff = const TimeOfDay(hour: 22, minute: 0);
+
+  /// Meal-off lead in minutes; [_prevDay] = the previous-day cutoff rule,
+  /// [_custom] = the hours field.
+  var _lead = _prevDay;
+  final _hours = TextEditingController();
   var _saving = false;
 
   @override
@@ -446,6 +459,7 @@ class _MessSettingsScreenState extends ConsumerState<MessSettingsScreen> {
     _name.dispose();
     _address.dispose();
     _rate.dispose();
+    _hours.dispose();
     super.dispose();
   }
 
@@ -468,6 +482,7 @@ class _MessSettingsScreenState extends ConsumerState<MessSettingsScreen> {
             address: _address.text,
             monthStartDay: _startDay,
             mealOffCutoff: '${two(_cutoff.hour)}:${two(_cutoff.minute)}:00',
+            mealOffLead: (minutes: _leadMinutes),
             fixedRate: _fixedRate,
             fixedMealRate: _fixedRate ? parseAmount(_rate.text) : null,
           );
@@ -478,6 +493,115 @@ class _MessSettingsScreenState extends ConsumerState<MessSettingsScreen> {
       if (mounted) setState(() => _saving = false);
     }
   }
+
+  /// "মিল বন্ধের সময়সীমা": presets, the previous-day time or custom hours,
+  /// and a live example on the last meal of the day.
+  Widget _deadlineSection(BuildContext context, String messId) {
+    final l = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final p = context.palette;
+    final bn = bnDigits(context);
+    final cutoffText = clockText(context, _cutoff.hour, _cutoff.minute);
+    final choices = [
+      for (final m in _leadPresets)
+        (m, l.settingsLeadHours(Fmt.digits('${m ~/ 60}', bangla: bn))),
+      (_prevDay, l.settingsLeadPrevDay(cutoffText)),
+      (_custom, l.settingsLeadCustom),
+    ];
+    final types = ref.watch(mealTypesProvider(messId)).value ?? const [];
+    final last = types.where((t) => t.enabled).lastOrNull;
+    String? example;
+    final lead = _leadMinutes;
+    if (last != null && (lead == null || lead <= 2880)) {
+      final now = DateTime.now();
+      final day = DateTime.utc(now.year, now.month, now.day);
+      final [h, m, ...] = last.serveTime.split(':').map(int.parse).toList();
+      final at = lead == null
+          ? day
+                .subtract(const Duration(days: 1))
+                .add(Duration(hours: _cutoff.hour, minutes: _cutoff.minute))
+          : day.add(Duration(hours: h, minutes: m - lead));
+      final when = relativeDay(context, at, day);
+      final clock = clockText(context, at.hour, at.minute);
+      example = l.settingsLeadExample(
+        mealOf(context, last.name),
+        when.isEmpty ? clock : '$when $clock',
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(l.settingsLeadTitle, style: text.titleSmall),
+        const SizedBox(height: AppSpace.xs),
+        Text(l.settingsLeadHelp, style: text.bodySmall),
+        const SizedBox(height: AppSpace.sm),
+        Wrap(
+          spacing: AppSpace.sm,
+          runSpacing: AppSpace.xs,
+          children: [
+            for (final (v, label) in choices)
+              ChoiceChip(
+                key: ValueKey('lead-$v'),
+                label: Text(label),
+                selected: _lead == v,
+                onSelected: (_) => setState(() => _lead = v),
+              ),
+          ],
+        ),
+        if (_lead == _prevDay)
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            minTileHeight: AppSize.touch,
+            leading: const IconTile(Icons.schedule),
+            title: Text(l.settingsCutoff),
+            trailing: Text(
+              MaterialLocalizations.of(context).formatTimeOfDay(_cutoff),
+              style: text.titleSmall,
+            ),
+            onTap: _pickCutoff,
+          ),
+        if (_lead == _custom) ...[
+          const SizedBox(height: AppSpace.md),
+          TextFormField(
+            key: const ValueKey('lead-hours'),
+            controller: _hours,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration: InputDecoration(labelText: l.settingsLeadCustomLabel),
+            onChanged: (_) => setState(() {}),
+            validator: (v) {
+              final h = parseAmount(v ?? '');
+              return h == null || h < 0 || h > 48
+                  ? l.settingsLeadCustomInvalid
+                  : null;
+            },
+          ),
+        ],
+        if (example != null) ...[
+          const SizedBox(height: AppSpace.sm),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: AppSpace.sm,
+            children: [
+              Icon(Icons.info_outline, size: AppSpace.lg, color: p.inkTertiary),
+              Expanded(
+                child: Text(
+                  example,
+                  style: text.bodySmall?.copyWith(color: p.inkSecondary),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+
+  /// The lead to save; null = previous-day cutoff.
+  int? get _leadMinutes => switch (_lead) {
+    _prevDay => null,
+    _custom => ((parseAmount(_hours.text) ?? 0) * 60).round(),
+    final m => m,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -493,6 +617,15 @@ class _MessSettingsScreenState extends ConsumerState<MessSettingsScreen> {
       _startDay = mess.monthStartDay;
       final [h, m, ...] = mess.mealOffCutoff.split(':');
       _cutoff = TimeOfDay(hour: int.parse(h), minute: int.parse(m));
+      final lead = mess.mealOffLeadMinutes;
+      _lead = lead == null
+          ? _prevDay
+          : _leadPresets.contains(lead)
+          ? lead
+          : _custom;
+      _hours.text = lead == null || _lead != _custom
+          ? ''
+          : (lead % 60 == 0 ? '${lead ~/ 60}' : '${lead / 60}');
       _fixedRate = mess.fixedRate;
       _rate.text = switch (mess.fixedMealRate) {
         null => '',
@@ -533,18 +666,7 @@ class _MessSettingsScreenState extends ConsumerState<MessSettingsScreen> {
                 onChanged: (d) => setState(() => _startDay = d),
               ),
               const SizedBox(height: AppSpace.lg),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                minTileHeight: AppSize.touch,
-                leading: const IconTile(Icons.schedule),
-                title: Text(l.settingsCutoff),
-                subtitle: Text(l.settingsCutoffHelp),
-                trailing: Text(
-                  MaterialLocalizations.of(context).formatTimeOfDay(_cutoff),
-                  style: Theme.of(context).textTheme.titleSmall,
-                ),
-                onTap: _pickCutoff,
-              ),
+              _deadlineSection(context, mess!.id),
               // Kept while the mess already uses a fixed rate.
               if (ref.featureOn('fixed_rate') || _fixedRate) ...[
                 const SizedBox(height: AppSpace.lg),

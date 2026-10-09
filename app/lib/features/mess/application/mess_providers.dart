@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/db/db.dart';
 import '../../../core/supabase.dart';
 import '../../auth/application/auth_providers.dart';
+import '../../meals/application/meal_providers.dart';
 import '../../month/application/month_providers.dart';
 import '../../push/application/push_service.dart';
 import '../data/mess_repository.dart';
@@ -146,6 +147,7 @@ class MessController {
     String? address,
     int? monthStartDay,
     String? mealOffCutoff,
+    MealOffLead? mealOffLead,
     bool? fixedRate,
     double? fixedMealRate,
   }) async {
@@ -155,12 +157,14 @@ class MessController {
       address: address,
       monthStartDay: monthStartDay,
       mealOffCutoff: mealOffCutoff,
+      mealOffLead: mealOffLead,
       fixedRate: fixedRate,
       fixedMealRate: fixedMealRate,
     );
     _ref.invalidate(myMembershipsProvider);
     // The rate mode changes every month figure.
     monthProviders(messId).forEach(_ref.invalidate);
+    _ref.invalidate(mealOffDeadlinesProvider);
     return mess;
   }
 
