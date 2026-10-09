@@ -18,7 +18,9 @@ import '../../meals/presentation/meals_screen.dart' show showAddChooser;
 import '../../meals/presentation/meal_widgets.dart';
 import '../../mess/application/mess_providers.dart';
 import '../../mess/domain/member.dart';
+import '../../messages/application/message_providers.dart';
 import '../../messages/application/unread_provider.dart';
+import '../../messages/presentation/message_shortcuts.dart';
 import '../../money/application/money_providers.dart';
 import '../../money/presentation/money_screen.dart'
     show balanceWord, showBillSheet;
@@ -78,6 +80,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
       ref.invalidate(depositsProvider(messId));
       ref.invalidate(myActivityProvider(messId));
       ref.invalidate(unreadMessagesCountProvider(messId));
+      ref.invalidate(unreadSplitProvider(messId));
       // Each section shows its own error; the spinner only waits.
       await Future.wait([
         ref.read(membersProvider(messId).future),
@@ -127,6 +130,9 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                     onToday: () => setState(() => _day = today()),
                   )
                 : _MemberHero(messId: messId),
+          ),
+          SliverToBoxAdapter(
+            child: MessageShortcuts(messId: messId, manager: manager),
           ),
           if (!hasMembers)
             SliverFillRemaining(
