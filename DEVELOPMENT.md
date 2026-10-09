@@ -31,6 +31,15 @@ Only the publishable/anon key goes into the app; RLS protects the data. Never pu
   - **Phone**: off. Phone OTP code is kept but unrouted until an SMS provider (e.g. Twilio) is funded.
 - Run the tests with `./supabase/tests/run.sh`. It creates a throwaway local database, stubs `auth.uid()` and the Supabase roles, applies all migrations, and runs every `supabase/tests/*_test.sql`.
 
+## Push notifications (FCM)
+Firebase project `meal-bazar-bd869`. Flow: an AFTER trigger queues a row in `push_outbox` (DATABASE.md, Push) → pg_net pokes the gateway's `/api/push/dispatch` → FCM HTTP v1 → the phone. The daily cron drains anything left.
+1. **App config:** Firebase console → Project settings → Your apps → the Android app `com.mealbazar.meal_bazar` → download `google-services.json` into `app/android/app/`. Add the debug and release/Play SHA-1s there too. Gradle applies the google-services plugin only when that file exists: without it the build prints a warning and push is silently off (Firebase init fails quietly, nothing else changes).
+2. **Database:** apply `0019_push.sql` (`npx supabase db push`). It enables `pg_net` where available. Then, in the admin panel → Credentials (or `select admin_set_secret(...)` as an admin), set `PUSH_GATEWAY_URL` = the gateway base URL (e.g. `https://<project>.vercel.app`, no path) and `PUSH_DISPATCH_SECRET` = a long random string (`openssl rand -hex 32`). Without both, nothing is poked and pushes wait for the daily cron.
+3. **Gateway:** `FIREBASE_SERVICE_ACCOUNT` (the full service-account JSON) must be set on Vercel; optionally `PUSH_DISPATCH_SECRET` as a fallback for the DB value. Redeploy (`vercel deploy --prod`) so `/api/push/dispatch` exists.
+4. **Check:** sign in on a phone (the token lands in `device_tokens`), have another member add a bazar, and look at `push_outbox` (`sent_at`, `last_error`). The platform flag `features.push = false` turns it all off.
+
+The app asks for the notification permission after a mess is created or joined, and from the notification settings screen; never on first launch.
+
 ## Release (Android)
 1. **Upload keystore** (once; back it up outside the repo, since losing it means asking Play for an upload-key reset):
    ```sh
@@ -64,6 +73,6 @@ Don't move to the next phase while any of these fail. Commit each part to `main`
 - [ ] **Phase 5**: Drift offline mirror and sync queue (blocked: drift_dev needs Dart 3.10, so upgrade Flutter first)
 - [x] **Phase 6**: AI gateway, meal draft, receipt scan
 - [x] Meal-off cutoff for members, deposit verification, receipt photos
-- [ ] **Phase 7**: FCM push notifications (needs a Firebase project)
+- [x] **Phase 7**: FCM push notifications (outbox + triggers, gateway dispatch, per-type settings, due reminders)
 - [x] Account deletion and audit log screen (Play Store and v1.1)
 - [x] Hard-delete auth users from `deletion_requests` (daily gateway cron)

@@ -27,7 +27,7 @@
 | Flutter `application/` | Riverpod providers: loading/error state, orchestration | Widgets, SQL |
 | Flutter `domain/` | Immutable models, input validators (phone, amount, meal count) | I/O |
 | Flutter `presentation/` | Screens and widgets from the design system | Supabase calls, calculations |
-| Vercel `ai-gateway/` | Prompting, provider fallback, schema validation, quota, AI audit rows | Writing business data (it returns drafts only) |
+| Vercel `ai-gateway/` | Prompting, provider fallback, schema validation, quota, AI audit rows, sending queued pushes (FCM) | Writing business data (it returns drafts only) |
 
 ## Flutter layout
 ```
@@ -70,4 +70,5 @@ Phases 1–4 write straight to Supabase through repositories. Phase 5 adds Drift
 See REQUIREMENTS §6. In terms of architecture:
 - Vercel is never in the hot path, so a Vercel outage only disables AI.
 - A daily Vercel cron calls a cheap Supabase RPC, which keeps the free project from pausing, and also sends the day's reminders.
+- Push: Postgres AFTER triggers queue `push_outbox` rows and poke the gateway through pg_net after commit; the gateway sends them with FCM HTTP v1. A Vercel or FCM outage only delays pushes (the daily cron retries); it never blocks a write.
 - Images are compressed on the device (max 1280 px, JPEG quality 70) before they are uploaded or sent to the AI.
