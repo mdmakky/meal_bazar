@@ -52,8 +52,9 @@ Seeded keys and their defaults:
 - The **launcher icon and the home-screen app name cannot change without a new release**, which is an Android limitation. The admin UI says so.
 
 ### Feature flags: the full list in `features` (all default true)
-`ai, ai_meal_draft, ai_bazar_scan, receipts, notices, duty, reminders, export, recurring, split, fixed_rate, google_login, email_login, member_meal_off, guest_meals, member_deposits, deposit_verification, dashboard_charts, pdf_report, share_bills, due_reminders, cook_share, bazar_picker, meal_defaults, audit_log, offline_mode, setup_checklist, invite_qr, push`.
+`ai, ai_meal_draft, ai_bazar_scan, receipts, notices, duty, reminders, export, recurring, split, fixed_rate, google_login, email_login, member_meal_off, guest_meals, member_deposits, deposit_verification, dashboard_charts, pdf_report, share_bills, due_reminders, cook_share, bazar_picker, meal_defaults, audit_log, offline_mode, setup_checklist, invite_qr, push, messages`.
 `push` (0019) stops all push queueing in the DB and hides the push settings and the due-reminder button in the app.
+`messages` (0022) hides member ↔ manager messages and "report a problem" in the app and stops `message` pushes.
 A flag that is false hides every entry point of that feature in the app. The data and code stay in place. Unknown keys are ignored, and a missing key counts as true.
 
 ### Platform credentials (write-only)

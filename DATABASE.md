@@ -115,6 +115,20 @@ Admin RPCs (security definer; `NOT_PLATFORM_ADMIN` otherwise): `admin_stats()`, 
 
 `delete_my_account()` also deletes the caller's device tokens and queued pushes.
 
+### Messages (0022)
+Member ↔ manager messages (not real-time chat) and "report a problem" about an entry. A thread is between one member and all of the mess's managers.
+| Object | Purpose |
+|---|---|
+| `message_threads` | `mess_id`, `member_id` (the member side), `subject` ≤ 80, `ref_type` (deposit/bazar/expense/meal/other, nullable), `ref_id`, `ref_label` ≤ 120, `status` open/resolved, `created_by`, `last_message_at`. Read by the thread's member and the mess's active managers (`can_see_thread`); nobody else. No client write policies. Suspension trigger. |
+| `messages` | `thread_id`, `mess_id`, `sender_id` (auth user, null after account deletion), `body` 1–1000. Append-only: read like its thread, no update/delete for anyone. Suspension trigger. |
+| `message_reads` | `(thread_id, user_id)` pk, `read_at`. Each user reads only their own rows; written by `mark_thread_read`. |
+| `message_thread_feed` view | My visible threads + `member_name`, `last_body`, `last_sender_id`, `is_unread` (a message from someone else after my last read). |
+| `start_thread(p_id, p_mess, p_subject, p_body, p_ref_type, p_ref_id, p_ref_label, p_member, p_message_id) → uuid` | A member opens a thread as themselves; a manager may pass `p_member`. Idempotent on `p_id`. `NOT_MANAGER` / `NOT_MEMBER`. |
+| `post_message(p_id, p_thread, p_body)` | A participant appends (idempotent on `p_id`); the member writing into a resolved thread reopens it. `NOT_MEMBER` for a thread I can't see. |
+| `set_thread_status(p_thread, p_status)` | Managers resolve/reopen; the member may only reopen (`NOT_MANAGER`). |
+| `mark_thread_read(p_thread)`, `unread_thread_count(p_mess) → int` | My read mark; my unread threads in a mess. |
+| push `message` | AFTER INSERT on `messages`: the member writes → every active manager; a manager writes → the member. Title `বার্তা: <subject>` / `Message: <subject>`, body `<sender>: <text>`, route `/more/messages/<thread_id>`. Off when the `push` or `messages` flag is false or the user's `message` pref is false. |
+
 ## Error codes
 RPCs and triggers raise `errcode 'P0001'` with a short message key that the app maps to bn/en text: `MONTH_CLOSED`, `LAST_MANAGER`, `INVALID_INVITE`, `ALREADY_MEMBER`, `NOT_MANAGER`, `REASON_REQUIRED`, `MESS_SUSPENDED`, `USER_SUSPENDED`, `NOT_PLATFORM_ADMIN`, `LAST_ADMIN`, `INVALID_CONFIG`, `TOO_SOON`.
 
