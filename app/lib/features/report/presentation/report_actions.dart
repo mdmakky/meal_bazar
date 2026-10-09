@@ -14,32 +14,45 @@ import '../../money/data/money_repository.dart' show allPages;
 import '../../month/application/month_providers.dart';
 import '../application/report_pdf.dart';
 
-/// Builds the current month's report and opens the system share sheet.
-Future<void> shareMonthReport(BuildContext context, {required String messId}) =>
-    _run(
-      context,
-      messId,
-      (bytes, name) => Printing.sharePdf(bytes: bytes, filename: name),
-    );
+/// Builds the report of the month containing [day] (default: the current
+/// month) and opens the system share sheet.
+Future<void> shareMonthReport(
+  BuildContext context, {
+  required String messId,
+  DateTime? day,
+}) => _run(
+  context,
+  messId,
+  day,
+  (bytes, name) => Printing.sharePdf(bytes: bytes, filename: name),
+);
 
-/// Builds the current month's report and opens the system print dialog.
-Future<void> printMonthReport(BuildContext context, {required String messId}) =>
-    _run(
-      context,
-      messId,
-      (bytes, name) => Printing.layoutPdf(onLayout: (_) => bytes, name: name),
-    );
+/// Same report, opened in the system print dialog.
+Future<void> printMonthReport(
+  BuildContext context, {
+  required String messId,
+  DateTime? day,
+}) => _run(
+  context,
+  messId,
+  day,
+  (bytes, name) => Printing.layoutPdf(onLayout: (_) => bytes, name: name),
+);
 
 Future<void> _run(
   BuildContext context,
   String messId,
+  DateTime? day,
   Future<Object?> Function(Uint8List bytes, String filename) deliver,
 ) async {
   final ref = ProviderScope.containerOf(context, listen: false);
   final locale = Localizations.localeOf(context).languageCode;
   final messenger = ScaffoldMessenger.maybeOf(context);
   try {
-    final period = await ref.read(currentPeriodProvider(messId).future);
+    final months = ref.read(monthRepositoryProvider);
+    final period = day == null
+        ? await ref.read(currentPeriodProvider(messId).future)
+        : await months.period(messId, day);
     final money = ref.read(moneyRepositoryProvider);
     final members = await ref.read(membersProvider(messId).future);
     final data = ReportData(
@@ -54,14 +67,14 @@ Future<void> _run(
       closed: (await ref.read(
         monthsProvider(messId).future,
       )).any((m) => m.closed && m.start == period.start),
-      totals: await ref.read(monthTotalsProvider(messId).future),
-      balances: await ref.read(memberBalancesProvider(messId).future),
+      totals: await months.totals(messId, period),
+      balances: await months.balances(messId, period),
       members: members,
       mealTypes: await ref.read(mealTypesProvider(messId).future),
       entries: await ref
           .read(mealRepositoryProvider)
           .entriesForRange(messId, period.start, period.end),
-      dayTotals: await ref.read(dailyMealsProvider(messId).future),
+      dayTotals: await months.dailyMeals(messId, period),
       bazars: await allPages(
         (from) => money.bazars(messId, period, from: from),
       ),

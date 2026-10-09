@@ -4,10 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/dates.dart';
 import '../../../core/failure_text.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
+import '../../../core/platform/platform_config.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../mess/application/mess_providers.dart';
 import '../../mess/presentation/common.dart';
 import '../../month/application/month_providers.dart';
+import '../../report/presentation/report_actions.dart';
 import '../application/money_providers.dart';
 import '../domain/money.dart';
 import 'money_sheets.dart';
@@ -132,6 +134,18 @@ class _MonthsScreenState extends ConsumerState<MonthsScreen> {
               ],
             ),
           ),
+          if (ref.featureOn('pdf_report'))
+            PopupMenuButton<bool>(
+              tooltip: l.reportTitle,
+              icon: const Icon(Icons.picture_as_pdf_outlined),
+              onSelected: (print) => print
+                  ? printMonthReport(context, messId: messId, day: m.start)
+                  : shareMonthReport(context, messId: messId, day: m.start),
+              itemBuilder: (_) => [
+                PopupMenuItem(value: false, child: Text(l.reportShare)),
+                PopupMenuItem(value: true, child: Text(l.reportPrint)),
+              ],
+            ),
           if (isManager && m.closed)
             TextButton(
               onPressed: () => _reopen(context, messId, m),
