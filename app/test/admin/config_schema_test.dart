@@ -25,12 +25,13 @@ ModelInfo model(
 );
 
 void main() {
-  test('feature list has all 29 flags (v2 + push), each once', () {
-    expect(allFlags.length, 29);
-    expect(allFlags.toSet().length, 29);
+  test('feature list has all 30 flags (v2 + push + messages), each once', () {
+    expect(allFlags.length, 30);
+    expect(allFlags.toSet().length, 30);
     for (final f in [
       'ai',
       'push',
+      'messages',
       'invite_qr',
       'offline_mode',
       'cook_share',

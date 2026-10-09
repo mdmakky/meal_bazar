@@ -54,12 +54,17 @@ class PushService {
     required this.repo,
     required this.notifications,
     required this.navigate,
+    this.onArrive,
   });
 
   final PushMessaging messaging;
   final PushRepository repo;
   final LocalNotifications notifications;
   final void Function(String route) navigate;
+
+  /// The route of each push that arrives while the app is open, so an open
+  /// screen (a message thread) can refresh itself.
+  final void Function(String route)? onArrive;
 
   bool _signedIn = false;
   bool _wired = false;
@@ -93,6 +98,8 @@ class PushService {
       (t) => _register(t).catchError((Object e) => debugPrint('push: $e')),
     );
     messaging.onMessage.listen((m) async {
+      final route = pushRoute(m.data);
+      if (route != null) onArrive?.call(route);
       final n = m.notification;
       if (n == null) return;
       try {
@@ -102,7 +109,7 @@ class PushService {
           id: 1000 + DateTime.now().millisecondsSinceEpoch % 1000000,
           title: n.title ?? '',
           body: n.body ?? '',
-          route: pushRoute(m.data),
+          route: route,
         );
       } catch (e) {
         debugPrint('push: $e');
@@ -150,7 +157,20 @@ final Provider<PushService> pushServiceProvider = Provider<PushService>(
     repo: ref.watch(pushRepositoryProvider),
     notifications: ref.watch(localNotificationsProvider),
     navigate: (route) => ref.read(routerProvider).go(route),
+    onArrive: ref.watch(pushArrivalsProvider).add,
   ),
+);
+
+/// Routes of pushes received while the app is open (see [PushService.onArrive]).
+final pushArrivalsProvider = Provider<StreamController<String>>((ref) {
+  final c = StreamController<String>.broadcast();
+  ref.onDispose(c.close);
+  return c;
+});
+
+/// The latest arrival; watch or listen to refresh on a push.
+final pushArrivalProvider = StreamProvider<String>(
+  (ref) => ref.watch(pushArrivalsProvider).stream,
 );
 
 /// Registers the device on sign-in (and token refresh) while the platform

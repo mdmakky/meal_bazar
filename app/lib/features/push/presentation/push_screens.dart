@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/failure_text.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
+import '../../../core/platform/platform_config.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../mess/application/mess_providers.dart';
 import '../../mess/presentation/common.dart';
@@ -56,6 +57,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
       l.pushMonthClosedSub,
     ),
     PushType.dueReminder => (Icons.payments_outlined, l.pushDue, l.pushDueSub),
+    PushType.message => (Icons.forum_outlined, l.pushMessage, l.pushMessageSub),
   };
 
   @override
@@ -136,7 +138,8 @@ class NotificationSettingsScreen extends ConsumerWidget {
               RaisedGroup(
                 children: [
                   for (final t in PushType.values)
-                    if (isManager || !t.managerOnly)
+                    if ((isManager || !t.managerOnly) &&
+                        (t != PushType.message || ref.featureOn('messages')))
                       _toggle(
                         context,
                         _copy(l, t),

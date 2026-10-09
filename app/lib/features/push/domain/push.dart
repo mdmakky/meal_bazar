@@ -1,4 +1,5 @@
-/// Push types the server sends (supabase/migrations/0019_push.sql). [key] is
+/// Push types the server sends (supabase/migrations/0019_push.sql,
+/// `message` from 0022_messages.sql). [key] is
 /// the `push_outbox.type` and the `profiles.notification_prefs` key.
 enum PushType {
   joinRequest('join_request', managerOnly: true),
@@ -9,7 +10,8 @@ enum PushType {
   bazarAdded('bazar_added'),
   expenseAdded('expense_added'),
   monthClosed('month_closed'),
-  dueReminder('due_reminder');
+  dueReminder('due_reminder'),
+  message('message');
 
   const PushType(this.key, {this.managerOnly = false});
 
