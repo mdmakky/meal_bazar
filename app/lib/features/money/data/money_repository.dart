@@ -29,7 +29,7 @@ class MoneyRepository {
           final rows = await guard(
             () => _client
                 .from('bazars')
-                .select('*, bazar_items(*)')
+                .select('*, bazar_items(*), bazar_buyers(member_id)')
                 .eq('mess_id', messId)
                 .isFilter('deleted_at', null)
                 .gte('date', isoDate(p.start))
@@ -64,7 +64,10 @@ class MoneyRepository {
               messId: b.messId,
               date: DateTime.parse(b.date),
               amount: b.amount,
-              buyerMemberId: b.buyerMemberId,
+              buyers: switch (b.buyerIds) {
+                final ids? when ids.isNotEmpty => ids.split(','),
+                _ => [?b.buyerMemberId],
+              },
               paidByMemberId: b.paidByMemberId,
               note: b.note,
               source: b.source,
@@ -153,6 +156,7 @@ class MoneyRepository {
             date: isoDate(b.date),
             amount: b.amount,
             buyerMemberId: Value(b.buyerMemberId),
+            buyerIds: Value(b.buyers.join(',')),
             paidByMemberId: Value(b.paidByMemberId),
             note: Value(b.note),
             source: b.source,
@@ -166,6 +170,7 @@ class MoneyRepository {
               date: excluded.date,
               amount: excluded.amount,
               buyerMemberId: excluded.buyerMemberId,
+              buyerIds: excluded.buyerIds,
               paidByMemberId: excluded.paidByMemberId,
               note: excluded.note,
               source: excluded.source,
@@ -250,7 +255,7 @@ class MoneyRepository {
   });
 
   /// Saves locally and queues the upsert (client id → idempotent; item lines
-  /// are replaced). Waits for one sync attempt; offline it returns at once.
+  /// and buyers are replaced, buyers via `set_bazar_buyers`). Waits for one sync attempt; offline it returns at once.
   Future<void> saveBazar(Bazar b) => guard(() async {
     final now = DateTime.now().toUtc();
     await _db.transaction(() async {
@@ -258,6 +263,7 @@ class MoneyRepository {
       await _db.enqueue('bazars', b.id, uuidV4(), {
         ...b.toJson(),
         'bazar_items': b.itemsJson(),
+        'bazar_buyers': b.buyers,
       });
     });
     await _sync.drain();

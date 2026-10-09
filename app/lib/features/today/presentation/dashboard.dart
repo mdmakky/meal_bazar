@@ -576,7 +576,7 @@ class _RecentBazar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final bn = bnDigits(context);
-    final names = {
+    final names = <String, String>{
       for (final m in ref.watch(membersProvider(messId)).value ?? const [])
         m.id: m.displayName,
     };
@@ -592,7 +592,7 @@ class _RecentBazar extends ConsumerWidget {
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: AppSpace.lg,
                   ),
-                  title: Text(names[b.buyerMemberId] ?? l.bazarTitle),
+                  title: Text(b.buyerNames(names) ?? l.bazarTitle),
                   subtitle: Text(shortDate(context, b.date)),
                   trailing: Money(b.amount, banglaDigits: bn),
                   onTap: () => showBazarDetail(context, b),

@@ -27,9 +27,17 @@ Push supabasePush(SupabaseClient c) => (entity, p) async {
       );
     case 'bazars':
       final items = p.remove('bazar_items') as List;
+      // Ops queued before buyers existed have none: leave the server's alone.
+      final buyers = p.remove('bazar_buyers') as List?;
       requireRows(await c.from('bazars').upsert(p).select('id'));
       await c.from('bazar_items').delete().eq('bazar_id', p['id'] as String);
       if (items.isNotEmpty) await c.from('bazar_items').insert(items);
+      if (buyers != null) {
+        await c.rpc(
+          'set_bazar_buyers',
+          params: {'p_bazar': p['id'], 'p_members': buyers},
+        );
+      }
     default:
       throw AppFailure(FailureKind.validation, 'unknown entity $entity');
   }
