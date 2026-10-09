@@ -24,7 +24,7 @@ class MessRepository {
             .select('*, messes(*)')
             .eq('user_id', uid)
             .neq('status', MemberStatus.left.name)
-            .order('created_at')
+            .order('created_at', ascending: true)
             .retry(enabled: false);
         final key = 'memberships:$uid';
         final rows = onStale == null
@@ -76,8 +76,8 @@ class MessRepository {
           .from('mess_members')
           .select()
           .eq('mess_id', messId)
-          .order('joined_on')
-          .order('display_name')
+          .order('joined_on', ascending: true)
+          .order('display_name', ascending: true)
           .retry(enabled: false),
     );
     return rows.map(Member.fromJson).toList();

@@ -25,8 +25,8 @@ class DutyRepository {
             .eq('mess_id', messId)
             .gte('date', isoDate(from))
             .lte('date', isoDate(to))
-            .order('date')
-            .order('created_at');
+            .order('date', ascending: true)
+            .order('created_at', ascending: true);
         return rows.map(BazarDuty.fromJson).toList();
       });
 

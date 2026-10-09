@@ -15,8 +15,8 @@ class RecurringRepository {
         .from('recurring_expenses')
         .select()
         .eq('mess_id', messId)
-        .order('day_of_period')
-        .order('created_at');
+        .order('day_of_period', ascending: true)
+        .order('created_at', ascending: true);
     return rows.map(RecurringExpense.fromJson).toList();
   });
 

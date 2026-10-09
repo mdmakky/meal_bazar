@@ -36,7 +36,7 @@ class MoneyRepository {
                 .lt('date', isoDate(p.end))
                 .order('date', ascending: false)
                 .order('created_at', ascending: false)
-                .order('sort', referencedTable: 'bazar_items')
+                .order('sort', ascending: true, referencedTable: 'bazar_items')
                 .range(from, from + moneyPageSize - 1)
                 .retry(enabled: false),
           );
@@ -245,7 +245,7 @@ class MoneyRepository {
         .select()
         .eq('mess_id', messId)
         .eq('archived', false)
-        .order('sort_order');
+        .order('sort_order', ascending: true);
     return rows.map(ExpenseCategory.fromJson).toList();
   });
 
