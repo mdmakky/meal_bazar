@@ -97,20 +97,22 @@ class AuthRepository {
 
   Future<void> signOut() => guard(() => _auth.signOut());
 
-  /// Cached, so an offline cold start still gets past the router.
-  Future<Profile> fetchMyProfile() => guard(() async {
+  /// Cached, so an offline cold start still gets past the router; with
+  /// [onStale], answered from the cache first (see [AppDb.cachedFirst]).
+  Future<Profile> fetchMyProfile({void Function()? onStale}) => guard(() async {
     final uid = _requireUserId();
-    final rows = await _db.cachedRows(
-      'profile:$uid',
-      () async => [
-        await _client
-            .from('profiles')
-            .select()
-            .eq('id', uid)
-            .single()
-            .retry(enabled: false),
-      ],
-    );
+    Future<List<Map<String, dynamic>>> fetch() async => [
+      await _client
+          .from('profiles')
+          .select()
+          .eq('id', uid)
+          .single()
+          .retry(enabled: false),
+    ];
+    final key = 'profile:$uid';
+    final rows = onStale == null
+        ? await _db.cachedRows(key, fetch)
+        : await _db.cachedFirst(key, fetch, onChanged: onStale);
     return Profile.fromJson(rows.single);
   });
 

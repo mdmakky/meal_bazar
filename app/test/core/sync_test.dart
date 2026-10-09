@@ -151,6 +151,35 @@ void main() {
     );
   });
 
+  test('cachedFirst answers from cache, then flags a changed server', () async {
+    var changed = 0;
+    final first = await db.cachedFirst(
+      'k',
+      () async => [
+        {'id': 'a'},
+      ],
+      onChanged: () => changed++,
+    );
+    expect(first.single['id'], 'a', reason: 'no cache: fetched');
+    final stale = await db.cachedFirst(
+      'k',
+      () async => [
+        {'id': 'b'},
+      ],
+      onChanged: () => changed++,
+    );
+    expect(stale.single['id'], 'a');
+    await pumpEventQueue();
+    expect(changed, 1);
+    expect(
+      (await db.cachedRows(
+        'k',
+        () async => throw const SocketException('x'),
+      )).single['id'],
+      'b',
+    );
+  });
+
   test('discard removes only failed ops', () async {
     await enqueue('op1');
     await db.discard(['op1']);

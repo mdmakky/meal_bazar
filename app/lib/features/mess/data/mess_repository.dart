@@ -12,23 +12,26 @@ class MessRepository {
   final AppDb _db;
 
   /// My memberships (pending, active, inactive), oldest first. Cached for
-  /// offline start.
-  Future<List<Membership>> myMemberships() => guard(() async {
-    final uid =
-        _client.auth.currentUser?.id ??
-        (throw const AppFailure(FailureKind.notAuthenticated));
-    final rows = await _db.cachedRows(
-      'memberships:$uid',
-      () => _client
-          .from('mess_members')
-          .select('*, messes(*)')
-          .eq('user_id', uid)
-          .neq('status', MemberStatus.left.name)
-          .order('created_at')
-          .retry(enabled: false),
-    );
-    return rows.map(Membership.fromJson).toList();
-  });
+  /// offline start; with [onStale], answered from the cache first (see
+  /// [AppDb.cachedFirst]).
+  Future<List<Membership>> myMemberships({void Function()? onStale}) =>
+      guard(() async {
+        final uid =
+            _client.auth.currentUser?.id ??
+            (throw const AppFailure(FailureKind.notAuthenticated));
+        Future<List<Map<String, dynamic>>> fetch() => _client
+            .from('mess_members')
+            .select('*, messes(*)')
+            .eq('user_id', uid)
+            .neq('status', MemberStatus.left.name)
+            .order('created_at')
+            .retry(enabled: false);
+        final key = 'memberships:$uid';
+        final rows = onStale == null
+            ? await _db.cachedRows(key, fetch)
+            : await _db.cachedFirst(key, fetch, onChanged: onStale);
+        return rows.map(Membership.fromJson).toList();
+      });
 
   /// Returns the new mess id; the caller becomes its manager.
   Future<String> createMess({

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
@@ -108,19 +109,47 @@ class AppDb extends _$AppDb {
     Future<List<Map<String, dynamic>>> Function() fetch,
   ) async {
     try {
-      final rows = await guard(fetch);
+      // A stalled connection counts as offline rather than a frozen screen.
+      final rows = await guard(
+        () => fetch().timeout(const Duration(seconds: 10)),
+      );
       await into(jsonCache).insertOnConflictUpdate(
         JsonCacheCompanion.insert(key: key, json: jsonEncode(rows)),
       );
       return rows;
     } on AppFailure catch (e) {
       if (e.kind != FailureKind.network) rethrow;
-      final hit = await (select(
-        jsonCache,
-      )..where((c) => c.key.equals(key))).getSingleOrNull();
+      final hit = await _cached(key);
       if (hit == null) rethrow;
-      return (jsonDecode(hit.json) as List).cast<Map<String, dynamic>>();
+      return hit;
     }
+  }
+
+  /// Stale-while-revalidate: with a cached copy of [key], answers from it at
+  /// once and refreshes it in the background, calling [onChanged] if the
+  /// server's rows differ. Without one, same as [cachedRows]. For reads that
+  /// gate the first screen, so a cold start doesn't wait on the network.
+  Future<List<Map<String, dynamic>>> cachedFirst(
+    String key,
+    Future<List<Map<String, dynamic>>> Function() fetch, {
+    required void Function() onChanged,
+  }) async {
+    final hit = await _cached(key);
+    if (hit == null) return cachedRows(key, fetch);
+    unawaited(
+      cachedRows(key, fetch).then((fresh) {
+        if (jsonEncode(fresh) != jsonEncode(hit)) onChanged();
+      }, onError: (Object _) {}),
+    );
+    return hit;
+  }
+
+  Future<List<Map<String, dynamic>>?> _cached(String key) async {
+    final hit = await (select(
+      jsonCache,
+    )..where((c) => c.key.equals(key))).getSingleOrNull();
+    if (hit == null) return null;
+    return (jsonDecode(hit.json) as List).cast<Map<String, dynamic>>();
   }
 
   /// Queues an upsert; it replaces any not-yet-sent op for the same row, so
@@ -222,6 +251,8 @@ class AppDb extends _$AppDb {
 /// Overridden with `AppDb(NativeDatabase.memory())` in tests.
 final appDbProvider = Provider<AppDb>((ref) {
   final db = AppDb(driftDatabase(name: 'meal_bazar'));
+  // Open the file now, while auth restores the session, not on first use.
+  unawaited(db.customSelect('select 1').get());
   ref.onDispose(db.close);
   return db;
 });

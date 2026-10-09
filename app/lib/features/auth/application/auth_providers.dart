@@ -59,7 +59,14 @@ class MyProfileNotifier extends AsyncNotifier<Profile?> {
   Future<Profile?> build() async {
     final uid = await ref.watch(authStateProvider.future);
     if (uid == null) return null;
-    return ref.watch(authRepositoryProvider).fetchMyProfile();
+    return ref
+        .watch(authRepositoryProvider)
+        .fetchMyProfile(onStale: ref.isFirstBuild ? _revalidated : null);
+  }
+
+  /// Cold start answered from cache and the server differs: fetch again.
+  void _revalidated() {
+    if (ref.mounted) ref.invalidateSelf();
   }
 
   /// Throws [AppFailure]; on success the new profile becomes the state.

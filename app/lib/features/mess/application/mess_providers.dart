@@ -18,7 +18,16 @@ final messRepositoryProvider = Provider<MessRepository>(
 final myMembershipsProvider = FutureProvider<List<Membership>>((ref) async {
   final uid = await ref.watch(authStateProvider.future);
   if (uid == null) return const [];
-  return ref.watch(messRepositoryProvider).myMemberships();
+  // Cold start: from cache at once; refetch if the server differs.
+  return ref
+      .watch(messRepositoryProvider)
+      .myMemberships(
+        onStale: ref.isFirstBuild
+            ? () {
+                if (ref.mounted) ref.invalidateSelf();
+              }
+            : null,
+      );
 });
 
 /// The mess the user is looking at. Defaults to the first active membership
