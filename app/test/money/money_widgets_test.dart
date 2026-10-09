@@ -910,6 +910,23 @@ void main() {
     expect(find.text(l.shareBillShare), findsNothing);
   });
 
+  testWidgets('members: the last row scrolls clear of the FAB at 1.3x', (
+    tester,
+  ) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await pump(tester, const MoneyScreen(), manager: false);
+    await tester.pumpAndSettle();
+    final fab = find.byType(FloatingActionButton);
+    expect(fab, findsOneWidget);
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, -3000));
+    await tester.pumpAndSettle();
+    expect(
+      tester.getBottomLeft(find.text('Rahim')).dy,
+      lessThan(tester.getTopLeft(fab).dy),
+    );
+  });
+
   group('months', () {
     testWidgets('closing a month needs the confirmation sheet', (tester) async {
       when(() => repo.closeMonth(any(), any())).thenAnswer((_) async => 'oct');

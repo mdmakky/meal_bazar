@@ -22,6 +22,10 @@ import 'money_sheets.dart';
 
 enum MoneyTab { members, expense, deposit }
 
+/// Room under the last row so it scrolls clear of the extended FAB, which
+/// grows with large text.
+const _fabClearance = AppSpace.xxxl * 2 + AppSpace.xxl;
+
 /// হিসাব: this month's figures, then members / expenses / deposits.
 /// Bazar has its own tab ([BazarScreen]).
 class MoneyScreen extends ConsumerStatefulWidget {
@@ -137,9 +141,7 @@ class _MoneyScreenState extends ConsumerState<MoneyScreen> {
               MoneyTab.expense => _ExpenseList(messId: messId),
               MoneyTab.deposit => _DepositList(messId: messId),
             },
-            const SliverToBoxAdapter(
-              child: SizedBox(height: AppSpace.xxxl * 2),
-            ),
+            const SliverToBoxAdapter(child: SizedBox(height: _fabClearance)),
           ],
         ),
       ),
@@ -230,9 +232,7 @@ class BazarScreen extends ConsumerWidget {
               ),
             ),
             _BazarList(messId: messId),
-            const SliverToBoxAdapter(
-              child: SizedBox(height: AppSpace.xxxl * 2),
-            ),
+            const SliverToBoxAdapter(child: SizedBox(height: _fabClearance)),
           ],
         ),
       ),
@@ -558,7 +558,7 @@ Widget _row(
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        ?titleTag,
+                        if (titleTag != null) Flexible(child: titleTag),
                       ],
                     ),
                     Text(
@@ -703,7 +703,10 @@ class _Balances extends ConsumerWidget {
                             _row(
                               context,
                               highlight: b.memberId == me,
-                              leading: InitialsAvatar(b.displayName),
+                              leading: InitialsAvatar(
+                                b.displayName,
+                                strong: b.memberId == me,
+                              ),
                               title: b.displayName,
                               titleTag: b.memberId == me
                                   ? StatusTag(l.youTag, strong: true)

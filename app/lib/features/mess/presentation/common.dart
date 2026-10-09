@@ -128,7 +128,7 @@ class MonthStartDayField extends StatelessWidget {
   }
 }
 
-/// A one-line field label above a group; 24 above, 12 below.
+/// The section title, app-wide: one line above a group; 24 above, 12 below.
 class SectionTitle extends StatelessWidget {
   const SectionTitle(this.text, {super.key});
 
@@ -142,7 +142,10 @@ class SectionTitle extends StatelessWidget {
       AppSpace.gutter,
       AppSpace.md,
     ),
-    child: Text(text, style: Theme.of(context).textTheme.titleMedium),
+    child: Semantics(
+      header: true,
+      child: Text(text, style: Theme.of(context).textTheme.titleMedium),
+    ),
   );
 }
 
@@ -168,10 +171,18 @@ class BottomAction extends StatelessWidget {
 
 /// A person's first letter in a muted circle (the list's visual anchor).
 class InitialsAvatar extends StatelessWidget {
-  const InitialsAvatar(this.name, {super.key, this.size = 40});
+  const InitialsAvatar(
+    this.name, {
+    super.key,
+    this.size = 40,
+    this.strong = false,
+  });
 
   final String name;
   final double size;
+
+  /// Ink fill: marks me on a muted row, where the muted circle would vanish.
+  final bool strong;
 
   @override
   Widget build(BuildContext context) {
@@ -183,14 +194,14 @@ class InitialsAvatar extends StatelessWidget {
         height: size,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: p.surfaceMuted,
+          color: strong ? p.ink : p.surfaceMuted,
           shape: BoxShape.circle,
         ),
         child: Text(
           first.toUpperCase(),
           textScaler: TextScaler.noScaling,
           style: Theme.of(context).textTheme.titleSmall?.copyWith(
-            color: p.inkSecondary,
+            color: strong ? p.onInk : p.inkSecondary,
             fontSize: size * 0.4,
             height: 1,
           ),
