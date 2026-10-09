@@ -57,6 +57,9 @@ update mess_members set status = 'active', left_on = null where id = :'karim';
 -- Close October: snapshot, guard, ordering, carry-forward.
 select test.expect_error($$select close_month('33333333-0000-0000-0000-00000000dead', '2026-10-01')$$, 'NOT_MANAGER');
 select test.expect_error(format($$select close_month(%L, '2026-11-10')$$, :'mess'), 'PREVIOUS_MONTH_OPEN');
+-- A pending deposit must be decided first (0026).
+select test.expect_error(format($$select close_month(%L, '2026-10-20')$$, :'mess'), 'PENDING_ITEMS');
+update deposits set status = 'rejected' where mess_id = :'mess' and status = 'pending';
 select close_month(:'mess', '2026-10-20') as oct \gset
 select test.check((select closing_balance = 424.63 from month_member_summary where month_id = :'oct' and member_id = :'rahim'), 'snapshot written');
 select test.expect_error(format($$update meal_entries set count = 0 where member_id = %L and date = '2026-10-02'$$, :'rahim'), 'MONTH_CLOSED');

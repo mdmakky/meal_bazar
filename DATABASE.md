@@ -161,8 +161,22 @@ One group conversation per mess on the 0022 tables (not separate ones: the feed,
 | `messages.kind`, `messages.meta` | `user` (default) or `system`. A system message's `meta` is `{t: 'meal_off', member, name, date, meal, meal_name, off}`; `body` is the bn text without the name (`আজ রাতের মিল বন্ধ করেছেন`; day word আজ/কাল/গতকাল or `DD/MM` in Bangla digits). The app renders it as a centred pill per viewer locale. |
 | `post_meal_off_notice(…)` | Server-only (no client execute). Posts the notice into the mess group (`ensure_mess_group`) as the member; deletes the member's notice for the same (date, meal) from the last 2 minutes first (flip-flop collapse; the new insert re-pushes with the group tag, replacing the old push). Skipped when `messages` or `mess_group` is false. Push follows `group_message`. |
 
+### Member bazar, inbox, month close (0026)
+| Object | Purpose |
+|---|---|
+| `bazar_requests` | A member's own bazar awaiting the manager: `id` (client uuid), `member_id` (submitter), `date`, `amount > 0`, `own_pocket` (true → the approved bazar's `paid_by_member_id` is the submitter; false → mess fund), `buyer_ids uuid[]` (submitter first, then companions), `items jsonb` (`[{name, qty, unit, price}]`), `note`, `receipt_path`, `status` pending/approved/rejected/cancelled, `reject_reason`, `bazar_id`, `reviewed_by/at`. Read: the submitter and managers. No direct writes. No money math reads it. |
+| `submit_bazar_request(p_mess, p_id, p_date, p_amount, p_own_pocket, p_buyer_ids, p_items, p_note, p_receipt_path) → uuid` | Active members. Idempotent on `p_id`. `FUTURE_DATE`, `MONTH_CLOSED`, `FEATURE_OFF` (flag `member_bazar`), `RECEIPT_PATH_INVALID`, `ITEMS_INVALID`. Unknown/inactive buyers are dropped. Push `bazar_request` → managers. |
+| `cancel_bazar_request(p_id)` | The submitter, while pending; else `BAZAR_REQUEST_NOT_PENDING`. |
+| `review_bazar_request(p_id, p_approve, p_reason?) → uuid` | Manager. Approve: inserts the bazar with **the request's id**, its items (blank names skipped) and buyers, all guards and audit apply; returns the bazar id. Reject: stores the reason, returns null. Push `bazar_request_reviewed` → submitter (who is skipped by the generic `bazar_added`). `BAZAR_REQUEST_NOT_PENDING`. |
+| `notifications` | Per-user inbox: `id bigint`, `type`, `title`, `body` (in the user's locale), `route`, `created_at`, `read_at`. Every `push_enqueue` writes it for all recipients (device or not, push pref or not) except `message`/`group_message`; rows older than 60 days are pruned. Read own only. |
+| `mark_notifications_read(p_ids bigint[] = null)` / `unread_notification_count() → int` | null = all. |
+| push `deposit_added` | A manager inserts a verified deposit for another member → that member. |
+| `month_pending_items(p_mess, p_from, p_to) → (pending_deposits, pending_bazar_requests)` | Members. `close_month` fails `PENDING_ITEMS` while either is > 0 in the period. |
+| `my_last_month(p_mess) → (start_date, end_date, status, closed_at, meals, food_cost, extra_cost, credit, opening_balance, closing_balance)` | The period before today's (Dhaka). Money columns are the caller's closed snapshot, null while open. No row when that period has no meals/bazar and no months row. |
+| `manager_attention` | Adds `pending_bazar_requests`. |
+
 ## Error codes
-RPCs and triggers raise `errcode 'P0001'` with a short message key that the app maps to bn/en text: `MONTH_CLOSED`, `LAST_MANAGER`, `INVALID_INVITE`, `ALREADY_MEMBER`, `NOT_MANAGER`, `REASON_REQUIRED`, `MESS_SUSPENDED`, `USER_SUSPENDED`, `NOT_PLATFORM_ADMIN`, `LAST_ADMIN`, `INVALID_CONFIG`, `TOO_SOON`, `CUTOFF_PASSED`, `FEATURE_OFF`.
+RPCs and triggers raise `errcode 'P0001'` with a short message key that the app maps to bn/en text: `MONTH_CLOSED`, `LAST_MANAGER`, `INVALID_INVITE`, `ALREADY_MEMBER`, `NOT_MANAGER`, `REASON_REQUIRED`, `MESS_SUSPENDED`, `USER_SUSPENDED`, `NOT_PLATFORM_ADMIN`, `LAST_ADMIN`, `INVALID_CONFIG`, `TOO_SOON`, `CUTOFF_PASSED`, `FEATURE_OFF`, `PENDING_ITEMS`, `FUTURE_DATE`, `BAZAR_REQUEST_NOT_PENDING`, `ITEMS_INVALID`.
 
 ## Storage
 The `receipts` bucket is private. Object paths are `{mess_id}/{uuid}.jpg`. Policies: read if `is_mess_member(split_part(name,'/',1)::uuid)`, write if the caller is a manager (v1.1: the uploading member as well).
