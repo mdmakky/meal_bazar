@@ -1,5 +1,8 @@
 // Provider chain: Gemini → OpenRouter → null ("AI unavailable"). Plain fetch, 20 s each.
+// Models come from lib/platform.ts (platform config > env > defaults).
 // Any failure (HTTP error, timeout, bad JSON, schema rejection) moves to the next provider.
+
+import { envModels, type Models } from './platform';
 
 export type Prompt = { system: string; user: string; imageBase64?: string };
 
@@ -18,10 +21,9 @@ async function post(url: string, headers: Record<string, string>, body: unknown)
 }
 
 // https://ai.google.dev/api/generate-content
-async function gemini(p: Prompt): Promise<string> {
+async function gemini(p: Prompt, model: string): Promise<string> {
   const key = process.env.GEMINI_API_KEY;
   if (!key) throw new Error('no key');
-  const model = process.env.AI_PRIMARY_MODEL || 'gemini-flash-latest';
   const parts: unknown[] = [{ text: p.user }];
   if (p.imageBase64) parts.push({ inline_data: { mime_type: 'image/jpeg', data: p.imageBase64 } });
   const data = await post(
@@ -37,7 +39,7 @@ async function gemini(p: Prompt): Promise<string> {
 }
 
 // https://openrouter.ai/docs/api-reference/chat-completion (OpenAI-compatible)
-async function openrouter(p: Prompt): Promise<string> {
+async function openrouter(p: Prompt, model: string): Promise<string> {
   const key = process.env.OPENROUTER_API_KEY;
   if (!key) throw new Error('no key');
   const content = p.imageBase64
@@ -47,7 +49,7 @@ async function openrouter(p: Prompt): Promise<string> {
     'https://openrouter.ai/api/v1/chat/completions',
     { authorization: `Bearer ${key}`, 'X-Title': 'Meal Bazar' },
     {
-      model: process.env.AI_FALLBACK_MODEL || 'openrouter/free',
+      model,
       messages: [{ role: 'system', content: p.system }, { role: 'user', content }],
       response_format: { type: 'json_object' },
       temperature: 0,
@@ -59,10 +61,11 @@ async function openrouter(p: Prompt): Promise<string> {
 // Some models wrap JSON in ```json fences despite JSON mode.
 const parseJson = (s: string) => JSON.parse(s.replace(/^\s*```(?:json)?\s*|\s*```\s*$/g, ''));
 
-export async function generate<T>(p: Prompt, validate: (raw: unknown) => T): Promise<T | null> {
-  for (const [name, call] of [['gemini', gemini], ['openrouter', openrouter]] as const) {
+export async function generate<T>(p: Prompt, validate: (raw: unknown) => T, models: Models = envModels()): Promise<T | null> {
+  const chain = [['gemini', gemini, models.primary], ['openrouter', openrouter, models.fallback]] as const;
+  for (const [name, call, model] of chain) {
     try {
-      return validate(parseJson(await call(p)));
+      return validate(parseJson(await call(p, model)));
     } catch (e) {
       const why = e instanceof Error && e.name !== 'ZodError' && e.name !== 'SyntaxError' ? e.message : (e as Error)?.name;
       console.warn(`ai provider ${name} failed: ${why}`); // never the prompt or reply

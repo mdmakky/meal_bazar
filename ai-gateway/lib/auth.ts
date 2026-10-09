@@ -14,11 +14,10 @@ export function userClient(req: Request): SupabaseClient {
   });
 }
 
-// Kill switches + membership + daily quota. Returns null when the call may proceed.
+// Mess kill switch + membership + daily quota (platform/env switches: lib/platform.ts). Returns null when the call may proceed.
 export async function consumeQuota(
   sb: SupabaseClient, messId: string, feature: string, limit: number,
 ): Promise<Unavailable | null> {
-  if (process.env.AI_ENABLED === 'false') return { unavailable: true, reason: 'disabled' };
   const { data, error } = await sb.rpc('ai_consume', { p_mess: messId, p_feature: feature, p_limit: limit });
   if (error?.message === 'AI_DISABLED') return { unavailable: true, reason: 'disabled' };
   if (error) throw rpcError(error);
