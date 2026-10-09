@@ -311,7 +311,7 @@ class _Required extends StatelessWidget {
   );
 }
 
-class _AmountField extends StatelessWidget {
+class _AmountField extends StatefulWidget {
   const _AmountField({
     required this.controller,
     this.autofocus = false,
@@ -327,13 +327,58 @@ class _AmountField extends StatelessWidget {
   final bool positive;
 
   @override
+  State<_AmountField> createState() => _AmountFieldState();
+}
+
+class _AmountFieldState extends State<_AmountField> {
+  final _focus = FocusNode();
+  Animation<double>? _entrance;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.autofocus) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _focusAfterEntrance(),
+      );
+    }
+  }
+
+  /// Opening the keyboard while the sheet still slides in makes both
+  /// animations stutter, so focus once the route has arrived.
+  void _focusAfterEntrance() {
+    if (!mounted) return;
+    final a = ModalRoute.of(context)?.animation;
+    if (a == null || a.isCompleted) {
+      _focus.requestFocus();
+    } else {
+      _entrance = a..addStatusListener(_onStatus);
+    }
+  }
+
+  void _onStatus(AnimationStatus status) {
+    if (status.isCompleted && mounted) _focus.requestFocus();
+    if (status.isCompleted || status.isDismissed) {
+      _entrance?.removeStatusListener(_onStatus);
+      _entrance = null;
+    }
+  }
+
+  @override
+  void dispose() {
+    _entrance?.removeStatusListener(_onStatus);
+    _focus.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     return TextFormField(
       key: const Key('amount'),
-      controller: controller,
-      autofocus: autofocus,
-      onChanged: onChanged,
+      controller: widget.controller,
+      focusNode: _focus,
+      onChanged: widget.onChanged,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       inputFormatters: [FilteringTextInputFormatter.allow(RegExp('[0-9০-৯.]'))],
       style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -343,7 +388,7 @@ class _AmountField extends StatelessWidget {
       validator: (v) {
         final a = parseAmount(v ?? '');
         if (a == null) return l.moneyAmountInvalid;
-        if (positive && a == 0) return l.depositAmountPositive;
+        if (widget.positive && a == 0) return l.depositAmountPositive;
         return null;
       },
     );
