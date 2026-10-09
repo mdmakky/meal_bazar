@@ -244,19 +244,19 @@ void main() {
     final long = Fmt.dateLong(day, locale: 'bn', banglaDigits: true);
     expect(find.text(long.substring(long.indexOf(' ') + 1)), findsOneWidget);
     expect(find.text(long), findsOneWidget);
-    expect(cell('Karim দুপুর: ০.৫'), findsOneWidget);
+    expect(cell('Karim দুপুর: ½'), findsOneWidget);
     expect(cell('Rahim রাত: ১, +১ জন অতিথি'), findsOneWidget);
     expect(find.text('+১'), findsOneWidget);
     // Column totals: lunch 1.5, dinner 1 + 1 guest.
     expect(find.text(l.mealGridTotalRow), findsOneWidget);
-    expect(find.text('১.৫'), findsOneWidget);
+    expect(find.text('১½'), findsOneWidget);
     expect(find.text('২'), findsOneWidget);
     expect(find.text(l.mealGridDayTotal), findsOneWidget);
-    expect(dayTotal(tester), '৩.৫');
+    expect(dayTotal(tester), '৩½');
     expect(find.text(l.mealGridHint), findsOneWidget);
     // The month summary below.
     expect(find.text(l.mealsByMember), findsOneWidget);
-    expect(find.text('৮.৫'), findsOneWidget);
+    expect(find.text('৮½'), findsOneWidget);
   });
 
   testWidgets('3 meal types on a 360 dp phone: names pinned, meals scroll', (
@@ -283,6 +283,36 @@ void main() {
     expect(plus.height, greaterThanOrEqualTo(48));
   });
 
+  testWidgets('members: 3 meal types all fit 360 dp; off reads অফ, zero ০', (
+    tester,
+  ) async {
+    when(() => repo.mealTypes(any())).thenAnswer(
+      (_) async => [
+        type('breakfast', 'সকাল', 0),
+        type('lunch', 'দুপুর', 1),
+        type('dinner', 'রাত', 2),
+      ],
+    );
+    stubDay([entry('karim', 'dinner', 0).copyWith(isOff: true)]);
+    await pump(tester, manager: false, textScale: 1.3);
+    expect(tester.takeException(), isNull);
+    expect(
+      find.byWidgetPredicate(
+        (w) =>
+            w is SingleChildScrollView && w.scrollDirection == Axis.horizontal,
+      ),
+      findsNothing,
+    );
+    final width = tester.view.physicalSize.width / tester.view.devicePixelRatio;
+    for (final name in ['সকাল', 'দুপুর', 'রাত']) {
+      final r = tester.getRect(find.text(name));
+      expect(r.right, lessThanOrEqualTo(width), reason: name);
+    }
+    expect(cell('Karim রাত: অফ'), findsOneWidget);
+    expect(cell('Karim সকাল: ০'), findsOneWidget);
+    expect(cell('Rahim রাত: ০'), findsOneWidget);
+  });
+
   testWidgets('value tap cycles 0 → 0.5 → 1 → 1.5 → 2 → 0, optimistic', (
     tester,
   ) async {
@@ -296,7 +326,7 @@ void main() {
     await tester.tap(cell('Karim দুপুর: ০'));
     await tester.pump();
     // Shown before the server answers.
-    expect(cell('Karim দুপুর: ০.৫'), findsOneWidget);
+    expect(cell('Karim দুপুর: ½'), findsOneWidget);
     final first = savedOne();
     expect(
       (first.memberId, first.mealTypeId, first.count),
@@ -309,7 +339,7 @@ void main() {
       () => repo.save(any(), any(), source: any(named: 'source')),
     ).thenAnswer((i) async => put(i.positionalArguments[1] as MealEntry));
 
-    for (final next in ['১', '১.৫', '২', '০']) {
+    for (final next in ['১', '১½', '২', '০']) {
       await tester.tap(find.bySemanticsLabel(RegExp('^Karim দুপুর: ')));
       await tester.pumpAndSettle();
       expect(cell('Karim দুপুর: $next'), findsOneWidget);
@@ -322,14 +352,14 @@ void main() {
 
     await tester.tap(cell('${l.mealCellIncrease} Karim দুপুর'));
     await tester.pump();
-    expect(cell('Karim দুপুর: ১.৫'), findsOneWidget);
+    expect(cell('Karim দুপুর: ১½'), findsOneWidget);
     expect(savedOne().count, 1.5);
     await tester.pumpAndSettle();
 
     await tester.tap(cell('${l.mealCellDecrease} Karim দুপুর'));
     await tester.tap(cell('${l.mealCellDecrease} Karim দুপুর'));
     await tester.pumpAndSettle();
-    expect(cell('Karim দুপুর: ০.৫'), findsOneWidget);
+    expect(cell('Karim দুপুর: ½'), findsOneWidget);
   });
 
   testWidgets('failed save reverts the cell and explains', (tester) async {
@@ -638,7 +668,7 @@ void main() {
 
     await tester.tap(cell('Karim দুপুর: ১'));
     await tester.pumpAndSettle();
-    expect(cell('Karim দুপুর: ১.৫'), findsOneWidget);
+    expect(cell('Karim দুপুর: ১½'), findsOneWidget);
     expect(find.text(l.syncOffline), findsOneWidget);
     expect(find.byType(SnackBar), findsNothing);
     final local = await tester.runAsync(

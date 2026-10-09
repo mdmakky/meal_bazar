@@ -5,7 +5,7 @@ import '../l10n/gen/app_localizations.dart';
 import '../motion/effects.dart';
 import '../theme/tokens.dart';
 
-/// One member × meal type: 1, ½, 0 (dimmed), Off (struck dash), `+n` guests.
+/// One member × meal type: 1, ½, 0 (dimmed), অফ (dimmed word), `+n` guests.
 /// Tap / long-press are handed to the caller (it applies `cycleMeal` or
 /// opens the Off / Guest / custom sheet). Null handlers = read-only.
 class MealCell extends StatelessWidget {
@@ -38,10 +38,12 @@ class MealCell extends StatelessWidget {
     final l = AppLocalizations.of(context);
     final p = context.palette;
     final text = Theme.of(context).textTheme;
-    final value = off ? '—' : Fmt.meals(count, banglaDigits: banglaDigits);
+    final value = off
+        ? l.mealCellOff
+        : Fmt.meals(count, banglaDigits: banglaDigits);
     final guestText = '+${Fmt.digits('$guests', bangla: banglaDigits)}';
     final spoken = [
-      off ? l.mealCellOff : value,
+      value,
       if (guests > 0) l.mealCellGuests(guestText),
     ].join(', ');
 
@@ -50,8 +52,6 @@ class MealCell extends StatelessWidget {
       key: ValueKey(value),
       style: text.titleSmall?.copyWith(
         color: off || count == 0 ? p.inkTertiary : p.ink,
-        decoration: off ? TextDecoration.lineThrough : null,
-        decorationColor: p.inkTertiary,
         fontFeatures: const [FontFeature.tabularFigures()],
       ),
     );

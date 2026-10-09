@@ -56,14 +56,18 @@ abstract final class Fmt {
     return '${pairs.join(',')},${n.substring(n.length - 3)}';
   }
 
-  /// Meal count: 1, ½, 1½. Non-half fractions fall back to trimmed decimals.
+  /// Meal count, the one format everywhere: whole numbers plain (16),
+  /// quarters as fractions (16¼, ½, 19½, 2¾); anything finer falls back to
+  /// trimmed decimals (0.33).
   static String meals(num count, {bool banglaDigits = false}) {
-    final halves = count * 2;
+    final quarters = count * 4;
     final String s;
-    if (halves % 1 == 0) {
-      final whole = count.truncate();
-      final half = halves.toInt().isOdd;
-      s = half ? '${whole == 0 ? '' : whole}½' : '$whole';
+    if ((quarters - quarters.round()).abs() < 1e-9) {
+      final q = quarters.round();
+      final whole = q.abs() ~/ 4;
+      final frac = const ['', '¼', '½', '¾'][q.abs() % 4];
+      final sign = q < 0 ? '-' : '';
+      s = frac.isEmpty ? '$sign$whole' : '$sign${whole == 0 ? '' : whole}$frac';
     } else {
       s = count.toStringAsFixed(2).replaceFirst(RegExp(r'\.?0+$'), '');
     }

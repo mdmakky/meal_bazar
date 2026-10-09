@@ -165,7 +165,7 @@ void main() {
     );
     // The statement card: the day total (once), per meal type, guests.
     expect(find.text(l.todayHeadcountLabel), findsOneWidget);
-    expect(find.text('৩.৫'), findsOneWidget);
+    expect(find.text('৩½'), findsOneWidget);
     expect(find.text('দুপুর ১½ · রাত ২ · অতিথি ১'), findsOneWidget);
     // The header's rate (the dashboard below repeats it).
     expect(find.text('৳৬৮.৭৮').first, findsOneWidget);
@@ -253,7 +253,7 @@ void main() {
     expect(find.text(l.todayHeadcountLabel), findsNothing);
     expect(find.text(l.mineBalance), findsOneWidget);
     expect(find.text('-৳৩৫৯.৭৫'), findsOneWidget);
-    expect(find.text('১২.৫'), findsOneWidget);
+    expect(find.text('১২½'), findsOneWidget);
     expect(find.text(l.myTodayTitle), findsOneWidget);
     expect(find.text(l.mealOffHint('১০')), findsOneWidget);
     // Before the cutoff: lunch is on and can be switched off.

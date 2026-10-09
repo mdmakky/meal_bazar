@@ -32,7 +32,9 @@ void main() {
     expect(find.text('০'), findsOneWidget);
   });
 
-  testWidgets('Off is a struck dash; guests show +n', (tester) async {
+  testWidgets('Off says অফ (not a dash, not ০); guests show +n', (
+    tester,
+  ) async {
     await pumpCell(
       tester,
       const MealCell(
@@ -42,8 +44,8 @@ void main() {
         banglaDigits: true,
       ),
     );
-    final dash = tester.widget<Text>(find.text('—'));
-    expect(dash.style?.decoration, TextDecoration.lineThrough);
+    expect(find.text('অফ'), findsOneWidget);
+    expect(find.text('—'), findsNothing);
     expect(find.text('+২'), findsOneWidget);
     expect(find.bySemanticsLabel('Karim রাত: অফ, +২ জন অতিথি'), findsOneWidget);
   });

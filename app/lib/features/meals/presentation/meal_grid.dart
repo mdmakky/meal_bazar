@@ -352,6 +352,7 @@ const _stepTarget = AppSize.stepTarget;
 const _stepFace = AppSize.stepFace;
 const _valueWidth = AppSize.stepValue;
 const _cellWidth = _stepTarget * 2 + _valueWidth;
+const _readCellWidth = AppSize.mealCellWidth + AppSpace.md;
 const _headerHeight = AppSize.gridHeader;
 const _rowHeight = AppSize.gridRow;
 const _nameMin = AppSize.gridName;
@@ -453,12 +454,14 @@ class MealStepperGrid extends ConsumerWidget {
 
     return LayoutBuilder(
       builder: (context, c) {
-        final fits = _nameMin + _cellWidth * types.length <= c.maxWidth;
+        // Read-only cells carry no steppers: three meals fit a 360 dp phone.
+        final cellW = editable ? _cellWidth : _readCellWidth;
+        final fits = _nameMin + cellW * types.length <= c.maxWidth;
         // Spare width goes to the names first, so they are not cut short.
         final nameW = fits
-            ? (c.maxWidth - _cellWidth * types.length).clamp(_nameMin, _nameMax)
+            ? (c.maxWidth - cellW * types.length).clamp(_nameMin, _nameMax)
             : _nameMin + AppSpace.lg;
-        final colW = fits ? (c.maxWidth - nameW) / types.length : _cellWidth;
+        final colW = fits ? (c.maxWidth - nameW) / types.length : cellW;
         final cells = Column(
           children: [
             Row(
@@ -515,7 +518,7 @@ class MealStepperGrid extends ConsumerWidget {
                     SizedBox(
                       width: colW,
                       child: Center(
-                        child: RollingNumber(
+                        child: RollingNumber.meals(
                           dayPeople(entries, [t]),
                           banglaDigits: bn,
                           style: text.titleMedium?.copyWith(
@@ -588,7 +591,7 @@ class _StepperCell extends ConsumerWidget {
       }),
     );
     final label = '${member.displayName} ${type.name}';
-    final value = off ? '—' : decimal(count, bangla: bn);
+    final value = off ? l.mealCellOff : Fmt.meals(count, banglaDigits: bn);
     final guestText = '+${Fmt.digits('$guests', bangla: bn)}';
     final spoken = [
       off ? l.mealCellOff : value,
@@ -638,7 +641,7 @@ class _StepperCell extends ConsumerWidget {
           child: Stack(
             clipBehavior: Clip.none,
             children: [
-              // The value may run wider than the 32 dp face (a roll, ১.৫ at
+              // The value may run wider than the 32 dp face (a roll, ১৯½ at
               // 1.3× text): it overflows sideways instead of wrapping.
               OverflowBox(
                 maxWidth: double.infinity,
@@ -646,16 +649,20 @@ class _StepperCell extends ConsumerWidget {
                 child: _Pop(
                   value: value,
                   delay: delay,
+                  // Off says so in words; zero and no row are both ০.
                   child: off
                       ? Text(
-                          '—',
+                          value,
                           maxLines: 1,
-                          style: style?.copyWith(
-                            decoration: TextDecoration.lineThrough,
-                            decorationColor: p.inkTertiary,
+                          style: text.labelLarge?.copyWith(
+                            color: p.inkTertiary,
                           ),
                         )
-                      : RollingNumber(count, banglaDigits: bn, style: style),
+                      : RollingNumber.meals(
+                          count,
+                          banglaDigits: bn,
+                          style: style,
+                        ),
                 ),
               ),
               Positioned(

@@ -28,7 +28,16 @@ void main() {
       expect(Fmt.meals(1.5), '1½');
       expect(Fmt.meals(0), '0');
       expect(Fmt.meals(20.5, banglaDigits: true), '২০½');
-      expect(Fmt.meals(1.25), '1.25');
+    });
+
+    test('quarters are fractions, finer values decimals', () {
+      expect(Fmt.meals(16.25, banglaDigits: true), '১৬¼');
+      expect(Fmt.meals(19.5, banglaDigits: true), '১৯½');
+      expect(Fmt.meals(2.75), '2¾');
+      expect(Fmt.meals(0.25), '¼');
+      expect(Fmt.meals(16), '16');
+      expect(Fmt.meals(-1.5), '-1½');
+      expect(Fmt.meals(1.33), '1.33');
     });
   });
 
