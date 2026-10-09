@@ -1695,5 +1695,57 @@
       }
     }
   },
-  "dueRemindNone": "কাউকে পাঠানো যায়নি: বকেয়া থাকা সদস্যদের ফোনে নোটিফিকেশন চালু নেই"
+  "dueRemindNone": "কাউকে পাঠানো যায়নি: বকেয়া থাকা সদস্যদের ফোনে নোটিফিকেশন চালু নেই",
+  "msgTitle": "বার্তা",
+  "msgMoreSub": "জরুরি কথা ও সমস্যা জানানো",
+  "msgEmpty": "এখনো কোনো বার্তা নেই। জরুরি কিছু হলে বা কোনো হিসাব ভুল মনে হলে ম্যানেজারকে লিখুন।",
+  "msgEmptyManager": "সদস্যদের কোনো বার্তা নেই",
+  "msgEmptyResolved": "কোনো মীমাংসিত বার্তা নেই",
+  "msgNew": "নতুন বার্তা",
+  "msgFilterOpen": "খোলা",
+  "msgResolved": "মীমাংসিত",
+  "msgUnread": "অপঠিত",
+  "msgYou": "আপনি: {text}",
+  "@msgYou": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "msgComposeHint": "বার্তা লিখুন…",
+  "msgSend": "পাঠান",
+  "msgSending": "পাঠানো হচ্ছে…",
+  "msgNotSent": "পাঠানো যায়নি · আবার চেষ্টা করুন",
+  "msgResolve": "মীমাংসিত করুন",
+  "msgReopen": "আবার খুলুন",
+  "msgResolvedNote": "বিষয়টি মীমাংসিত। আবার লিখলে খুলে যাবে।",
+  "msgGone": "বার্তাটি পাওয়া যায়নি",
+  "msgSubject": "বিষয়",
+  "msgSubjectRequired": "বিষয় লিখুন",
+  "msgBody": "বার্তা",
+  "msgBodyRequired": "বার্তা লিখুন",
+  "msgTo": "কাকে",
+  "msgToManagers": "মেসের ম্যানেজার বার্তাটি দেখবেন। এটা চ্যাট নয়, উত্তর এলে নোটিফিকেশন পাবেন।",
+  "msgMemberRequired": "একজন সদস্য বাছুন",
+  "msgReportSubject": "সমস্যা: {label}",
+  "@msgReportSubject": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "msgReportStarter": "এই তথ্যটি ভুল মনে হচ্ছে, দয়া করে ঠিক করে দিন।",
+  "msgReport": "সমস্যা জানান",
+  "msgSent": "বার্তা পাঠানো হয়েছে",
+  "msgAbout": "যে এন্ট্রি নিয়ে",
+  "msgRefDeposit": "জমা",
+  "msgRefBazar": "বাজার",
+  "msgRefExpense": "খরচ",
+  "msgRefMeal": "মিল",
+  "msgRefOther": "অন্যান্য",
+  "msgDeletedUser": "সাবেক সদস্য",
+  "pushMessage": "বার্তা",
+  "pushMessageSub": "ম্যানেজার বা সদস্য আপনাকে লিখলে"
 }

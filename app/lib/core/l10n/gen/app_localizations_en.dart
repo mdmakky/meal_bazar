@@ -3006,4 +3006,124 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get dueRemindNone =>
       'Nobody to notify: members who owe don\'t have notifications on';
+
+  @override
+  String get msgTitle => 'Messages';
+
+  @override
+  String get msgMoreSub => 'Urgent notes and problem reports';
+
+  @override
+  String get msgEmpty =>
+      'No messages yet. Write to the manager when something is urgent or an entry looks wrong.';
+
+  @override
+  String get msgEmptyManager => 'No messages from members';
+
+  @override
+  String get msgEmptyResolved => 'No resolved threads';
+
+  @override
+  String get msgNew => 'New message';
+
+  @override
+  String get msgFilterOpen => 'Open';
+
+  @override
+  String get msgResolved => 'Resolved';
+
+  @override
+  String get msgUnread => 'Unread';
+
+  @override
+  String msgYou(String text) {
+    return 'You: $text';
+  }
+
+  @override
+  String get msgComposeHint => 'Write a message…';
+
+  @override
+  String get msgSend => 'Send';
+
+  @override
+  String get msgSending => 'Sending…';
+
+  @override
+  String get msgNotSent => 'Not sent · tap to retry';
+
+  @override
+  String get msgResolve => 'Mark resolved';
+
+  @override
+  String get msgReopen => 'Reopen';
+
+  @override
+  String get msgResolvedNote => 'Marked resolved. Writing again reopens it.';
+
+  @override
+  String get msgGone => 'This conversation isn\'t available';
+
+  @override
+  String get msgSubject => 'Subject';
+
+  @override
+  String get msgSubjectRequired => 'Enter a subject';
+
+  @override
+  String get msgBody => 'Message';
+
+  @override
+  String get msgBodyRequired => 'Write a message';
+
+  @override
+  String get msgTo => 'To';
+
+  @override
+  String get msgToManagers =>
+      'The mess managers will see this. It isn\'t a chat; you\'ll get a notification when they reply.';
+
+  @override
+  String get msgMemberRequired => 'Choose a member';
+
+  @override
+  String msgReportSubject(String label) {
+    return 'Problem: $label';
+  }
+
+  @override
+  String get msgReportStarter => 'This looks wrong to me, please fix it.';
+
+  @override
+  String get msgReport => 'Report a problem';
+
+  @override
+  String get msgSent => 'Message sent';
+
+  @override
+  String get msgAbout => 'About this entry';
+
+  @override
+  String get msgRefDeposit => 'Deposit';
+
+  @override
+  String get msgRefBazar => 'Bazar';
+
+  @override
+  String get msgRefExpense => 'Expense';
+
+  @override
+  String get msgRefMeal => 'Meal';
+
+  @override
+  String get msgRefOther => 'Other';
+
+  @override
+  String get msgDeletedUser => 'Former member';
+
+  @override
+  String get pushMessage => 'Messages';
+
+  @override
+  String get pushMessageSub => 'When a manager or member writes to you';
 }

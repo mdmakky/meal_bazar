@@ -12,6 +12,9 @@ import '../features/duty/presentation/duty_screen.dart';
 import '../features/export/presentation/export_screen.dart';
 import '../features/meals/presentation/meal_types_screen.dart';
 import '../features/meals/presentation/meals_screen.dart';
+import '../features/messages/domain/message_draft.dart';
+import '../features/messages/presentation/messages_screens.dart';
+import '../features/messages/presentation/new_message_screen.dart';
 import '../features/mess/application/mess_providers.dart';
 import '../features/mess/domain/member.dart';
 import '../features/mess/presentation/mess_screens.dart';
@@ -222,6 +225,25 @@ final routerProvider = Provider<GoRouter>((ref) {
                         path: ':id',
                         builder: (_, state) =>
                             NoticeDetailScreen(id: state.pathParameters['id']!),
+                      ),
+                    ],
+                  ),
+                  GoRoute(
+                    path: 'messages',
+                    builder: (_, _) => const MessagesInboxScreen(),
+                    routes: [
+                      GoRoute(
+                        path: 'new',
+                        builder: (_, state) => NewMessageScreen(
+                          draft: state.extra is MessageDraft
+                              ? state.extra! as MessageDraft
+                              : null,
+                        ),
+                      ),
+                      GoRoute(
+                        path: ':id',
+                        builder: (_, state) =>
+                            ThreadScreen(id: state.pathParameters['id']!),
                       ),
                     ],
                   ),
