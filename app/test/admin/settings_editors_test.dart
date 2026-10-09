@@ -23,7 +23,7 @@ void main() {
     );
     expect(find.text('Meals'), findsOneWidget);
     expect(find.text('Account and login'), findsOneWidget);
-    expect(find.byType(SwitchListTile), findsNWidgets(28));
+    expect(find.byType(SwitchListTile), findsNWidgets(29));
 
     await t.tap(find.widgetWithText(SwitchListTile, 'Guest meals'));
     await t.tap(find.widgetWithText(SwitchListTile, 'All AI features'));
@@ -192,6 +192,7 @@ void main() {
       () => repo.setConfig(any(), any()),
     ).thenThrow(Exception('INVALID_CONFIG: bad'));
     await pumpAdmin(t, const FeaturesEditor(saved: {}), repo: repo);
+    await t.ensureVisible(find.text('Save'));
     await t.tap(find.text('Save'));
     await t.pumpAndSettle();
     expect(find.textContaining('INVALID_CONFIG'), findsOneWidget);

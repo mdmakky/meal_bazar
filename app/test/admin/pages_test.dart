@@ -124,7 +124,7 @@ void main() {
       }
       expect(find.textContaining('••••abcd'), findsOneWidget);
       expect(find.text('Replace'), findsOneWidget);
-      expect(find.text('Set'), findsNWidgets(3));
+      expect(find.text('Set'), findsNWidgets(5));
     });
 
     testWidgets('set sends the typed value; delete asks first', (t) async {
