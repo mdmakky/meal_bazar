@@ -11,6 +11,7 @@ import '../../../core/widgets/widgets.dart';
 import '../../mess/application/mess_providers.dart';
 import '../../mess/domain/member.dart';
 import '../../mess/domain/mess.dart';
+import '../../mess/presentation/common.dart' show confirmDialog;
 import '../../today/application/day_grid.dart';
 import '../application/meal_providers.dart';
 import '../domain/meal.dart';
@@ -159,6 +160,40 @@ MealEntry entryOrZero(
       date: dayKey.day,
       count: 0,
     );
+
+/// A member switching their own meal: turning it OFF asks first, because it
+/// is announced in the mess group. Turning it back on needs no confirmation.
+Future<void> toggleOwnMeal(
+  BuildContext context,
+  WidgetRef ref,
+  MessDay dayKey,
+  MealEntry e,
+  String mealName,
+) async {
+  if (!e.isOff) {
+    final l = AppLocalizations.of(context);
+    final diff = DateUtils.dateOnly(
+      dayKey.day,
+    ).difference(DateUtils.dateOnly(DateTime.now())).inDays;
+    final day = switch (diff) {
+      0 => l.msgDayToday,
+      1 => l.dayTomorrow,
+      _ => Fmt.dateLong(
+        dayKey.day,
+        locale: l.localeName,
+        banglaDigits: l.localeName == 'bn',
+      ),
+    };
+    final ok = await confirmDialog(
+      context,
+      title: l.mealOffConfirmTitle(day, mealOf(context, mealName)),
+      body: l.mealOffConfirmBody,
+      action: l.mealOffConfirmAction,
+    );
+    if (!ok || !context.mounted) return;
+  }
+  await putEntry(context, ref, dayKey, toggleMealOff(e), own: true);
+}
 
 /// Optimistic save; on failure the cell has reverted, so just say why.
 Future<bool> putEntry(
@@ -611,7 +646,7 @@ class _StepperCell extends ConsumerWidget {
     final VoidCallback? onTap = editable
         ? () => put(cycleMeal(_current(ref)))
         : ownOff
-        ? () => put(toggleMealOff(_current(ref)), own: true)
+        ? () => toggleOwnMeal(context, ref, dayKey, _current(ref), type.name)
         : null;
 
     final style = text.titleMedium?.copyWith(

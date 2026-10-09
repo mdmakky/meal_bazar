@@ -1637,5 +1637,8 @@
   "myMealNotEntered": "Not entered yet",
   "@myMealNotEntered": {
     "description": "Member card: no meal row for this day and meal yet (the manager fills it later)."
-  }
+  },
+  "mealOffConfirmTitle": "Turn off {meal} meal {day}?",
+  "mealOffConfirmBody": "Everyone in the mess group will be told, from you.",
+  "mealOffConfirmAction": "Yes, turn off"
 }

@@ -3326,4 +3326,16 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get myMealNotEntered => 'এখনো দেওয়া হয়নি';
+
+  @override
+  String mealOffConfirmTitle(Object day, Object meal) {
+    return '$day $meal মিল বন্ধ করবেন?';
+  }
+
+  @override
+  String get mealOffConfirmBody =>
+      'বন্ধ করলে মেস গ্রুপে আপনার পক্ষ থেকে সবাইকে জানানো হবে।';
+
+  @override
+  String get mealOffConfirmAction => 'হ্যাঁ, বন্ধ করুন';
 }

@@ -267,6 +267,17 @@ void main() {
     expect(tester.widget<Switch>(sw).onChanged, isNotNull);
     await tester.tap(sw);
     await tester.pumpAndSettle();
+    // Asks before turning off; cancelling saves nothing.
+    expect(find.text(l.mealOffConfirmBody), findsOneWidget);
+    await tester.tap(find.text(l.cancel));
+    await tester.pumpAndSettle();
+    verifyNever(
+      () => repo.setMyMealOff(any(), any(), any(), off: any(named: 'off')),
+    );
+    await tester.tap(sw);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l.mealOffConfirmAction));
+    await tester.pumpAndSettle();
     verify(() => repo.setMyMealOff('mess1', day, 'lunch', off: true)).called(1);
   });
 

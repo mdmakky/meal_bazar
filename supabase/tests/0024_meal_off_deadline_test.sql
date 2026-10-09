@@ -87,8 +87,8 @@ select test.act_as(:R);
 select set_my_meal_off(:'mess', '2099-03-01', :'dinner', true);
 select test.act_as(null);
 select id as grp from message_threads where mess_id = :'mess' and kind = 'group' \gset
-select test.check((select count(*) = 1 from messages where thread_id = :'grp' and kind = 'system'), 'one notice');
-select test.check((select sender_id = :R and body = '০১/০৩ রাতের মিল বন্ধ করেছেন'
+select test.check((select count(*) = 1 from messages where thread_id = :'grp' and meta ->> 't' = 'meal_off' and kind = 'user'), 'one notice, as the member''s message');
+select test.check((select sender_id = :R and body = '০১/০৩ রাতের মিল বন্ধ করলাম।'
                           and meta ->> 'name' = 'তানভীর' and (meta ->> 'off')::boolean
                           and meta ->> 'date' = '2099-03-01' and meta ->> 'meal' = :'dinner'
                    from messages where thread_id = :'grp'), 'notice text and payload');
@@ -101,7 +101,7 @@ select set_my_meal_off(:'mess', '2099-03-01', :'dinner', true);
 select set_my_meal_off(:'mess', '2099-03-01', :'dinner', false);
 select test.act_as(null);
 select test.check((select count(*) = 1 from messages where thread_id = :'grp'), 'flip-flop collapses');
-select test.check((select body = '০১/০৩ রাতের মিল আবার চালু করেছেন' and not (meta ->> 'off')::boolean
+select test.check((select body = '০১/০৩ রাতের মিল আবার চালু করলাম।' and not (meta ->> 'off')::boolean
                    from messages where thread_id = :'grp'), 'latest state wins');
 -- Older than 2 minutes, or another meal: a new notice.
 update messages set created_at = created_at - interval '3 minutes' where thread_id = :'grp';
@@ -110,14 +110,14 @@ select set_my_meal_off(:'mess', '2099-03-01', :'dinner', true);
 select set_my_meal_off(:'mess', '2099-03-01', :'lunch', true);
 select test.act_as(null);
 select test.check((select count(*) = 3 from messages where thread_id = :'grp'), 'new notices after 2 min / other meal');
-select test.check((select body = '০১/০৩ দুপুরের মিল বন্ধ করেছেন' from messages
+select test.check((select body = '০১/০৩ দুপুরের মিল বন্ধ করলাম।' from messages
                    where thread_id = :'grp' and meta ->> 'meal' = :'lunch'), 'genitive দুপুরের');
 select test.check(bn_genitive('নাস্তা') = 'নাস্তার' and bn_genitive('Lunch') = 'Lunch-এর', 'genitive forms');
 -- Day words relative to Dhaka today.
 select test.act_as(:R);
 select set_my_meal_off(:'mess', (now() at time zone 'Asia/Dhaka')::date + 1, :'dinner', true);
 select test.act_as(null);
-select test.check(exists (select 1 from messages where body = 'কাল রাতের মিল বন্ধ করেছেন'), 'tomorrow = কাল');
+select test.check(exists (select 1 from messages where body = 'কাল রাতের মিল বন্ধ করলাম।'), 'tomorrow = কাল');
 
 -- Manager edits (direct writes) and the daily fill never post.
 select count(*) as before from messages \gset

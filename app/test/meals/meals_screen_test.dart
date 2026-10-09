@@ -461,6 +461,9 @@ void main() {
       expect(find.text(l.mealOffHint('১০')), findsOneWidget);
 
       await tester.tap(cell('Rahim দুপুর: ১, +১ জন অতিথি'));
+      await tester.pumpAndSettle();
+      // Turning a meal off asks first (it is announced in the mess group).
+      await tester.tap(find.text(l.mealOffConfirmAction));
       await tester.pump();
       expect(
         cell('Rahim দুপুর: ${l.mealCellOff}, +১ জন অতিথি'),
@@ -480,6 +483,8 @@ void main() {
       await pump(tester, manager: false, now: early);
 
       await tester.tap(cell('Rahim দুপুর: ১, +১ জন অতিথি'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(l.mealOffConfirmAction));
       await tester.pumpAndSettle();
       expect(cell('Rahim দুপুর: ১, +১ জন অতিথি'), findsOneWidget);
       expect(find.text(l.mealOffCutoffPassed), findsOneWidget);

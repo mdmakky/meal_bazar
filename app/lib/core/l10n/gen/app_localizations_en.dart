@@ -3334,4 +3334,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get myMealNotEntered => 'Not entered yet';
+
+  @override
+  String mealOffConfirmTitle(Object day, Object meal) {
+    return 'Turn off $meal meal $day?';
+  }
+
+  @override
+  String get mealOffConfirmBody =>
+      'Everyone in the mess group will be told, from you.';
+
+  @override
+  String get mealOffConfirmAction => 'Yes, turn off';
 }

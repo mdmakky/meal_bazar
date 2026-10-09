@@ -6121,6 +6121,24 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'এখনো দেওয়া হয়নি'**
   String get myMealNotEntered;
+
+  /// No description provided for @mealOffConfirmTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'{day} {meal} মিল বন্ধ করবেন?'**
+  String mealOffConfirmTitle(Object day, Object meal);
+
+  /// No description provided for @mealOffConfirmBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'বন্ধ করলে মেস গ্রুপে আপনার পক্ষ থেকে সবাইকে জানানো হবে।'**
+  String get mealOffConfirmBody;
+
+  /// No description provided for @mealOffConfirmAction.
+  ///
+  /// In bn, this message translates to:
+  /// **'হ্যাঁ, বন্ধ করুন'**
+  String get mealOffConfirmAction;
 }
 
 class _AppLocalizationsDelegate

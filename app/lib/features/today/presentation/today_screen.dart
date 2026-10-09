@@ -717,7 +717,7 @@ class _MyMealRow extends ConsumerWidget {
         deadlineText(context, deadline, ref.watch(nowProvider)()),
     ].join(' · ');
     final VoidCallback? toggle = open
-        ? () => putEntry(context, ref, dayKey, toggleMealOff(e), own: true)
+        ? () => toggleOwnMeal(context, ref, dayKey, e, type.name)
         : null;
 
     return MergeSemantics(
