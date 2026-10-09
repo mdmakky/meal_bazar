@@ -37,6 +37,8 @@ The Super Admin changes AI behaviour from data ([`../docs/platform-admin.md`](..
 
 Missing keys count as defaults; unknown keys are ignored. An invalid config (e.g. a 6-entry chain) is rejected as a whole and the fallback rules apply.
 | `CRON_SECRET` | Protects `/api/cron/daily`. |
+| `FIREBASE_SERVICE_ACCOUNT` | Full Firebase service-account JSON (one string) for FCM HTTP v1 push. Never logged. Missing → push dispatch returns `500 misconfigured` and the cron skips push. |
+| `PUSH_DISPATCH_SECRET` | Fallback for the `PUSH_DISPATCH_SECRET` platform secret (the DB's copy wins). Protects `/api/push/dispatch`. |
 
 ## Endpoints
 All take `Authorization: Bearer <supabase access token>`.
@@ -45,7 +47,8 @@ They return `200 {draft}` or `200 {unavailable:true, reason:'disabled'|'quota'|'
 
 - `POST /api/ai/meal-draft` `{mess_id, date, text}` → `{draft:{entries:[{member_id, meal_type_id, count, guest_count, is_off}], unmatched:[string], confidence}}`. Quota 30/mess/day.
 - `POST /api/ai/bazar-draft` `{mess_id, date, image_base64}` (JPEG, at most about 400 KB) → `{draft:{items:[{name, qty, unit, price}], total, total_matches_items, notes}}`. Quota 10/mess/day. `total_matches_items` is computed by the gateway.
-- `GET /api/cron/daily` (`Authorization: Bearer $CRON_SECRET`) → `{kept_alive:true, deleted, failed}`. See Cron.
+- `GET /api/cron/daily` (`Authorization: Bearer $CRON_SECRET`) → `{kept_alive:true, deleted, failed, push}`. See Cron.
+- `POST /api/push/dispatch` (`x-push-secret: <PUSH_DISPATCH_SECRET>`, compared in constant time) → `{claimed, sent, failed, dropped_tokens}`. See Push.
 
 Admin endpoints (Bearer JWT whose user passes `is_platform_admin()`, else `403 {error:'forbidden'}`):
 - `GET /api/admin/models?provider=gemini|openrouter|all` → `{models:[{provider, id, name, description, context_length, input_price_per_mtok, output_price_per_mtok, free, vision, text}]}`. Fetched live, cached 10 min per provider; `502 {error:'upstream'}` if a provider list fails. Gemini needs a key (none → empty list) and keeps only `generateContent` models; it's assumed free with unknown (null) prices.
@@ -58,7 +61,16 @@ Flow: bearer check → validate body → platform settings → `ai_consume` (act
 1. Keep-alive: one trivial query so the free Supabase project is not paused.
 2. Account deletion: takes up to 50 unprocessed `deletion_requests` (queued by `delete_my_account()`), never-tried rows first, oldest first, and calls `auth.admin.deleteUser` five at a time. Success, or "user not found", sets `processed_at`. A failure stores the error code in `last_error` and `last_attempt_at`, so the row goes to the back of the queue and is retried on the next run. Processed rows stay as the audit trail (user id + requested/processed times only; the profile is already anonymised).
 
+3. Push leftovers: drains up to 500 `push_outbox` rows (see Push) when `FIREBASE_SERVICE_ACCOUNT` is set; `push` is the counts, `null` when skipped, or `{error}` (the cron still succeeds).
+
 Only the counts are logged, never user ids. A backlog over 50 drains at 50 per day.
+
+## Push
+The DB queues notifications in `push_outbox` (AFTER triggers, `supabase/migrations/0019_push.sql`) and pokes `/api/push/dispatch` through pg_net, once per transaction, using the `PUSH_GATEWAY_URL` and `PUSH_DISPATCH_SECRET` platform secrets. The endpoint, with the service-role client:
+1. `push_claim(200)`: claims unsent rows (≤ 5 attempts, < 3 days old) with the recipient's device tokens.
+2. Mints an OAuth2 access token from the service account (RS256 JWT bearer grant, scope `firebase.messaging`, node `crypto`, no SDK), cached in memory until 5 minutes before it expires.
+3. Sends each row to each device with FCM HTTP v1 (`projects/{project_id}/messages:send`): `notification {title, body}` (already in the recipient's language), `data {route, type}`, Android channel `mealbazar_default`, high priority.
+4. A row is marked `sent_at` when any device accepted it or it has no live device; otherwise `last_error` is stored and the claim released, so the next poke or the daily cron retries it. Tokens FCM reports as `UNREGISTERED` or `INVALID_ARGUMENT` are deleted. A 401 drops the cached access token.
 
 ## Privacy
 - Members are sent as refs `M1, M2…` plus their display name as an alias. Meal types are sent as `T1…` plus their name. No ids, phone numbers or money figures are sent. The gateway maps refs back to ids.

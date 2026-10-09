@@ -14,6 +14,13 @@ export function userClient(req: Request): SupabaseClient {
   });
 }
 
+// Service-role client (cron, push dispatch). Bypasses RLS: server-only work.
+export function serviceClient(): SupabaseClient {
+  return createClient(env('SUPABASE_URL'), env('SUPABASE_SERVICE_ROLE_KEY'), {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
+
 // Mess kill switch + membership + daily quota (platform/env switches: lib/platform.ts). Returns null when the call may proceed.
 export async function consumeQuota(
   sb: SupabaseClient, messId: string, feature: string, limit: number,

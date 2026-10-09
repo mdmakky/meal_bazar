@@ -55,7 +55,7 @@ describe('daily cron', () => {
   });
 
   it('keeps alive with an empty queue', async () => {
-    expect(await (await cron(authed())).json()).toEqual({ kept_alive: true, deleted: 0, failed: 0 });
+    expect(await (await cron(authed())).json()).toEqual({ kept_alive: true, deleted: 0, failed: 0, push: null });
   });
 
   it('deletes queued users, marks successes, records failures and continues', async () => {
@@ -65,7 +65,7 @@ describe('daily cron', () => {
       u5: { status: 404, code: 'user_not_found' }, // already gone = success
     };
     const res = await cron(authed());
-    expect(await res.json()).toEqual({ kept_alive: true, deleted: 6, failed: 1 });
+    expect(await res.json()).toEqual({ kept_alive: true, deleted: 6, failed: 1, push: null });
 
     const byId = Object.fromEntries(state.updates.map((u) => [u.id, u.values]));
     expect(Object.keys(byId)).toHaveLength(7);
