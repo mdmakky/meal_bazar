@@ -96,6 +96,32 @@ void main() {
     expect(retried, isTrue);
   });
 
+  testWidgets('CountBadge: a Bangla digit sits whole inside a round badge', (
+    tester,
+  ) async {
+    await pumpApp(
+      tester,
+      const MediaQuery(
+        data: MediaQueryData(textScaler: TextScaler.linear(1.3)),
+        child: CountBadge(1, key: Key('b')),
+      ),
+    );
+    final box = tester.getRect(find.byKey(const Key('b')));
+    final digit = tester.getRect(find.text('১'));
+    expect(box.width, greaterThanOrEqualTo(CountBadge.size));
+    expect(box.height, greaterThanOrEqualTo(CountBadge.size));
+    expect(
+      box.contains(digit.topLeft) &&
+          box.contains(digit.bottomRight - const Offset(0.1, 0.1)),
+      isTrue,
+    );
+    expect((box.center - digit.center).distance, lessThan(1));
+    expect(find.bySemanticsLabel('১টি অপঠিত'), findsOneWidget);
+
+    await pumpApp(tester, const CountBadge(0));
+    expect(find.byType(Text), findsNothing);
+  });
+
   testWidgets('ErrorView retry calls back', (tester) async {
     var retried = 0;
     await pumpApp(tester, ErrorView(onRetry: () => retried++));

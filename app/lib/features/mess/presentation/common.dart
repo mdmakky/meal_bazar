@@ -272,16 +272,23 @@ class NavRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     final p = context.palette;
-    final bn = Localizations.localeOf(context).languageCode == 'bn';
     return PressableScale(
       scale: 0.98,
       child: ListTile(
         minTileHeight: AppSize.touch + AppSpace.md,
         contentPadding: const EdgeInsets.symmetric(horizontal: AppSpace.lg),
-        leading: Badge(
-          isLabelVisible: badge > 0,
-          label: Text(Fmt.digits('$badge', bangla: bn)),
-          child: IconTile(icon, color: color),
+        // The same turmeric count as Home's message shortcut.
+        leading: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            IconTile(icon, color: color),
+            if (badge > 0)
+              PositionedDirectional(
+                top: -AppSpace.sm,
+                end: -AppSpace.sm,
+                child: CountBadge(badge),
+              ),
+          ],
         ),
         title: Text(
           title,
