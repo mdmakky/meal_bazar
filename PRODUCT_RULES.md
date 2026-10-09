@@ -11,7 +11,8 @@ These are the business rules. The SQL implementation is in `supabase/migrations`
 - **No row means 0 meals.** The Today screen offers "Fill today", which creates missing rows for active members from yesterday's count, else the member's **default meal pattern** (`meal_defaults`, set by a manager per member and meal type, same 0–5 in ½ steps), else 1.
 - **Billable meals** for an entry = `(count + guest_count) × meal_type.weight`.
 - Disabling a meal type hides it from new entry. Its historical rows still count.
-- **Meal-off cutoff** (v1.1): a member may set `is_off` for a (date, meal type) only before `mess.meal_off_cutoff`, which is a time on the previous day (default 22:00 Asia/Dhaka). After the cutoff only a manager can change the meal.
+- **Meal-off deadline**: a member may switch their own meal off or back on for a (date, meal type) only before its deadline; after it only a manager can change the meal (managers are never restricted). Each meal type has a `serve_time` (defaults by name: সকাল 08:00, দুপুর 13:30, রাত 21:00, others 13:00). The manager sets `meal_off_lead_minutes` (0–2880): the deadline is `(date + serve_time) − lead` in Asia/Dhaka, so a member can switch off tonight's dinner the same afternoon. With no lead set (the default for every mess, existing and new), the old rule applies: the deadline is the **previous day at `meal_off_cutoff`** (default 22:00). SQL `meal_off_deadline()` is the only place the deadline is computed; the app shows it.
+- When a member switches their own meal off or back on, a system notice is posted to the mess group ("তানভীর আজ রাতের মিল বন্ধ করেছেন"); a second switch of the same meal within 2 minutes replaces the notice. Manager edits and "Fill today" never post.
 
 ## 2. Money
 - Every amount is `numeric(12,2)` and at least 0. Currency is shown as ৳.
@@ -65,7 +66,7 @@ closing_balance   = opening_balance + member_credit − member_food_cost − mem
 |---|---|---|
 | Read the mess's data (meals, bazar, expenses, deposits, summaries) | ✓ | ✓ |
 | Write meals for anyone; write bazar, expenses and deposits | ✓ | — |
-| Switch own meal off before the cutoff (v1.1) | ✓ | ✓ |
+| Switch own meal off before the deadline (v1.1) | ✓ | ✓ |
 | Record own deposit as pending (v1.1) | ✓ | ✓ |
 | Members, roles, settings, month close/reopen | ✓ | — |
 | Edit own profile | ✓ | ✓ |

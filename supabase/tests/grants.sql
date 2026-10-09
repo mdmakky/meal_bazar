@@ -20,3 +20,6 @@ revoke execute on function public.push_kick(), public.push_mess_users(uuid, publ
 revoke all on public.message_hidden_bodies from anon, authenticated;
 revoke execute on function public.push_enqueue(uuid[], text, text, text, text, text, text, text)
   from public, anon, authenticated;
+-- 0024: the meal-off group notice is posted by set_my_meal_off only.
+revoke execute on function public.post_meal_off_notice(uuid, uuid, date, uuid, boolean)
+  from public, anon, authenticated;
