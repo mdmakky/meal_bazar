@@ -2231,7 +2231,7 @@ abstract class AppLocalizations {
   /// No description provided for @reportFoodCost.
   ///
   /// In bn, this message translates to:
-  /// **'খাবার খরচ'**
+  /// **'মিল খরচ'**
   String get reportFoodCost;
 
   /// No description provided for @reportExtra.
@@ -2243,7 +2243,7 @@ abstract class AppLocalizations {
   /// No description provided for @reportPaid.
   ///
   /// In bn, this message translates to:
-  /// **'জমা'**
+  /// **'জমা + পকেট'**
   String get reportPaid;
 
   /// No description provided for @reportBalance.
@@ -2252,29 +2252,11 @@ abstract class AppLocalizations {
   /// **'ব্যালেন্স'**
   String get reportBalance;
 
-  /// No description provided for @reportDue.
-  ///
-  /// In bn, this message translates to:
-  /// **'বাকি'**
-  String get reportDue;
-
-  /// No description provided for @reportAdvance.
-  ///
-  /// In bn, this message translates to:
-  /// **'অগ্রিম'**
-  String get reportAdvance;
-
   /// No description provided for @reportFormula.
   ///
   /// In bn, this message translates to:
   /// **'মিল রেট = খাবারের মোট খরচ ÷ মোট মিল'**
   String get reportFormula;
-
-  /// No description provided for @reportFooter.
-  ///
-  /// In bn, this message translates to:
-  /// **'Meal Bazar · তৈরি {date}'**
-  String reportFooter(String date);
 
   /// No description provided for @reportNoMembers.
   ///
@@ -2293,6 +2275,276 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'রিপোর্ট প্রিন্ট করুন'**
   String get reportPrint;
+
+  /// No description provided for @reportFooter.
+  ///
+  /// In bn, this message translates to:
+  /// **'মিল বাজার দিয়ে তৈরি · {date}'**
+  String reportFooter(String date);
+
+  /// No description provided for @reportPage.
+  ///
+  /// In bn, this message translates to:
+  /// **'পৃষ্ঠা'**
+  String get reportPage;
+
+  /// No description provided for @reportManager.
+  ///
+  /// In bn, this message translates to:
+  /// **'ম্যানেজার: {name}'**
+  String reportManager(String name);
+
+  /// No description provided for @reportSectionMeals.
+  ///
+  /// In bn, this message translates to:
+  /// **'মিল'**
+  String get reportSectionMeals;
+
+  /// No description provided for @reportSectionDaily.
+  ///
+  /// In bn, this message translates to:
+  /// **'দৈনিক মিল (সদস্যভিত্তিক)'**
+  String get reportSectionDaily;
+
+  /// No description provided for @reportSectionBazar.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাজার'**
+  String get reportSectionBazar;
+
+  /// No description provided for @reportSectionMoney.
+  ///
+  /// In bn, this message translates to:
+  /// **'খরচ, জমা ও সারসংক্ষেপ'**
+  String get reportSectionMoney;
+
+  /// No description provided for @reportMatrix.
+  ///
+  /// In bn, this message translates to:
+  /// **'মিল ম্যাট্রিক্স'**
+  String get reportMatrix;
+
+  /// No description provided for @reportMatrixHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'সারি = সদস্য, কলাম = তারিখ; রং যত গাঢ় তত বেশি মিল'**
+  String get reportMatrixHint;
+
+  /// No description provided for @reportMember.
+  ///
+  /// In bn, this message translates to:
+  /// **'সদস্য'**
+  String get reportMember;
+
+  /// No description provided for @reportTotal.
+  ///
+  /// In bn, this message translates to:
+  /// **'মোট'**
+  String get reportTotal;
+
+  /// No description provided for @reportDayTotal.
+  ///
+  /// In bn, this message translates to:
+  /// **'দিনের মোট'**
+  String get reportDayTotal;
+
+  /// No description provided for @reportOffShort.
+  ///
+  /// In bn, this message translates to:
+  /// **'অ'**
+  String get reportOffShort;
+
+  /// No description provided for @reportOffLegend.
+  ///
+  /// In bn, this message translates to:
+  /// **'অ = অফ'**
+  String get reportOffLegend;
+
+  /// No description provided for @reportAbsentLegend.
+  ///
+  /// In bn, this message translates to:
+  /// **'· = তখন মেসে ছিল না'**
+  String get reportAbsentLegend;
+
+  /// No description provided for @reportTypeBreakdown.
+  ///
+  /// In bn, this message translates to:
+  /// **'সদস্যভিত্তিক মিলের ধরন'**
+  String get reportTypeBreakdown;
+
+  /// No description provided for @reportGuests.
+  ///
+  /// In bn, this message translates to:
+  /// **'গেস্ট'**
+  String get reportGuests;
+
+  /// No description provided for @reportOffDays.
+  ///
+  /// In bn, this message translates to:
+  /// **'অফ দিন'**
+  String get reportOffDays;
+
+  /// No description provided for @reportBazarTrips.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাজারে গেছে'**
+  String get reportBazarTrips;
+
+  /// No description provided for @reportTimes.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count} বার'**
+  String reportTimes(String count);
+
+  /// No description provided for @reportWeightedMeals.
+  ///
+  /// In bn, this message translates to:
+  /// **'ওজনসহ মিল'**
+  String get reportWeightedMeals;
+
+  /// No description provided for @reportDaily.
+  ///
+  /// In bn, this message translates to:
+  /// **'কে কবে কয়টা মিল খেয়েছে'**
+  String get reportDaily;
+
+  /// No description provided for @reportDailyHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রতি সদস্যের {types}, দিন ধরে · ½ = হাফ মিল · +১ = গেস্ট · অ = অফ'**
+  String reportDailyHint(String types);
+
+  /// No description provided for @reportMealsCount.
+  ///
+  /// In bn, this message translates to:
+  /// **'{meals} মিল'**
+  String reportMealsCount(String meals);
+
+  /// No description provided for @reportHalfMeal.
+  ///
+  /// In bn, this message translates to:
+  /// **'হাফ মিল'**
+  String get reportHalfMeal;
+
+  /// No description provided for @reportDoubleMeal.
+  ///
+  /// In bn, this message translates to:
+  /// **'ডাবল মিল'**
+  String get reportDoubleMeal;
+
+  /// No description provided for @reportOff.
+  ///
+  /// In bn, this message translates to:
+  /// **'অফ'**
+  String get reportOff;
+
+  /// No description provided for @reportCountNote.
+  ///
+  /// In bn, this message translates to:
+  /// **'মোট কলামে ওজন ছাড়া গোনা; ওজনসহ মিল নামের নিচে'**
+  String get reportCountNote;
+
+  /// No description provided for @reportTimeline.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাজার টাইমলাইন'**
+  String get reportTimeline;
+
+  /// No description provided for @reportMessFund.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেস ফান্ড'**
+  String get reportMessFund;
+
+  /// No description provided for @reportOwnPocket.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name}-এর পকেট'**
+  String reportOwnPocket(String name);
+
+  /// No description provided for @reportDate.
+  ///
+  /// In bn, this message translates to:
+  /// **'তারিখ'**
+  String get reportDate;
+
+  /// No description provided for @reportCategory.
+  ///
+  /// In bn, this message translates to:
+  /// **'খাত'**
+  String get reportCategory;
+
+  /// No description provided for @reportSplit.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভাগ'**
+  String get reportSplit;
+
+  /// No description provided for @reportAmount.
+  ///
+  /// In bn, this message translates to:
+  /// **'টাকা'**
+  String get reportAmount;
+
+  /// No description provided for @reportEveryone.
+  ///
+  /// In bn, this message translates to:
+  /// **'সবাই ({count} জন)'**
+  String reportEveryone(String count);
+
+  /// No description provided for @reportExpenseTotal.
+  ///
+  /// In bn, this message translates to:
+  /// **'মোট অন্যান্য খরচ'**
+  String get reportExpenseTotal;
+
+  /// No description provided for @reportDepositsTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'জমা'**
+  String get reportDepositsTitle;
+
+  /// No description provided for @reportMethod.
+  ///
+  /// In bn, this message translates to:
+  /// **'মাধ্যম'**
+  String get reportMethod;
+
+  /// No description provided for @reportVerifiedTotal.
+  ///
+  /// In bn, this message translates to:
+  /// **'মোট জমা (যাচাই করা)'**
+  String get reportVerifiedTotal;
+
+  /// No description provided for @reportSummary.
+  ///
+  /// In bn, this message translates to:
+  /// **'সারসংক্ষেপ'**
+  String get reportSummary;
+
+  /// No description provided for @reportOpening.
+  ///
+  /// In bn, this message translates to:
+  /// **'আগের'**
+  String get reportOpening;
+
+  /// No description provided for @reportNone.
+  ///
+  /// In bn, this message translates to:
+  /// **'কিছু নেই'**
+  String get reportNone;
+
+  /// No description provided for @reportWeekdays.
+  ///
+  /// In bn, this message translates to:
+  /// **'রবিবার,সোমবার,মঙ্গলবার,বুধবার,বৃহস্পতিবার,শুক্রবার,শনিবার'**
+  String get reportWeekdays;
+
+  /// No description provided for @reportWeekdaysShort.
+  ///
+  /// In bn, this message translates to:
+  /// **'র,সো,ম,বু,বৃ,শু,শ'**
+  String get reportWeekdaysShort;
 
   /// No description provided for @accountTitle.
   ///
