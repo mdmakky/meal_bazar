@@ -46,10 +46,18 @@ create policy bazar_buyers_read on public.bazar_buyers for select using (is_mess
 create policy bazar_buyers_write on public.bazar_buyers for all
   using (has_mess_role(mess_id, 'manager')) with check (has_mess_role(mess_id, 'manager'));
 
--- Backfill: the one buyer each existing bazar already has.
+-- Backfill: the one buyer each existing bazar already has. Closed months and
+-- suspended messes must still be backfilled, and this is not a user action,
+-- so the guard, suspension and audit triggers are off for this one insert.
+alter table public.bazar_buyers disable trigger bazar_buyers_closed_month;
+alter table public.bazar_buyers disable trigger bazar_buyers_suspension;
+alter table public.bazar_buyers disable trigger bazar_buyers_audit;
 insert into public.bazar_buyers (bazar_id, member_id)
 select id, buyer_member_id from public.bazars b where buyer_member_id is not null
   and not exists (select 1 from public.bazar_buyers x where x.bazar_id = b.id);
+alter table public.bazar_buyers enable trigger bazar_buyers_closed_month;
+alter table public.bazar_buyers enable trigger bazar_buyers_suspension;
+alter table public.bazar_buyers enable trigger bazar_buyers_audit;
 
 -- Replaces a bazar's buyers in one go and keeps bazars.buyer_member_id = the
 -- first one (null for []). Security invoker: RLS decides who may write.
