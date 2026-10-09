@@ -385,29 +385,33 @@ class _Header extends ConsumerWidget {
         AppSpace.gutter,
         0,
       ),
-      child: Row(
+      // Name and pill share a line when they fit; at large text the pill
+      // drops below instead of squeezing the name.
+      child: Wrap(
+        alignment: WrapAlignment.spaceBetween,
+        crossAxisAlignment: WrapCrossAlignment.center,
         spacing: AppSpace.md,
+        runSpacing: AppSpace.md,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 2,
-              children: [
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 2,
+            children: [
+              Text(
+                mess?.name ?? l.mealsTitle,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: text.titleLarge,
+              ),
+              if (manager != null)
                 Text(
-                  mess?.name ?? l.mealsTitle,
-                  maxLines: 2,
+                  l.mealGridManager(manager.displayName),
+                  maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: text.titleLarge,
+                  style: AppType.overline(context),
                 ),
-                if (manager != null)
-                  Text(
-                    l.mealGridManager(manager.displayName),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppType.overline(context),
-                  ),
-              ],
-            ),
+            ],
           ),
           ConstrainedBox(
             // Leaves the mess name room; a long month scales down instead.

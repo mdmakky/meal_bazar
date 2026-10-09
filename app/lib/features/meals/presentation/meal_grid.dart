@@ -394,6 +394,8 @@ class MealStepperGrid extends ConsumerWidget {
       border: Border(bottom: BorderSide(color: p.border)),
     );
     final cellCount = rows.length * types.length;
+    // At large text the names need the avatar's room more than the avatar.
+    final avatars = MediaQuery.textScalerOf(context).scale(14) <= 16;
 
     Widget nameCell(double h, Widget child, {bool last = false}) => Container(
       height: h,
@@ -424,7 +426,7 @@ class MealStepperGrid extends ConsumerWidget {
             Row(
               spacing: AppSpace.sm,
               children: [
-                InitialsAvatar(m.displayName),
+                if (avatars) InitialsAvatar(m.displayName),
                 Expanded(
                   child: Text(
                     m.displayName,
@@ -635,7 +637,7 @@ class _StepperCell extends ConsumerWidget {
               // 1.3× text): it overflows sideways instead of wrapping.
               OverflowBox(
                 maxWidth: double.infinity,
-                alignment: Alignment(0, guests > 0 ? -0.4 : 0),
+                alignment: Alignment(0, guests > 0 ? -0.55 : 0),
                 child: _Pop(
                   value: value,
                   delay: delay,
@@ -654,7 +656,7 @@ class _StepperCell extends ConsumerWidget {
               Positioned(
                 left: -AppSpace.md,
                 right: -AppSpace.md,
-                bottom: AppSpace.xs + 2,
+                bottom: AppSpace.xs,
                 child: Center(
                   child: AnimatedSwitcher(
                     duration: AppMotion.of(context, AppMotion.base),
