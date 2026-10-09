@@ -41,6 +41,7 @@ Firebase project `meal-bazar-bd869`. Flow: an AFTER trigger queues a row in `pus
 The app asks for the notification permission after a mess is created or joined, and from the notification settings screen; never on first launch.
 
 ## Release (Android)
+Size budget: **under 30 MB per device**. Measured 2026-10-09 with obfuscation: arm64 APK 26.4 MB (28.3 MB without). Play delivers per-ABI splits from the bundle, so users download only one ABI. Keep `build/symbols` from each release: it is needed to read obfuscated crash stack traces (`flutter symbolize`). Minimum Android is 7.0 (API 24, Flutter's default).
 1. **Upload keystore** (once; back it up outside the repo, since losing it means asking Play for an upload-key reset):
    ```sh
    keytool -genkey -v -keystore ~/keys/meal_bazar-upload.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload
@@ -49,8 +50,8 @@ The app asks for the notification permission after a mess is created or joined, 
 3. **Build** (R8 minify and resource shrinking are on for release):
    ```sh
    cd app
-   flutter build appbundle --release --dart-define-from-file=env.json              # Play upload
-   flutter build apk --release --split-per-abi --dart-define-from-file=env.json   # sideload/testing, target under 30 MB per ABI
+   flutter build appbundle --release --obfuscate --split-debug-info=build/symbols --dart-define-from-file=env.json              # Play upload
+   flutter build apk --release --split-per-abi --obfuscate --split-debug-info=build/symbols --dart-define-from-file=env.json   # sideload/testing
    ```
 4. **Play App Signing**: Play re-signs the app with its own app-signing key, so the installed app's SHA-1 is not your upload key's SHA-1.
 5. **Google login in release**: add both the **upload-key SHA-1** (`keytool -list -v -keystore ~/keys/meal_bazar-upload.jks -alias upload`) and the **Play app-signing SHA-1** (Play Console → Test and release → App integrity → App signing) to the Google Cloud **Android** OAuth client(s) for `com.mealbazar.meal_bazar`. If one is missing, Google sign-in fails silently in that build.
