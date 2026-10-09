@@ -1460,5 +1460,40 @@
   "bazarPickerAddNamed": "Add “{name}”",
   "bazarUnitNone": "No unit",
   "bazarQtyLabel": "Quantity {qty}, tap to change the unit",
-  "bazarSwipeHint": "Swipe left to remove"
+  "bazarSwipeHint": "Swipe left to remove",
+  "pushTitle": "Notifications",
+  "pushIntro": "Choose which mess updates reach your phone",
+  "pushPermissionBody": "Turn on phone notifications to get mess updates",
+  "pushOpenSub": "Bazar, expenses, deposits, notices",
+  "pushJoinRequest": "Join requests",
+  "pushJoinRequestSub": "When someone asks to join the mess",
+  "pushDepositPending": "Deposits to verify",
+  "pushDepositPendingSub": "When a member records a deposit",
+  "pushDepositVerified": "Deposit verified",
+  "pushDepositVerifiedSub": "When the manager verifies your deposit",
+  "pushDepositRejected": "Deposit rejected",
+  "pushDepositRejectedSub": "When the manager rejects your deposit",
+  "pushNotice": "New notices",
+  "pushNoticeSub": "When something is posted on the notice board",
+  "pushBazar": "New bazar",
+  "pushBazarSub": "When someone adds a bazar",
+  "pushExpense": "New expenses",
+  "pushExpenseSub": "When a bill or other expense is added",
+  "pushMonthClosed": "Month closed",
+  "pushMonthClosedSub": "When the month's accounts are final",
+  "pushDue": "Payment reminders",
+  "pushDueSub": "When the manager reminds you of a due",
+  "dueRemindButton": "Remind members who owe",
+  "dueRemindConfirmTitle": "Send payment reminders?",
+  "dueRemindConfirmBody": "Everyone who owes money gets a notification on their phone with their own due amount.",
+  "dueRemindSend": "Send",
+  "dueRemindSent": "Reminder sent to {count}",
+  "@dueRemindSent": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "dueRemindNone": "Nobody to notify: members who owe don't have notifications on"
 }

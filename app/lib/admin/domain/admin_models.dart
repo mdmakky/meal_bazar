@@ -154,6 +154,8 @@ const secretNames = [
   'OPENROUTER_API_KEY',
   'SMS_PROVIDER_KEY',
   'SMTP_PASSWORD',
+  'PUSH_GATEWAY_URL',
+  'PUSH_DISPATCH_SECRET',
 ];
 
 /// A stored credential. Never carries the value, only its last 4 chars.

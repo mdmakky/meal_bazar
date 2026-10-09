@@ -11,3 +11,8 @@ revoke execute on function public.setup_branding_storage() from public, anon, au
 revoke execute on function public.delete_my_account_0007() from public, anon, authenticated;
 grant usage on schema public to service_role;
 grant execute on function public.get_platform_secrets() to service_role;
+-- 0019: the push outbox and its helpers are server-only.
+revoke all on public.push_outbox from anon, authenticated;
+revoke execute on function public.push_kick(), public.push_mess_users(uuid, public.member_role, uuid),
+  public.push_enqueue(uuid[], text, text, text, text, text, text), public.push_claim(int)
+  from public, anon, authenticated;

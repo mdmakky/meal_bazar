@@ -103,6 +103,13 @@ class MoreScreen extends ConsumerWidget {
           l.exportTitle,
           () => context.push('/more/export'),
         ),
+      if (on('push'))
+        tile(
+          Icons.notifications_active_outlined,
+          l.pushTitle,
+          () => context.push('/more/notifications'),
+          sub: l.pushOpenSub,
+        ),
       if (on('reminders'))
         tile(
           Icons.notifications_outlined,

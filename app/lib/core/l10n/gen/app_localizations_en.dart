@@ -2917,4 +2917,93 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bazarSwipeHint => 'Swipe left to remove';
+
+  @override
+  String get pushTitle => 'Notifications';
+
+  @override
+  String get pushIntro => 'Choose which mess updates reach your phone';
+
+  @override
+  String get pushPermissionBody =>
+      'Turn on phone notifications to get mess updates';
+
+  @override
+  String get pushOpenSub => 'Bazar, expenses, deposits, notices';
+
+  @override
+  String get pushJoinRequest => 'Join requests';
+
+  @override
+  String get pushJoinRequestSub => 'When someone asks to join the mess';
+
+  @override
+  String get pushDepositPending => 'Deposits to verify';
+
+  @override
+  String get pushDepositPendingSub => 'When a member records a deposit';
+
+  @override
+  String get pushDepositVerified => 'Deposit verified';
+
+  @override
+  String get pushDepositVerifiedSub => 'When the manager verifies your deposit';
+
+  @override
+  String get pushDepositRejected => 'Deposit rejected';
+
+  @override
+  String get pushDepositRejectedSub => 'When the manager rejects your deposit';
+
+  @override
+  String get pushNotice => 'New notices';
+
+  @override
+  String get pushNoticeSub => 'When something is posted on the notice board';
+
+  @override
+  String get pushBazar => 'New bazar';
+
+  @override
+  String get pushBazarSub => 'When someone adds a bazar';
+
+  @override
+  String get pushExpense => 'New expenses';
+
+  @override
+  String get pushExpenseSub => 'When a bill or other expense is added';
+
+  @override
+  String get pushMonthClosed => 'Month closed';
+
+  @override
+  String get pushMonthClosedSub => 'When the month\'s accounts are final';
+
+  @override
+  String get pushDue => 'Payment reminders';
+
+  @override
+  String get pushDueSub => 'When the manager reminds you of a due';
+
+  @override
+  String get dueRemindButton => 'Remind members who owe';
+
+  @override
+  String get dueRemindConfirmTitle => 'Send payment reminders?';
+
+  @override
+  String get dueRemindConfirmBody =>
+      'Everyone who owes money gets a notification on their phone with their own due amount.';
+
+  @override
+  String get dueRemindSend => 'Send';
+
+  @override
+  String dueRemindSent(String count) {
+    return 'Reminder sent to $count';
+  }
+
+  @override
+  String get dueRemindNone =>
+      'Nobody to notify: members who owe don\'t have notifications on';
 }

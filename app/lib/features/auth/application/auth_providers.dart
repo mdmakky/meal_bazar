@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/db/db.dart';
 import '../../../core/errors.dart';
 import '../../../core/supabase.dart';
+import '../../push/application/push_service.dart';
 import '../data/auth_repository.dart';
 import '../domain/phone.dart';
 import '../domain/profile.dart';
@@ -13,6 +14,7 @@ final authRepositoryProvider = Provider<AuthRepository>(
   (ref) => AuthRepository(
     ref.watch(supabaseClientProvider),
     ref.watch(appDbProvider),
+    beforeSignOut: () => ref.read(pushServiceProvider).unregister(),
   ),
 );
 

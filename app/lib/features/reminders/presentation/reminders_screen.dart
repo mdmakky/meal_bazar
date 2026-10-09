@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/failure_text.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
+import '../../../core/platform/platform_config.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../mess/application/mess_providers.dart';
-import '../../mess/presentation/common.dart' show IconTile, RaisedGroup;
+import '../../mess/presentation/common.dart' show IconTile, NavRow, RaisedGroup;
 import '../application/reminder_service.dart';
 import '../domain/reminders.dart';
 
@@ -112,6 +114,20 @@ class RemindersScreen extends ConsumerWidget {
                   ),
                 ],
               ),
+              if (ref.featureOn('push'))
+                Padding(
+                  padding: const EdgeInsets.only(top: AppSpace.lg),
+                  child: RaisedGroup(
+                    children: [
+                      NavRow(
+                        icon: Icons.notifications_active_outlined,
+                        title: l.pushTitle,
+                        subtitle: l.pushOpenSub,
+                        onTap: () => context.push('/more/notifications'),
+                      ),
+                    ],
+                  ),
+                ),
             ]),
           ),
         ),

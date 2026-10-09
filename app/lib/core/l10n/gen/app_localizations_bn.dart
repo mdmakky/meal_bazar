@@ -2908,4 +2908,92 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get bazarSwipeHint => 'বাদ দিতে বাঁয়ে সরান';
+
+  @override
+  String get pushTitle => 'নোটিফিকেশন';
+
+  @override
+  String get pushIntro => 'মেসের কোন খবর ফোনে পেতে চান, বেছে নিন';
+
+  @override
+  String get pushPermissionBody => 'মেসের খবর পেতে ফোনের নোটিফিকেশন চালু করুন';
+
+  @override
+  String get pushOpenSub => 'বাজার, খরচ, জমা, নোটিশ';
+
+  @override
+  String get pushJoinRequest => 'যোগদানের অনুরোধ';
+
+  @override
+  String get pushJoinRequestSub => 'কেউ মেসে যোগ দিতে চাইলে';
+
+  @override
+  String get pushDepositPending => 'যাচাইয়ের অপেক্ষায় জমা';
+
+  @override
+  String get pushDepositPendingSub => 'কোনো সদস্য টাকা জমা দিলে';
+
+  @override
+  String get pushDepositVerified => 'জমা গৃহীত হলে';
+
+  @override
+  String get pushDepositVerifiedSub => 'ম্যানেজার আপনার জমা যাচাই করলে';
+
+  @override
+  String get pushDepositRejected => 'জমা বাতিল হলে';
+
+  @override
+  String get pushDepositRejectedSub => 'ম্যানেজার আপনার জমা বাতিল করলে';
+
+  @override
+  String get pushNotice => 'নতুন নোটিশ';
+
+  @override
+  String get pushNoticeSub => 'নোটিশ বোর্ডে কিছু লেখা হলে';
+
+  @override
+  String get pushBazar => 'নতুন বাজার';
+
+  @override
+  String get pushBazarSub => 'কেউ বাজারের হিসাব যোগ করলে';
+
+  @override
+  String get pushExpense => 'নতুন খরচ';
+
+  @override
+  String get pushExpenseSub => 'বিল বা অন্য খরচ যোগ হলে';
+
+  @override
+  String get pushMonthClosed => 'মাস বন্ধ';
+
+  @override
+  String get pushMonthClosedSub => 'মাসের হিসাব চূড়ান্ত হলে';
+
+  @override
+  String get pushDue => 'বকেয়ার রিমাইন্ডার';
+
+  @override
+  String get pushDueSub => 'ম্যানেজার বকেয়া মনে করিয়ে দিলে';
+
+  @override
+  String get dueRemindButton => 'বকেয়া মনে করিয়ে দিন';
+
+  @override
+  String get dueRemindConfirmTitle => 'বকেয়া রিমাইন্ডার পাঠাবেন?';
+
+  @override
+  String get dueRemindConfirmBody =>
+      'যাদের বকেয়া আছে, তারা ফোনে নিজের বকেয়ার পরিমাণসহ নোটিফিকেশন পাবেন।';
+
+  @override
+  String get dueRemindSend => 'পাঠান';
+
+  @override
+  String dueRemindSent(String count) {
+    return '$count জনকে রিমাইন্ডার পাঠানো হয়েছে';
+  }
+
+  @override
+  String get dueRemindNone =>
+      'কাউকে পাঠানো যায়নি: বকেয়া থাকা সদস্যদের ফোনে নোটিফিকেশন চালু নেই';
 }

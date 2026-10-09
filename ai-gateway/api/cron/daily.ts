@@ -1,25 +1,35 @@
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { env, rpcError } from '../../lib/auth';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { rpcError, serviceClient } from '../../lib/auth';
 import { handle, HttpError, json } from '../../lib/http';
+import { drainOutbox, serviceAccount, type DrainResult } from '../../lib/push';
 
 const BATCH = 50;
 const CONCURRENCY = 5;
+const PUSH_BATCH = 500;
 
 // Vercel cron, once a day:
 // 1. keep-alive: one trivial query so the free Supabase project is not paused;
-// 2. hard-delete auth users queued by delete_my_account() (DATABASE.md, 0007/0010).
+// 2. hard-delete auth users queued by delete_my_account() (DATABASE.md, 0007/0010);
+// 3. send push_outbox leftovers (a missed pg_net kick); skipped without FIREBASE_SERVICE_ACCOUNT.
 export const GET = handle(async (req) => {
   const secret = process.env.CRON_SECRET;
   if (!secret || req.headers.get('authorization') !== `Bearer ${secret}`) throw new HttpError(401, 'unauthorized');
-  const sb = createClient(env('SUPABASE_URL'), env('SUPABASE_SERVICE_ROLE_KEY'), {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
+  const sb = serviceClient();
   const { error } = await sb.from('messes').select('id', { head: true }).limit(1);
   if (error) throw rpcError(error);
 
   const { deleted, failed } = await processDeletions(sb);
   if (deleted || failed) console.log('account deletions', { deleted, failed }); // counts only, never ids
-  return json({ kept_alive: true, deleted, failed });
+
+  let push: DrainResult | { error: string } | null = null;
+  if (serviceAccount()) {
+    try {
+      push = await drainOutbox(sb, PUSH_BATCH);
+    } catch (e) {
+      push = { error: e instanceof HttpError ? e.code : 'internal' }; // never undoes the work above
+    }
+  }
+  return json({ kept_alive: true, deleted, failed, push });
 });
 
 async function processDeletions(sb: SupabaseClient) {

@@ -1660,5 +1660,40 @@
       }
     }
   },
-  "bazarSwipeHint": "বাদ দিতে বাঁয়ে সরান"
+  "bazarSwipeHint": "বাদ দিতে বাঁয়ে সরান",
+  "pushTitle": "নোটিফিকেশন",
+  "pushIntro": "মেসের কোন খবর ফোনে পেতে চান, বেছে নিন",
+  "pushPermissionBody": "মেসের খবর পেতে ফোনের নোটিফিকেশন চালু করুন",
+  "pushOpenSub": "বাজার, খরচ, জমা, নোটিশ",
+  "pushJoinRequest": "যোগদানের অনুরোধ",
+  "pushJoinRequestSub": "কেউ মেসে যোগ দিতে চাইলে",
+  "pushDepositPending": "যাচাইয়ের অপেক্ষায় জমা",
+  "pushDepositPendingSub": "কোনো সদস্য টাকা জমা দিলে",
+  "pushDepositVerified": "জমা গৃহীত হলে",
+  "pushDepositVerifiedSub": "ম্যানেজার আপনার জমা যাচাই করলে",
+  "pushDepositRejected": "জমা বাতিল হলে",
+  "pushDepositRejectedSub": "ম্যানেজার আপনার জমা বাতিল করলে",
+  "pushNotice": "নতুন নোটিশ",
+  "pushNoticeSub": "নোটিশ বোর্ডে কিছু লেখা হলে",
+  "pushBazar": "নতুন বাজার",
+  "pushBazarSub": "কেউ বাজারের হিসাব যোগ করলে",
+  "pushExpense": "নতুন খরচ",
+  "pushExpenseSub": "বিল বা অন্য খরচ যোগ হলে",
+  "pushMonthClosed": "মাস বন্ধ",
+  "pushMonthClosedSub": "মাসের হিসাব চূড়ান্ত হলে",
+  "pushDue": "বকেয়ার রিমাইন্ডার",
+  "pushDueSub": "ম্যানেজার বকেয়া মনে করিয়ে দিলে",
+  "dueRemindButton": "বকেয়া মনে করিয়ে দিন",
+  "dueRemindConfirmTitle": "বকেয়া রিমাইন্ডার পাঠাবেন?",
+  "dueRemindConfirmBody": "যাদের বকেয়া আছে, তারা ফোনে নিজের বকেয়ার পরিমাণসহ নোটিফিকেশন পাবেন।",
+  "dueRemindSend": "পাঠান",
+  "dueRemindSent": "{count} জনকে রিমাইন্ডার পাঠানো হয়েছে",
+  "@dueRemindSent": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "dueRemindNone": "কাউকে পাঠানো যায়নি: বকেয়া থাকা সদস্যদের ফোনে নোটিফিকেশন চালু নেই"
 }

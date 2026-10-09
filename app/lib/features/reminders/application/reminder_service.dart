@@ -38,9 +38,22 @@ class LocalNotifications {
     iOS: DarwinNotificationDetails(),
   );
 
+  /// Android channel for FCM pushes: background ones (manifest default) and
+  /// foreground ones shown by [show]. Must match the gateway's channel_id.
+  static const pushChannel = AndroidNotificationChannel(
+    'mealbazar_default',
+    'মিল বাজার',
+    importance: Importance.high,
+  );
+
   /// Idempotent.
   Future<void> init() => _ready ??= () async {
     tzdata.initializeTimeZones();
+    await _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >()
+        ?.createNotificationChannel(pushChannel);
     await _plugin.initialize(
       settings: const InitializationSettings(
         android: AndroidInitializationSettings('@mipmap/ic_launcher'),
@@ -78,6 +91,28 @@ class LocalNotifications {
     // Inexact: no SCHEDULE_EXACT_ALARM (Play policy); a few minutes late is fine.
     androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
     matchDateTimeComponents: daily ? DateTimeComponents.time : null,
+  );
+
+  /// Shows a push that arrived while the app is open (FCM doesn't).
+  Future<void> show({
+    required int id,
+    required String title,
+    required String body,
+    String? route,
+  }) => _plugin.show(
+    id: id,
+    title: title,
+    body: body,
+    payload: route,
+    notificationDetails: NotificationDetails(
+      android: AndroidNotificationDetails(
+        pushChannel.id,
+        pushChannel.name,
+        importance: Importance.high,
+        priority: Priority.high,
+      ),
+      iOS: const DarwinNotificationDetails(),
+    ),
   );
 
   Future<void> cancel(int id) => _plugin.cancel(id: id);

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../push/presentation/push_screens.dart' show SendDueRemindersButton;
 import '../../../core/db/db.dart';
 import '../../../core/db/sync.dart';
 import '../../../core/failure_text.dart';
@@ -691,6 +692,10 @@ class _Balances extends ConsumerWidget {
                             ),
                         ]),
                       ),
+                      if (isManager &&
+                          ref.featureOn('push') &&
+                          list.any((b) => b.closingBalance < 0))
+                        SendDueRemindersButton(messId: messId),
                     ],
                   ),
                 ),

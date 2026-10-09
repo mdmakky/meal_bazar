@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/db/db.dart';
 import '../../../core/supabase.dart';
 import '../../auth/application/auth_providers.dart';
 import '../../month/application/month_providers.dart';
+import '../../push/application/push_service.dart';
 import '../data/mess_repository.dart';
 import '../domain/member.dart';
 import '../domain/mess.dart';
@@ -95,6 +98,7 @@ class MessController {
     );
     _ref.invalidate(myMembershipsProvider);
     _ref.read(currentMessIdProvider.notifier).select(id);
+    unawaited(askNotificationPermission(_ref));
     return id;
   }
 
@@ -106,6 +110,7 @@ class MessController {
   }) async {
     final id = await _repo.joinMess(code: code, displayName: displayName);
     _ref.invalidate(myMembershipsProvider);
+    unawaited(askNotificationPermission(_ref));
     return id;
   }
 

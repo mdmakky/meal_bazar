@@ -97,6 +97,7 @@ const featureGroups = <FlagGroup>[
         en: 'Reminder notifications',
       ),
       (key: 'invite_qr', bn: 'কিউআর কোডে আমন্ত্রণ', en: 'QR code invites'),
+      (key: 'push', bn: 'পুশ নোটিফিকেশন', en: 'Push notifications'),
     ],
   ),
   (

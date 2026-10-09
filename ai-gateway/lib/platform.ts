@@ -30,7 +30,9 @@ const Config = z.object({
   }).partial().optional(),
 }).nullable();
 
-const Secrets = z.object({ GEMINI_API_KEY: z.string().min(1), OPENROUTER_API_KEY: z.string().min(1) }).partial().nullable();
+const Secrets = z.object({
+  GEMINI_API_KEY: z.string().min(1), OPENROUTER_API_KEY: z.string().min(1), PUSH_DISPATCH_SECRET: z.string().min(1),
+}).partial().nullable();
 
 function cachedRpc<T>(fn: string, keyEnv: string, schema: z.ZodType<T>) {
   let cache: { value: T; at: number } | null = null;
@@ -107,4 +109,9 @@ export async function providerKeys(): Promise<{ gemini?: string; openrouter?: st
     gemini: s?.GEMINI_API_KEY || process.env.GEMINI_API_KEY || undefined,
     openrouter: s?.OPENROUTER_API_KEY || process.env.OPENROUTER_API_KEY || undefined,
   };
+}
+
+// Shared secret the DB sends to /api/push/dispatch: DB secret > env. Missing → undefined (endpoint refuses).
+export async function pushDispatchSecret(): Promise<string | undefined> {
+  return (await loadSecrets())?.PUSH_DISPATCH_SECRET || process.env.PUSH_DISPATCH_SECRET || undefined;
 }

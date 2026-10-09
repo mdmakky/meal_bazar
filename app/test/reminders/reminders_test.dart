@@ -11,6 +11,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
+import '../platform/fixed_config.dart';
+
 class Scheduled {
   Scheduled(this.id, this.at, this.route, this.daily, this.body);
   final int id;
@@ -40,6 +42,16 @@ class FakeNotifications implements LocalNotifications {
     required String route,
     required bool daily,
   }) async => scheduled[id] = Scheduled(id, at, route, daily, body);
+
+  final shown = <({int id, String title, String body, String? route})>[];
+
+  @override
+  Future<void> show({
+    required int id,
+    required String title,
+    required String body,
+    String? route,
+  }) async => shown.add((id: id, title: title, body: body, route: route));
 
   @override
   Future<void> cancel(int id) async => scheduled.remove(id);
@@ -186,6 +198,7 @@ void main() {
           overrides: [
             localNotificationsProvider.overrideWithValue(fake),
             amIManagerProvider.overrideWithValue(manager),
+            platformConfig({}),
           ],
           child: MaterialApp(
             theme: AppTheme.light(),
@@ -224,6 +237,11 @@ void main() {
       await pump(tester, false);
       expect(find.byType(SwitchListTile), findsNWidgets(2));
       expect(find.text('রাতে মিল বসানোর কথা'), findsNothing);
+    });
+
+    testWidgets('links to push settings', (tester) async {
+      await pump(tester, false);
+      expect(find.text('নোটিফিকেশন'), findsOneWidget);
     });
 
     testWidgets('permission off shows a request button', (tester) async {

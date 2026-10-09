@@ -11,10 +11,14 @@ import '../domain/profile.dart';
 const authRedirectUrl = 'mealbazar://auth-callback';
 
 class AuthRepository {
-  AuthRepository(this._client, this._db);
+  AuthRepository(this._client, this._db, {this.beforeSignOut});
 
   final SupabaseClient _client;
   final AppDb _db;
+
+  /// Runs while the session is still valid (removes this device's push
+  /// token). Must not throw.
+  final Future<void> Function()? beforeSignOut;
 
   GoTrueClient get _auth => _client.auth;
 
@@ -95,7 +99,10 @@ class AuthRepository {
     () => _auth.verifyOTP(phone: phone, token: token, type: OtpType.sms),
   );
 
-  Future<void> signOut() => guard(() => _auth.signOut());
+  Future<void> signOut() async {
+    await beforeSignOut?.call();
+    return guard(() => _auth.signOut());
+  }
 
   /// Cached, so an offline cold start still gets past the router; with
   /// [onStale], answered from the cache first (see [AppDb.cachedFirst]).

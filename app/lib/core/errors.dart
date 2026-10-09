@@ -54,6 +54,7 @@ const _sqlKeys = {
   'RECEIPT_PATH_INVALID': FailureKind.validation,
   'NOT_YOUR_DUTY': FailureKind.notManager,
   'INVALID_ROTATION': FailureKind.validation,
+  'TOO_SOON': FailureKind.rateLimited,
 };
 
 AppFailure mapError(Object error) {
