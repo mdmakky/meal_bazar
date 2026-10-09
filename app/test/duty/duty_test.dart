@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:meal_bazar/core/dates.dart';
 import 'package:meal_bazar/core/l10n/gen/app_localizations.dart';
 import 'package:meal_bazar/core/theme/app_theme.dart';
+import 'package:meal_bazar/core/widgets/app_card.dart';
 import 'package:meal_bazar/features/duty/application/duty_providers.dart';
 import 'package:meal_bazar/features/duty/data/duty_repository.dart';
 import 'package:meal_bazar/features/duty/domain/duty.dart';
@@ -207,7 +208,7 @@ void main() {
       when(() => repo.duties(any(), any(), any())).thenAnswer((_) async => []);
       await pump(tester, const TodayDutyCard(), repo: repo, me: karim);
 
-      expect(find.byType(Card), findsNothing);
+      expect(find.byType(AppCard), findsNothing);
     });
   });
 

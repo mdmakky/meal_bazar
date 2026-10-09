@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:meal_bazar/core/l10n/gen/app_localizations.dart';
 import 'package:meal_bazar/core/theme/app_theme.dart';
+import 'package:meal_bazar/core/widgets/app_card.dart';
 import 'package:meal_bazar/features/meals/application/meal_providers.dart';
 import 'package:meal_bazar/features/meals/domain/meal.dart';
 import 'package:meal_bazar/features/mess/application/mess_providers.dart';
@@ -238,11 +239,11 @@ void main() {
     testWidgets('hidden when nothing pending or not a manager', (tester) async {
       when(() => repo.pendingCount(any(), any())).thenAnswer((_) async => 0);
       await pump(tester, const RecurringPromptCard());
-      expect(find.byType(Card), findsNothing);
+      expect(find.byType(AppCard), findsNothing);
 
       when(() => repo.pendingCount(any(), any())).thenAnswer((_) async => 3);
       await pump(tester, const RecurringPromptCard(), manager: false);
-      expect(find.byType(Card), findsNothing);
+      expect(find.byType(AppCard), findsNothing);
     });
   });
 

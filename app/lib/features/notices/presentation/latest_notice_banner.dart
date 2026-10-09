@@ -29,12 +29,17 @@ class LatestNoticeBanner extends ConsumerWidget {
       ),
       child: Semantics(
         label: AppLocalizations.of(context).noticePinned,
-        child: AppCard(
+        child: AppCard.raised(
           onTap: () => context.push('/more/notices/${n.id}'),
+          padding: const EdgeInsets.all(AppSpace.md),
           child: Row(
             spacing: AppSpace.md,
             children: [
-              const Icon(Icons.push_pin_outlined),
+              CircleAvatar(
+                radius: 20,
+                backgroundColor: p.accentSoft,
+                child: Icon(Icons.push_pin_outlined, size: 20, color: p.ink),
+              ),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,7 +61,7 @@ class LatestNoticeBanner extends ConsumerWidget {
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right),
+              Icon(Icons.chevron_right, color: p.inkTertiary),
             ],
           ),
         ),
