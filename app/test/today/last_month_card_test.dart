@@ -16,18 +16,26 @@ import '../platform/fixed_config.dart';
 final l = lookupAppLocalizations(const Locale('bn'));
 
 /// The period that ended [daysAgo] days ago.
-LastMonth last({required bool closed, int daysAgo = 2, double balance = 0}) {
+LastMonth last({
+  required bool closed,
+  int daysAgo = 2,
+  double balance = 0,
+  bool provisional = false,
+  DateTime? reopenedAt,
+}) {
   final end = today().subtract(Duration(days: daysAgo));
   return LastMonth(
     start: DateTime(end.year, end.month - 1, end.day),
     end: end,
     closed: closed,
-    meals: closed ? 19.5 : null,
-    foodCost: closed ? 1200 : null,
-    extraCost: closed ? 250 : null,
-    credit: closed ? 1450 + balance : null,
-    openingBalance: closed ? 0 : null,
-    closingBalance: closed ? balance : null,
+    provisional: provisional,
+    reopenedAt: reopenedAt,
+    meals: closed || provisional ? 19.5 : null,
+    foodCost: closed || provisional ? 1200 : null,
+    extraCost: closed || provisional ? 250 : null,
+    credit: closed || provisional ? 1450 + balance : null,
+    openingBalance: closed || provisional ? 0 : null,
+    closingBalance: closed || provisional ? balance : null,
   );
 }
 
@@ -35,7 +43,6 @@ Future<void> pump(
   WidgetTester tester,
   LastMonth? month, {
   bool manager = false,
-  PendingItems pending = (deposits: 0, bazarRequests: 0),
 }) async {
   await tester.pumpWidget(
     ProviderScope(
@@ -43,7 +50,6 @@ Future<void> pump(
         platformConfig({}),
         amIManagerProvider.overrideWithValue(manager),
         lastMonthProvider.overrideWith((ref, id) async => month),
-        pendingItemsProvider.overrideWith((ref, k) async => pending),
       ],
       child: MaterialApp(
         theme: AppTheme.light(),
@@ -93,40 +99,61 @@ void main() {
     expect(find.text(l.lastMonthFinalTitle), findsNothing);
   });
 
-  testWidgets('open, member: a quiet "not final yet"', (tester) async {
+  testWidgets('open without figures: a quiet "not final yet"', (tester) async {
     await pump(tester, last(closed: false));
     expect(find.text(l.lastMonthNotFinal), findsOneWidget);
-    expect(find.text(l.closeMonthCtaTitle), findsNothing);
   });
 
-  testWidgets('open, manager with pending items: close is blocked', (
+  testWidgets('provisional: figures labelled, no close call, no hide', (
     tester,
   ) async {
     await pump(
       tester,
-      last(closed: false),
+      last(closed: false, provisional: true, balance: -300),
       manager: true,
-      pending: (deposits: 3, bazarRequests: 0),
     );
-    expect(find.text(l.closeMonthCtaTitle), findsOneWidget);
-    expect(find.text(l.closeMonthPendingDeposits('৩')), findsOneWidget);
-    expect(
-      tester
-          .widget<AppButton>(find.widgetWithText(AppButton, l.monthClose))
-          .onPressed,
-      isNull,
-    );
+    expect(find.text(l.monthEndProvisionalTitle), findsOneWidget);
+    expect(find.text(l.monthEndProvisionalBalance), findsOneWidget);
+    expect(find.text(l.monthEndProvisionalNote), findsOneWidget);
+    expect(find.text('৳৩০০'), findsOneWidget);
+    expect(find.text(l.closeMonthCtaTitle), findsNothing);
+    expect(find.widgetWithText(AppButton, l.monthClose), findsNothing);
+    expect(find.byTooltip(l.lastMonthHide), findsNothing);
+    expect(find.text(l.lastMonthCarried), findsNothing);
   });
 
-  testWidgets('open, manager, nothing pending: close is ready', (tester) async {
-    await pump(tester, last(closed: false), manager: true);
-    expect(find.text(l.closeMonthPendingTitle), findsNothing);
-    expect(
-      tester
-          .widget<AppButton>(find.widgetWithText(AppButton, l.monthClose))
-          .onPressed,
-      isNotNull,
+  testWidgets('provisional while correcting says so', (tester) async {
+    await pump(
+      tester,
+      last(
+        closed: false,
+        provisional: true,
+        balance: 50,
+        reopenedAt: DateTime(2026, 10, 3),
+      ),
     );
+    expect(find.text(l.monthEndCorrectionNote), findsOneWidget);
+  });
+
+  test('LastMonth parses provisional and reopened_at', () {
+    final m = LastMonth.fromJson({
+      'start_date': '2026-09-01',
+      'end_date': '2026-10-01',
+      'status': 'open',
+      'meals': '12.5',
+      'closing_balance': -40,
+      'provisional': true,
+      'reopened_at': '2026-10-02T04:00:00Z',
+    });
+    expect((m.closed, m.provisional), (false, true));
+    expect(m.reopenedAt, isNotNull);
+    expect(m.meals, 12.5);
+    final old = LastMonth.fromJson({
+      'start_date': '2026-09-01',
+      'end_date': '2026-10-01',
+      'status': 'closed',
+    });
+    expect((old.provisional, old.reopenedAt), (false, null));
   });
 
   testWidgets('no previous month: nothing', (tester) async {

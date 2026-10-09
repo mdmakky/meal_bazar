@@ -40,6 +40,7 @@ void main() {
   Future<void> fill(WidgetTester tester, String email, String password) async {
     await tester.enterText(find.byKey(const Key('email')), email);
     await tester.enterText(find.byKey(const Key('password')), password);
+    await tester.ensureVisible(find.byKey(const Key('submit')));
     await tester.tap(find.byKey(const Key('submit')));
     await tester.pump();
   }
@@ -63,7 +64,8 @@ void main() {
     addTearDown(tester.view.reset);
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
     await pump(tester);
-    await tester.pumpAndSettle();
+    // The login hero loops forever, so wait out its entrance instead.
+    await tester.pump(const Duration(milliseconds: 1500));
     expect(find.text(l.signInGoogle), findsOneWidget);
     expect(tester.takeException(), isNull);
   });

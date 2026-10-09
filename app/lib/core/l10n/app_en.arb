@@ -1804,5 +1804,145 @@
   "autoMealsTitle": "Automatic meals",
   "autoMealsBody": "After midnight, meals nobody entered for the day before are filled from the defaults below (1 where none is set). Meal-off and meals already entered are never changed. Editing one makes it an ordinary entry.",
   "autoMealsNever": "Has not run yet",
-  "autoMealsLast": "Last: {day} · {n} meals filled"
+  "autoMealsLast": "Last: {day} · {n} meals filled",
+  "monthEndChipClose": "{month} · Close",
+  "@monthEndChipClose": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "monthEndChipAttention": "Needs attention",
+  "monthEndChipPending": "Pending close",
+  "monthEndChipCorrecting": "Correction in progress",
+  "monthEndChipClosed": "Closed ✓",
+  "monthEndTitle": "Month-end review",
+  "monthEndReview": "Review and close",
+  "monthEndNoPeriod": "No month has ended yet",
+  "monthEndClosedAt": "Closed {when}",
+  "@monthEndClosedAt": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "monthEndReconstructed": "Figures reconstructed from current data (not the original close snapshot).",
+  "monthEndOpeningProvisional": "Carried-forward opening balances are still provisional.",
+  "monthEndTotals": "Totals",
+  "monthEndIssues": "Check before closing",
+  "monthEndReady": "Everything is in order. Ready to close.",
+  "monthEndPendingDeposits": "{count} deposits waiting for verification",
+  "@monthEndPendingDeposits": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "monthEndReviewDeposits": "Review deposits",
+  "monthEndPendingBazar": "{count} bazar requests waiting",
+  "@monthEndPendingBazar": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "monthEndReviewBazar": "Review requests",
+  "monthEndMissingTitle": "{count} meal entries are missing",
+  "@monthEndMissingTitle": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "monthEndMissingHelp": "Tap a date to fill it in the Meals tab.",
+  "monthEndAutoPending": "Automatic meals for the last day have not run yet. Check again once they finish.",
+  "monthEndAutoIncomplete": "Automatic meals for the last day are incomplete. Wait for them to finish.",
+  "monthEndAutoFailed": "Automatic meals for the last day failed. Fill them in the Meals tab or check again later.",
+  "monthEndAutoBadDays": "Automatic meals did not complete on {count} days. Check those days in the Meals tab.",
+  "@monthEndAutoBadDays": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "monthEndBalances": "Member balances",
+  "monthEndProvisional": "Provisional",
+  "monthEndFinal": "Final",
+  "monthEndColMember": "Member",
+  "monthEndColMeals": "Meals",
+  "monthEndColCost": "Cost",
+  "monthEndColPaid": "Paid",
+  "monthEndColOpening": "Opening",
+  "monthEndColFinal": "Final",
+  "monthEndTotalRow": "Total",
+  "monthEndConfirmMissing": "Close despite {count} missing meal entries",
+  "@monthEndConfirmMissing": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "monthEndBlockedPending": "Resolve pending deposits and bazar requests first.",
+  "monthEndBlockedAuto": "Closing waits until the automatic meals finish.",
+  "monthEndBlockedConfirm": "Tick the box above to close with missing entries.",
+  "monthEndConfirmTitle": "Close {month}?",
+  "@monthEndConfirmTitle": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "monthEndConfirmFinalFigures": "Final figures",
+  "monthEndConfirmMissingNote": "{count} missing entries will be closed as they are.",
+  "@monthEndConfirmMissingNote": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "monthEndClosedMissing": "Closed with {count} missing entries confirmed",
+  "@monthEndClosedMissing": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "monthEndFinalReport": "Final report",
+  "monthEndCorrectionTitle": "Correction in progress",
+  "monthEndCorrectionReason": "Reason: {reason}",
+  "@monthEndCorrectionReason": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "monthEndCorrectionBody": "Fix what is wrong, then close the month again. Balances may change until then.",
+  "monthEndProvisionalNote": "Provisional until the month is closed",
+  "monthEndCorrectionNote": "Correction in progress, figures may change",
+  "monthEndCarryProvisional": "Includes provisional carry-forward from {month}",
+  "@monthEndCarryProvisional": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "monthEndFailNotEnded": "This month has not ended yet. Close it after it ends.",
+  "monthEndFailMissing": "Some meal entries are missing. Fill them, or confirm closing with the gaps.",
+  "monthEndFailAuto": "Automatic meals for the last day have not finished. Try again shortly.",
+  "monthEndPushReopened": "Month correction",
+  "monthEndPushReopenedSub": "When the manager reopens a closed month",
+  "monthEndProvisionalTitle": "Last month's account (provisional)",
+  "monthEndProvisionalBalance": "Provisional balance"
 }

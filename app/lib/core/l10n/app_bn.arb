@@ -2153,5 +2153,145 @@
   "autoMealsBody": "রাত ১২টার পর আগের দিনের না-দেওয়া মিল নিচের ডিফল্ট অনুযায়ী বসবে (ডিফল্ট না থাকলে ১)। মিল বন্ধ করা বা আগে দেওয়া মিল বদলাবে না। বদলালে সেটা সাধারণ মিল হয়ে যায়।",
   "autoMealsNever": "এখনো চলেনি",
   "autoMealsLast": "সর্বশেষ: {day} · {n}টি মিল বসেছে",
-  "@autoMealsLast": {"placeholders": {"day": {"type": "String"}, "n": {"type": "String"}}}
+  "@autoMealsLast": {"placeholders": {"day": {"type": "String"}, "n": {"type": "String"}}},
+  "monthEndChipClose": "{month} · বন্ধ করুন",
+  "@monthEndChipClose": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "monthEndChipAttention": "মনোযোগ দরকার",
+  "monthEndChipPending": "বন্ধ করা বাকি",
+  "monthEndChipCorrecting": "সংশোধন চলছে",
+  "monthEndChipClosed": "বন্ধ ✓",
+  "monthEndTitle": "মাস শেষের হিসাব",
+  "monthEndReview": "দেখে বন্ধ করুন",
+  "monthEndNoPeriod": "এখনো কোনো মাস শেষ হয়নি",
+  "monthEndClosedAt": "বন্ধ হয়েছে {when}",
+  "@monthEndClosedAt": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "monthEndReconstructed": "হিসাবগুলো বর্তমান তথ্য থেকে পুনরায় বানানো (বন্ধ করার সময়ের মূল হিসাব নয়)।",
+  "monthEndOpeningProvisional": "আগের মাস থেকে আসা শুরুর ব্যালেন্স এখনো অস্থায়ী।",
+  "monthEndTotals": "মাসের মোট",
+  "monthEndIssues": "বন্ধ করার আগে দেখুন",
+  "monthEndReady": "সব ঠিক আছে। মাস বন্ধ করার জন্য তৈরি।",
+  "monthEndPendingDeposits": "{count}টি জমা যাচাইয়ের অপেক্ষায়",
+  "@monthEndPendingDeposits": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "monthEndReviewDeposits": "জমা দেখুন",
+  "monthEndPendingBazar": "{count}টি বাজার অনুরোধ অপেক্ষায়",
+  "@monthEndPendingBazar": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "monthEndReviewBazar": "অনুরোধ দেখুন",
+  "monthEndMissingTitle": "{count}টি মিলের ঘর খালি",
+  "@monthEndMissingTitle": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "monthEndMissingHelp": "তারিখে চাপ দিয়ে মিল ট্যাবে ভরে নিন।",
+  "monthEndAutoPending": "শেষ দিনের স্বয়ংক্রিয় মিল এখনো চলেনি। শেষ হলে আবার দেখুন।",
+  "monthEndAutoIncomplete": "শেষ দিনের স্বয়ংক্রিয় মিল অসম্পূর্ণ। শেষ হওয়া পর্যন্ত অপেক্ষা করুন।",
+  "monthEndAutoFailed": "শেষ দিনের স্বয়ংক্রিয় মিল ব্যর্থ হয়েছে। মিল ট্যাবে নিজে ভরুন বা পরে আবার দেখুন।",
+  "monthEndAutoBadDays": "{count} দিন স্বয়ংক্রিয় মিল ঠিকমতো হয়নি। সেই দিনগুলো মিল ট্যাবে দেখে নিন।",
+  "@monthEndAutoBadDays": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "monthEndBalances": "সদস্যদের হিসাব",
+  "monthEndProvisional": "অস্থায়ী",
+  "monthEndFinal": "চূড়ান্ত",
+  "monthEndColMember": "সদস্য",
+  "monthEndColMeals": "মিল",
+  "monthEndColCost": "খরচ",
+  "monthEndColPaid": "জমা",
+  "monthEndColOpening": "শুরুর",
+  "monthEndColFinal": "শেষে",
+  "monthEndTotalRow": "মোট",
+  "monthEndConfirmMissing": "{count}টি মিলের ঘর খালি থাকা সত্ত্বেও বন্ধ করুন",
+  "@monthEndConfirmMissing": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "monthEndBlockedPending": "আগে জমা ও বাজার অনুরোধ মিটিয়ে নিন।",
+  "monthEndBlockedAuto": "স্বয়ংক্রিয় মিল শেষ না হওয়া পর্যন্ত বন্ধ করা যাবে না।",
+  "monthEndBlockedConfirm": "খালি ঘরের ঘরটিতে টিক দিলে বন্ধ করা যাবে।",
+  "monthEndConfirmTitle": "{month} বন্ধ করবেন?",
+  "@monthEndConfirmTitle": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "monthEndConfirmFinalFigures": "চূড়ান্ত হিসাব",
+  "monthEndConfirmMissingNote": "{count}টি খালি ঘর যেমন আছে তেমন থেকেই বন্ধ হবে।",
+  "@monthEndConfirmMissingNote": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "monthEndClosedMissing": "{count}টি খালি ঘর নিশ্চিত করে বন্ধ করা হয়েছে",
+  "@monthEndClosedMissing": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "monthEndFinalReport": "চূড়ান্ত রিপোর্ট",
+  "monthEndCorrectionTitle": "সংশোধন চলছে",
+  "monthEndCorrectionReason": "কারণ: {reason}",
+  "@monthEndCorrectionReason": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "monthEndCorrectionBody": "ভুল ঠিক করে মাসটি আবার বন্ধ করুন। তার আগে ব্যালেন্স বদলাতে পারে।",
+  "monthEndProvisionalNote": "অস্থায়ী হিসাব, মাস বন্ধ হলে চূড়ান্ত হবে",
+  "monthEndCorrectionNote": "সংশোধন চলছে, সংখ্যা বদলাতে পারে",
+  "monthEndCarryProvisional": "{month} থেকে আসা অস্থায়ী ব্যালেন্স সহ",
+  "@monthEndCarryProvisional": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "monthEndFailNotEnded": "এই মাস এখনো শেষ হয়নি। শেষ হওয়ার পর বন্ধ করুন।",
+  "monthEndFailMissing": "কিছু মিলের ঘর খালি আছে। ঘরগুলো ভরুন, নয়তো খালি ঘর নিশ্চিত করে বন্ধ করুন।",
+  "monthEndFailAuto": "শেষ দিনের স্বয়ংক্রিয় মিল এখনো শেষ হয়নি। একটু পরে আবার চেষ্টা করুন।",
+  "monthEndPushReopened": "মাস সংশোধন",
+  "monthEndPushReopenedSub": "ম্যানেজার বন্ধ মাস সংশোধন করলে",
+  "monthEndProvisionalTitle": "গত মাসের হিসাব (অস্থায়ী)",
+  "monthEndProvisionalBalance": "অস্থায়ী ব্যালেন্স"
 }

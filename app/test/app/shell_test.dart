@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:meal_bazar/core/db/sync.dart';
 import 'package:meal_bazar/core/l10n/gen/app_localizations.dart';
 import 'package:meal_bazar/core/shell.dart';
 import 'package:meal_bazar/core/theme/app_theme.dart';
@@ -37,12 +39,16 @@ void main() {
       ],
     );
     await tester.pumpWidget(
-      MaterialApp.router(
-        theme: AppTheme.light(),
-        locale: const Locale('bn'),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        routerConfig: router,
+      ProviderScope(
+        // The sync strip above the tabs reads the (empty) write queue.
+        overrides: [syncQueueProvider.overrideWith((ref) => Stream.value([]))],
+        child: MaterialApp.router(
+          theme: AppTheme.light(),
+          locale: const Locale('bn'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          routerConfig: router,
+        ),
       ),
     );
     await tester.pumpAndSettle();

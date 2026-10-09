@@ -15,6 +15,7 @@ enum PushType {
   dutyToday('duty_today'),
   expenseAdded('expense_added'),
   monthClosed('month_closed'),
+  monthReopened('month_reopened'),
   dueReminder('due_reminder'),
   message('message'),
   groupMessage('group_message');

@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/env.dart';
 import '../../../core/failure_text.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
 import '../../../core/platform/platform_config.dart';
-import '../../../core/platform/platform_widgets.dart';
 import '../../../core/widgets/widgets.dart';
 import '../application/auth_providers.dart';
+import 'login_hero.dart';
 
 final _emailRe = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 
@@ -165,28 +166,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       ];
     } else {
       body = [
-        // The brand moment: the mark settles in, then the words follow.
-        Row(
-          spacing: AppSpace.md,
-          children: [
-            const _MarkEntrance(child: BrandMark(size: 64)),
-            Expanded(child: Text(config.appName(lang), style: text.titleLarge)),
-          ],
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: AppSpace.lg),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: AppSpace.sm,
-            children: [
-              Text(l.signInTitle, style: text.displaySmall),
-              Text(
-                config.tagline(lang),
-                style: text.bodyLarge?.copyWith(color: p.inkSecondary),
-              ),
-            ],
-          ),
-        ),
+        Text(l.signInTitle, style: text.displaySmall),
         if (google)
           AppButton(
             key: const Key('google'),
@@ -295,6 +275,65 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       ];
     }
 
+    final content = StaggeredList(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: AppSpace.xl,
+        children: StaggeredList.wrap(body),
+      ),
+    );
+    if (confirm == null) {
+      // The dark hero runs under the status bar; the form sits on a light
+      // sheet whose rounded top overlaps it.
+      return AnnotatedRegion<SystemUiOverlayStyle>(
+        // Light status-bar icons over the dark hero.
+        value: SystemUiOverlayStyle.light.copyWith(
+          statusBarColor: Colors.transparent,
+        ),
+        child: Scaffold(
+          body: AutofillGroup(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Stack(
+                    children: [
+                      LoginHero(
+                        name: config.appName(lang),
+                        tagline: config.tagline(lang),
+                      ),
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        height: AppRadius.xl + 4,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).scaffoldBackgroundColor,
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(AppRadius.xl + 4),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      AppSpace.gutter,
+                      AppSpace.sm,
+                      AppSpace.gutter,
+                      AppSpace.xl + MediaQuery.paddingOf(context).bottom,
+                    ),
+                    child: content,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
     return Scaffold(
       body: SafeArea(
         child: AutofillGroup(
@@ -305,39 +344,10 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               AppSpace.gutter,
               AppSpace.xl,
             ),
-            child: StaggeredList(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: AppSpace.xl,
-                children: StaggeredList.wrap(body),
-              ),
-            ),
+            child: content,
           ),
         ),
       ),
     );
   }
-}
-
-/// The brand mark lands: fades in while settling from 85% with a soft
-/// overshoot. Plays once; instant with reduced motion.
-class _MarkEntrance extends StatelessWidget {
-  const _MarkEntrance({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) => TweenAnimationBuilder<double>(
-    tween: Tween(begin: 0, end: 1),
-    duration: AppMotion.of(context, AppMotion.slow * 2),
-    curve: AppMotion.arrive,
-    child: child,
-    builder: (context, t, child) => Opacity(
-      opacity: t.clamp(0, 1),
-      child: Transform.scale(
-        scale: 0.85 + 0.15 * Curves.easeOutBack.transform(t),
-        child: child,
-      ),
-    ),
-  );
 }

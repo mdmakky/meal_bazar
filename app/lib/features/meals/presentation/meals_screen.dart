@@ -30,14 +30,25 @@ import 'meal_widgets.dart';
 /// switcher, the member × meal stepper grid with column totals, the day's
 /// total; then the month's per-member meals (SQL).
 class MealsScreen extends ConsumerStatefulWidget {
-  const MealsScreen({super.key});
+  const MealsScreen({super.key, this.initialDate});
+
+  /// Opens on this day (`/meals?date=YYYY-MM-DD`); default today.
+  final DateTime? initialDate;
 
   @override
   ConsumerState<MealsScreen> createState() => _MealsScreenState();
 }
 
 class _MealsScreenState extends ConsumerState<MealsScreen> {
-  DateTime _day = today();
+  late DateTime _day = widget.initialDate ?? today();
+
+  @override
+  void didUpdateWidget(MealsScreen old) {
+    super.didUpdateWidget(old);
+    // The tab keeps its state, so a new deep link moves the day.
+    final d = widget.initialDate;
+    if (d != null && d != old.initialDate) _go(d);
+  }
 
   /// Direction of the last day/month change: the date text slides with it.
   bool _forward = true;

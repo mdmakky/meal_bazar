@@ -3732,4 +3732,208 @@ class AppLocalizationsBn extends AppLocalizations {
   String autoMealsLast(String day, String n) {
     return 'সর্বশেষ: $day · $nটি মিল বসেছে';
   }
+
+  @override
+  String monthEndChipClose(String month) {
+    return '$month · বন্ধ করুন';
+  }
+
+  @override
+  String get monthEndChipAttention => 'মনোযোগ দরকার';
+
+  @override
+  String get monthEndChipPending => 'বন্ধ করা বাকি';
+
+  @override
+  String get monthEndChipCorrecting => 'সংশোধন চলছে';
+
+  @override
+  String get monthEndChipClosed => 'বন্ধ ✓';
+
+  @override
+  String get monthEndTitle => 'মাস শেষের হিসাব';
+
+  @override
+  String get monthEndReview => 'দেখে বন্ধ করুন';
+
+  @override
+  String get monthEndNoPeriod => 'এখনো কোনো মাস শেষ হয়নি';
+
+  @override
+  String monthEndClosedAt(String when) {
+    return 'বন্ধ হয়েছে $when';
+  }
+
+  @override
+  String get monthEndReconstructed =>
+      'হিসাবগুলো বর্তমান তথ্য থেকে পুনরায় বানানো (বন্ধ করার সময়ের মূল হিসাব নয়)।';
+
+  @override
+  String get monthEndOpeningProvisional =>
+      'আগের মাস থেকে আসা শুরুর ব্যালেন্স এখনো অস্থায়ী।';
+
+  @override
+  String get monthEndTotals => 'মাসের মোট';
+
+  @override
+  String get monthEndIssues => 'বন্ধ করার আগে দেখুন';
+
+  @override
+  String get monthEndReady => 'সব ঠিক আছে। মাস বন্ধ করার জন্য তৈরি।';
+
+  @override
+  String monthEndPendingDeposits(String count) {
+    return '$countটি জমা যাচাইয়ের অপেক্ষায়';
+  }
+
+  @override
+  String get monthEndReviewDeposits => 'জমা দেখুন';
+
+  @override
+  String monthEndPendingBazar(String count) {
+    return '$countটি বাজার অনুরোধ অপেক্ষায়';
+  }
+
+  @override
+  String get monthEndReviewBazar => 'অনুরোধ দেখুন';
+
+  @override
+  String monthEndMissingTitle(String count) {
+    return '$countটি মিলের ঘর খালি';
+  }
+
+  @override
+  String get monthEndMissingHelp => 'তারিখে চাপ দিয়ে মিল ট্যাবে ভরে নিন।';
+
+  @override
+  String get monthEndAutoPending =>
+      'শেষ দিনের স্বয়ংক্রিয় মিল এখনো চলেনি। শেষ হলে আবার দেখুন।';
+
+  @override
+  String get monthEndAutoIncomplete =>
+      'শেষ দিনের স্বয়ংক্রিয় মিল অসম্পূর্ণ। শেষ হওয়া পর্যন্ত অপেক্ষা করুন।';
+
+  @override
+  String get monthEndAutoFailed =>
+      'শেষ দিনের স্বয়ংক্রিয় মিল ব্যর্থ হয়েছে। মিল ট্যাবে নিজে ভরুন বা পরে আবার দেখুন।';
+
+  @override
+  String monthEndAutoBadDays(String count) {
+    return '$count দিন স্বয়ংক্রিয় মিল ঠিকমতো হয়নি। সেই দিনগুলো মিল ট্যাবে দেখে নিন।';
+  }
+
+  @override
+  String get monthEndBalances => 'সদস্যদের হিসাব';
+
+  @override
+  String get monthEndProvisional => 'অস্থায়ী';
+
+  @override
+  String get monthEndFinal => 'চূড়ান্ত';
+
+  @override
+  String get monthEndColMember => 'সদস্য';
+
+  @override
+  String get monthEndColMeals => 'মিল';
+
+  @override
+  String get monthEndColCost => 'খরচ';
+
+  @override
+  String get monthEndColPaid => 'জমা';
+
+  @override
+  String get monthEndColOpening => 'শুরুর';
+
+  @override
+  String get monthEndColFinal => 'শেষে';
+
+  @override
+  String get monthEndTotalRow => 'মোট';
+
+  @override
+  String monthEndConfirmMissing(String count) {
+    return '$countটি মিলের ঘর খালি থাকা সত্ত্বেও বন্ধ করুন';
+  }
+
+  @override
+  String get monthEndBlockedPending => 'আগে জমা ও বাজার অনুরোধ মিটিয়ে নিন।';
+
+  @override
+  String get monthEndBlockedAuto =>
+      'স্বয়ংক্রিয় মিল শেষ না হওয়া পর্যন্ত বন্ধ করা যাবে না।';
+
+  @override
+  String get monthEndBlockedConfirm =>
+      'খালি ঘরের ঘরটিতে টিক দিলে বন্ধ করা যাবে।';
+
+  @override
+  String monthEndConfirmTitle(String month) {
+    return '$month বন্ধ করবেন?';
+  }
+
+  @override
+  String get monthEndConfirmFinalFigures => 'চূড়ান্ত হিসাব';
+
+  @override
+  String monthEndConfirmMissingNote(String count) {
+    return '$countটি খালি ঘর যেমন আছে তেমন থেকেই বন্ধ হবে।';
+  }
+
+  @override
+  String monthEndClosedMissing(String count) {
+    return '$countটি খালি ঘর নিশ্চিত করে বন্ধ করা হয়েছে';
+  }
+
+  @override
+  String get monthEndFinalReport => 'চূড়ান্ত রিপোর্ট';
+
+  @override
+  String get monthEndCorrectionTitle => 'সংশোধন চলছে';
+
+  @override
+  String monthEndCorrectionReason(String reason) {
+    return 'কারণ: $reason';
+  }
+
+  @override
+  String get monthEndCorrectionBody =>
+      'ভুল ঠিক করে মাসটি আবার বন্ধ করুন। তার আগে ব্যালেন্স বদলাতে পারে।';
+
+  @override
+  String get monthEndProvisionalNote =>
+      'অস্থায়ী হিসাব, মাস বন্ধ হলে চূড়ান্ত হবে';
+
+  @override
+  String get monthEndCorrectionNote => 'সংশোধন চলছে, সংখ্যা বদলাতে পারে';
+
+  @override
+  String monthEndCarryProvisional(String month) {
+    return '$month থেকে আসা অস্থায়ী ব্যালেন্স সহ';
+  }
+
+  @override
+  String get monthEndFailNotEnded =>
+      'এই মাস এখনো শেষ হয়নি। শেষ হওয়ার পর বন্ধ করুন।';
+
+  @override
+  String get monthEndFailMissing =>
+      'কিছু মিলের ঘর খালি আছে। ঘরগুলো ভরুন, নয়তো খালি ঘর নিশ্চিত করে বন্ধ করুন।';
+
+  @override
+  String get monthEndFailAuto =>
+      'শেষ দিনের স্বয়ংক্রিয় মিল এখনো শেষ হয়নি। একটু পরে আবার চেষ্টা করুন।';
+
+  @override
+  String get monthEndPushReopened => 'মাস সংশোধন';
+
+  @override
+  String get monthEndPushReopenedSub => 'ম্যানেজার বন্ধ মাস সংশোধন করলে';
+
+  @override
+  String get monthEndProvisionalTitle => 'গত মাসের হিসাব (অস্থায়ী)';
+
+  @override
+  String get monthEndProvisionalBalance => 'অস্থায়ী ব্যালেন্স';
 }

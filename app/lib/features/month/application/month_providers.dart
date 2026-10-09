@@ -99,6 +99,32 @@ final pendingItemsProvider =
           .pendingItems(k.messId, k.from, k.to),
     );
 
+/// The period waiting to be closed (null: none has ended yet).
+final monthStatusProvider = FutureProvider.family<MonthStatus?, String>(
+  (ref, messId) => ref.watch(monthRepositoryProvider).status(messId),
+);
+
+/// Members with no meal entry in an ended period, for the review screen.
+final monthMissingMealsProvider =
+    FutureProvider.family<List<MissingMeal>, ({String messId, DateTime start})>(
+      (ref, k) async {
+        final repo = ref.watch(monthRepositoryProvider);
+        final p = await repo.period(k.messId, k.start);
+        return repo.missingMeals(k.messId, p);
+      },
+    );
+
+/// Home: the current period's opening is a provisional carry-forward.
+final openingProvisionalProvider = FutureProvider.family<bool, String>((
+  ref,
+  messId,
+) async {
+  final period = await ref.watch(currentPeriodProvider(messId).future);
+  return ref
+      .watch(monthRepositoryProvider)
+      .openingIsProvisional(messId, period.start);
+});
+
 /// The start of the mess month containing [day], for [periodSummaryProvider]
 /// keys only; SQL `month_period` still decides the real range.
 DateTime periodStartFor(DateTime day, int monthStartDay) =>
@@ -118,4 +144,7 @@ List<ProviderOrFamily> monthProviders(String messId) => [
   periodSummaryProvider,
   lastMonthProvider(messId),
   pendingItemsProvider,
+  monthStatusProvider(messId),
+  monthMissingMealsProvider,
+  openingProvisionalProvider(messId),
 ];

@@ -171,8 +171,12 @@ class MoneyController {
     _changed(d.messId, depositsProvider(d.messId));
   }
 
-  Future<void> closeMonth(String messId, DateTime day) async {
-    await _repo.closeMonth(messId, day);
+  Future<void> closeMonth(
+    String messId,
+    DateTime day, {
+    bool confirmMissing = false,
+  }) async {
+    await _repo.closeMonth(messId, day, confirmMissing: confirmMissing);
     _changed(messId, monthsProvider(messId));
   }
 

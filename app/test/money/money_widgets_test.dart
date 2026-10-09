@@ -139,6 +139,7 @@ Future<void> pump(
   List<Object>? extra,
   bool manager = true,
   MonthTotals monthTotals = totals,
+  MonthStatus? monthStatus,
 }) {
   tester.view.physicalSize = const Size(1080, 2400);
   tester.view.devicePixelRatio = 3;
@@ -195,6 +196,7 @@ Future<void> pump(
             ),
           ],
         ),
+        monthStatusProvider.overrideWith((ref, id) async => monthStatus),
         monthsProvider.overrideWith(
           (ref, id) async => [
             MessMonth(
@@ -934,47 +936,23 @@ void main() {
   });
 
   group('months', () {
-    testWidgets('closing a month needs the confirmation sheet', (tester) async {
-      when(() => repo.closeMonth(any(), any())).thenAnswer((_) async => 'oct');
-      await pump(tester, const MonthsScreen());
-      await tester.pumpAndSettle();
-      await tester.tap(find.widgetWithText(AppButton, l.monthClose));
-      await tester.pumpAndSettle();
-      verifyNever(() => repo.closeMonth(any(), any()));
-      expect(find.text(l.closeMonthWhatHappens), findsOneWidget);
-      expect(find.text(l.closeMonthLocked), findsOneWidget);
-      expect(find.text(l.closeMonthNotify), findsOneWidget);
-      expect(find.text('৳৬৮.৭৮'), findsOneWidget);
-
-      await tester.tap(find.byKey(const Key('confirm-close')));
-      await tester.pumpAndSettle();
-      verify(() => repo.closeMonth('mess1', any())).called(1);
-      expect(find.text(l.monthClosedDone), findsWidgets); // card + snack
-      expect(find.byType(StampMark), findsOneWidget);
-    });
-
-    testWidgets('pending deposits and bazar requests block the close', (
+    testWidgets('the status period leads the list and opens the review', (
       tester,
     ) async {
       await pump(
         tester,
         const MonthsScreen(),
-        extra: [
-          pendingItemsProvider.overrideWith(
-            (ref, k) async => (deposits: 2, bazarRequests: 1),
-          ),
-        ],
+        monthStatus: MonthStatus(
+          start: DateTime(2026, 10),
+          end: DateTime(2026, 11),
+          status: 'open',
+          totals: totals,
+        ),
       );
       await tester.pumpAndSettle();
-      await tester.tap(find.widgetWithText(AppButton, l.monthClose));
-      await tester.pumpAndSettle();
-      expect(find.text(l.closeMonthPendingTitle), findsOneWidget);
-      expect(find.text(l.closeMonthPendingDeposits('২')), findsOneWidget);
-      expect(find.text(l.closeMonthPendingBazar('১')), findsOneWidget);
-      final confirm = tester.widget<AppButton>(
-        find.byKey(const Key('confirm-close')),
-      );
-      expect(confirm.onPressed, isNull);
+      expect(find.text(l.monthEndChipPending), findsOneWidget);
+      expect(find.byKey(const Key('months-review')), findsOneWidget);
+      expect(find.byKey(const Key('monthStatusChip')), findsOneWidget);
     });
 
     test('PENDING_ITEMS maps to its own failure', () {

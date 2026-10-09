@@ -7,11 +7,8 @@ import '../../../core/platform/platform_config.dart';
 import '../../../core/prefs.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../mess/application/mess_providers.dart';
-import '../../mess/presentation/common.dart' show IconTile, showSnack;
 import '../../money/presentation/money_sheets.dart'
     show showAddDepositSheet, showMyDepositSheet;
-import '../../money/presentation/months_screen.dart'
-    show PendingItemsBlock, showCloseMonthSheet;
 import '../../month/application/month_providers.dart';
 import '../../month/domain/month.dart';
 import '../../report/presentation/report_actions.dart';
@@ -21,9 +18,10 @@ const lastMonthShowDays = 10;
 
 /// Home: the month just ended (`my_last_month`), for both roles.
 /// Closed → my final account for the first [lastMonthShowDays] days
-/// (dismissible per month). Still open → a manager gets the close call to
-/// action with what blocks it; a member gets a quiet "not final yet".
-/// Nothing while loading, on error, or with no previous month.
+/// (dismissible per month). Not closed → the same card with provisional
+/// figures (and a note while the month is being corrected); closing itself
+/// is the manager's chip, not a card here. Nothing while loading, on error,
+/// or with no previous month.
 class LastMonthCard extends ConsumerWidget {
   const LastMonthCard({super.key, required this.messId});
 
@@ -33,7 +31,6 @@ class LastMonthCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final last = ref.watch(lastMonthProvider(messId)).value;
     final flags = ref.watch(messFlagsProvider(messId)).value ?? const {};
-    final manager = ref.watch(amIManagerProvider);
     final days = today().difference(last?.end ?? today()).inDays;
     final fresh = last != null && days >= 0 && days < lastMonthShowDays;
 
@@ -43,7 +40,11 @@ class LastMonthCard extends ConsumerWidget {
         null,
       LastMonth(closed: true, closingBalance: null) => null,
       LastMonth(closed: true) => _FinalAccount(messId: messId, last: last),
-      _ when manager => _CloseCta(messId: messId, last: last, fresh: fresh),
+      // Not closed yet: the figures are shown, labelled provisional.
+      LastMonth(closingBalance: != null) => _FinalAccount(
+        messId: messId,
+        last: last,
+      ),
       _ => _NotFinal(last: last, fresh: fresh),
     };
     return AnimatedSize(
@@ -126,6 +127,7 @@ class _FinalAccount extends ConsumerWidget {
     final text = Theme.of(context).textTheme;
     final bn = _bn(context);
     final balance = last.closingBalance!;
+    final provisional = !last.closed;
     final food = last.foodCost ?? 0;
     final extra = last.extraCost ?? 0;
     final opening = last.openingBalance ?? 0;
@@ -178,7 +180,9 @@ class _FinalAccount extends ConsumerWidget {
                       Semantics(
                         header: true,
                         child: Text(
-                          l.lastMonthFinalTitle,
+                          provisional
+                              ? l.monthEndProvisionalTitle
+                              : l.lastMonthFinalTitle,
                           style: text.titleMedium,
                         ),
                       ),
@@ -190,11 +194,12 @@ class _FinalAccount extends ConsumerWidget {
                   ),
                 ),
               ),
-              IconButton(
-                tooltip: l.lastMonthHide,
-                icon: Icon(Icons.close, size: 20, color: p.inkTertiary),
-                onPressed: () => setMessFlag(ref, messId, _flag(last)),
-              ),
+              if (!provisional)
+                IconButton(
+                  tooltip: l.lastMonthHide,
+                  icon: Icon(Icons.close, size: 20, color: p.inkTertiary),
+                  onPressed: () => setMessFlag(ref, messId, _flag(last)),
+                ),
             ],
           ),
           const SizedBox(height: AppSpace.lg),
@@ -255,7 +260,9 @@ class _FinalAccount extends ConsumerWidget {
                           spacing: 2,
                           children: [
                             Text(
-                              l.lastMonthFinalBalance,
+                              provisional
+                                  ? l.monthEndProvisionalBalance
+                                  : l.lastMonthFinalBalance,
                               style: AppType.overline(context),
                             ),
                             FittedBox(
@@ -305,13 +312,19 @@ class _FinalAccount extends ConsumerWidget {
                       spacing: AppSpace.sm,
                       children: [
                         Icon(
-                          Icons.subdirectory_arrow_right,
+                          provisional
+                              ? Icons.hourglass_empty
+                              : Icons.subdirectory_arrow_right,
                           size: 18,
                           color: p.inkSecondary,
                         ),
                         Expanded(
                           child: Text(
-                            l.lastMonthCarried,
+                            !provisional
+                                ? l.lastMonthCarried
+                                : last.reopenedAt != null
+                                ? l.monthEndCorrectionNote
+                                : l.monthEndProvisionalNote,
                             style: text.bodySmall?.copyWith(
                               color: p.inkSecondary,
                             ),
@@ -325,7 +338,7 @@ class _FinalAccount extends ConsumerWidget {
                 Row(
                   spacing: AppSpace.sm,
                   children: [
-                    if (ref.featureOn('pdf_report'))
+                    if (!provisional && ref.featureOn('pdf_report'))
                       Expanded(
                         child: AppButton(
                           label: l.lastMonthReport,
@@ -363,91 +376,6 @@ class _FinalAccount extends ConsumerWidget {
   // The sign is carried by the word (জমা আছে / বাকি) and the colour.
   Color? _tone(AppPalette p, double v) =>
       v > 0 ? p.advance : (v < 0 ? p.due : null);
-}
-
-/// Manager: last month is still open. Close it, once nothing is pending.
-class _CloseCta extends ConsumerWidget {
-  const _CloseCta({
-    required this.messId,
-    required this.last,
-    required this.fresh,
-  });
-
-  final String messId;
-  final LastMonth last;
-  final bool fresh;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = AppLocalizations.of(context);
-    final p = context.palette;
-    final text = Theme.of(context).textTheme;
-    final pending = ref
-        .watch(
-          pendingItemsProvider((
-            messId: messId,
-            from: last.start,
-            to: last.end,
-          )),
-        )
-        .value;
-    final blocked =
-        pending != null && pending.deposits + pending.bazarRequests > 0;
-    return AppCard.raised(
-      key: const Key('last-month-close'),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: AppSpace.md,
-        children: [
-          if (fresh) _NewMonthLine(last: last),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: AppSpace.md,
-            children: [
-              IconTile(Icons.lock_clock_outlined, color: p.warning),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 2,
-                  children: [
-                    Semantics(
-                      header: true,
-                      child: Text(
-                        l.closeMonthCtaTitle,
-                        style: text.titleMedium,
-                      ),
-                    ),
-                    Text(
-                      l.closeMonthCtaBody(_monthYear(context, last.start)),
-                      style: text.bodyMedium?.copyWith(color: p.inkSecondary),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          if (pending != null) PendingItemsBlock(pending: pending),
-          AppButton(
-            label: l.monthClose,
-            icon: Icons.lock_outline,
-            expand: true,
-            onPressed: blocked
-                ? null
-                : () async {
-                    final done = await showCloseMonthSheet(
-                      context,
-                      messId,
-                      previous: true,
-                    );
-                    if (done && context.mounted) {
-                      showSnack(context, l.monthClosedDone);
-                    }
-                  },
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 /// Member: last month is not final yet. Quiet, no action.

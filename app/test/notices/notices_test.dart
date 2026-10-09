@@ -149,6 +149,8 @@ void main() {
       notices: [notice('a'), notice('b'), notice('c', read: true)],
     );
     await tester.pumpAndSettle();
+    // More has grown past one screen; the list builds rows lazily.
+    await tester.scrollUntilVisible(find.text(l.noticeTitle), 200);
     expect(find.text(l.noticeTitle), findsOneWidget);
     expect(find.text('২'), findsOneWidget);
   });

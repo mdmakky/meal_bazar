@@ -166,12 +166,14 @@ MemberTransparency memberTransparencyFromJson(Map<String, dynamic> j) => (
 );
 
 /// The caller's previous period (`my_last_month`). The money figures are
-/// the caller's closed snapshot, null while the month is open.
+/// the caller's final snapshot once closed, provisional before that.
 class LastMonth {
   const LastMonth({
     required this.start,
     required this.end,
     required this.closed,
+    this.provisional = false,
+    this.reopenedAt,
     this.meals,
     this.foodCost,
     this.extraCost,
@@ -186,6 +188,11 @@ class LastMonth {
       start: DateTime.parse(j['start_date'] as String),
       end: DateTime.parse(j['end_date'] as String),
       closed: j['status'] == 'closed',
+      // Older servers (before 0032) have no such column.
+      provisional: j['provisional'] == true,
+      reopenedAt: j['reopened_at'] == null
+          ? null
+          : DateTime.parse(j['reopened_at'] as String).toLocal(),
       meals: n('meals'),
       foodCost: n('food_cost'),
       extraCost: n('extra_cost'),
@@ -200,6 +207,12 @@ class LastMonth {
   /// Exclusive: the first day of the current period.
   final DateTime end;
   final bool closed;
+
+  /// The figures are not frozen yet (the month is open or being corrected).
+  final bool provisional;
+
+  /// Set while a reopened month is being corrected.
+  final DateTime? reopenedAt;
   final double? meals;
   final double? foodCost;
   final double? extraCost;
@@ -209,6 +222,102 @@ class LastMonth {
   /// Positive = advance, negative = due.
   final double? closingBalance;
 }
+
+/// The period waiting to be closed (`month_review`, 0032).
+class MonthStatus {
+  const MonthStatus({
+    required this.start,
+    required this.end,
+    required this.status,
+    this.closedAt,
+    this.reopenedAt,
+    this.closedMissing = 0,
+    required this.totals,
+    this.pendingDeposits = 0,
+    this.pendingBazarRequests = 0,
+    this.missingDays = 0,
+    this.autoState = 'off',
+    this.autoBadDays = 0,
+    this.totalsReconstructed = false,
+    this.openingProvisional = false,
+    this.canClose = false,
+  });
+
+  factory MonthStatus.fromJson(Map<String, dynamic> j) => MonthStatus(
+    start: DateTime.parse(j['start_date'] as String),
+    end: DateTime.parse(j['end_date'] as String),
+    status: j['status'] as String,
+    closedAt: j['closed_at'] == null
+        ? null
+        : DateTime.parse(j['closed_at'] as String).toLocal(),
+    reopenedAt: j['reopened_at'] == null
+        ? null
+        : DateTime.parse(j['reopened_at'] as String).toLocal(),
+    closedMissing: (j['closed_missing'] as num?)?.toInt() ?? 0,
+    totals: MonthTotals.fromJson({
+      for (final k in const [
+        'food_total',
+        'total_meals',
+        'meal_rate',
+        'extra_total',
+        'credit_total',
+      ])
+        k: j[k] ?? 0,
+    }),
+    pendingDeposits: (j['pending_deposits'] as num?)?.toInt() ?? 0,
+    pendingBazarRequests: (j['pending_bazar_requests'] as num?)?.toInt() ?? 0,
+    missingDays: (j['missing_days'] as num?)?.toInt() ?? 0,
+    autoState: j['auto_state'] as String? ?? 'off',
+    autoBadDays: (j['auto_bad_days'] as num?)?.toInt() ?? 0,
+    totalsReconstructed: j['totals_reconstructed'] == true,
+    openingProvisional: j['opening_provisional'] == true,
+    canClose: j['can_close'] == true,
+  );
+
+  final DateTime start;
+
+  /// Exclusive.
+  final DateTime end;
+
+  /// 'open' | 'correcting' | 'closed'.
+  final String status;
+  final DateTime? closedAt;
+  final DateTime? reopenedAt;
+  final int closedMissing;
+  final MonthTotals totals;
+  final int pendingDeposits;
+  final int pendingBazarRequests;
+
+  /// Missing member-days (a member with no entry on a day).
+  final int missingDays;
+
+  /// 'off' | 'ok' | 'pending' | 'incomplete' | 'failed'.
+  final String autoState;
+  final int autoBadDays;
+  final bool totalsReconstructed;
+  final bool openingProvisional;
+  final bool canClose;
+
+  bool get isClosed => status == 'closed';
+  bool get isCorrecting => status == 'correcting';
+  bool get autoBlocks =>
+      const {'pending', 'incomplete', 'failed'}.contains(autoState);
+
+  /// Something a manager should look at (the chip turns "needs attention").
+  bool get needsAttention =>
+      pendingDeposits + pendingBazarRequests > 0 ||
+      missingDays > 0 ||
+      (autoState != 'ok' && autoState != 'off');
+}
+
+/// A member with no meal entry on [day] (`month_missing_meals`).
+typedef MissingMeal = ({DateTime day, String memberId, String name});
+
+MissingMeal missingMealFromJson(Map<String, dynamic> j) => (
+  day: DateTime.parse(j['day'] as String),
+  memberId: j['member_id'] as String,
+  name: j['display_name'] as String,
+);
 
 /// Pending items that block closing a period (`month_pending_items`).
 typedef PendingItems = ({int deposits, int bazarRequests});

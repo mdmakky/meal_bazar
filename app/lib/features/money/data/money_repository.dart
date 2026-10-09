@@ -380,10 +380,18 @@ class MoneyRepository {
   });
 
   /// Closes the billing period containing [day]. Returns the month id.
-  Future<String> closeMonth(String messId, DateTime day) => guard(() async {
+  Future<String> closeMonth(
+    String messId,
+    DateTime day, {
+    bool confirmMissing = false,
+  }) => guard(() async {
     final id = await _client.rpc(
       'close_month',
-      params: {'p_mess': messId, 'p_date': isoDate(day)},
+      params: {
+        'p_mess': messId,
+        'p_date': isoDate(day),
+        'p_confirm_missing': confirmMissing,
+      },
     );
     return id as String;
   });

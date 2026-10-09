@@ -6829,6 +6829,342 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'সর্বশেষ: {day} · {n}টি মিল বসেছে'**
   String autoMealsLast(String day, String n);
+
+  /// No description provided for @monthEndChipClose.
+  ///
+  /// In bn, this message translates to:
+  /// **'{month} · বন্ধ করুন'**
+  String monthEndChipClose(String month);
+
+  /// No description provided for @monthEndChipAttention.
+  ///
+  /// In bn, this message translates to:
+  /// **'মনোযোগ দরকার'**
+  String get monthEndChipAttention;
+
+  /// No description provided for @monthEndChipPending.
+  ///
+  /// In bn, this message translates to:
+  /// **'বন্ধ করা বাকি'**
+  String get monthEndChipPending;
+
+  /// No description provided for @monthEndChipCorrecting.
+  ///
+  /// In bn, this message translates to:
+  /// **'সংশোধন চলছে'**
+  String get monthEndChipCorrecting;
+
+  /// No description provided for @monthEndChipClosed.
+  ///
+  /// In bn, this message translates to:
+  /// **'বন্ধ ✓'**
+  String get monthEndChipClosed;
+
+  /// No description provided for @monthEndTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'মাস শেষের হিসাব'**
+  String get monthEndTitle;
+
+  /// No description provided for @monthEndReview.
+  ///
+  /// In bn, this message translates to:
+  /// **'দেখে বন্ধ করুন'**
+  String get monthEndReview;
+
+  /// No description provided for @monthEndNoPeriod.
+  ///
+  /// In bn, this message translates to:
+  /// **'এখনো কোনো মাস শেষ হয়নি'**
+  String get monthEndNoPeriod;
+
+  /// No description provided for @monthEndClosedAt.
+  ///
+  /// In bn, this message translates to:
+  /// **'বন্ধ হয়েছে {when}'**
+  String monthEndClosedAt(String when);
+
+  /// No description provided for @monthEndReconstructed.
+  ///
+  /// In bn, this message translates to:
+  /// **'হিসাবগুলো বর্তমান তথ্য থেকে পুনরায় বানানো (বন্ধ করার সময়ের মূল হিসাব নয়)।'**
+  String get monthEndReconstructed;
+
+  /// No description provided for @monthEndOpeningProvisional.
+  ///
+  /// In bn, this message translates to:
+  /// **'আগের মাস থেকে আসা শুরুর ব্যালেন্স এখনো অস্থায়ী।'**
+  String get monthEndOpeningProvisional;
+
+  /// No description provided for @monthEndTotals.
+  ///
+  /// In bn, this message translates to:
+  /// **'মাসের মোট'**
+  String get monthEndTotals;
+
+  /// No description provided for @monthEndIssues.
+  ///
+  /// In bn, this message translates to:
+  /// **'বন্ধ করার আগে দেখুন'**
+  String get monthEndIssues;
+
+  /// No description provided for @monthEndReady.
+  ///
+  /// In bn, this message translates to:
+  /// **'সব ঠিক আছে। মাস বন্ধ করার জন্য তৈরি।'**
+  String get monthEndReady;
+
+  /// No description provided for @monthEndPendingDeposits.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count}টি জমা যাচাইয়ের অপেক্ষায়'**
+  String monthEndPendingDeposits(String count);
+
+  /// No description provided for @monthEndReviewDeposits.
+  ///
+  /// In bn, this message translates to:
+  /// **'জমা দেখুন'**
+  String get monthEndReviewDeposits;
+
+  /// No description provided for @monthEndPendingBazar.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count}টি বাজার অনুরোধ অপেক্ষায়'**
+  String monthEndPendingBazar(String count);
+
+  /// No description provided for @monthEndReviewBazar.
+  ///
+  /// In bn, this message translates to:
+  /// **'অনুরোধ দেখুন'**
+  String get monthEndReviewBazar;
+
+  /// No description provided for @monthEndMissingTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count}টি মিলের ঘর খালি'**
+  String monthEndMissingTitle(String count);
+
+  /// No description provided for @monthEndMissingHelp.
+  ///
+  /// In bn, this message translates to:
+  /// **'তারিখে চাপ দিয়ে মিল ট্যাবে ভরে নিন।'**
+  String get monthEndMissingHelp;
+
+  /// No description provided for @monthEndAutoPending.
+  ///
+  /// In bn, this message translates to:
+  /// **'শেষ দিনের স্বয়ংক্রিয় মিল এখনো চলেনি। শেষ হলে আবার দেখুন।'**
+  String get monthEndAutoPending;
+
+  /// No description provided for @monthEndAutoIncomplete.
+  ///
+  /// In bn, this message translates to:
+  /// **'শেষ দিনের স্বয়ংক্রিয় মিল অসম্পূর্ণ। শেষ হওয়া পর্যন্ত অপেক্ষা করুন।'**
+  String get monthEndAutoIncomplete;
+
+  /// No description provided for @monthEndAutoFailed.
+  ///
+  /// In bn, this message translates to:
+  /// **'শেষ দিনের স্বয়ংক্রিয় মিল ব্যর্থ হয়েছে। মিল ট্যাবে নিজে ভরুন বা পরে আবার দেখুন।'**
+  String get monthEndAutoFailed;
+
+  /// No description provided for @monthEndAutoBadDays.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count} দিন স্বয়ংক্রিয় মিল ঠিকমতো হয়নি। সেই দিনগুলো মিল ট্যাবে দেখে নিন।'**
+  String monthEndAutoBadDays(String count);
+
+  /// No description provided for @monthEndBalances.
+  ///
+  /// In bn, this message translates to:
+  /// **'সদস্যদের হিসাব'**
+  String get monthEndBalances;
+
+  /// No description provided for @monthEndProvisional.
+  ///
+  /// In bn, this message translates to:
+  /// **'অস্থায়ী'**
+  String get monthEndProvisional;
+
+  /// No description provided for @monthEndFinal.
+  ///
+  /// In bn, this message translates to:
+  /// **'চূড়ান্ত'**
+  String get monthEndFinal;
+
+  /// No description provided for @monthEndColMember.
+  ///
+  /// In bn, this message translates to:
+  /// **'সদস্য'**
+  String get monthEndColMember;
+
+  /// No description provided for @monthEndColMeals.
+  ///
+  /// In bn, this message translates to:
+  /// **'মিল'**
+  String get monthEndColMeals;
+
+  /// No description provided for @monthEndColCost.
+  ///
+  /// In bn, this message translates to:
+  /// **'খরচ'**
+  String get monthEndColCost;
+
+  /// No description provided for @monthEndColPaid.
+  ///
+  /// In bn, this message translates to:
+  /// **'জমা'**
+  String get monthEndColPaid;
+
+  /// No description provided for @monthEndColOpening.
+  ///
+  /// In bn, this message translates to:
+  /// **'শুরুর'**
+  String get monthEndColOpening;
+
+  /// No description provided for @monthEndColFinal.
+  ///
+  /// In bn, this message translates to:
+  /// **'শেষে'**
+  String get monthEndColFinal;
+
+  /// No description provided for @monthEndTotalRow.
+  ///
+  /// In bn, this message translates to:
+  /// **'মোট'**
+  String get monthEndTotalRow;
+
+  /// No description provided for @monthEndConfirmMissing.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count}টি মিলের ঘর খালি থাকা সত্ত্বেও বন্ধ করুন'**
+  String monthEndConfirmMissing(String count);
+
+  /// No description provided for @monthEndBlockedPending.
+  ///
+  /// In bn, this message translates to:
+  /// **'আগে জমা ও বাজার অনুরোধ মিটিয়ে নিন।'**
+  String get monthEndBlockedPending;
+
+  /// No description provided for @monthEndBlockedAuto.
+  ///
+  /// In bn, this message translates to:
+  /// **'স্বয়ংক্রিয় মিল শেষ না হওয়া পর্যন্ত বন্ধ করা যাবে না।'**
+  String get monthEndBlockedAuto;
+
+  /// No description provided for @monthEndBlockedConfirm.
+  ///
+  /// In bn, this message translates to:
+  /// **'খালি ঘরের ঘরটিতে টিক দিলে বন্ধ করা যাবে।'**
+  String get monthEndBlockedConfirm;
+
+  /// No description provided for @monthEndConfirmTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'{month} বন্ধ করবেন?'**
+  String monthEndConfirmTitle(String month);
+
+  /// No description provided for @monthEndConfirmFinalFigures.
+  ///
+  /// In bn, this message translates to:
+  /// **'চূড়ান্ত হিসাব'**
+  String get monthEndConfirmFinalFigures;
+
+  /// No description provided for @monthEndConfirmMissingNote.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count}টি খালি ঘর যেমন আছে তেমন থেকেই বন্ধ হবে।'**
+  String monthEndConfirmMissingNote(String count);
+
+  /// No description provided for @monthEndClosedMissing.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count}টি খালি ঘর নিশ্চিত করে বন্ধ করা হয়েছে'**
+  String monthEndClosedMissing(String count);
+
+  /// No description provided for @monthEndFinalReport.
+  ///
+  /// In bn, this message translates to:
+  /// **'চূড়ান্ত রিপোর্ট'**
+  String get monthEndFinalReport;
+
+  /// No description provided for @monthEndCorrectionTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'সংশোধন চলছে'**
+  String get monthEndCorrectionTitle;
+
+  /// No description provided for @monthEndCorrectionReason.
+  ///
+  /// In bn, this message translates to:
+  /// **'কারণ: {reason}'**
+  String monthEndCorrectionReason(String reason);
+
+  /// No description provided for @monthEndCorrectionBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভুল ঠিক করে মাসটি আবার বন্ধ করুন। তার আগে ব্যালেন্স বদলাতে পারে।'**
+  String get monthEndCorrectionBody;
+
+  /// No description provided for @monthEndProvisionalNote.
+  ///
+  /// In bn, this message translates to:
+  /// **'অস্থায়ী হিসাব, মাস বন্ধ হলে চূড়ান্ত হবে'**
+  String get monthEndProvisionalNote;
+
+  /// No description provided for @monthEndCorrectionNote.
+  ///
+  /// In bn, this message translates to:
+  /// **'সংশোধন চলছে, সংখ্যা বদলাতে পারে'**
+  String get monthEndCorrectionNote;
+
+  /// No description provided for @monthEndCarryProvisional.
+  ///
+  /// In bn, this message translates to:
+  /// **'{month} থেকে আসা অস্থায়ী ব্যালেন্স সহ'**
+  String monthEndCarryProvisional(String month);
+
+  /// No description provided for @monthEndFailNotEnded.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই মাস এখনো শেষ হয়নি। শেষ হওয়ার পর বন্ধ করুন।'**
+  String get monthEndFailNotEnded;
+
+  /// No description provided for @monthEndFailMissing.
+  ///
+  /// In bn, this message translates to:
+  /// **'কিছু মিলের ঘর খালি আছে। ঘরগুলো ভরুন, নয়তো খালি ঘর নিশ্চিত করে বন্ধ করুন।'**
+  String get monthEndFailMissing;
+
+  /// No description provided for @monthEndFailAuto.
+  ///
+  /// In bn, this message translates to:
+  /// **'শেষ দিনের স্বয়ংক্রিয় মিল এখনো শেষ হয়নি। একটু পরে আবার চেষ্টা করুন।'**
+  String get monthEndFailAuto;
+
+  /// No description provided for @monthEndPushReopened.
+  ///
+  /// In bn, this message translates to:
+  /// **'মাস সংশোধন'**
+  String get monthEndPushReopened;
+
+  /// No description provided for @monthEndPushReopenedSub.
+  ///
+  /// In bn, this message translates to:
+  /// **'ম্যানেজার বন্ধ মাস সংশোধন করলে'**
+  String get monthEndPushReopenedSub;
+
+  /// No description provided for @monthEndProvisionalTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'গত মাসের হিসাব (অস্থায়ী)'**
+  String get monthEndProvisionalTitle;
+
+  /// No description provided for @monthEndProvisionalBalance.
+  ///
+  /// In bn, this message translates to:
+  /// **'অস্থায়ী ব্যালেন্স'**
+  String get monthEndProvisionalBalance;
 }
 
 class _AppLocalizationsDelegate

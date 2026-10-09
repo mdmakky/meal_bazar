@@ -84,6 +84,27 @@ class MonthRepository {
     LastMonth.fromJson,
   )).firstOrNull;
 
+  /// The period waiting to be closed; null when no month has ended.
+  Future<MonthStatus?> status(String messId) async => (await _list(
+    'month_review',
+    {'p_mess': messId},
+    MonthStatus.fromJson,
+  )).firstOrNull;
+
+  Future<List<MissingMeal>> missingMeals(String messId, MonthPeriod p) =>
+      _list('month_missing_meals', _range(messId, p), missingMealFromJson);
+
+  /// True when the opening balance of the period starting [from] is not a
+  /// frozen snapshot.
+  Future<bool> openingIsProvisional(String messId, DateTime from) =>
+      guard(() async {
+        final r = await _client.rpc(
+          'opening_is_provisional',
+          params: {'p_mess': messId, 'p_from': isoDate(from)},
+        );
+        return r == true;
+      });
+
   /// Pending deposits and bazar requests dated in `[from, to)`.
   Future<PendingItems> pendingItems(
     String messId,

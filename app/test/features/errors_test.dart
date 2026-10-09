@@ -19,6 +19,9 @@ void main() {
       'PREVIOUS_MONTH_OPEN': FailureKind.previousMonthOpen,
       'LATER_MONTH_CLOSED': FailureKind.laterMonthClosed,
       'CUTOFF_PASSED': FailureKind.cutoffPassed,
+      'MONTH_NOT_ENDED': FailureKind.monthNotEnded,
+      'MISSING_MEALS': FailureKind.missingMeals,
+      'AUTO_MEALS_PENDING': FailureKind.autoMealsPending,
       'REASON_REQUIRED': FailureKind.validation,
       'USER_LINK_FORBIDDEN': FailureKind.unknown,
     };

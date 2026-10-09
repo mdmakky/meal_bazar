@@ -22,6 +22,7 @@ import '../features/mess/presentation/due_reminders_screen.dart';
 import '../features/mess/presentation/mess_screens.dart';
 import '../features/money/presentation/money_screen.dart';
 import '../features/money/presentation/months_screen.dart';
+import '../features/month/presentation/month_end_review_screen.dart';
 import '../features/notices/presentation/notices_screen.dart';
 import '../features/push/presentation/inbox_screen.dart';
 import '../features/push/presentation/push_screens.dart';
@@ -29,11 +30,17 @@ import '../features/recurring/presentation/meal_defaults_screen.dart';
 import '../features/recurring/presentation/recurring_screen.dart';
 import '../features/reminders/presentation/reminders_screen.dart';
 import '../features/today/presentation/today_screen.dart';
+import 'dates.dart';
 import 'failure_text.dart';
 import 'shell.dart';
 import 'widgets/widgets.dart';
 
 const homePath = '/today';
+
+DateTime? _dayParam(String? v) {
+  final d = DateTime.tryParse(v ?? '');
+  return d == null ? null : dayOnly(d);
+}
 
 /// Where [location] should go given the session, or null to stay.
 ///
@@ -167,7 +174,12 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           StatefulShellBranch(
             routes: [
-              GoRoute(path: '/meals', builder: (_, _) => const MealsScreen()),
+              GoRoute(
+                path: '/meals',
+                builder: (_, state) => MealsScreen(
+                  initialDate: _dayParam(state.uri.queryParameters['date']),
+                ),
+              ),
             ],
           ),
           StatefulShellBranch(
@@ -187,6 +199,16 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'months',
                     builder: (_, _) => const MonthsScreen(),
+                    routes: [
+                      GoRoute(
+                        path: 'review',
+                        builder: (_, state) => MonthEndReviewScreen(
+                          start: DateTime.tryParse(
+                            state.uri.queryParameters['start'] ?? '',
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

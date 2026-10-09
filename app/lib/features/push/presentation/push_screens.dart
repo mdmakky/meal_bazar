@@ -73,6 +73,11 @@ import '../domain/push.dart';
     l.pushMonthClosed,
     l.pushMonthClosedSub,
   ),
+  PushType.monthReopened => (
+    Icons.edit_calendar_outlined,
+    l.monthEndPushReopened,
+    l.monthEndPushReopenedSub,
+  ),
   PushType.dueReminder => (Icons.payments_outlined, l.pushDue, l.pushDueSub),
   PushType.message => (Icons.forum_outlined, l.pushMessage, l.pushMessageSub),
   PushType.groupMessage => (Icons.groups_outlined, l.pushGroup, l.pushGroupSub),

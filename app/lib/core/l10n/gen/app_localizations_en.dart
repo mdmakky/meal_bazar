@@ -3743,4 +3743,210 @@ class AppLocalizationsEn extends AppLocalizations {
   String autoMealsLast(String day, String n) {
     return 'Last: $day · $n meals filled';
   }
+
+  @override
+  String monthEndChipClose(String month) {
+    return '$month · Close';
+  }
+
+  @override
+  String get monthEndChipAttention => 'Needs attention';
+
+  @override
+  String get monthEndChipPending => 'Pending close';
+
+  @override
+  String get monthEndChipCorrecting => 'Correction in progress';
+
+  @override
+  String get monthEndChipClosed => 'Closed ✓';
+
+  @override
+  String get monthEndTitle => 'Month-end review';
+
+  @override
+  String get monthEndReview => 'Review and close';
+
+  @override
+  String get monthEndNoPeriod => 'No month has ended yet';
+
+  @override
+  String monthEndClosedAt(String when) {
+    return 'Closed $when';
+  }
+
+  @override
+  String get monthEndReconstructed =>
+      'Figures reconstructed from current data (not the original close snapshot).';
+
+  @override
+  String get monthEndOpeningProvisional =>
+      'Carried-forward opening balances are still provisional.';
+
+  @override
+  String get monthEndTotals => 'Totals';
+
+  @override
+  String get monthEndIssues => 'Check before closing';
+
+  @override
+  String get monthEndReady => 'Everything is in order. Ready to close.';
+
+  @override
+  String monthEndPendingDeposits(String count) {
+    return '$count deposits waiting for verification';
+  }
+
+  @override
+  String get monthEndReviewDeposits => 'Review deposits';
+
+  @override
+  String monthEndPendingBazar(String count) {
+    return '$count bazar requests waiting';
+  }
+
+  @override
+  String get monthEndReviewBazar => 'Review requests';
+
+  @override
+  String monthEndMissingTitle(String count) {
+    return '$count meal entries are missing';
+  }
+
+  @override
+  String get monthEndMissingHelp => 'Tap a date to fill it in the Meals tab.';
+
+  @override
+  String get monthEndAutoPending =>
+      'Automatic meals for the last day have not run yet. Check again once they finish.';
+
+  @override
+  String get monthEndAutoIncomplete =>
+      'Automatic meals for the last day are incomplete. Wait for them to finish.';
+
+  @override
+  String get monthEndAutoFailed =>
+      'Automatic meals for the last day failed. Fill them in the Meals tab or check again later.';
+
+  @override
+  String monthEndAutoBadDays(String count) {
+    return 'Automatic meals did not complete on $count days. Check those days in the Meals tab.';
+  }
+
+  @override
+  String get monthEndBalances => 'Member balances';
+
+  @override
+  String get monthEndProvisional => 'Provisional';
+
+  @override
+  String get monthEndFinal => 'Final';
+
+  @override
+  String get monthEndColMember => 'Member';
+
+  @override
+  String get monthEndColMeals => 'Meals';
+
+  @override
+  String get monthEndColCost => 'Cost';
+
+  @override
+  String get monthEndColPaid => 'Paid';
+
+  @override
+  String get monthEndColOpening => 'Opening';
+
+  @override
+  String get monthEndColFinal => 'Final';
+
+  @override
+  String get monthEndTotalRow => 'Total';
+
+  @override
+  String monthEndConfirmMissing(String count) {
+    return 'Close despite $count missing meal entries';
+  }
+
+  @override
+  String get monthEndBlockedPending =>
+      'Resolve pending deposits and bazar requests first.';
+
+  @override
+  String get monthEndBlockedAuto =>
+      'Closing waits until the automatic meals finish.';
+
+  @override
+  String get monthEndBlockedConfirm =>
+      'Tick the box above to close with missing entries.';
+
+  @override
+  String monthEndConfirmTitle(String month) {
+    return 'Close $month?';
+  }
+
+  @override
+  String get monthEndConfirmFinalFigures => 'Final figures';
+
+  @override
+  String monthEndConfirmMissingNote(String count) {
+    return '$count missing entries will be closed as they are.';
+  }
+
+  @override
+  String monthEndClosedMissing(String count) {
+    return 'Closed with $count missing entries confirmed';
+  }
+
+  @override
+  String get monthEndFinalReport => 'Final report';
+
+  @override
+  String get monthEndCorrectionTitle => 'Correction in progress';
+
+  @override
+  String monthEndCorrectionReason(String reason) {
+    return 'Reason: $reason';
+  }
+
+  @override
+  String get monthEndCorrectionBody =>
+      'Fix what is wrong, then close the month again. Balances may change until then.';
+
+  @override
+  String get monthEndProvisionalNote => 'Provisional until the month is closed';
+
+  @override
+  String get monthEndCorrectionNote =>
+      'Correction in progress, figures may change';
+
+  @override
+  String monthEndCarryProvisional(String month) {
+    return 'Includes provisional carry-forward from $month';
+  }
+
+  @override
+  String get monthEndFailNotEnded =>
+      'This month has not ended yet. Close it after it ends.';
+
+  @override
+  String get monthEndFailMissing =>
+      'Some meal entries are missing. Fill them, or confirm closing with the gaps.';
+
+  @override
+  String get monthEndFailAuto =>
+      'Automatic meals for the last day have not finished. Try again shortly.';
+
+  @override
+  String get monthEndPushReopened => 'Month correction';
+
+  @override
+  String get monthEndPushReopenedSub =>
+      'When the manager reopens a closed month';
+
+  @override
+  String get monthEndProvisionalTitle => 'Last month\'s account (provisional)';
+
+  @override
+  String get monthEndProvisionalBalance => 'Provisional balance';
 }

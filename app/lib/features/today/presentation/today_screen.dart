@@ -25,6 +25,7 @@ import '../../money/application/money_providers.dart';
 import '../../money/presentation/money_screen.dart'
     show balanceWord, showBillSheet;
 import '../../month/application/month_providers.dart';
+import '../../month/presentation/month_status_chip.dart';
 import '../../notices/presentation/latest_notice_banner.dart';
 import '../../push/presentation/inbox_screen.dart' show InboxBell;
 import '../application/day_grid.dart';
@@ -203,6 +204,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
       appBar: AppBar(
         title: Text(ref.watch(currentMessProvider)?.name ?? l.navHome),
         actions: const [
+          MonthStatusChip(),
           InboxBell(),
           SizedBox(width: AppSpace.sm),
         ],
@@ -533,7 +535,7 @@ class _MemberHero extends ConsumerWidget {
             final text = Theme.of(context).textTheme;
             final p = context.palette;
             Widget pending(TextStyle? style) => Text('…', style: style);
-            final Widget balance;
+            Widget balance;
             if (balances.hasError && !balances.hasValue) {
               balance = _HeroFigure(
                 label: l.mineBalance,
@@ -568,6 +570,26 @@ class _MemberHero extends ConsumerWidget {
                 ),
                 proof: _proof(context, balanceWord(l, c)),
               );
+              final period = ref.watch(currentPeriodProvider(messId)).value;
+              if (ref.watch(openingProvisionalProvider(messId)).value == true &&
+                  period != null) {
+                final prev = Fmt.monthName(
+                  period.start.subtract(const Duration(days: 1)),
+                  locale: Localizations.localeOf(context).languageCode,
+                );
+                balance = Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  spacing: AppSpace.xs,
+                  children: [
+                    balance,
+                    Text(
+                      l.monthEndCarryProvisional(prev),
+                      key: const Key('carry-provisional'),
+                      style: text.bodySmall?.copyWith(color: p.inkSecondary),
+                    ),
+                  ],
+                );
+              }
             }
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,

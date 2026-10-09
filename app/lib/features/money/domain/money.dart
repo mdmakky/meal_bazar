@@ -279,6 +279,7 @@ class MessMonth {
     required this.start,
     required this.end,
     required this.closed,
+    this.reopenReason,
   });
 
   factory MessMonth.fromJson(Map<String, dynamic> j) => MessMonth(
@@ -286,6 +287,7 @@ class MessMonth {
     start: DateTime.parse(j['start_date'] as String),
     end: DateTime.parse(j['end_date'] as String),
     closed: j['status'] == 'closed',
+    reopenReason: j['reopen_reason'] as String?,
   );
 
   final String id;
@@ -294,6 +296,9 @@ class MessMonth {
   /// Exclusive.
   final DateTime end;
   final bool closed;
+
+  /// Why a reopened month is being corrected (0032).
+  final String? reopenReason;
 }
 
 /// The end (exclusive, so the first open day) of the latest closed month.
