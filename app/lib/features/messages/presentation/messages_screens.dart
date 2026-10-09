@@ -18,7 +18,7 @@ import '../../money/application/money_providers.dart'
     show moneyRepositoryProvider;
 import '../../money/domain/money.dart';
 import '../../money/presentation/money_sheets.dart'
-    show showBazarForm, showDepositForm, showExpenseForm;
+    show showBazarForm, showDepositForm, showExpenseForm, showMyDepositSheet;
 import '../../push/application/push_service.dart';
 import '../application/message_providers.dart';
 import '../domain/message.dart';
@@ -827,6 +827,19 @@ class _ThreadState extends ConsumerState<ThreadScreen> {
           )) {
         children.add(_DaySeparator(day: m.createdAt));
       }
+      if (m.meta?['t'] == 'due_reminder' && !m.hidden) {
+        children.add(
+          _DueReminderCard(
+            message: m,
+            // Only the member it is addressed to pays from here.
+            canPay:
+                ref.featureOn('member_deposits') &&
+                t.memberId != null &&
+                t.memberId == ref.watch(currentMembershipProvider)?.member.id,
+          ),
+        );
+        continue;
+      }
       if (m.meta != null && !m.hidden) {
         children.add(_SystemPill(message: m));
         continue;
@@ -965,6 +978,62 @@ class _SystemPill extends StatelessWidget {
               ).textTheme.labelMedium?.copyWith(color: p.inkSecondary),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The cron's due reminder (supabase 0030): a calm card with the manager's
+/// text, filled in by the server, and a way to pay.
+class _DueReminderCard extends StatelessWidget {
+  const _DueReminderCard({required this.message, required this.canPay});
+
+  final ChatMessage message;
+  final bool canPay;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final p = context.palette;
+    return Padding(
+      key: Key('msgDueReminder-${message.id}'),
+      padding: const EdgeInsets.only(bottom: AppSpace.md),
+      child: AppCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: AppSpace.sm,
+          children: [
+            Row(
+              spacing: AppSpace.sm,
+              children: [
+                Icon(
+                  Icons.notifications_active_outlined,
+                  size: AppSpace.lg,
+                  color: p.inkSecondary,
+                ),
+                Expanded(
+                  child: Text(
+                    l.dueRemAutoLabel,
+                    style: text.labelMedium?.copyWith(color: p.inkSecondary),
+                  ),
+                ),
+                Text(
+                  messageTime(context, message.createdAt),
+                  style: text.labelSmall?.copyWith(color: p.inkTertiary),
+                ),
+              ],
+            ),
+            Text(message.body, style: text.bodyLarge),
+            if (canPay)
+              AppButton(
+                label: l.dueRemPay,
+                icon: Icons.account_balance_wallet_outlined,
+                variant: AppButtonVariant.secondary,
+                onPressed: () => showMyDepositSheet(context),
+              ),
+          ],
         ),
       ),
     );

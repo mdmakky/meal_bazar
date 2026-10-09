@@ -3620,4 +3620,101 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get syncStripRetry => 'আবার চেষ্টা';
+
+  @override
+  String get dueRemTitle => 'বকেয়ার রিমাইন্ডার';
+
+  @override
+  String get dueRemMoreSub => 'বকেয়া থাকলে নিজে থেকেই মেসেজ যাবে';
+
+  @override
+  String get dueRemHelp =>
+      'প্রতিবার সকাল ৯টার দিকে, যাদের ব্যালেন্স শূন্যের নিচে তাদের কাছে আপনার লেখাগুলোর একটি (এলোমেলোভাবে বাছাই করা) যাবে। সদস্য এটি তার মেসেজে দেখবেন।';
+
+  @override
+  String get dueRemEnable => 'স্বয়ংক্রিয় রিমাইন্ডার';
+
+  @override
+  String get dueRemEnableSub => 'বকেয়া থাকলে নিজে থেকেই মনে করিয়ে দেবে';
+
+  @override
+  String get dueRemEvery => 'কত দিন পরপর';
+
+  @override
+  String get dueRemDaily => 'প্রতিদিন';
+
+  @override
+  String get dueRemEvery2 => '২ দিন পরপর';
+
+  @override
+  String get dueRemEvery3 => '৩ দিন পরপর';
+
+  @override
+  String get dueRemWeekly => 'সপ্তাহে একবার';
+
+  @override
+  String get dueRemMin => 'সর্বনিম্ন বকেয়া';
+
+  @override
+  String get dueRemMinHelp => 'এর বেশি বকেয়া থাকলেই রিমাইন্ডার যাবে';
+
+  @override
+  String get dueRemTexts => 'রিমাইন্ডারের লেখা';
+
+  @override
+  String get dueRemTextsEmpty =>
+      'এখনো কোনো লেখা নেই, তাই একটি সাধারণ লেখা যাবে। নিচের যেকোনোটি এক চাপে যোগ করুন, অথবা নিজে লিখুন।';
+
+  @override
+  String get dueRemAdd => 'লেখা যোগ করুন';
+
+  @override
+  String get dueRemEdit => 'লেখা বদলান';
+
+  @override
+  String get dueRemField => 'রিমাইন্ডারের লেখা';
+
+  @override
+  String dueRemFieldHelp(String name, String amount, String mess) {
+    return '$name = সদস্যের নাম, $amount = বকেয়ার পরিমাণ, $mess = মেসের নাম। পাঠানোর সময় এগুলো বসে যাবে।';
+  }
+
+  @override
+  String get dueRemEmptyText => 'কিছু লিখুন';
+
+  @override
+  String get dueRemPreview => 'সদস্য যেভাবে দেখবেন';
+
+  @override
+  String get dueRemSampleName => 'রহিম';
+
+  @override
+  String get dueRemSampleAmount => '৳৫০০';
+
+  @override
+  String get dueRemDeleteTitle => 'লেখাটি মুছবেন?';
+
+  @override
+  String get dueRemDeleteBody => 'এই লেখা আর রিমাইন্ডারে যাবে না।';
+
+  @override
+  String dueRemSuggest1(String name, String amount) {
+    return '$name, আপনার বকেয়া $amount। অনুগ্রহ করে এই সপ্তাহের মধ্যে জমা দিন।';
+  }
+
+  @override
+  String dueRemSuggest2(String name, String amount) {
+    return 'আসসালামু আলাইকুম $name, মেসে আপনার $amount বকেয়া আছে। সুবিধামতো সময়ে জমা দিলে বাজার চালাতে সুবিধা হয়। ধন্যবাদ।';
+  }
+
+  @override
+  String dueRemSuggest3(String name, String amount) {
+    return '$name ভাই, একটু মনে করিয়ে দিচ্ছি: আপনার বকেয়া $amount। সম্ভব হলে আজকালের মধ্যে জমা দিন।';
+  }
+
+  @override
+  String get dueRemAutoLabel => 'স্বয়ংক্রিয় রিমাইন্ডার';
+
+  @override
+  String get dueRemPay => 'জমা দিন';
 }

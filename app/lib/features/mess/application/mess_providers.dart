@@ -85,6 +85,13 @@ final leftMemberIdsProvider = Provider.family<Set<String>, String>(
   },
 );
 
+/// The manager's due-reminder texts (supabase 0030).
+final dueReminderTextsProvider =
+    FutureProvider.family<List<DueReminderText>, String>(
+      (ref, messId) =>
+          ref.watch(messRepositoryProvider).dueReminderTexts(messId),
+    );
+
 /// Mutations. Each throws `AppFailure` and refreshes what it changed.
 final messControllerProvider = Provider<MessController>(MessController.new);
 
@@ -174,6 +181,31 @@ class MessController {
     monthProviders(messId).forEach(_ref.invalidate);
     _ref.invalidate(mealOffDeadlinesProvider);
     return mess;
+  }
+
+  Future<void> setDueReminders(
+    String messId, {
+    required int? every,
+    required double min,
+  }) async {
+    await _repo.setDueReminders(messId, every: every, min: min);
+    _ref.invalidate(myMembershipsProvider);
+  }
+
+  Future<void> saveDueReminderText(String messId, DueReminderText t) async {
+    try {
+      await _repo.saveDueReminderText(messId, t);
+    } finally {
+      _ref.invalidate(dueReminderTextsProvider(messId));
+    }
+  }
+
+  Future<void> deleteDueReminderText(String messId, String id) async {
+    try {
+      await _repo.deleteDueReminderText(id);
+    } finally {
+      _ref.invalidate(dueReminderTextsProvider(messId));
+    }
   }
 
   /// The change may concern me (leaving, demoting myself), so refresh both.

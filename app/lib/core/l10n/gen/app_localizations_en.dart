@@ -3631,4 +3631,101 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get syncStripRetry => 'Retry';
+
+  @override
+  String get dueRemTitle => 'Due reminders';
+
+  @override
+  String get dueRemMoreSub => 'A message goes out on its own when someone owes';
+
+  @override
+  String get dueRemHelp =>
+      'Around 9am, members whose balance is below zero get one of your texts, picked at random each time. It appears in their messages.';
+
+  @override
+  String get dueRemEnable => 'Automatic reminders';
+
+  @override
+  String get dueRemEnableSub => 'Reminds members who owe, on its own';
+
+  @override
+  String get dueRemEvery => 'How often';
+
+  @override
+  String get dueRemDaily => 'Every day';
+
+  @override
+  String get dueRemEvery2 => 'Every 2 days';
+
+  @override
+  String get dueRemEvery3 => 'Every 3 days';
+
+  @override
+  String get dueRemWeekly => 'Once a week';
+
+  @override
+  String get dueRemMin => 'Minimum due';
+
+  @override
+  String get dueRemMinHelp => 'Only dues above this are reminded';
+
+  @override
+  String get dueRemTexts => 'Reminder texts';
+
+  @override
+  String get dueRemTextsEmpty =>
+      'No texts yet, so a standard one is sent. Add any of these with one tap, or write your own.';
+
+  @override
+  String get dueRemAdd => 'Add text';
+
+  @override
+  String get dueRemEdit => 'Edit text';
+
+  @override
+  String get dueRemField => 'Reminder text';
+
+  @override
+  String dueRemFieldHelp(String name, String amount, String mess) {
+    return '$name = member\'s name, $amount = amount due, $mess = mess name. Filled in when sent.';
+  }
+
+  @override
+  String get dueRemEmptyText => 'Write something';
+
+  @override
+  String get dueRemPreview => 'What the member sees';
+
+  @override
+  String get dueRemSampleName => 'Rahim';
+
+  @override
+  String get dueRemSampleAmount => '৳500';
+
+  @override
+  String get dueRemDeleteTitle => 'Delete this text?';
+
+  @override
+  String get dueRemDeleteBody => 'It won\'t be used in reminders any more.';
+
+  @override
+  String dueRemSuggest1(String name, String amount) {
+    return '$name, you owe $amount. Please deposit it this week.';
+  }
+
+  @override
+  String dueRemSuggest2(String name, String amount) {
+    return 'Hello $name, you have $amount due at the mess. Paying when you can keeps the bazar running. Thanks.';
+  }
+
+  @override
+  String dueRemSuggest3(String name, String amount) {
+    return '$name, a gentle reminder: your due is $amount. Please deposit it in the next day or two if you can.';
+  }
+
+  @override
+  String get dueRemAutoLabel => 'Automatic reminder';
+
+  @override
+  String get dueRemPay => 'Deposit';
 }

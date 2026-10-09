@@ -264,6 +264,71 @@ void main() {
     });
   });
 
+  group('due reminder', () {
+    // Posted by the cron: no sender, the member's own thread.
+    final reminderThread = MessageThread(
+      id: 'd1',
+      messId: 'mess1',
+      memberId: 'me',
+      memberName: 'Karim',
+      subject: 'বকেয়া রিমাইন্ডার',
+      lastBody: 'Karim, আপনার বকেয়া ৳৫০০।',
+      lastMessageAt: DateTime(2026, 10, 8, 9),
+    );
+    final reminder = ChatMessage(
+      id: 'r1',
+      threadId: 'd1',
+      body: 'Karim, আপনার বকেয়া ৳৫০০।',
+      createdAt: DateTime(2026, 10, 8, 9),
+      meta: const {'t': 'due_reminder', 'amount': 500},
+    );
+
+    setUp(() {
+      when(() => repo.thread('d1')).thenAnswer((_) async => reminderThread);
+      when(() => repo.messages('d1')).thenAnswer((_) async => [reminder]);
+      when(
+        () => repo.threads('mess1'),
+      ).thenAnswer((_) async => [reminderThread]);
+    });
+
+    testWidgets('a calm card with the text and a deposit button', (
+      tester,
+    ) async {
+      await pump(tester, '/more/messages/d1');
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('msgDueReminder-r1')), findsOneWidget);
+      expect(find.text(l.dueRemAutoLabel), findsOneWidget);
+      expect(find.text('Karim, আপনার বকেয়া ৳৫০০।'), findsOneWidget);
+      expect(find.text(l.dueRemPay), findsOneWidget);
+      expect(find.text(l.msgDeletedUser), findsNothing);
+    });
+
+    testWidgets('the manager sees the card without the deposit button', (
+      tester,
+    ) async {
+      when(() => repo.thread('d1')).thenAnswer(
+        (_) async => MessageThread(
+          id: 'd1',
+          messId: 'mess1',
+          memberId: 'm-Rahim',
+          memberName: 'Rahim',
+          subject: 'বকেয়া রিমাইন্ডার',
+          lastMessageAt: DateTime(2026, 10, 8, 9),
+        ),
+      );
+      await pump(tester, '/more/messages/d1', manager: true);
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('msgDueReminder-r1')), findsOneWidget);
+      expect(find.text(l.dueRemPay), findsNothing);
+    });
+
+    testWidgets('the inbox lists a thread without a sender', (tester) async {
+      await pump(tester, '/more/messages');
+      await tester.pumpAndSettle();
+      expect(find.text('বকেয়া রিমাইন্ডার'), findsOneWidget);
+    });
+  });
+
   group('compose', () {
     testWidgets('a draft prefills subject and text and sends the ref', (
       tester,

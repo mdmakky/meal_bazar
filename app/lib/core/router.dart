@@ -18,6 +18,7 @@ import '../features/messages/presentation/messages_screens.dart';
 import '../features/messages/presentation/new_message_screen.dart';
 import '../features/mess/application/mess_providers.dart';
 import '../features/mess/domain/member.dart';
+import '../features/mess/presentation/due_reminders_screen.dart';
 import '../features/mess/presentation/mess_screens.dart';
 import '../features/money/presentation/money_screen.dart';
 import '../features/money/presentation/months_screen.dart';
@@ -285,6 +286,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'recurring',
                     builder: (_, _) => const RecurringScreen(),
+                  ),
+                  GoRoute(
+                    path: 'due-reminders',
+                    builder: (_, _) => const DueRemindersScreen(),
                   ),
                 ],
               ),

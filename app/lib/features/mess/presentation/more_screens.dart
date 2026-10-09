@@ -89,6 +89,13 @@ class MoreScreen extends ConsumerWidget {
             l.recurringTitle,
             () => context.push('/more/recurring'),
           ),
+        if (on('due_reminders') && on('messages'))
+          tile(
+            Icons.notifications_active_outlined,
+            l.dueRemTitle,
+            () => context.push('/more/due-reminders'),
+            sub: l.dueRemMoreSub,
+          ),
       ],
     ];
     final tools = [

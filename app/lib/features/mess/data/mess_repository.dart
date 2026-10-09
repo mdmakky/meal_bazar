@@ -158,6 +158,49 @@ class MessRepository {
     return Mess.fromJson(requireRows(rows).first);
   });
 
+  /// [every] null switches automatic due reminders off.
+  Future<Mess> setDueReminders(
+    String messId, {
+    required int? every,
+    required double min,
+  }) => guard(() async {
+    final rows = await _client
+        .from('messes')
+        .update({'due_reminder_every': every, 'due_reminder_min': min})
+        .eq('id', messId)
+        .select();
+    return Mess.fromJson(requireRows(rows).first);
+  });
+
+  /// Manager only (RLS). Oldest first.
+  Future<List<DueReminderText>> dueReminderTexts(String messId) =>
+      guard(() async {
+        final rows = await _client
+            .from('due_reminder_texts')
+            .select('id, body')
+            .eq('mess_id', messId)
+            .order('created_at', ascending: true);
+        return [
+          for (final r in rows)
+            (id: r['id'] as String, body: r['body'] as String),
+        ];
+      });
+
+  /// Upsert on the client id, so a retried save is idempotent.
+  Future<void> saveDueReminderText(String messId, DueReminderText t) =>
+      guard(() async {
+        requireRows(
+          await _client
+              .from('due_reminder_texts')
+              .upsert({'id': t.id, 'mess_id': messId, 'body': t.body.trim()})
+              .select('id'),
+        );
+      });
+
+  Future<void> deleteDueReminderText(String id) => guard(() async {
+    await _client.from('due_reminder_texts').delete().eq('id', id);
+  });
+
   Future<Member> _updateMember(String id, Map<String, Object?> values) =>
       guard(() async {
         final rows = await _client

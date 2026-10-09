@@ -13,6 +13,8 @@ class Mess {
     this.createdBy,
     this.fixedRate = false,
     this.fixedMealRate,
+    this.dueReminderEvery,
+    this.dueReminderMin = 0,
   });
 
   factory Mess.fromJson(Map<String, dynamic> json) => Mess(
@@ -26,6 +28,8 @@ class Mess {
     createdBy: json['created_by'] as String?,
     fixedRate: json['meal_rate_mode'] == 'fixed',
     fixedMealRate: (json['fixed_meal_rate'] as num?)?.toDouble(),
+    dueReminderEvery: (json['due_reminder_every'] as num?)?.toInt(),
+    dueReminderMin: double.tryParse('${json['due_reminder_min']}') ?? 0,
   );
 
   final String id;
@@ -48,4 +52,14 @@ class Mess {
   /// instead of the calculated rate (PRODUCT_RULES §3).
   final bool fixedRate;
   final double? fixedMealRate;
+
+  /// Automatic due reminders every N days (1–30); null = off (supabase 0030).
+  final int? dueReminderEvery;
+
+  /// Only dues above this are reminded.
+  final double dueReminderMin;
 }
+
+/// One of the manager's due-reminder texts; `{name}`, `{amount}` and
+/// `{mess}` are filled in by the server.
+typedef DueReminderText = ({String id, String body});

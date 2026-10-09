@@ -6631,6 +6631,180 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'আবার চেষ্টা'**
   String get syncStripRetry;
+
+  /// No description provided for @dueRemTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'বকেয়ার রিমাইন্ডার'**
+  String get dueRemTitle;
+
+  /// No description provided for @dueRemMoreSub.
+  ///
+  /// In bn, this message translates to:
+  /// **'বকেয়া থাকলে নিজে থেকেই মেসেজ যাবে'**
+  String get dueRemMoreSub;
+
+  /// No description provided for @dueRemHelp.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রতিবার সকাল ৯টার দিকে, যাদের ব্যালেন্স শূন্যের নিচে তাদের কাছে আপনার লেখাগুলোর একটি (এলোমেলোভাবে বাছাই করা) যাবে। সদস্য এটি তার মেসেজে দেখবেন।'**
+  String get dueRemHelp;
+
+  /// No description provided for @dueRemEnable.
+  ///
+  /// In bn, this message translates to:
+  /// **'স্বয়ংক্রিয় রিমাইন্ডার'**
+  String get dueRemEnable;
+
+  /// No description provided for @dueRemEnableSub.
+  ///
+  /// In bn, this message translates to:
+  /// **'বকেয়া থাকলে নিজে থেকেই মনে করিয়ে দেবে'**
+  String get dueRemEnableSub;
+
+  /// No description provided for @dueRemEvery.
+  ///
+  /// In bn, this message translates to:
+  /// **'কত দিন পরপর'**
+  String get dueRemEvery;
+
+  /// No description provided for @dueRemDaily.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রতিদিন'**
+  String get dueRemDaily;
+
+  /// No description provided for @dueRemEvery2.
+  ///
+  /// In bn, this message translates to:
+  /// **'২ দিন পরপর'**
+  String get dueRemEvery2;
+
+  /// No description provided for @dueRemEvery3.
+  ///
+  /// In bn, this message translates to:
+  /// **'৩ দিন পরপর'**
+  String get dueRemEvery3;
+
+  /// No description provided for @dueRemWeekly.
+  ///
+  /// In bn, this message translates to:
+  /// **'সপ্তাহে একবার'**
+  String get dueRemWeekly;
+
+  /// No description provided for @dueRemMin.
+  ///
+  /// In bn, this message translates to:
+  /// **'সর্বনিম্ন বকেয়া'**
+  String get dueRemMin;
+
+  /// No description provided for @dueRemMinHelp.
+  ///
+  /// In bn, this message translates to:
+  /// **'এর বেশি বকেয়া থাকলেই রিমাইন্ডার যাবে'**
+  String get dueRemMinHelp;
+
+  /// No description provided for @dueRemTexts.
+  ///
+  /// In bn, this message translates to:
+  /// **'রিমাইন্ডারের লেখা'**
+  String get dueRemTexts;
+
+  /// No description provided for @dueRemTextsEmpty.
+  ///
+  /// In bn, this message translates to:
+  /// **'এখনো কোনো লেখা নেই, তাই একটি সাধারণ লেখা যাবে। নিচের যেকোনোটি এক চাপে যোগ করুন, অথবা নিজে লিখুন।'**
+  String get dueRemTextsEmpty;
+
+  /// No description provided for @dueRemAdd.
+  ///
+  /// In bn, this message translates to:
+  /// **'লেখা যোগ করুন'**
+  String get dueRemAdd;
+
+  /// No description provided for @dueRemEdit.
+  ///
+  /// In bn, this message translates to:
+  /// **'লেখা বদলান'**
+  String get dueRemEdit;
+
+  /// No description provided for @dueRemField.
+  ///
+  /// In bn, this message translates to:
+  /// **'রিমাইন্ডারের লেখা'**
+  String get dueRemField;
+
+  /// No description provided for @dueRemFieldHelp.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name} = সদস্যের নাম, {amount} = বকেয়ার পরিমাণ, {mess} = মেসের নাম। পাঠানোর সময় এগুলো বসে যাবে।'**
+  String dueRemFieldHelp(String name, String amount, String mess);
+
+  /// No description provided for @dueRemEmptyText.
+  ///
+  /// In bn, this message translates to:
+  /// **'কিছু লিখুন'**
+  String get dueRemEmptyText;
+
+  /// No description provided for @dueRemPreview.
+  ///
+  /// In bn, this message translates to:
+  /// **'সদস্য যেভাবে দেখবেন'**
+  String get dueRemPreview;
+
+  /// No description provided for @dueRemSampleName.
+  ///
+  /// In bn, this message translates to:
+  /// **'রহিম'**
+  String get dueRemSampleName;
+
+  /// No description provided for @dueRemSampleAmount.
+  ///
+  /// In bn, this message translates to:
+  /// **'৳৫০০'**
+  String get dueRemSampleAmount;
+
+  /// No description provided for @dueRemDeleteTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'লেখাটি মুছবেন?'**
+  String get dueRemDeleteTitle;
+
+  /// No description provided for @dueRemDeleteBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই লেখা আর রিমাইন্ডারে যাবে না।'**
+  String get dueRemDeleteBody;
+
+  /// No description provided for @dueRemSuggest1.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name}, আপনার বকেয়া {amount}। অনুগ্রহ করে এই সপ্তাহের মধ্যে জমা দিন।'**
+  String dueRemSuggest1(String name, String amount);
+
+  /// No description provided for @dueRemSuggest2.
+  ///
+  /// In bn, this message translates to:
+  /// **'আসসালামু আলাইকুম {name}, মেসে আপনার {amount} বকেয়া আছে। সুবিধামতো সময়ে জমা দিলে বাজার চালাতে সুবিধা হয়। ধন্যবাদ।'**
+  String dueRemSuggest2(String name, String amount);
+
+  /// No description provided for @dueRemSuggest3.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name} ভাই, একটু মনে করিয়ে দিচ্ছি: আপনার বকেয়া {amount}। সম্ভব হলে আজকালের মধ্যে জমা দিন।'**
+  String dueRemSuggest3(String name, String amount);
+
+  /// No description provided for @dueRemAutoLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'স্বয়ংক্রিয় রিমাইন্ডার'**
+  String get dueRemAutoLabel;
+
+  /// No description provided for @dueRemPay.
+  ///
+  /// In bn, this message translates to:
+  /// **'জমা দিন'**
+  String get dueRemPay;
 }
 
 class _AppLocalizationsDelegate
