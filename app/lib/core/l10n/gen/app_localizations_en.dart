@@ -3331,4 +3331,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String msgMealOn(String name, String day, String meal) {
     return '$name switched $meal back on ($day)';
   }
+
+  @override
+  String get myMealNotEntered => 'Not entered yet';
 }

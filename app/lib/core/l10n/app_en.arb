@@ -1633,5 +1633,9 @@
   "mealTypesServeTime": "Serving time",
   "mealOffHintLead": "You can switch your meal off up to {hours} h before it",
   "msgMealOff": "{name} switched off {meal} ({day})",
-  "msgMealOn": "{name} switched {meal} back on ({day})"
+  "msgMealOn": "{name} switched {meal} back on ({day})",
+  "myMealNotEntered": "Not entered yet",
+  "@myMealNotEntered": {
+    "description": "Member card: no meal row for this day and meal yet (the manager fills it later)."
+  }
 }

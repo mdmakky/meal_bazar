@@ -3323,4 +3323,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String msgMealOn(String name, String day, String meal) {
     return '$name $day $meal মিল আবার চালু করেছেন';
   }
+
+  @override
+  String get myMealNotEntered => 'এখনো দেওয়া হয়নি';
 }

@@ -6115,6 +6115,12 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'{name} {day} {meal} মিল আবার চালু করেছেন'**
   String msgMealOn(String name, String day, String meal);
+
+  /// No description provided for @myMealNotEntered.
+  ///
+  /// In bn, this message translates to:
+  /// **'এখনো দেওয়া হয়নি'**
+  String get myMealNotEntered;
 }
 
 class _AppLocalizationsDelegate

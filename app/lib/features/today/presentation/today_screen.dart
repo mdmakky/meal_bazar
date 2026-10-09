@@ -703,6 +703,8 @@ class _MyMealRow extends ConsumerWidget {
     final p = context.palette;
     final grid = ref.watch(dayGridProvider(dayKey)).value;
     final e = entryOrZero(grid, dayKey, memberId, type.id);
+    // No row yet: the manager's fill decides the count, so don't claim 0.
+    final entered = grid?[cellKey(memberId, type.id)] != null;
     final canOff = ownOffId(ref) != null;
     final open = canOff && mealOffOpen(ref, dayKey, type.id);
     final deadline = mealOffDeadlineOf(ref, dayKey, type.id);
@@ -742,14 +744,23 @@ class _MyMealRow extends ConsumerWidget {
                   ],
                 ),
               ),
-              Text(
-                e.isOff
-                    ? l.myMealOff
-                    : l.myMealCount(Fmt.meals(e.count, banglaDigits: bn)),
-                style: text.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: e.isOff ? p.inkTertiary : p.ink,
-                  fontFeatures: const [FontFeature.tabularFigures()],
+              Flexible(
+                child: Text(
+                  e.isOff
+                      ? l.myMealOff
+                      : !entered
+                      ? l.myMealNotEntered
+                      : l.myMealCount(Fmt.meals(e.count, banglaDigits: bn)),
+                  textAlign: TextAlign.end,
+                  style:
+                      (entered || e.isOff ? text.titleMedium : text.bodyMedium)
+                          ?.copyWith(
+                            fontWeight: entered || e.isOff
+                                ? FontWeight.w600
+                                : null,
+                            color: e.isOff || !entered ? p.inkTertiary : p.ink,
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                          ),
                 ),
               ),
               if (canOff)
