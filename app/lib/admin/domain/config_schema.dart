@@ -92,6 +92,11 @@ const featureGroups = <FlagGroup>[
     flags: [
       (key: 'notices', bn: 'নোটিশ বোর্ড', en: 'Notice board'),
       (
+        key: 'messages',
+        bn: 'ম্যানেজারকে বার্তা ও সমস্যা জানানো',
+        en: 'Member–manager messages',
+      ),
+      (
         key: 'reminders',
         bn: 'রিমাইন্ডার নোটিফিকেশন',
         en: 'Reminder notifications',

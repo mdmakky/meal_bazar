@@ -2996,4 +2996,125 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get dueRemindNone =>
       'কাউকে পাঠানো যায়নি: বকেয়া থাকা সদস্যদের ফোনে নোটিফিকেশন চালু নেই';
+
+  @override
+  String get msgTitle => 'বার্তা';
+
+  @override
+  String get msgMoreSub => 'জরুরি কথা ও সমস্যা জানানো';
+
+  @override
+  String get msgEmpty =>
+      'এখনো কোনো বার্তা নেই। জরুরি কিছু হলে বা কোনো হিসাব ভুল মনে হলে ম্যানেজারকে লিখুন।';
+
+  @override
+  String get msgEmptyManager => 'সদস্যদের কোনো বার্তা নেই';
+
+  @override
+  String get msgEmptyResolved => 'কোনো মীমাংসিত বার্তা নেই';
+
+  @override
+  String get msgNew => 'নতুন বার্তা';
+
+  @override
+  String get msgFilterOpen => 'খোলা';
+
+  @override
+  String get msgResolved => 'মীমাংসিত';
+
+  @override
+  String get msgUnread => 'অপঠিত';
+
+  @override
+  String msgYou(String text) {
+    return 'আপনি: $text';
+  }
+
+  @override
+  String get msgComposeHint => 'বার্তা লিখুন…';
+
+  @override
+  String get msgSend => 'পাঠান';
+
+  @override
+  String get msgSending => 'পাঠানো হচ্ছে…';
+
+  @override
+  String get msgNotSent => 'পাঠানো যায়নি · আবার চেষ্টা করুন';
+
+  @override
+  String get msgResolve => 'মীমাংসিত করুন';
+
+  @override
+  String get msgReopen => 'আবার খুলুন';
+
+  @override
+  String get msgResolvedNote => 'বিষয়টি মীমাংসিত। আবার লিখলে খুলে যাবে।';
+
+  @override
+  String get msgGone => 'বার্তাটি পাওয়া যায়নি';
+
+  @override
+  String get msgSubject => 'বিষয়';
+
+  @override
+  String get msgSubjectRequired => 'বিষয় লিখুন';
+
+  @override
+  String get msgBody => 'বার্তা';
+
+  @override
+  String get msgBodyRequired => 'বার্তা লিখুন';
+
+  @override
+  String get msgTo => 'কাকে';
+
+  @override
+  String get msgToManagers =>
+      'মেসের ম্যানেজার বার্তাটি দেখবেন। এটা চ্যাট নয়, উত্তর এলে নোটিফিকেশন পাবেন।';
+
+  @override
+  String get msgMemberRequired => 'একজন সদস্য বাছুন';
+
+  @override
+  String msgReportSubject(String label) {
+    return 'সমস্যা: $label';
+  }
+
+  @override
+  String get msgReportStarter =>
+      'এই তথ্যটি ভুল মনে হচ্ছে, দয়া করে ঠিক করে দিন।';
+
+  @override
+  String get msgReport => 'সমস্যা জানান';
+
+  @override
+  String get msgSent => 'বার্তা পাঠানো হয়েছে';
+
+  @override
+  String get msgAbout => 'যে এন্ট্রি নিয়ে';
+
+  @override
+  String get msgRefDeposit => 'জমা';
+
+  @override
+  String get msgRefBazar => 'বাজার';
+
+  @override
+  String get msgRefExpense => 'খরচ';
+
+  @override
+  String get msgRefMeal => 'মিল';
+
+  @override
+  String get msgRefOther => 'অন্যান্য';
+
+  @override
+  String get msgDeletedUser => 'সাবেক সদস্য';
+
+  @override
+  String get pushMessage => 'বার্তা';
+
+  @override
+  String get pushMessageSub => 'ম্যানেজার বা সদস্য আপনাকে লিখলে';
 }

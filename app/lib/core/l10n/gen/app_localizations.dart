@@ -5557,6 +5557,234 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'কাউকে পাঠানো যায়নি: বকেয়া থাকা সদস্যদের ফোনে নোটিফিকেশন চালু নেই'**
   String get dueRemindNone;
+
+  /// No description provided for @msgTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'বার্তা'**
+  String get msgTitle;
+
+  /// No description provided for @msgMoreSub.
+  ///
+  /// In bn, this message translates to:
+  /// **'জরুরি কথা ও সমস্যা জানানো'**
+  String get msgMoreSub;
+
+  /// No description provided for @msgEmpty.
+  ///
+  /// In bn, this message translates to:
+  /// **'এখনো কোনো বার্তা নেই। জরুরি কিছু হলে বা কোনো হিসাব ভুল মনে হলে ম্যানেজারকে লিখুন।'**
+  String get msgEmpty;
+
+  /// No description provided for @msgEmptyManager.
+  ///
+  /// In bn, this message translates to:
+  /// **'সদস্যদের কোনো বার্তা নেই'**
+  String get msgEmptyManager;
+
+  /// No description provided for @msgEmptyResolved.
+  ///
+  /// In bn, this message translates to:
+  /// **'কোনো মীমাংসিত বার্তা নেই'**
+  String get msgEmptyResolved;
+
+  /// No description provided for @msgNew.
+  ///
+  /// In bn, this message translates to:
+  /// **'নতুন বার্তা'**
+  String get msgNew;
+
+  /// No description provided for @msgFilterOpen.
+  ///
+  /// In bn, this message translates to:
+  /// **'খোলা'**
+  String get msgFilterOpen;
+
+  /// No description provided for @msgResolved.
+  ///
+  /// In bn, this message translates to:
+  /// **'মীমাংসিত'**
+  String get msgResolved;
+
+  /// No description provided for @msgUnread.
+  ///
+  /// In bn, this message translates to:
+  /// **'অপঠিত'**
+  String get msgUnread;
+
+  /// No description provided for @msgYou.
+  ///
+  /// In bn, this message translates to:
+  /// **'আপনি: {text}'**
+  String msgYou(String text);
+
+  /// No description provided for @msgComposeHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'বার্তা লিখুন…'**
+  String get msgComposeHint;
+
+  /// No description provided for @msgSend.
+  ///
+  /// In bn, this message translates to:
+  /// **'পাঠান'**
+  String get msgSend;
+
+  /// No description provided for @msgSending.
+  ///
+  /// In bn, this message translates to:
+  /// **'পাঠানো হচ্ছে…'**
+  String get msgSending;
+
+  /// No description provided for @msgNotSent.
+  ///
+  /// In bn, this message translates to:
+  /// **'পাঠানো যায়নি · আবার চেষ্টা করুন'**
+  String get msgNotSent;
+
+  /// No description provided for @msgResolve.
+  ///
+  /// In bn, this message translates to:
+  /// **'মীমাংসিত করুন'**
+  String get msgResolve;
+
+  /// No description provided for @msgReopen.
+  ///
+  /// In bn, this message translates to:
+  /// **'আবার খুলুন'**
+  String get msgReopen;
+
+  /// No description provided for @msgResolvedNote.
+  ///
+  /// In bn, this message translates to:
+  /// **'বিষয়টি মীমাংসিত। আবার লিখলে খুলে যাবে।'**
+  String get msgResolvedNote;
+
+  /// No description provided for @msgGone.
+  ///
+  /// In bn, this message translates to:
+  /// **'বার্তাটি পাওয়া যায়নি'**
+  String get msgGone;
+
+  /// No description provided for @msgSubject.
+  ///
+  /// In bn, this message translates to:
+  /// **'বিষয়'**
+  String get msgSubject;
+
+  /// No description provided for @msgSubjectRequired.
+  ///
+  /// In bn, this message translates to:
+  /// **'বিষয় লিখুন'**
+  String get msgSubjectRequired;
+
+  /// No description provided for @msgBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'বার্তা'**
+  String get msgBody;
+
+  /// No description provided for @msgBodyRequired.
+  ///
+  /// In bn, this message translates to:
+  /// **'বার্তা লিখুন'**
+  String get msgBodyRequired;
+
+  /// No description provided for @msgTo.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাকে'**
+  String get msgTo;
+
+  /// No description provided for @msgToManagers.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেসের ম্যানেজার বার্তাটি দেখবেন। এটা চ্যাট নয়, উত্তর এলে নোটিফিকেশন পাবেন।'**
+  String get msgToManagers;
+
+  /// No description provided for @msgMemberRequired.
+  ///
+  /// In bn, this message translates to:
+  /// **'একজন সদস্য বাছুন'**
+  String get msgMemberRequired;
+
+  /// No description provided for @msgReportSubject.
+  ///
+  /// In bn, this message translates to:
+  /// **'সমস্যা: {label}'**
+  String msgReportSubject(String label);
+
+  /// No description provided for @msgReportStarter.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই তথ্যটি ভুল মনে হচ্ছে, দয়া করে ঠিক করে দিন।'**
+  String get msgReportStarter;
+
+  /// No description provided for @msgReport.
+  ///
+  /// In bn, this message translates to:
+  /// **'সমস্যা জানান'**
+  String get msgReport;
+
+  /// No description provided for @msgSent.
+  ///
+  /// In bn, this message translates to:
+  /// **'বার্তা পাঠানো হয়েছে'**
+  String get msgSent;
+
+  /// No description provided for @msgAbout.
+  ///
+  /// In bn, this message translates to:
+  /// **'যে এন্ট্রি নিয়ে'**
+  String get msgAbout;
+
+  /// No description provided for @msgRefDeposit.
+  ///
+  /// In bn, this message translates to:
+  /// **'জমা'**
+  String get msgRefDeposit;
+
+  /// No description provided for @msgRefBazar.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাজার'**
+  String get msgRefBazar;
+
+  /// No description provided for @msgRefExpense.
+  ///
+  /// In bn, this message translates to:
+  /// **'খরচ'**
+  String get msgRefExpense;
+
+  /// No description provided for @msgRefMeal.
+  ///
+  /// In bn, this message translates to:
+  /// **'মিল'**
+  String get msgRefMeal;
+
+  /// No description provided for @msgRefOther.
+  ///
+  /// In bn, this message translates to:
+  /// **'অন্যান্য'**
+  String get msgRefOther;
+
+  /// No description provided for @msgDeletedUser.
+  ///
+  /// In bn, this message translates to:
+  /// **'সাবেক সদস্য'**
+  String get msgDeletedUser;
+
+  /// No description provided for @pushMessage.
+  ///
+  /// In bn, this message translates to:
+  /// **'বার্তা'**
+  String get pushMessage;
+
+  /// No description provided for @pushMessageSub.
+  ///
+  /// In bn, this message translates to:
+  /// **'ম্যানেজার বা সদস্য আপনাকে লিখলে'**
+  String get pushMessageSub;
 }
 
 class _AppLocalizationsDelegate

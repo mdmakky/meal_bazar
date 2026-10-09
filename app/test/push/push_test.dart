@@ -94,6 +94,7 @@ void main() {
         'expense_added',
         'month_closed',
         'due_reminder',
+        'message',
       ]);
     });
 
@@ -116,6 +117,7 @@ void main() {
     late MockPushRepository repo;
     late FakeNotifications notes;
     late List<String> routes;
+    late List<String> arrived;
     late PushService service;
 
     setUp(() {
@@ -123,6 +125,7 @@ void main() {
       repo = MockPushRepository();
       notes = FakeNotifications();
       routes = [];
+      arrived = [];
       when(() => repo.registerToken(any(), any())).thenAnswer((_) async {});
       when(() => repo.unregisterToken(any())).thenAnswer((_) async {});
       service = PushService(
@@ -130,6 +133,7 @@ void main() {
         repo: repo,
         notifications: notes,
         navigate: routes.add,
+        onArrive: arrived.add,
       );
     });
 
@@ -169,6 +173,7 @@ void main() {
       expect(notes.shown.single.title, 'নতুন বাজার');
       expect(notes.shown.single.route, '/bazar');
       expect(notes.shown.single.id, inInclusiveRange(1000, 1001000));
+      expect(arrived, ['/bazar'], reason: 'an open thread can refresh');
     });
 
     test('taps from background and cold start navigate', () async {
@@ -269,14 +274,14 @@ void main() {
       expect(find.text('Deposits to verify'), findsNothing);
       expect(switchOn(tester, 'New bazar'), isFalse);
       expect(switchOn(tester, 'New notices'), isTrue);
-      expect(find.byType(SwitchListTile), findsNWidgets(7));
+      expect(find.byType(SwitchListTile), findsNWidgets(8));
     });
 
     testWidgets('managers also get join requests and deposits to verify', (
       tester,
     ) async {
       await pump(tester, manager: true);
-      expect(find.byType(SwitchListTile), findsNWidgets(9));
+      expect(find.byType(SwitchListTile), findsNWidgets(10));
     });
 
     testWidgets('a toggle saves the whole map', (tester) async {
@@ -308,7 +313,7 @@ void main() {
       when(repo.fetchPrefs).thenAnswer((_) async => const NotificationPrefs());
       await tester.tap(find.text('Try again'));
       await tester.pumpAndSettle();
-      expect(find.byType(SwitchListTile), findsNWidgets(7));
+      expect(find.byType(SwitchListTile), findsNWidgets(8));
     });
   });
 

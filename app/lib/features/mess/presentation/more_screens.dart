@@ -10,6 +10,7 @@ import '../../../core/l10n/gen/app_localizations.dart';
 import '../../../core/platform/platform_config.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../money/domain/money.dart' show parseAmount;
+import '../../messages/application/unread_provider.dart';
 import '../../notices/application/notice_providers.dart';
 import '../application/mess_providers.dart';
 import '../domain/member.dart';
@@ -30,6 +31,10 @@ class MoreScreen extends ConsumerWidget {
 
     final unread = ref.watch(unreadNoticeCountProvider);
     final on = ref.featureOn;
+    final messId = membership?.messId;
+    final unreadMessages = messId == null || !on('messages')
+        ? 0
+        : ref.watch(unreadMessagesCountProvider(messId)).value ?? 0;
 
     NavRow tile(
       IconData icon,
@@ -82,6 +87,14 @@ class MoreScreen extends ConsumerWidget {
       ],
     ];
     final tools = [
+      if (on('messages') && messId != null)
+        tile(
+          Icons.forum_outlined,
+          l.msgTitle,
+          () => context.push('/more/messages'),
+          sub: l.msgMoreSub,
+          badge: unreadMessages,
+        ),
       if (on('notices'))
         tile(
           Icons.campaign_outlined,
