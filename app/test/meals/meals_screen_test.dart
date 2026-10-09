@@ -19,6 +19,7 @@ import 'package:meal_bazar/core/theme/app_theme.dart';
 import 'package:meal_bazar/features/meals/application/meal_providers.dart';
 import 'package:meal_bazar/features/meals/data/meal_repository.dart';
 import 'package:meal_bazar/features/meals/domain/meal.dart';
+import 'package:meal_bazar/features/meals/presentation/meal_grid.dart';
 import 'package:meal_bazar/features/meals/presentation/meals_screen.dart';
 import 'package:meal_bazar/features/mess/application/mess_providers.dart';
 import 'package:meal_bazar/features/mess/domain/member.dart';
@@ -113,6 +114,8 @@ Future<void> pump(
   DateTime? now,
   List<Member>? members,
   List<Override> local = const [],
+  Locale locale = const Locale('bn'),
+  double textScale = 1,
 }) async {
   tester.view.physicalSize = const Size(1080, 2400);
   tester.view.devicePixelRatio = 3;
@@ -154,10 +157,16 @@ Future<void> pump(
       ],
       child: MaterialApp.router(
         theme: AppTheme.light(),
-        locale: const Locale('bn'),
+        locale: locale,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         routerConfig: router,
+        builder: (context, child) => MediaQuery(
+          data: MediaQuery.of(
+            context,
+          ).copyWith(textScaler: TextScaler.linear(textScale)),
+          child: child!,
+        ),
       ),
     ),
   );
@@ -165,6 +174,16 @@ Future<void> pump(
 }
 
 Finder cell(String label) => find.bySemanticsLabel(label);
+
+/// The day total at rest (a RollingNumber is one Text when not rolling).
+String? dayTotal(WidgetTester tester) => tester
+    .widget<Text>(
+      find.descendant(
+        of: find.byKey(const Key('day-total')),
+        matching: find.byType(Text),
+      ),
+    )
+    .data;
 
 MealEntry savedOne() =>
     verify(() => repo.save('mess1', captureAny(), source: 'app')).captured.last
@@ -233,7 +252,7 @@ void main() {
     expect(find.text('১.৫'), findsOneWidget);
     expect(find.text('২'), findsOneWidget);
     expect(find.text(l.mealGridDayTotal), findsOneWidget);
-    expect(tester.widget<Text>(find.byKey(const Key('day-total'))).data, '৩.৫');
+    expect(dayTotal(tester), '৩.৫');
     expect(find.text(l.mealGridHint), findsOneWidget);
     // The month summary below.
     expect(find.text(l.mealsByMember), findsOneWidget);
@@ -342,7 +361,7 @@ void main() {
     // Rahim's lunch was already 1: not rewritten.
     expect(saved, hasLength(3));
     expect(saved.every((e) => e.count == 1 && !e.isOff), isTrue);
-    expect(tester.widget<Text>(find.byKey(const Key('day-total'))).data, '৪');
+    expect(dayTotal(tester), '৪');
   });
 
   testWidgets('গতকালের মতো: yesterday, else default, else 1', (tester) async {
@@ -462,6 +481,49 @@ void main() {
       expect(find.text(s), findsOneWidget);
     }
   });
+
+  testWidgets('swiping the grid changes the day, never past tomorrow', (
+    tester,
+  ) async {
+    stubDay([]);
+    await pump(tester);
+    String shown(DateTime d) =>
+        Fmt.dateLong(d, locale: 'bn', banglaDigits: true);
+    final tomorrow = dayOnly(day.add(const Duration(days: 1, hours: 2)));
+    Future<void> swipe(double dx) async {
+      await tester.drag(find.byType(MealStepperGrid), Offset(dx, 0));
+      await tester.pumpAndSettle();
+    }
+
+    await swipe(-200);
+    expect(find.text(shown(tomorrow)), findsOneWidget);
+    await swipe(-200);
+    expect(find.text(shown(tomorrow)), findsOneWidget);
+    await swipe(200);
+    await swipe(200);
+    expect(find.text(shown(yesterday)), findsOneWidget);
+    expect(find.text(l.todayBackToToday), findsOneWidget);
+  });
+
+  for (final locale in const [Locale('bn'), Locale('en')]) {
+    testWidgets('360 dp at 1.3× text (${locale.languageCode}): labels fit', (
+      tester,
+    ) async {
+      final t = lookupAppLocalizations(locale);
+      stubDay([entry('rahim', 'dinner', 1, guests: 1)]);
+      await pump(tester, locale: locale, textScale: 1.3);
+      // A RenderFlex overflow would have failed the pump.
+      for (final s in [
+        t.mealGridAllOne,
+        t.mealGridLikeYesterday,
+        t.mealGridTotalRow,
+        t.mealGridDayTotal,
+      ]) {
+        final text = tester.widget<Text>(find.text(s));
+        expect(text.overflow, isNot(TextOverflow.ellipsis), reason: s);
+      }
+    });
+  }
 
   testWidgets('a day before anyone joined says nobody was here', (
     tester,

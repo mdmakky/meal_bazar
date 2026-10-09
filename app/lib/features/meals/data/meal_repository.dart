@@ -28,10 +28,22 @@ class MealRepository {
           .from('meal_types')
           .select()
           .eq('mess_id', messId)
-          .order('sort_order')
+          // postgrest orders descending by default: say ascending.
+          .order('sort_order', ascending: true)
+          .order('created_at', ascending: true)
           .retry(enabled: false),
     );
-    return rows.map(MealType.fromJson).toList();
+    // Rows cached before the fix may be reversed; columns follow sort_order.
+    final types = rows.map(MealType.fromJson).toList();
+    return [
+      for (final (_, t)
+          in types.indexed.toList()..sort(
+            (a, b) => a.$2.sortOrder != b.$2.sortOrder
+                ? a.$2.sortOrder.compareTo(b.$2.sortOrder)
+                : a.$1.compareTo(b.$1),
+          ))
+        t,
+    ];
   });
 
   Future<List<MealEntry>> entriesForDay(String messId, DateTime day) =>

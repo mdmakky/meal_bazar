@@ -11,7 +11,6 @@ import '../../../core/platform/platform_config.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../mess/application/mess_providers.dart';
 import '../../mess/domain/member.dart';
-import '../../mess/presentation/common.dart';
 import '../../today/application/day_grid.dart';
 import '../application/meal_providers.dart';
 import '../domain/meal.dart';
@@ -98,7 +97,7 @@ Future<bool> putEntry(
     await ref.read(dayGridProvider(dayKey).notifier).put(e, own: own);
     return true;
   } catch (err) {
-    if (context.mounted) showFailure(context, err);
+    if (context.mounted) snackFailure(context, err);
     return false;
   }
 }
@@ -177,7 +176,7 @@ Future<void> markMealOff(
   );
   if (ok && context.mounted) {
     final [name, meal] = _cellTitle(current, members, types).split(' · ');
-    showSnack(context, l.todayMealOffDone(name, meal));
+    AppSnack.show(context, l.todayMealOffDone(name, meal));
   }
 }
 
@@ -191,7 +190,7 @@ Future<void> offTomorrow(BuildContext context, WidgetRef ref) async {
   if (!ref
       .read(nowProvider)()
       .isBefore(mealOffDeadline(tomorrow, mess.mealOffCutoff))) {
-    showSnack(context, l.mealOffCutoffPassed);
+    AppSnack.show(context, l.mealOffCutoffPassed);
     return;
   }
   final key = (messId: mess.id, day: tomorrow);
@@ -204,7 +203,7 @@ Future<void> offTomorrow(BuildContext context, WidgetRef ref) async {
         if (t.enabled) t,
     ];
   } catch (e) {
-    if (context.mounted) showFailure(context, e);
+    if (context.mounted) snackFailure(context, e);
     return;
   }
   if (!context.mounted) return;
@@ -222,7 +221,7 @@ Future<void> offTomorrow(BuildContext context, WidgetRef ref) async {
     }
     if (!context.mounted) return;
   }
-  showSnack(context, l.mealOffSaved);
+  AppSnack.show(context, l.mealOffSaved);
 }
 
 /// Checklist of meal types; returns the ids to have off, or null if dismissed.
@@ -344,13 +343,20 @@ double dayPeople(Iterable<MealEntry> entries, Iterable<MealType> types) {
       .fold(0.0, (s, e) => s + e.people);
 }
 
-const _nameWidth = AppSize.gridName;
 const _stepTarget = AppSize.stepTarget;
 const _stepFace = AppSize.stepFace;
 const _valueWidth = AppSize.stepValue;
 const _cellWidth = _stepTarget * 2 + _valueWidth;
 const _headerHeight = AppSize.gridHeader;
 const _rowHeight = AppSize.gridRow;
+const _nameMin = AppSize.gridName;
+const _nameMax = 168.0;
+
+/// When a bulk action last wrote the grid: cells changing right after it pop
+/// in a quick stagger (≤ 120 ms across the grid) instead of all at once.
+// ponytail: one module-level stamp; a provider if two grids ever coexist.
+DateTime? _bulkAt;
+void markBulkApply() => _bulkAt = DateTime.now();
 
 /// Member × meal type, each cell a compact `− value +` stepper; the last row
 /// holds column totals. The name column stays put; the meal columns scroll
@@ -380,50 +386,74 @@ class MealStepperGrid extends ConsumerWidget {
     final l = AppLocalizations.of(context);
     final p = context.palette;
     final text = Theme.of(context).textTheme;
+    final overline = AppType.overline(context);
     final bn = bnDigits(context);
     final entries =
         ref.watch(dayGridProvider(dayKey)).value?.values ?? const [];
     final line = BoxDecoration(
       border: Border(bottom: BorderSide(color: p.border)),
     );
-    final head = BoxDecoration(
-      color: p.surfaceMuted,
-      border: Border(bottom: BorderSide(color: p.border)),
-    );
+    final cellCount = rows.length * types.length;
+    // At large text the names need the avatar's room more than the avatar.
+    final avatars = MediaQuery.textScalerOf(context).scale(14) <= 16;
 
-    Widget nameCell(String s, double h, {TextStyle? style, Decoration? deco}) =>
-        Container(
-          height: h,
-          decoration: deco ?? line,
-          padding: const EdgeInsets.symmetric(horizontal: AppSpace.md),
-          alignment: AlignmentDirectional.centerStart,
-          child: Text(
-            s,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: style ?? text.titleSmall,
-          ),
-        );
+    Widget nameCell(double h, Widget child, {bool last = false}) => Container(
+      height: h,
+      decoration: last ? null : line,
+      padding: const EdgeInsetsDirectional.only(
+        start: AppSpace.md,
+        end: AppSpace.xs,
+      ),
+      alignment: AlignmentDirectional.centerStart,
+      child: child,
+    );
 
     final names = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         nameCell(
-          l.todayMemberColumn,
           _headerHeight,
-          style: text.labelMedium,
-          deco: head,
+          Text(
+            l.todayMemberColumn,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: overline,
+          ),
         ),
-        for (final m in rows) nameCell(m.displayName, _rowHeight),
-        nameCell(l.mealGridTotalRow, _rowHeight, deco: const BoxDecoration()),
+        for (final m in rows)
+          nameCell(
+            _rowHeight,
+            Row(
+              spacing: AppSpace.sm,
+              children: [
+                if (avatars) InitialsAvatar(m.displayName),
+                Expanded(
+                  child: Text(
+                    m.displayName,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: text.titleSmall?.copyWith(height: 1.25),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        nameCell(
+          _rowHeight,
+          Text(l.mealGridTotalRow, maxLines: 2, style: overline),
+          last: true,
+        ),
       ],
     );
 
     return LayoutBuilder(
       builder: (context, c) {
-        final room = c.maxWidth - _nameWidth;
-        final fits = _cellWidth * types.length <= room;
-        final colW = fits ? room / types.length : _cellWidth;
+        final fits = _nameMin + _cellWidth * types.length <= c.maxWidth;
+        // Spare width goes to the names first, so they are not cut short.
+        final nameW = fits
+            ? (c.maxWidth - _cellWidth * types.length).clamp(_nameMin, _nameMax)
+            : _nameMin + AppSpace.lg;
+        final colW = fits ? (c.maxWidth - nameW) / types.length : _cellWidth;
         final cells = Column(
           children: [
             Row(
@@ -432,24 +462,29 @@ class MealStepperGrid extends ConsumerWidget {
                   Container(
                     width: colW,
                     height: _headerHeight,
-                    decoration: head,
+                    decoration: line,
                     alignment: Alignment.center,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpace.xs,
+                    ),
                     child: Text(
                       t.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: text.labelMedium,
+                      style: overline.copyWith(
+                        color: t.enabled ? p.ink : p.inkTertiary,
+                      ),
                     ),
                   ),
               ],
             ),
-            for (final m in rows)
+            for (final (r, m) in rows.indexed)
               Container(
                 height: _rowHeight,
                 decoration: line,
                 child: Row(
                   children: [
-                    for (final t in types)
+                    for (final (i, t) in types.indexed)
                       SizedBox(
                         width: colW,
                         child: _StepperCell(
@@ -458,6 +493,10 @@ class MealStepperGrid extends ConsumerWidget {
                           type: t,
                           editable: editable,
                           ownOff: ownOffId == m.id && t.enabled,
+                          stagger:
+                              AppMotion.fast *
+                              ((r * types.length + i) /
+                                  (cellCount > 1 ? cellCount - 1 : 1)),
                         ),
                       ),
                   ],
@@ -470,11 +509,13 @@ class MealStepperGrid extends ConsumerWidget {
                   for (final t in types)
                     SizedBox(
                       width: colW,
-                      child: Text(
-                        decimal(dayPeople(entries, [t]), bangla: bn),
-                        textAlign: TextAlign.center,
-                        style: text.titleSmall?.copyWith(
-                          fontFeatures: const [FontFeature.tabularFigures()],
+                      child: Center(
+                        child: RollingNumber(
+                          dayPeople(entries, [t]),
+                          banglaDigits: bn,
+                          style: text.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),
@@ -486,7 +527,7 @@ class MealStepperGrid extends ConsumerWidget {
         return Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(width: _nameWidth, child: names),
+            SizedBox(width: nameW, child: names),
             Expanded(
               child: fits
                   ? cells
@@ -509,6 +550,7 @@ class _StepperCell extends ConsumerWidget {
     required this.type,
     required this.editable,
     required this.ownOff,
+    required this.stagger,
   });
 
   final MessDay dayKey;
@@ -516,6 +558,9 @@ class _StepperCell extends ConsumerWidget {
   final MealType type;
   final bool editable;
   final bool ownOff;
+
+  /// This cell's pop delay when a bulk action changes it.
+  final Duration stagger;
 
   MealEntry _current(WidgetRef ref) => entryOrZero(
     ref.read(dayGridProvider(dayKey)).value,
@@ -544,6 +589,12 @@ class _StepperCell extends ConsumerWidget {
       off ? l.mealCellOff : value,
       if (guests > 0) l.mealCellGuests(guestText),
     ].join(', ');
+    final bulk = _bulkAt;
+    final delay =
+        bulk != null &&
+            DateTime.now().difference(bulk) < const Duration(seconds: 1)
+        ? stagger
+        : Duration.zero;
 
     void put(MealEntry e, {bool own = false}) =>
         putEntry(context, ref, dayKey, e, own: own);
@@ -554,6 +605,10 @@ class _StepperCell extends ConsumerWidget {
         ? () => put(toggleMealOff(_current(ref)), own: true)
         : null;
 
+    final style = text.titleMedium?.copyWith(
+      fontWeight: FontWeight.w600,
+      color: off || count == 0 ? p.inkTertiary : p.ink,
+    );
     final face = Semantics(
       container: true,
       label: '$label: $spoken',
@@ -575,33 +630,48 @@ class _StepperCell extends ConsumerWidget {
         child: SizedBox(
           width: _valueWidth,
           height: _rowHeight,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Stack(
+            clipBehavior: Clip.none,
             children: [
-              AnimatedSwitcher(
-                duration: MediaQuery.disableAnimationsOf(context)
-                    ? Duration.zero
-                    : AppMotion.valueFade,
-                child: Text(
-                  value,
-                  key: ValueKey(value),
-                  maxLines: 1,
-                  style: text.titleSmall?.copyWith(
-                    color: off || count == 0 ? p.inkTertiary : p.ink,
-                    decoration: off ? TextDecoration.lineThrough : null,
-                    decorationColor: p.inkTertiary,
-                    fontFeatures: const [FontFeature.tabularFigures()],
+              // The value may run wider than the 32 dp face (a roll, ১.৫ at
+              // 1.3× text): it overflows sideways instead of wrapping.
+              OverflowBox(
+                maxWidth: double.infinity,
+                alignment: Alignment(0, guests > 0 ? -0.55 : 0),
+                child: _Pop(
+                  value: value,
+                  delay: delay,
+                  child: off
+                      ? Text(
+                          '—',
+                          maxLines: 1,
+                          style: style?.copyWith(
+                            decoration: TextDecoration.lineThrough,
+                            decorationColor: p.inkTertiary,
+                          ),
+                        )
+                      : RollingNumber(count, banglaDigits: bn, style: style),
+                ),
+              ),
+              Positioned(
+                left: -AppSpace.md,
+                right: -AppSpace.md,
+                bottom: AppSpace.xs,
+                child: Center(
+                  child: AnimatedSwitcher(
+                    duration: AppMotion.of(context, AppMotion.base),
+                    switchInCurve: AppMotion.arrive,
+                    switchOutCurve: AppMotion.exit,
+                    transitionBuilder: (child, a) => FadeTransition(
+                      opacity: a,
+                      child: ScaleTransition(scale: a, child: child),
+                    ),
+                    child: guests > 0
+                        ? _GuestBadge(key: ValueKey(guestText), text: guestText)
+                        : const SizedBox.shrink(),
                   ),
                 ),
               ),
-              if (guests > 0)
-                Text(
-                  guestText,
-                  style: text.labelSmall?.copyWith(
-                    color: p.inkSecondary,
-                    fontFeatures: const [FontFeature.tabularFigures()],
-                  ),
-                ),
             ],
           ),
         ),
@@ -629,7 +699,96 @@ class _StepperCell extends ConsumerWidget {
   }
 }
 
-/// A 28 dp circle inside a 40 × 56 dp hit area.
+/// `+n` guests: a small turmeric pill under the value.
+class _GuestBadge extends StatelessWidget {
+  const _GuestBadge({super.key, required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    return Container(
+      margin: const EdgeInsets.only(top: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 5),
+      decoration: BoxDecoration(
+        color: p.accentSoft,
+        border: Border.all(color: p.accent),
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+      ),
+      child: Text(
+        text,
+        maxLines: 1,
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+          color: p.ink,
+          fontWeight: FontWeight.w600,
+          height: 1.3,
+          fontFeatures: const [FontFeature.tabularFigures()],
+        ),
+      ),
+    );
+  }
+}
+
+/// [PopOnChange] with a start delay, so a bulk change ripples across the
+/// grid. A plain tap pops at once (delay zero).
+class _Pop extends StatefulWidget {
+  const _Pop({required this.value, required this.delay, required this.child});
+
+  final Object value;
+  final Duration delay;
+  final Widget child;
+
+  @override
+  State<_Pop> createState() => _PopState();
+}
+
+class _PopState extends State<_Pop> with SingleTickerProviderStateMixin {
+  late final AnimationController _c;
+
+  @override
+  void initState() {
+    super.initState();
+    _c = AnimationController(vsync: this);
+  }
+
+  Animation<double> _scale = kAlwaysCompleteAnimation;
+
+  @override
+  void didUpdateWidget(_Pop old) {
+    super.didUpdateWidget(old);
+    if (old.value == widget.value || AppMotion.reduced(context)) return;
+    final total = widget.delay + AppMotion.pop;
+    _c.duration = total;
+    _scale = _c.drive(
+      TweenSequence([
+        TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.14), weight: 1),
+        TweenSequenceItem(tween: Tween(begin: 1.14, end: 1.0), weight: 1),
+      ]).chain(
+        CurveTween(
+          curve: Interval(
+            widget.delay.inMicroseconds / total.inMicroseconds,
+            1,
+          ),
+        ),
+      ),
+    );
+    _c.forward(from: 0);
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      ScaleTransition(scale: _scale, child: widget.child);
+}
+
+/// A 28 dp circle inside a 40 × 56 dp hit area; scales on press with a
+/// selection click.
 class _StepButton extends StatelessWidget {
   const _StepButton({required this.icon, required this.label, this.onTap});
 
@@ -646,24 +805,31 @@ class _StepButton extends StatelessWidget {
       enabled: on,
       label: label,
       excludeSemantics: true,
-      child: InkResponse(
-        onTap: onTap,
-        radius: _stepTarget / 2,
-        child: SizedBox(
-          width: _stepTarget,
-          height: _rowHeight,
-          child: Center(
-            child: Container(
-              width: _stepFace,
-              height: _stepFace,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: on ? p.borderStrong : p.border),
-              ),
-              child: Icon(
-                icon,
-                size: AppSize.dot * 2,
-                color: on ? p.ink : p.inkTertiary,
+      child: PressableScale(
+        enabled: on,
+        haptic: on,
+        scale: 0.85,
+        child: InkResponse(
+          onTap: onTap,
+          radius: _stepTarget / 2,
+          child: SizedBox(
+            width: _stepTarget,
+            height: _rowHeight,
+            child: Center(
+              child: AnimatedContainer(
+                duration: AppMotion.of(context, AppMotion.fast),
+                width: _stepFace,
+                height: _stepFace,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: on ? p.surfaceMuted : Colors.transparent,
+                  border: Border.all(color: on ? p.surfaceMuted : p.border),
+                ),
+                child: Icon(
+                  icon,
+                  size: AppSize.dot * 2,
+                  color: on ? p.ink : p.inkTertiary,
+                ),
               ),
             ),
           ),

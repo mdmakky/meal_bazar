@@ -9,7 +9,8 @@ import '../../../core/dates.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
 import '../../../core/platform/platform_config.dart';
 import '../../meals/application/meal_providers.dart';
-import '../../meals/presentation/meal_widgets.dart' show bnDigits;
+import '../../../core/widgets/widgets.dart';
+import '../../meals/presentation/meal_widgets.dart' show bnDigits, snackFailure;
 import '../../mess/application/mess_providers.dart';
 import '../../mess/presentation/common.dart' show showFailure;
 import '../../money/application/money_providers.dart';
@@ -165,7 +166,7 @@ class _CookShareButtonState extends ConsumerState<CookShareButton> {
       );
       await SharePlus.instance.share(ShareParams(text: text));
     } catch (e) {
-      if (mounted) showFailure(context, e);
+      if (mounted) snackFailure(context, e);
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -174,9 +175,24 @@ class _CookShareButtonState extends ConsumerState<CookShareButton> {
   @override
   Widget build(BuildContext context) => !ref.featureOn('cook_share')
       ? const SizedBox.shrink()
-      : IconButton(
-          tooltip: AppLocalizations.of(context).cookShare,
-          icon: const Icon(Icons.soup_kitchen_outlined),
-          onPressed: _busy ? null : _share,
+      : PressableScale(
+          enabled: !_busy,
+          haptic: true,
+          child: DecoratedBox(
+            // Matches the raised bulk-action chips beside it.
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: context.palette.surfaceRaised,
+              boxShadow: AppElevation.button(context.palette),
+            ),
+            child: IconButton(
+              tooltip: AppLocalizations.of(context).cookShare,
+              icon: Icon(
+                Icons.soup_kitchen_outlined,
+                color: context.palette.ink,
+              ),
+              onPressed: _busy ? null : _share,
+            ),
+          ),
         );
 }

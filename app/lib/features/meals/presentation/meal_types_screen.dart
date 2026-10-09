@@ -52,7 +52,7 @@ class _MealTypesScreenState extends ConsumerState<MealTypesScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() => _items = null);
-      showFailure(context, e);
+      snackFailure(context, e);
     }
   }
 
@@ -123,7 +123,7 @@ class _MealTypesScreenState extends ConsumerState<MealTypesScreen> {
           .read(mealControllerProvider)
           .createMealType(messId, name: name, sortOrder: items.length);
     } catch (e) {
-      if (mounted) showFailure(context, e);
+      if (mounted) snackFailure(context, e);
     }
   }
 

@@ -124,4 +124,38 @@ void main() {
         );
     expect(await repo.entriesForDay('mess1', day), isEmpty);
   });
+
+  test('meal types come in sort_order, ascending', () async {
+    Map<String, dynamic> row(String id, String name, int order) => {
+      'id': id,
+      'mess_id': 'mess1',
+      'name': name,
+      'sort_order': order,
+      'weight': 1,
+      'enabled': true,
+    };
+    Uri? asked;
+    // A server (or an old cache) answering in the wrong order.
+    final client = SupabaseClient(
+      'http://localhost',
+      'anon',
+      httpClient: MockClient((req) async {
+        asked = req.url;
+        return http.Response(
+          jsonEncode([
+            row('dinner', 'রাত', 2),
+            row('lunch', 'দুপুর', 1),
+            row('breakfast', 'সকাল', 0),
+          ]),
+          200,
+          headers: {'content-type': 'application/json'},
+          request: req,
+        );
+      }),
+    );
+    final repo = MealRepository(client, db, sync);
+    final types = await repo.mealTypes('mess1');
+    expect([for (final t in types) t.name], ['সকাল', 'দুপুর', 'রাত']);
+    expect(asked!.queryParameters['order'], startsWith('sort_order.asc'));
+  });
 }

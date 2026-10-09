@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/failure_text.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
 import '../../../core/widgets/widgets.dart';
 import '../domain/meal.dart';
@@ -14,7 +15,87 @@ String decimal(num v, {required bool bangla}) => Fmt.digits(
   bangla: bangla,
 );
 
+/// A failed action: names the problem in an [AppSnack] with an error icon.
+void snackFailure(BuildContext context, Object error) => AppSnack.show(
+  context,
+  failureText(context, error),
+  icon: Icons.error_outline,
+);
+
+/// A member's initial in a small muted circle (grid rows, month list).
+class InitialsAvatar extends StatelessWidget {
+  const InitialsAvatar(this.name, {super.key, this.size = 28});
+
+  final String name;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final initial = name.trim().characters.firstOrNull?.toUpperCase() ?? '?';
+    return ExcludeSemantics(
+      child: Container(
+        width: size,
+        height: size,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: p.surfaceMuted,
+        ),
+        child: Text(
+          initial,
+          textScaler: TextScaler.noScaling,
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: p.inkSecondary,
+            height: 1,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A 48 dp round button with a muted face that scales on press with a
+/// selection click. Null [onPressed] = disabled (hairline, tertiary icon).
+class RoundStepButton extends StatelessWidget {
+  const RoundStepButton({
+    super.key,
+    required this.icon,
+    required this.tooltip,
+    this.onPressed,
+  });
+
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final on = onPressed != null;
+    return PressableScale(
+      enabled: on,
+      haptic: on,
+      scale: 0.88,
+      child: IconButton(
+        tooltip: tooltip,
+        onPressed: onPressed,
+        style: IconButton.styleFrom(
+          backgroundColor: p.surfaceMuted,
+          disabledBackgroundColor: Colors.transparent,
+          foregroundColor: p.ink,
+          disabledForegroundColor: p.inkTertiary,
+          side: on ? BorderSide.none : BorderSide(color: p.border),
+        ),
+        icon: Icon(icon, size: AppSize.spinner),
+      ),
+    );
+  }
+}
+
 /// `−  value  +` with 48 dp targets. Null handler = that end is disabled.
+/// The value pops when it changes.
 class CountStepper extends StatelessWidget {
   const CountStepper({
     super.key,
@@ -33,30 +114,38 @@ class CountStepper extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
-    return Row(
-      children: [
-        Expanded(child: Text(label, style: text.bodyLarge)),
-        IconButton(
-          tooltip: '${l.mealCellDecrease} $label',
-          onPressed: onMinus,
-          icon: const Icon(Icons.remove),
-        ),
-        ConstrainedBox(
-          constraints: const BoxConstraints(minWidth: AppSize.touch),
-          child: Text(
-            value,
-            textAlign: TextAlign.center,
-            style: text.titleMedium?.copyWith(
-              fontFeatures: const [FontFeature.tabularFigures()],
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpace.xs),
+      child: Row(
+        spacing: AppSpace.xs,
+        children: [
+          Expanded(child: Text(label, style: text.bodyLarge)),
+          RoundStepButton(
+            tooltip: '${l.mealCellDecrease} $label',
+            onPressed: onMinus,
+            icon: Icons.remove,
+          ),
+          ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: AppSize.touch),
+            child: PopOnChange(
+              value: value,
+              child: Text(
+                value,
+                textAlign: TextAlign.center,
+                style: text.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
             ),
           ),
-        ),
-        IconButton(
-          tooltip: '${l.mealCellIncrease} $label',
-          onPressed: onPlus,
-          icon: const Icon(Icons.add),
-        ),
-      ],
+          RoundStepButton(
+            tooltip: '${l.mealCellIncrease} $label',
+            onPressed: onPlus,
+            icon: Icons.add,
+          ),
+        ],
+      ),
     );
   }
 }
@@ -129,6 +218,7 @@ Future<MealEntry?> showMealEntrySheet(
           children: [
             Wrap(
               spacing: AppSpace.sm,
+              runSpacing: AppSpace.sm,
               children: [
                 for (final (label, e) in quick)
                   ChoiceChip(
@@ -138,6 +228,7 @@ Future<MealEntry?> showMealEntrySheet(
                   ),
               ],
             ),
+            const Divider(height: AppSpace.sm),
             if (guestsFirst) ...[guests, own] else ...[own, guests],
           ],
         );
@@ -164,5 +255,75 @@ Future<T?> pickOne<T>(
           onTap: () => Navigator.pop(context, value),
         ),
     ],
+  ),
+);
+
+/// One-tap choice as icon tiles, three across (the মিল FAB chooser).
+/// Returns null when dismissed.
+Future<T?> pickTile<T>(
+  BuildContext context, {
+  required String title,
+  required List<(T, String, IconData)> options,
+}) => AppSheet.show<T>(
+  context,
+  title: title,
+  child: LayoutBuilder(
+    builder: (context, c) {
+      const gap = AppSpace.sm;
+      final p = context.palette;
+      final text = Theme.of(context).textTheme;
+      return Wrap(
+        spacing: gap,
+        runSpacing: gap,
+        children: [
+          for (final (value, label, icon) in options)
+            SizedBox(
+              width: (c.maxWidth - gap * 2) / 3,
+              child: PressableScale(
+                haptic: true,
+                child: Material(
+                  color: p.surfaceMuted,
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  clipBehavior: Clip.antiAlias,
+                  child: InkWell(
+                    onTap: () => Navigator.pop(context, value),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(minHeight: 96),
+                      child: Padding(
+                        padding: const EdgeInsets.all(AppSpace.sm),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          spacing: AppSpace.sm,
+                          children: [
+                            Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: p.surfaceRaised,
+                                boxShadow: AppElevation.button(p),
+                              ),
+                              child: Icon(
+                                icon,
+                                size: AppSize.spinner,
+                                color: p.ink,
+                              ),
+                            ),
+                            Text(
+                              label,
+                              textAlign: TextAlign.center,
+                              style: text.labelLarge,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      );
+    },
   ),
 );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -13,7 +14,6 @@ import '../../month/domain/month.dart';
 import '../../ai/presentation/ai_entry.dart';
 import '../../export/presentation/export_actions.dart';
 import '../../mess/domain/member.dart';
-import '../../mess/presentation/common.dart';
 import '../../money/presentation/money_sheets.dart';
 import '../../recurring/application/recurring_providers.dart';
 import '../../recurring/domain/recurring.dart';
@@ -36,18 +36,38 @@ class MealsScreen extends ConsumerStatefulWidget {
 class _MealsScreenState extends ConsumerState<MealsScreen> {
   DateTime _day = today();
 
+  /// Direction of the last day/month change: the date text slides with it.
+  bool _forward = true;
+  double _dragDx = 0;
+
+  void _go(DateTime day) => setState(() {
+    _forward = !day.isBefore(_day);
+    _day = day;
+  });
+
   void _shift(int days) =>
-      setState(() => _day = dayOnly(_day.add(Duration(days: days, hours: 2))));
+      _go(dayOnly(_day.add(Duration(days: days, hours: 2))));
+
+  /// Planning ahead stops at tomorrow.
+  bool get _canNext => !_day.isAfter(today());
 
   /// Previous/next calendar month: its first day, or today in this month.
   void _shiftMonth(int delta) {
     final now = today();
     final first = DateTime(_day.year, _day.month + delta);
-    setState(
-      () => _day = first.year == now.year && first.month == now.month
-          ? now
-          : first,
-    );
+    _go(first.year == now.year && first.month == now.month ? now : first);
+  }
+
+  /// Swipe on the grid: left = next day, right = previous day.
+  void _onSwipeEnd(DragEndDetails d) {
+    final v = d.primaryVelocity ?? 0;
+    final dx = _dragDx;
+    _dragDx = 0;
+    if (dx.abs() < 64 && v.abs() < 700) return;
+    final next = (dx.abs() >= 64 ? dx : v) < 0;
+    if (next && !_canNext) return;
+    HapticFeedback.selectionClick();
+    _shift(next ? 1 : -1);
   }
 
   @override
@@ -110,7 +130,7 @@ class _MealsScreenState extends ConsumerState<MealsScreen> {
             icon: Icons.event_busy_outlined,
             message: l.dashNobodyThatDay,
             actionLabel: _day == today() ? null : l.todayBackToToday,
-            onAction: () => setState(() => _day = today()),
+            onAction: () => _go(today()),
           )
         else if (types.isEmpty)
           EmptyView(
@@ -134,7 +154,7 @@ class _MealsScreenState extends ConsumerState<MealsScreen> {
             ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
-            child: AppCard(
+            child: AppCard.raised(
               padding: EdgeInsets.zero,
               child: MealStepperGrid(
                 dayKey: key,
@@ -145,20 +165,22 @@ class _MealsScreenState extends ConsumerState<MealsScreen> {
               ),
             ),
           ),
-          _DayTotal(dayKey: key, types: types),
           if (manager)
             Padding(
               padding: const EdgeInsets.fromLTRB(
                 AppSpace.gutter,
-                AppSpace.md,
+                AppSpace.sm,
                 AppSpace.gutter,
                 0,
               ),
               child: Text(
                 l.mealGridHint,
-                style: Theme.of(context).textTheme.bodySmall,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: context.palette.inkTertiary,
+                ),
               ),
             ),
+          _DayTotal(dayKey: key, types: types),
           if (myId != null && mess != null && ref.featureOn('member_meal_off'))
             MealOffHint(cutoff: mess.mealOffCutoff),
         ],
@@ -167,10 +189,13 @@ class _MealsScreenState extends ConsumerState<MealsScreen> {
 
     return Scaffold(
       floatingActionButton: manager && rows.isNotEmpty && types.isNotEmpty
-          ? FloatingActionButton(
-              tooltip: l.mealGridAdd,
-              onPressed: () => _add(key, rows, types),
-              child: const Icon(Icons.add),
+          ? PressableScale(
+              haptic: true,
+              child: FloatingActionButton(
+                tooltip: l.mealGridAdd,
+                onPressed: () => _add(key, rows, types),
+                child: const Icon(Icons.add),
+              ),
             )
           : null,
       body: SafeArea(
@@ -186,15 +211,32 @@ class _MealsScreenState extends ConsumerState<MealsScreen> {
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.only(bottom: AppSpace.xxxl * 2),
             children: [
-              _Header(messId: messId, day: _day, onShiftMonth: _shiftMonth),
+              _Header(
+                messId: messId,
+                day: _day,
+                forward: _forward,
+                onShiftMonth: _shiftMonth,
+              ),
               _DaySwitcher(
                 day: _day,
+                forward: _forward,
+                canNext: _canNext,
                 onShift: _shift,
-                onToday: () => setState(() => _day = today()),
+                onToday: () => _go(today()),
               ),
               SyncLine(messId: messId),
-              const SizedBox(height: AppSpace.md),
-              ...grid,
+              const SizedBox(height: AppSpace.sm),
+              // Swipe the grid sideways to change the day.
+              GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onHorizontalDragStart: (_) => _dragDx = 0,
+                onHorizontalDragUpdate: (d) => _dragDx += d.delta.dx,
+                onHorizontalDragEnd: _onSwipeEnd,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: grid,
+                ),
+              ),
               if (mess != null)
                 _MonthSummary(
                   messId: messId,
@@ -214,20 +256,94 @@ class _MealsScreenState extends ConsumerState<MealsScreen> {
     List<MealType> types,
   ) async {
     final l = AppLocalizations.of(context);
-    final action = await pickOne<VoidCallback>(
+    final action = await pickTile<VoidCallback>(
       context,
       title: l.mealGridAddTitle,
       options: [
         if (ref.read(platformConfigProvider).aiMealDraft)
-          (() => showMealDraftSheet(context, day: _day), l.mealGridAi),
-        (() => showAddBazarSheet(context), l.todayActionBazar),
-        (() => showAddExpenseSheet(context), l.todayActionExpense),
-        (() => showAddDepositSheet(context), l.todayActionDeposit),
+          (
+            () => showMealDraftSheet(context, day: _day),
+            l.mealGridAi,
+            Icons.auto_awesome_outlined,
+          ),
+        (
+          () => showAddBazarSheet(context),
+          l.todayActionBazar,
+          Icons.shopping_basket_outlined,
+        ),
+        (
+          () => showAddExpenseSheet(context),
+          l.todayActionExpense,
+          Icons.receipt_long_outlined,
+        ),
+        (
+          () => showAddDepositSheet(context),
+          l.todayActionDeposit,
+          Icons.savings_outlined,
+        ),
         if (ref.read(platformConfigProvider).feature('guest_meals'))
-          (() => addGuest(context, ref, key, rows, types), l.todayActionGuest),
+          (
+            () => addGuest(context, ref, key, rows, types),
+            l.todayActionGuest,
+            Icons.person_add_alt_outlined,
+          ),
       ],
     );
     if (mounted) action?.call();
+  }
+}
+
+/// [text] that slides sideways when it changes (shared axis X): the new value
+/// comes in from the side we are moving towards, the old one leaves the
+/// other way. An instant swap with "Remove animations".
+class _SlideText extends StatelessWidget {
+  const _SlideText(
+    this.text, {
+    required this.forward,
+    this.style,
+    this.textAlign,
+  });
+
+  final String text;
+  final bool forward;
+  final TextStyle? style;
+  final TextAlign? textAlign;
+
+  @override
+  Widget build(BuildContext context) {
+    final current = ValueKey(text);
+    // Scales down rather than cutting off at 360 dp / 1.3× text.
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: ClipRect(
+        child: AnimatedSwitcher(
+          duration: AppMotion.of(context, AppMotion.page),
+          switchInCurve: AppMotion.arrive,
+          switchOutCurve: AppMotion.exit,
+          transitionBuilder: (child, a) {
+            final dir =
+                (child.key == current ? 1.0 : -1.0) * (forward ? 1 : -1);
+            return FadeTransition(
+              opacity: a,
+              child: SlideTransition(
+                position: Tween(
+                  begin: Offset(0.35 * dir, 0),
+                  end: Offset.zero,
+                ).animate(a),
+                child: child,
+              ),
+            );
+          },
+          child: Text(
+            text,
+            key: current,
+            textAlign: textAlign,
+            maxLines: 1,
+            style: style,
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -236,11 +352,13 @@ class _Header extends ConsumerWidget {
   const _Header({
     required this.messId,
     required this.day,
+    required this.forward,
     required this.onShiftMonth,
   });
 
   final String messId;
   final DateTime day;
+  final bool forward;
   final ValueChanged<int> onShiftMonth;
 
   @override
@@ -263,53 +381,74 @@ class _Header extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppSpace.gutter,
-        AppSpace.md,
-        AppSpace.sm,
+        AppSpace.lg,
+        AppSpace.gutter,
         0,
       ),
-      child: Row(
-        spacing: AppSpace.sm,
+      // Name and pill share a line when they fit; at large text the pill
+      // drops below instead of squeezing the name.
+      child: Wrap(
+        alignment: WrapAlignment.spaceBetween,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: AppSpace.md,
+        runSpacing: AppSpace.md,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 2,
+            children: [
+              Text(
+                mess?.name ?? l.mealsTitle,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: text.titleLarge,
+              ),
+              if (manager != null)
                 Text(
-                  mess?.name ?? l.mealsTitle,
+                  l.mealGridManager(manager.displayName),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: text.headlineSmall,
+                  style: AppType.overline(context),
                 ),
-                if (manager != null)
-                  Text(
-                    l.mealGridManager(manager.displayName),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: text.bodyMedium?.copyWith(color: p.inkSecondary),
-                  ),
-              ],
-            ),
+            ],
           ),
-          DecoratedBox(
-            decoration: BoxDecoration(
-              border: Border.all(color: p.border),
-              borderRadius: BorderRadius.circular(AppSize.touch),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  tooltip: l.mealGridPrevMonth,
-                  onPressed: () => onShiftMonth(-1),
-                  icon: const Icon(Icons.chevron_left),
+          ConstrainedBox(
+            // Leaves the mess name room; a long month scales down instead.
+            constraints: const BoxConstraints(maxWidth: 232),
+            child: PressableScale(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: p.surfaceRaised,
+                  borderRadius: BorderRadius.circular(AppSize.touch),
+                  boxShadow: AppElevation.button(p),
                 ),
-                Text(month, style: text.labelMedium),
-                IconButton(
-                  tooltip: l.mealGridNextMonth,
-                  onPressed: isThisMonth ? null : () => onShiftMonth(1),
-                  icon: const Icon(Icons.chevron_right),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      tooltip: l.mealGridPrevMonth,
+                      onPressed: () => onShiftMonth(-1),
+                      icon: const Icon(Icons.chevron_left),
+                    ),
+                    Flexible(
+                      child: _SlideText(
+                        month,
+                        forward: forward,
+                        style: text.labelLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: l.mealGridNextMonth,
+                      onPressed: isThisMonth ? null : () => onShiftMonth(1),
+                      icon: const Icon(Icons.chevron_right),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ],
@@ -322,11 +461,15 @@ class _Header extends ConsumerWidget {
 class _DaySwitcher extends StatelessWidget {
   const _DaySwitcher({
     required this.day,
+    required this.forward,
+    required this.canNext,
     required this.onShift,
     required this.onToday,
   });
 
   final DateTime day;
+  final bool forward;
+  final bool canNext;
   final ValueChanged<int> onShift;
   final VoidCallback onToday;
 
@@ -335,51 +478,150 @@ class _DaySwitcher extends StatelessWidget {
     final l = AppLocalizations.of(context);
     final p = context.palette;
     final text = Theme.of(context).textTheme;
-    final now = today();
-    final isToday = day == now;
+    final isToday = day == today();
+    final pill = BorderRadius.circular(AppSize.touch);
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpace.sm,
-        vertical: AppSpace.sm,
+      padding: const EdgeInsets.fromLTRB(
+        AppSpace.gutter,
+        AppSpace.lg,
+        AppSpace.gutter,
+        AppSpace.xs,
       ),
       child: Row(
+        spacing: AppSpace.sm,
         children: [
-          IconButton.outlined(
+          _RoundNav(
+            icon: Icons.chevron_left,
             tooltip: l.todayPrevDay,
             onPressed: () => onShift(-1),
-            icon: const Icon(Icons.chevron_left),
           ),
           Expanded(
-            child: InkWell(
-              borderRadius: BorderRadius.circular(AppRadius.sm),
-              onTap: isToday ? null : onToday,
-              child: Column(
-                children: [
-                  Text(
-                    Fmt.dateLong(
-                      day,
-                      locale: Localizations.localeOf(context).languageCode,
-                      banglaDigits: bnDigits(context),
-                    ),
-                    textAlign: TextAlign.center,
-                    style: text.titleMedium,
+            child: Column(
+              spacing: AppSpace.xs,
+              children: [
+                _SlideText(
+                  Fmt.dateLong(
+                    day,
+                    locale: Localizations.localeOf(context).languageCode,
+                    banglaDigits: bnDigits(context),
                   ),
-                  Text(
-                    isToday ? l.todayIsToday : l.todayBackToToday,
-                    style: text.labelSmall?.copyWith(
-                      color: isToday ? p.accent : p.inkTertiary,
-                    ),
+                  forward: forward,
+                  textAlign: TextAlign.center,
+                  style: text.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    fontFeatures: const [FontFeature.tabularFigures()],
                   ),
-                ],
-              ),
+                ),
+                AnimatedSwitcher(
+                  duration: AppMotion.of(context, AppMotion.chip),
+                  child: isToday
+                      ? DecoratedBox(
+                          key: const ValueKey('today'),
+                          decoration: BoxDecoration(
+                            color: p.accentSoft,
+                            border: Border.all(color: p.accent),
+                            borderRadius: pill,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpace.md,
+                              vertical: 2,
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              spacing: AppSpace.xs + 2,
+                              children: [
+                                Container(
+                                  width: 6,
+                                  height: 6,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: p.accent,
+                                  ),
+                                ),
+                                Text(
+                                  l.todayIsToday,
+                                  style: text.labelMedium?.copyWith(
+                                    color: p.ink,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      : PressableScale(
+                          key: const ValueKey('back'),
+                          child: Material(
+                            color: p.surfaceMuted,
+                            borderRadius: pill,
+                            child: InkWell(
+                              borderRadius: pill,
+                              onTap: onToday,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpace.md,
+                                  vertical: 2,
+                                ),
+                                child: Text(
+                                  l.todayBackToToday,
+                                  style: text.labelMedium?.copyWith(
+                                    color: p.inkSecondary,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                ),
+              ],
             ),
           ),
-          IconButton.outlined(
+          _RoundNav(
+            icon: Icons.chevron_right,
             tooltip: l.todayNextDay,
-            onPressed: day.isBefore(now) || isToday ? () => onShift(1) : null,
-            icon: const Icon(Icons.chevron_right),
+            onPressed: canNext ? () => onShift(1) : null,
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// A large raised round chevron (52 dp) that scales and clicks on press.
+class _RoundNav extends StatelessWidget {
+  const _RoundNav({required this.icon, required this.tooltip, this.onPressed});
+
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final on = onPressed != null;
+    return PressableScale(
+      enabled: on,
+      haptic: on,
+      scale: 0.9,
+      child: AnimatedOpacity(
+        opacity: on ? 1 : 0.38,
+        duration: AppMotion.of(context, AppMotion.fast),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: p.surfaceRaised,
+            boxShadow: on ? AppElevation.button(p) : null,
+            border: on ? null : Border.all(color: p.border),
+          ),
+          child: IconButton(
+            tooltip: tooltip,
+            onPressed: onPressed,
+            iconSize: 28,
+            constraints: const BoxConstraints.tightFor(width: 52, height: 52),
+            icon: Icon(icon, color: p.ink),
+          ),
+        ),
       ),
     );
   }
@@ -433,12 +675,19 @@ class _BulkActionsState extends ConsumerState<_BulkActions> {
             ?_change(entryOrZero(now, key, m.id, t.id), yesterday, defaults),
       ];
       if (changes.isEmpty) {
-        if (mounted) showSnack(context, l.mealGridNothingToChange);
+        if (mounted) {
+          AppSnack.show(
+            context,
+            l.mealGridNothingToChange,
+            icon: Icons.info_outline,
+          );
+        }
         return;
       }
+      markBulkApply();
       await ref.read(dayGridProvider(key).notifier).putAll(changes);
     } catch (e) {
-      if (mounted) showFailure(context, e);
+      if (mounted) snackFailure(context, e);
     } finally {
       if (mounted) setState(() => _busy = null);
     }
@@ -473,31 +722,27 @@ class _BulkActionsState extends ConsumerState<_BulkActions> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    Widget action(String which, String label, IconData icon) => AppButton(
+    Widget action(String which, String label, IconData icon) => _BulkChip(
       label: label,
       icon: icon,
-      variant: AppButtonVariant.secondary,
       loading: _busy == which,
       onPressed: _busy == null ? () => _run(which) : null,
     );
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppSpace.gutter,
-        0,
+        AppSpace.xs,
         AppSpace.gutter,
         AppSpace.md,
       ),
-      child: Row(
+      // Wraps rather than truncating at 360 dp / 1.3× text.
+      child: Wrap(
         spacing: AppSpace.sm,
+        runSpacing: AppSpace.sm,
+        crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          Expanded(child: action('one', l.mealGridAllOne, Icons.done_all)),
-          Expanded(
-            child: action(
-              'yesterday',
-              l.mealGridLikeYesterday,
-              Icons.content_copy_outlined,
-            ),
-          ),
+          action('one', l.mealGridAllOne, Icons.done_all),
+          action('yesterday', l.mealGridLikeYesterday, Icons.history),
           CookShareButton(messId: widget.dayKey.messId),
         ],
       ),
@@ -505,7 +750,82 @@ class _BulkActionsState extends ConsumerState<_BulkActions> {
   }
 }
 
-/// "এই দিনের মোট মিল" with the day's headcount, large.
+/// A raised pressable chip (48 dp): icon + label; a spinner while running.
+class _BulkChip extends StatelessWidget {
+  const _BulkChip({
+    required this.label,
+    required this.icon,
+    required this.loading,
+    this.onPressed,
+  });
+
+  final String label;
+  final IconData icon;
+  final bool loading;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final pill = BorderRadius.circular(AppSize.touch);
+    final on = onPressed != null;
+    return PressableScale(
+      enabled: on,
+      haptic: on,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: pill,
+          boxShadow: AppElevation.button(p),
+        ),
+        child: Material(
+          color: p.surfaceRaised,
+          borderRadius: pill,
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onPressed,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: AppSize.touch),
+              child: Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(
+                  AppSpace.md,
+                  AppSpace.xs,
+                  AppSpace.lg,
+                  AppSpace.xs,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  spacing: AppSpace.sm,
+                  children: [
+                    SizedBox.square(
+                      dimension: AppSize.spinner,
+                      child: loading
+                          ? CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: p.ink,
+                            )
+                          : Icon(icon, size: AppSize.spinner, color: p.ink),
+                    ),
+                    Flexible(
+                      child: Text(
+                        label,
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: on || loading ? p.ink : p.inkTertiary,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The statement: the day's headcount, rolling, with its proof per meal type.
 class _DayTotal extends ConsumerWidget {
   const _DayTotal({required this.dayKey, required this.types});
 
@@ -514,35 +834,49 @@ class _DayTotal extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final text = Theme.of(context).textTheme;
-    final total = dayPeople(
-      ref.watch(dayGridProvider(dayKey)).value?.values ?? const [],
-      types,
-    );
+    final l = AppLocalizations.of(context);
+    final bn = bnDigits(context);
+    final entries =
+        ref.watch(dayGridProvider(dayKey)).value?.values ?? const [];
+    final total = dayPeople(entries, types);
+    final proof = [
+      for (final t in types)
+        '${t.name} ${decimal(dayPeople(entries, [t]), bangla: bn)}',
+    ].join('  ·  ');
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppSpace.gutter,
-        AppSpace.md,
+        AppSpace.lg,
         AppSpace.gutter,
         0,
       ),
-      child: AppCard(
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                AppLocalizations.of(context).mealGridDayTotal,
-                style: text.titleSmall,
-              ),
-            ),
-            Text(
-              decimal(total, bangla: bnDigits(context)),
-              key: const Key('day-total'),
-              style: text.displaySmall?.copyWith(
-                fontFeatures: const [FontFeature.tabularFigures()],
-              ),
-            ),
-          ],
+      child: AppCard.ink(
+        child: Builder(
+          // Reads the statement theme the card installs.
+          builder: (context) {
+            final text = Theme.of(context).textTheme;
+            final p = context.palette;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: AppSpace.xs,
+              children: [
+                Text(l.mealGridDayTotal, style: AppType.overline(context)),
+                RollingNumber(
+                  total,
+                  key: const Key('day-total'),
+                  banglaDigits: bn,
+                  style: text.displayLarge,
+                ),
+                Text(
+                  proof,
+                  style: text.bodyMedium?.copyWith(
+                    color: p.inkSecondary,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -568,11 +902,11 @@ class _MonthSummary extends ConsumerWidget {
     final title = Padding(
       padding: const EdgeInsets.fromLTRB(
         AppSpace.gutter,
-        AppSpace.xl,
+        AppSpace.xxl,
         AppSpace.gutter,
         AppSpace.md,
       ),
-      child: Text(l.mealsByMember, style: text.titleMedium),
+      child: Text(l.mealsByMember, style: text.titleLarge),
     );
     if (summary.hasError && !summary.hasValue) {
       return Column(
@@ -649,46 +983,79 @@ class _MonthSummary extends ConsumerWidget {
             ],
           ),
         ),
-        const SizedBox(height: AppSpace.md),
+        const SizedBox(height: AppSpace.lg),
         if (rows.isEmpty)
           EmptyView(icon: Icons.restaurant_outlined, message: l.mealsEmpty)
-        else ...[
-          const Divider(),
-          for (final b in rows) ...[
-            ListTile(
-              minTileHeight: AppSize.touch + AppSpace.md,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: AppSpace.gutter,
-              ),
-              title: Text(b.displayName, style: text.titleSmall),
-              subtitle: (guests[b.memberId] ?? 0) > 0
-                  ? Text(
-                      l.mealsGuestNote(
-                        decimal(guests[b.memberId]!, bangla: bn),
+        else
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
+            child: AppCard.raised(
+              padding: const EdgeInsets.symmetric(vertical: AppSpace.xs),
+              child: StaggeredList(
+                child: Column(
+                  children: StaggeredList.wrap([
+                    for (final (i, b) in rows.indexed)
+                      Column(
+                        children: [
+                          if (i > 0)
+                            const Divider(
+                              height: 1,
+                              indent: AppSpace.gutter + 36 + AppSpace.md,
+                            ),
+                          ListTile(
+                            minTileHeight: AppSize.touch + AppSpace.md,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: AppSpace.gutter,
+                            ),
+                            horizontalTitleGap: AppSpace.md,
+                            leading: InitialsAvatar(b.displayName, size: 36),
+                            title: Text(b.displayName, style: text.titleSmall),
+                            subtitle: (guests[b.memberId] ?? 0) > 0
+                                ? Text(
+                                    l.mealsGuestNote(
+                                      decimal(guests[b.memberId]!, bangla: bn),
+                                    ),
+                                  )
+                                : null,
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              spacing: AppSpace.xs,
+                              children: [
+                                Text(
+                                  decimal(b.meals, bangla: bn),
+                                  style: text.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    fontFeatures: const [
+                                      FontFeature.tabularFigures(),
+                                    ],
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.chevron_right,
+                                  size: AppSize.spinner,
+                                  color: p.inkTertiary,
+                                ),
+                              ],
+                            ),
+                            onTap: () => Navigator.of(context).push(
+                              MaterialPageRoute<void>(
+                                builder: (_) => MemberMealsScreen(
+                                  messId: messId,
+                                  memberId: b.memberId,
+                                  name: b.displayName,
+                                  meals: b.meals,
+                                  period: period,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    )
-                  : null,
-              trailing: Text(
-                decimal(b.meals, bangla: bn),
-                style: text.titleMedium?.copyWith(
-                  fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-              ),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => MemberMealsScreen(
-                    messId: messId,
-                    memberId: b.memberId,
-                    name: b.displayName,
-                    meals: b.meals,
-                    period: period,
-                  ),
+                  ]),
                 ),
               ),
             ),
-            const Divider(),
-          ],
-        ],
+          ),
       ],
     );
   }
@@ -790,83 +1157,99 @@ class _DayList extends StatelessWidget {
         .where((t) => t.enabled || entries.any((e) => e.mealTypeId == t.id))
         .toList();
     final now = today();
-    return ListView.separated(
-      padding: const EdgeInsets.only(bottom: AppSpace.xl),
-      itemCount: days.length + 1,
-      separatorBuilder: (_, _) => const Divider(),
-      itemBuilder: (context, i) {
-        if (i == 0) {
-          return Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpace.gutter,
-              AppSpace.lg,
-              AppSpace.gutter,
-              AppSpace.sm,
+    return StaggeredList(
+      child: ListView.separated(
+        padding: const EdgeInsets.only(bottom: AppSpace.xl),
+        itemCount: days.length + 1,
+        separatorBuilder: (_, i) => i == 0
+            ? const SizedBox.shrink()
+            : const Divider(height: 1, indent: AppSpace.gutter),
+        itemBuilder: (context, i) {
+          if (i == 0) {
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpace.gutter,
+                AppSpace.lg,
+                AppSpace.gutter,
+                AppSpace.md,
+              ),
+              child: Row(
+                spacing: AppSpace.xs,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: Row(
+                      spacing: AppSpace.md,
+                      children: [
+                        InitialsAvatar(name, size: 40),
+                        Expanded(
+                          child: Text(
+                            l.mealsMemberTotal(decimal(meals, bangla: bn)),
+                            style: text.titleMedium,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  for (final t in shown)
+                    SizedBox(
+                      width: AppSize.mealCellWidth,
+                      child: Text(
+                        t.name,
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppType.overline(context),
+                      ),
+                    ),
+                ],
+              ),
+            );
+          }
+          final d = days[i - 1];
+          final row = byDay[d]!;
+          final total = row.values.fold(0.0, (s, e) => s + e.people);
+          final date = Fmt.dateLong(d, locale: locale, banglaDigits: bn);
+          final item = Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpace.gutter,
+              vertical: AppSpace.xs,
             ),
             child: Row(
               spacing: AppSpace.xs,
               children: [
                 Expanded(
-                  child: Text(
-                    l.mealsMemberTotal(decimal(meals, bangla: bn)),
-                    style: text.titleMedium,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(date, style: text.titleSmall),
+                      Text(
+                        Fmt.meals(total, banglaDigits: bn),
+                        style: text.labelSmall?.copyWith(
+                          color: p.inkTertiary,
+                          fontFeatures: const [FontFeature.tabularFigures()],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 for (final t in shown)
-                  SizedBox(
-                    width: AppSize.mealCellWidth,
-                    child: Text(
-                      t.name,
-                      textAlign: TextAlign.center,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: text.labelMedium,
-                    ),
+                  MealCell(
+                    label: '$date ${t.name}',
+                    count: row[t.id]?.count ?? 0,
+                    guests: row[t.id]?.guestCount ?? 0,
+                    off: row[t.id]?.isOff ?? false,
+                    today: d == now,
+                    banglaDigits: bn,
                   ),
               ],
             ),
           );
-        }
-        final d = days[i - 1];
-        final row = byDay[d]!;
-        final total = row.values.fold(0.0, (s, e) => s + e.people);
-        final date = Fmt.dateLong(d, locale: locale, banglaDigits: bn);
-        return Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpace.gutter,
-            vertical: AppSpace.xs,
-          ),
-          child: Row(
-            spacing: AppSpace.xs,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(date, style: text.titleSmall),
-                    Text(
-                      Fmt.meals(total, banglaDigits: bn),
-                      style: text.labelSmall?.copyWith(
-                        color: p.inkTertiary,
-                        fontFeatures: const [FontFeature.tabularFigures()],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              for (final t in shown)
-                MealCell(
-                  label: '$date ${t.name}',
-                  count: row[t.id]?.count ?? 0,
-                  guests: row[t.id]?.guestCount ?? 0,
-                  off: row[t.id]?.isOff ?? false,
-                  today: d == now,
-                  banglaDigits: bn,
-                ),
-            ],
-          ),
-        );
-      },
+          return i - 1 < AppMotion.staggerMax
+              ? Stagger(index: i - 1, child: item)
+              : item;
+        },
+      ),
     );
   }
 }
