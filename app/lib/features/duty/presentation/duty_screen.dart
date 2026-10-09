@@ -178,7 +178,7 @@ class _DutyList extends ConsumerWidget {
     Widget tile(BazarDuty d) => DutyTile(
       duty: d,
       names: _names(ref, messId),
-      canTick: isManager || d.memberId == me,
+      canTick: isManager,
       onTap: isManager ? () => _edit(context, d) : null,
     );
 

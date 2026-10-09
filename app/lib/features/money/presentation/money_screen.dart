@@ -1214,10 +1214,24 @@ class _DepositList extends ConsumerWidget {
         if (d.status == DepositStatus.pending) l.depositPending,
         if (d.status == DepositStatus.rejected) l.depositRejected,
       ].join(' · '),
-      trailing: _amountTrailing(
-        context,
-        d.amount,
-        tag: methodLabel(l, d.method, ref.watch(platformConfigProvider)),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        spacing: AppSpace.sm,
+        children: [
+          _amountTrailing(
+            context,
+            d.amount,
+            tag: methodLabel(l, d.method, ref.watch(platformConfigProvider)),
+          ),
+          // Tapping edits; the pencil says so.
+          if (isManager)
+            Icon(
+              Icons.edit_outlined,
+              size: 18,
+              color: context.palette.inkTertiary,
+              semanticLabel: l.depositEdit,
+            ),
+        ],
       ),
       onTap: isManager
           ? () => showDepositForm(context, existing: d)

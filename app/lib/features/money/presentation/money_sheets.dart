@@ -2426,19 +2426,6 @@ class _RequestActionsState extends ConsumerState<_RequestActions> {
     );
   }
 
-  Future<void> _withdraw() async {
-    final l = AppLocalizations.of(context);
-    final ok = await confirmDialog(
-      context,
-      title: l.bazarReqCancelTitle,
-      body: l.bazarReqCancelBody(money(context, widget.request.amount)),
-      action: l.bazarReqCancel,
-    );
-    if (!ok || !mounted) return;
-    final ctrl = ref.read(bazarRequestControllerProvider);
-    await _do(false, () => ctrl.cancel(widget.request), l.bazarReqCancelDone);
-  }
-
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -2446,7 +2433,6 @@ class _RequestActionsState extends ConsumerState<_RequestActions> {
     final text = Theme.of(context).textTheme;
     final r = widget.request;
     final manager = ref.watch(amIManagerProvider);
-    final mine = ref.watch(currentMembershipProvider)?.member.id == r.memberId;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: AppSpace.md,
@@ -2499,13 +2485,6 @@ class _RequestActionsState extends ConsumerState<_RequestActions> {
                 ),
               ),
             ],
-          )
-        else if (r.pending && mine)
-          AppButton(
-            label: l.bazarReqCancel,
-            variant: AppButtonVariant.secondary,
-            loading: _busy == false,
-            onPressed: _busy == null ? _withdraw : null,
           ),
       ],
     );

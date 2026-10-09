@@ -127,6 +127,13 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
           if (manager && ref.featureOn('setup_checklist'))
             SliverToBoxAdapter(child: SetupChecklist(messId: messId)),
           const SliverToBoxAdapter(child: HomeNotices()),
+          // Bazar duty sits up top with the notices: who goes today, next.
+          const SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.only(top: AppSpace.md),
+              child: TodayDutyCard(),
+            ),
+          ),
           SliverToBoxAdapter(child: LastMonthCard(messId: messId)),
           SliverToBoxAdapter(
             child: manager
@@ -166,7 +173,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
               SliverToBoxAdapter(
                 child: _MyToday(dayKey: key, types: types),
               ),
-            const SliverToBoxAdapter(child: TodayDutyCard()),
           ],
           if (hasMembers)
             SliverToBoxAdapter(

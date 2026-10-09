@@ -53,6 +53,11 @@ import '../domain/push.dart';
     l.inboxPushBazarRequest,
     l.inboxPushBazarRequestSub,
   ),
+  PushType.dutyToday => (
+    Icons.shopping_basket_outlined,
+    l.inboxPushDutyToday,
+    l.inboxPushDutyTodaySub,
+  ),
   PushType.bazarRequestReviewed => (
     Icons.fact_check_outlined,
     l.inboxPushBazarReviewed,

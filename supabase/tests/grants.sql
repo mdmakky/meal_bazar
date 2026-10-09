@@ -23,3 +23,5 @@ revoke execute on function public.push_enqueue(uuid[], text, text, text, text, t
 -- 0024: the meal-off group notice is posted by set_my_meal_off only.
 revoke execute on function public.post_meal_off_notice(uuid, uuid, date, uuid, boolean)
   from public, anon, authenticated;
+-- 0028: the duty reminder is run by the cron (service role) only.
+revoke execute on function public.send_duty_reminders() from public, anon, authenticated;

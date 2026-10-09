@@ -6595,6 +6595,18 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'ম্যানেজার আপনার বাজার মেনে নিলে বা ফিরিয়ে দিলে'**
   String get inboxPushBazarReviewedSub;
+
+  /// No description provided for @inboxPushDutyToday.
+  ///
+  /// In bn, this message translates to:
+  /// **'আজ আমার বাজারের পালা'**
+  String get inboxPushDutyToday;
+
+  /// No description provided for @inboxPushDutyTodaySub.
+  ///
+  /// In bn, this message translates to:
+  /// **'যেদিন আমার বাজার, সেদিন সকালে মনে করিয়ে দেবে'**
+  String get inboxPushDutyTodaySub;
 }
 
 class _AppLocalizationsDelegate

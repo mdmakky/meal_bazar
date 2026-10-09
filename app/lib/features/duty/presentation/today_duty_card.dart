@@ -125,13 +125,16 @@ class TodayDutyCard extends ConsumerWidget {
                                         manager: manager,
                                       ),
                                     ),
-                                  AppButton(
-                                    label: l.dutyMarkDone,
-                                    icon: Icons.check,
-                                    variant: AppButtonVariant.secondary,
-                                    onPressed: () =>
-                                        _markDone(context, ref, myToday),
-                                  ),
+                                  // Members mark it done by submitting the
+                                  // bazar; only a manager ticks it by hand.
+                                  if (manager)
+                                    AppButton(
+                                      label: l.dutyMarkDone,
+                                      icon: Icons.check,
+                                      variant: AppButtonVariant.secondary,
+                                      onPressed: () =>
+                                          _markDone(context, ref, myToday),
+                                    ),
                                 ],
                               ),
                             ),

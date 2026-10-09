@@ -421,7 +421,7 @@ void main() {
       expect(find.text(l.bazarReqRejectDone), findsOneWidget);
     });
 
-    testWidgets('member: submit button, own list with status, withdraw', (
+    testWidgets('member: submit button, own list with status, no withdraw', (
       tester,
     ) async {
       when(() => requests.mine('mess1', 'k')).thenAnswer(
@@ -443,17 +443,8 @@ void main() {
       await tester.tap(find.text(l.bazarReqPending));
       await tester.pumpAndSettle();
       expect(find.widgetWithText(AppButton, l.bazarReqApprove), findsNothing);
-      await tester.tap(find.widgetWithText(AppButton, l.bazarReqCancel));
-      await tester.pumpAndSettle();
-      await tester.tap(
-        find.descendant(
-          of: find.byType(AlertDialog),
-          matching: find.text(l.bazarReqCancel),
-        ),
-      );
-      await tester.pumpAndSettle();
-      verify(() => requests.cancel('q1')).called(1);
-      expect(find.text(l.bazarReqCancelDone), findsOneWidget);
+      expect(find.widgetWithText(AppButton, l.bazarReqCancel), findsNothing);
+      verifyNever(() => requests.cancel(any()));
     });
   });
 }

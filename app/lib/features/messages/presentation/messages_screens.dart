@@ -14,6 +14,11 @@ import '../../meals/presentation/meal_grid.dart' show mealOf;
 import '../../mess/application/mess_providers.dart';
 import '../../mess/domain/member.dart';
 import '../../mess/presentation/common.dart';
+import '../../money/application/money_providers.dart'
+    show moneyRepositoryProvider;
+import '../../money/domain/money.dart';
+import '../../money/presentation/money_sheets.dart'
+    show showBazarForm, showDepositForm, showExpenseForm;
 import '../../push/application/push_service.dart';
 import '../application/message_providers.dart';
 import '../domain/message.dart';
@@ -79,14 +84,22 @@ class ReportProblemButton extends StatelessWidget {
 }
 
 /// The entry a thread is about: type icon + label; taps open its screen.
-class RefCard extends StatelessWidget {
-  const RefCard({super.key, required this.type, required this.label});
+class RefCard extends ConsumerWidget {
+  const RefCard({
+    super.key,
+    required this.type,
+    required this.label,
+    this.refId,
+  });
 
   final String? type;
   final String label;
 
+  /// The referenced row; with it a manager opens the entry's edit form.
+  final String? refId;
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
     final p = context.palette;
@@ -94,7 +107,7 @@ class RefCard extends StatelessWidget {
     final route = refRoute(type);
     return AppCard.raised(
       padding: const EdgeInsets.all(AppSpace.md),
-      onTap: route == null ? null : () => context.go(route),
+      onTap: route == null ? null : () => _open(context, ref, route),
       child: Row(
         spacing: AppSpace.md,
         children: [
@@ -117,10 +130,40 @@ class RefCard extends StatelessWidget {
               ],
             ),
           ),
-          if (route != null) Icon(Icons.chevron_right, color: p.inkTertiary),
+          if (route != null)
+            Icon(
+              _canEdit(ref) ? Icons.edit_outlined : Icons.chevron_right,
+              color: _canEdit(ref) ? p.ink : p.inkTertiary,
+            ),
         ],
       ),
     );
+  }
+
+  bool _canEdit(WidgetRef ref) =>
+      refId != null &&
+      const {'deposit', 'bazar', 'expense'}.contains(type) &&
+      ref.read(amIManagerProvider);
+
+  /// A manager lands in the entry's edit form; everyone else on its list.
+  Future<void> _open(BuildContext context, WidgetRef ref, String route) async {
+    if (!_canEdit(ref)) return context.go(route);
+    try {
+      final e = await ref.read(moneyRepositoryProvider).entry(type!, refId!);
+      if (!context.mounted) return;
+      switch (e) {
+        case Deposit d:
+          await showDepositForm(context, existing: d);
+        case Bazar b:
+          await showBazarForm(context, existing: b);
+        case Expense x:
+          await showExpenseForm(context, existing: x);
+        default:
+          context.go(route);
+      }
+    } catch (err) {
+      if (context.mounted) showFailure(context, err);
+    }
   }
 }
 
@@ -822,7 +865,7 @@ class _ThreadState extends ConsumerState<ThreadScreen> {
         ),
         children: [
           if (t.refLabel != null) ...[
-            RefCard(type: t.refType, label: t.refLabel!),
+            RefCard(type: t.refType, label: t.refLabel!, refId: t.refId),
             const SizedBox(height: AppSpace.lg),
           ],
           if (t.isGroup && all.isEmpty)

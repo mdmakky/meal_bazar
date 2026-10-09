@@ -1,5 +1,16 @@
-/// The app version, kept in step with `pubspec.yaml` (a test checks it).
-const appVersion = '1.0.0';
+import 'package:package_info_plus/package_info_plus.dart';
+
+/// The installed app's version (pubspec `version`, read from the platform at
+/// start-up by [loadAppVersion]); '0.0.0' until then and in tests.
+String appVersion = '0.0.0';
+
+Future<void> loadAppVersion() async {
+  try {
+    appVersion = (await PackageInfo.fromPlatform()).version;
+  } catch (_) {
+    // Unknown platform: keep the placeholder; nothing depends on it hard.
+  }
+}
 
 /// Compares dotted versions numerically ("1.10.0" > "1.9.2"). A build
 /// suffix (`+3`) and missing or non-numeric parts count as 0.

@@ -138,8 +138,8 @@ class _InboxList extends ConsumerWidget {
       unawaited(
         ref.read(inboxProvider.notifier).markRead(i).catchError((_) {}),
       );
-      final route = i.route;
-      if (route == null || !route.startsWith('/')) return;
+      final route = routeFor(i.type, i.route);
+      if (route == null) return;
       // Tab roots (/money, /bazar) switch tab; screens under More stack.
       route.startsWith('/more/') ? context.push(route) : context.go(route);
     }

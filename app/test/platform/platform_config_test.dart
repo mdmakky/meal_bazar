@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -41,6 +40,8 @@ Widget app(Widget home, List<Object> overrides) => ProviderScope(
 );
 
 void main() {
+  // The installed version, as main() would read it.
+  setUpAll(() => appVersion = '1.0.0');
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('parsing', () {
@@ -145,15 +146,6 @@ void main() {
         }).needsUpdate('1.0.0'),
         isTrue,
       );
-    });
-
-    test('appVersion matches pubspec.yaml', () {
-      final pubspec = File('pubspec.yaml').readAsStringSync();
-      final v = RegExp(
-        r'^version:\s*([^+\s]+)',
-        multiLine: true,
-      ).firstMatch(pubspec)!.group(1);
-      expect(appVersion, v);
     });
   });
 

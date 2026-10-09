@@ -88,8 +88,8 @@ class PlatformConfig {
       _get<String>('app', 'maintenance_message_${_lang(lang)}').trim();
 
   String get minVersion => _get<String>('app', 'min_version');
-  bool needsUpdate([String current = appVersion]) =>
-      compareVersions(current, minVersion) < 0;
+  bool needsUpdate([String? current]) =>
+      compareVersions(current ?? appVersion, minVersion) < 0;
   String updateMessage(String lang) =>
       _get<String>('app', 'update_message_${_lang(lang)}').trim();
 

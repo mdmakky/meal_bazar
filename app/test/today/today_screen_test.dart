@@ -267,6 +267,8 @@ void main() {
     final sw = find.descendant(of: lunch, matching: find.byType(Switch));
     expect(tester.widget<Switch>(sw).value, isTrue);
     expect(tester.widget<Switch>(sw).onChanged, isNotNull);
+    await tester.ensureVisible(sw);
+    await tester.pumpAndSettle();
     await tester.tap(sw);
     await tester.pumpAndSettle();
     // Asks before turning off; cancelling saves nothing.
@@ -367,18 +369,14 @@ void main() {
     ];
     await pump(tester, extra: extra);
     expect(find.text('Rent due Friday'), findsOneWidget);
+    // The duty card sits right under the notices, above the fold.
+    expect(find.text(l.dutyTodayOther('Karim')), findsOneWidget);
     await tester.scrollUntilVisible(
       find.text(l.recurringPending('২')),
       200,
       scrollable: find.byType(Scrollable).first,
     );
     expect(find.text(l.recurringPending('২')), findsOneWidget);
-    await tester.scrollUntilVisible(
-      find.text(l.dutyTodayOther('Karim')),
-      200,
-      scrollable: find.byType(Scrollable).first,
-    );
-    expect(find.text(l.dutyTodayOther('Karim')), findsOneWidget);
 
     await pump(tester, manager: false, extra: extra);
     expect(find.text('Rent due Friday'), findsOneWidget);

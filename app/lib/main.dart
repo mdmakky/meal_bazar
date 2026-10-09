@@ -7,6 +7,7 @@ import 'app.dart';
 import 'core/env.dart';
 import 'core/l10n/gen/app_localizations.dart';
 import 'core/supabase.dart';
+import 'core/version.dart';
 import 'core/theme/app_theme.dart';
 import 'core/widgets/widgets.dart';
 
@@ -21,7 +22,7 @@ Future<void> main() async {
     runApp(const ConfigMissingApp());
     return;
   }
-  await initSupabase();
+  await Future.wait([initSupabase(), loadAppVersion()]);
   runApp(
     ProviderScope(
       // No automatic retries: a failed load shows its error + retry button

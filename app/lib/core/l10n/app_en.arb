@@ -1765,5 +1765,7 @@
   "inboxPushBazarRequest": "Member bazar",
   "inboxPushBazarRequestSub": "When a member sends their bazar for approval",
   "inboxPushBazarReviewed": "My bazar reviewed",
-  "inboxPushBazarReviewedSub": "When the manager approves or returns your bazar"
+  "inboxPushBazarReviewedSub": "When the manager approves or returns your bazar",
+  "inboxPushDutyToday": "My bazar duty today",
+  "inboxPushDutyTodaySub": "A morning reminder on the day I do the bazar"
 }

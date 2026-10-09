@@ -10,7 +10,8 @@ const PUSH_BATCH = 500;
 // Vercel cron, once a day:
 // 1. keep-alive: one trivial query so the free Supabase project is not paused;
 // 2. hard-delete auth users queued by delete_my_account() (DATABASE.md, 0007/0010);
-// 3. send push_outbox leftovers (a missed pg_net kick); skipped without FIREBASE_SERVICE_ACCOUNT.
+// 3. queue today's bazar-duty reminders (send_duty_reminders, 0028; 03:00 UTC = 09:00 Dhaka);
+// 4. send push_outbox leftovers (a missed pg_net kick); skipped without FIREBASE_SERVICE_ACCOUNT.
 export const GET = handle(async (req) => {
   const secret = process.env.CRON_SECRET;
   if (!secret || req.headers.get('authorization') !== `Bearer ${secret}`) throw new HttpError(401, 'unauthorized');
@@ -21,6 +22,10 @@ export const GET = handle(async (req) => {
   const { deleted, failed } = await processDeletions(sb);
   if (deleted || failed) console.log('account deletions', { deleted, failed }); // counts only, never ids
 
+  // Reminders are a nicety: a failure never stops the rest of the run.
+  const duty = await sb.rpc('send_duty_reminders');
+  if (duty.error) console.log('duty reminders failed', duty.error.code);
+
   let push: DrainResult | { error: string } | null = null;
   if (serviceAccount()) {
     try {
@@ -29,7 +34,7 @@ export const GET = handle(async (req) => {
       push = { error: e instanceof HttpError ? e.code : 'internal' }; // never undoes the work above
     }
   }
-  return json({ kept_alive: true, deleted, failed, push });
+  return json({ kept_alive: true, deleted, failed, duty_reminders: duty.data ?? 0, push });
 });
 
 async function processDeletions(sb: SupabaseClient) {

@@ -3606,4 +3606,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get inboxPushBazarReviewedSub =>
       'When the manager approves or returns your bazar';
+
+  @override
+  String get inboxPushDutyToday => 'My bazar duty today';
+
+  @override
+  String get inboxPushDutyTodaySub =>
+      'A morning reminder on the day I do the bazar';
 }

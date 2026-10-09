@@ -3595,4 +3595,11 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get inboxPushBazarReviewedSub =>
       'ম্যানেজার আপনার বাজার মেনে নিলে বা ফিরিয়ে দিলে';
+
+  @override
+  String get inboxPushDutyToday => 'আজ আমার বাজারের পালা';
+
+  @override
+  String get inboxPushDutyTodaySub =>
+      'যেদিন আমার বাজার, সেদিন সকালে মনে করিয়ে দেবে';
 }

@@ -2106,5 +2106,7 @@
   "inboxPushBazarRequest": "সদস্যের বাজার",
   "inboxPushBazarRequestSub": "কোনো সদস্য নিজের বাজার অনুমোদনের জন্য পাঠালে",
   "inboxPushBazarReviewed": "আমার বাজারের সিদ্ধান্ত",
-  "inboxPushBazarReviewedSub": "ম্যানেজার আপনার বাজার মেনে নিলে বা ফিরিয়ে দিলে"
+  "inboxPushBazarReviewedSub": "ম্যানেজার আপনার বাজার মেনে নিলে বা ফিরিয়ে দিলে",
+  "inboxPushDutyToday": "আজ আমার বাজারের পালা",
+  "inboxPushDutyTodaySub": "যেদিন আমার বাজার, সেদিন সকালে মনে করিয়ে দেবে"
 }

@@ -237,6 +237,32 @@ class MoneyRepository {
     return rows.map(Deposit.fromJson).toList();
   });
 
+  /// One deposit, bazar or expense by id (a message's reference), or null
+  /// when it is gone or not visible.
+  Future<Object?> entry(String type, String id) => guard(() async {
+    Future<Map<String, dynamic>?> one(String table, String select) => _client
+        .from(table)
+        .select(select)
+        .eq('id', id)
+        .isFilter('deleted_at', null)
+        .maybeSingle();
+    switch (type) {
+      case 'deposit':
+        final r = await one('deposits', '*');
+        return r == null ? null : Deposit.fromJson(r);
+      case 'bazar':
+        final r = await one(
+          'bazars',
+          '*, bazar_items(*), bazar_buyers(member_id)',
+        );
+        return r == null ? null : Bazar.fromJson(r);
+      case 'expense':
+        final r = await one('expenses', '*, expense_shares(member_id, weight)');
+        return r == null ? null : Expense.fromJson(r);
+    }
+    return null;
+  });
+
   Future<List<Map<String, dynamic>>> _desc(
     String table,
     String messId,

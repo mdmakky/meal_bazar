@@ -12,6 +12,7 @@ enum PushType {
   bazarAdded('bazar_added'),
   bazarRequest('bazar_request', managerOnly: true),
   bazarRequestReviewed('bazar_request_reviewed'),
+  dutyToday('duty_today'),
   expenseAdded('expense_added'),
   monthClosed('month_closed'),
   dueReminder('due_reminder'),
@@ -43,9 +44,17 @@ class NotificationPrefs {
 }
 
 /// The in-app route of a push's data payload, or null.
-String? pushRoute(Map<String, dynamic> data) {
-  final r = data['route'];
-  return r is String && r.startsWith('/') ? r : null;
+String? pushRoute(Map<String, dynamic> data) =>
+    routeFor(data['type'] as String?, data['route']);
+
+/// [route] for a notification of [type], sharpened where the server's is a
+/// tab root: deposit pushes open the Deposits tab, where verify lives.
+String? routeFor(String? type, Object? route) {
+  if (route is! String || !route.startsWith('/')) return null;
+  if (route == '/money' && (type?.startsWith('deposit_') ?? false)) {
+    return '/money?tab=deposit';
+  }
+  return route;
 }
 
 /// One row of my `notifications` inbox (0026).

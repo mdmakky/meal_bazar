@@ -150,7 +150,7 @@ void main() {
     expect(find.text('৩০টি পালা তৈরি হয়েছে'), findsOneWidget);
   });
 
-  testWidgets('member ticks own duty via the RPC, not others', (tester) async {
+  testWidgets('member cannot tick any duty (managers only)', (tester) async {
     final repo = MockDutyRepository();
     final t = today();
     when(() => repo.duties(any(), any(), any())).thenAnswer(
@@ -169,9 +169,10 @@ void main() {
       matching: find.byType(Checkbox),
     );
     expect(tester.widget<Checkbox>(theirs).onChanged, isNull);
-    await tester.tap(mine);
+    expect(tester.widget<Checkbox>(mine).onChanged, isNull);
+    await tester.tap(mine, warnIfMissed: false);
     await tester.pumpAndSettle();
-    verify(() => repo.markMine('d1', true)).called(1);
+    verifyNever(() => repo.markMine(any(), any()));
     verifyNever(() => repo.save(any()));
   });
 
@@ -179,7 +180,9 @@ void main() {
     final t = today();
     final tomorrow = DateTime(t.year, t.month, t.day + 1);
 
-    testWidgets('my duty today offers submit and mark done', (tester) async {
+    testWidgets('my duty today offers submit only for a member', (
+      tester,
+    ) async {
       final repo = MockDutyRepository();
       when(
         () => repo.duties(any(), any(), any()),
@@ -189,9 +192,7 @@ void main() {
 
       expect(find.text('আজ আপনার বাজারের পালা'), findsOneWidget);
       expect(find.widgetWithText(AppButton, 'বাজারের হিসাব দিন'), findsOne);
-      await tester.tap(find.text('বাজার করেছি'));
-      await tester.pumpAndSettle();
-      verify(() => repo.markMine('d1', true)).called(1);
+      expect(find.text('বাজার করেছি'), findsNothing);
     });
 
     testWidgets('done today shows done', (tester) async {
