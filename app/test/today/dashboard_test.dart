@@ -229,6 +229,10 @@ Future<void> pumpDashboard(
       GoRoute(path: '/money', builder: (_, s) => Text('money ${s.uri}')),
       GoRoute(path: '/meals', builder: (_, _) => const Text('meals tab')),
       GoRoute(
+        path: '/more/activity',
+        builder: (_, _) => const Text('all activity'),
+      ),
+      GoRoute(
         path: '/more/messages/new',
         builder: (_, s) {
           draft = s.extra as MessageDraft?;
@@ -466,15 +470,47 @@ void main() {
     ) async {
       await pumpDashboard(tester, manager: false);
       expect(find.text(l.activityTitle), findsOneWidget);
-      final sentence = 'Rahim Karim-এর জমা ${l.auditVerified} ৳৫০০';
+      // The viewer (Karim) reads "আপনার", not their own name.
+      final sentence = 'Rahim ${l.auditDepositMine} ${l.auditVerified} ৳৫০০';
       expect(find.text(sentence), findsOneWidget);
+      // A compact flag, not a text button on every row.
+      expect(find.text(l.reportProblem), findsNothing);
+      expect(find.text(l.activitySeeAll), findsNothing);
 
-      await tester.tap(find.text(l.reportProblem));
+      await tester.tap(find.byTooltip(l.reportProblem));
       await tester.pumpAndSettle();
       expect(find.text('new message'), findsOneWidget);
       expect(draft?.refType, 'deposit');
       expect(draft?.refId, 'd1');
       expect(draft?.refLabel, sentence);
+    });
+
+    testWidgets('my activity: five on Home, then সব দেখুন', (tester) async {
+      final base = depositVerified();
+      await pumpDashboard(
+        tester,
+        manager: false,
+        activity: [
+          for (var i = 0; i < 7; i++)
+            AuditEntry(
+              id: i,
+              action: base.action,
+              entity: base.entity,
+              at: base.at.subtract(Duration(hours: i)),
+              actorId: base.actorId,
+              entityId: 'd$i',
+              refType: base.refType,
+              refId: 'd$i',
+              oldRow: base.oldRow,
+              newRow: base.newRow,
+            ),
+        ],
+      );
+      expect(find.byKey(const ValueKey('act-4')), findsOneWidget);
+      expect(find.byKey(const ValueKey('act-5')), findsNothing);
+      await tester.tap(find.text(l.activitySeeAll));
+      await tester.pumpAndSettle();
+      expect(find.text('all activity'), findsOneWidget);
     });
 
     testWidgets('my activity: empty state names what will show', (

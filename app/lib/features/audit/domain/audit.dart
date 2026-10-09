@@ -69,21 +69,32 @@ enum AuditFilter {
 ///
 /// [names] maps both user ids (for actors) and member ids (for rows that
 /// reference a member) to display names.
+///
+/// For a member's own feed: [selfId] (my member id) turns "Karim-এর মিল" into
+/// "আপনার মিল", and [omitSameDay] drops a row date that is the entry's own
+/// day (the timestamp under the sentence already says it).
 String describeAudit(
   AppLocalizations l,
   AuditEntry e,
-  Map<String, String> names,
-) {
+  Map<String, String> names, {
+  String? selfId,
+  bool omitSameDay = false,
+}) {
   final bn = l.localeName == 'bn';
   final row = e.newRow ?? e.oldRow ?? const <String, dynamic>{};
   String name(Object? id) => names[id] ?? l.auditSomeone;
   final actor = e.actorId == null ? l.auditSystem : name(e.actorId);
+  final mine = selfId != null && row['member_id'] == selfId;
 
   String date(Object? iso) {
     final d = DateTime.tryParse('$iso');
-    return d == null
-        ? ''
-        : Fmt.dateLong(d, locale: l.localeName, banglaDigits: bn);
+    if (d == null) return '';
+    final at = e.at.toLocal();
+    if (omitSameDay &&
+        (d.year, d.month, d.day) == (at.year, at.month, at.day)) {
+      return '';
+    }
+    return Fmt.dateLong(d, locale: l.localeName, banglaDigits: bn);
   }
 
   String money() {
@@ -134,9 +145,12 @@ String describeAudit(
   final (thing, detail) = switch (e.entity) {
     'bazars' => (l.auditBazar, money()),
     'expenses' => (l.auditExpense, money()),
-    'deposits' => (l.auditDepositOf(name(row['member_id'])), money()),
+    'deposits' => (
+      mine ? l.auditDepositMine : l.auditDepositOf(name(row['member_id'])),
+      money(),
+    ),
     'meal_entries' => (
-      l.auditMealOf(name(row['member_id'])),
+      mine ? l.auditMealMine : l.auditMealOf(name(row['member_id'])),
       [date(row['date']), mealChange].where((s) => s.isNotEmpty).join(' · '),
     ),
     'meal_types' => (l.auditMealType('${row['name'] ?? ''}'.trim()), ''),
@@ -151,4 +165,54 @@ String describeAudit(
     _ => (e.entity, ''),
   };
   return '${l.auditSentence(actor, thing, verb)} $detail'.trim();
+}
+
+/// A member's feed, newest first, with bursts folded: back-to-back edits of
+/// the same meal entry by the same person, each within [window] of the
+/// previous one, become one net row (½→১→½→১ reads "½ → ১"). A burst that
+/// ends where it started says nothing and is dropped.
+List<AuditEntry> collapseActivity(
+  List<AuditEntry> items, {
+  Duration window = const Duration(minutes: 10),
+}) {
+  bool mealEdit(AuditEntry e) =>
+      e.entity == 'meal_entries' && e.action == 'update' && e.entityId != null;
+  String value(Map<String, dynamic>? r) =>
+      '${r?['count']}|${r?['is_off']}|${r?['guest_count']}';
+
+  final out = <AuditEntry>[];
+  final folded = <int>{};
+  DateTime? previousAt;
+  for (final e in items) {
+    final last = out.lastOrNull;
+    if (last != null &&
+        mealEdit(last) &&
+        mealEdit(e) &&
+        last.entityId == e.entityId &&
+        last.actorId == e.actorId &&
+        previousAt!.difference(e.at) <= window) {
+      out.last = AuditEntry(
+        id: last.id,
+        action: last.action,
+        entity: last.entity,
+        at: last.at,
+        actorId: last.actorId,
+        entityId: last.entityId,
+        oldRow: e.oldRow,
+        newRow: last.newRow,
+        source: last.source,
+        reason: last.reason,
+        refType: last.refType,
+        refId: last.refId,
+      );
+      folded.add(last.id);
+    } else {
+      out.add(e);
+    }
+    previousAt = e.at;
+  }
+  return [
+    for (final e in out)
+      if (!folded.contains(e.id) || value(e.oldRow) != value(e.newRow)) e,
+  ];
 }

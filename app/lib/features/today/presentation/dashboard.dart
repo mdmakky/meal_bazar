@@ -10,12 +10,11 @@ import '../../../core/l10n/gen/app_localizations.dart';
 import '../../../core/platform/platform_config.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../audit/application/audit_providers.dart';
-import '../../audit/domain/audit.dart';
+import '../../audit/presentation/my_activity_screen.dart';
 import '../../meals/presentation/meal_widgets.dart';
 import '../../mess/application/mess_providers.dart';
 import '../../mess/presentation/common.dart' show StatusTag;
 import '../../messages/application/unread_provider.dart';
-import '../../messages/domain/message_draft.dart';
 import '../../money/presentation/money_screen.dart';
 import '../../money/presentation/money_sheets.dart';
 import '../../month/application/month_providers.dart';
@@ -533,9 +532,12 @@ class _Transparency extends ConsumerWidget {
   }
 }
 
-/// What others recorded about me, newest first, each with "report a problem".
+/// What others recorded about me, newest first, edit bursts folded; the
+/// latest five, then the way to all of them.
 class _MyActivity extends ConsumerWidget {
   const _MyActivity({required this.messId});
+
+  static const _top = 5;
 
   final String messId;
 
@@ -549,77 +551,29 @@ class _MyActivity extends ConsumerWidget {
       onRetry: () => ref.invalidate(myActivityProvider(messId)),
       data: (items) => items.isEmpty
           ? _Quiet(l.activityEmpty)
-          : _ListCard([
-              for (final e in items)
-                _ActivityRow(
-                  key: ValueKey('act-${e.id}'),
-                  entry: e,
-                  names: names,
-                ),
-            ]),
-    );
-  }
-}
-
-class _ActivityRow extends StatelessWidget {
-  const _ActivityRow({super.key, required this.entry, required this.names});
-
-  final AuditEntry entry;
-  final Map<String, String> names;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final p = context.palette;
-    final text = Theme.of(context).textTheme;
-    final bn = bnDigits(context);
-    final at = entry.at.toLocal();
-    final when =
-        '${shortDate(context, at)}, '
-        '${Fmt.digits(MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(at)), bangla: bn)}';
-    final sentence = describeAudit(l, entry, names);
-    return Padding(
-      padding: const EdgeInsetsDirectional.fromSTEB(
-        AppSpace.lg,
-        AppSpace.md,
-        AppSpace.xs,
-        AppSpace.xs,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsetsDirectional.only(end: AppSpace.md),
-            child: Text(sentence, style: text.bodyMedium),
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  when,
-                  style: text.labelSmall?.copyWith(color: p.inkTertiary),
-                ),
-              ),
-              TextButton.icon(
-                icon: const Icon(Icons.flag_outlined, size: 18),
-                label: Text(l.reportProblem),
-                style: TextButton.styleFrom(
-                  foregroundColor: p.inkSecondary,
-                  minimumSize: const Size(0, AppSize.touch),
-                ),
-                onPressed: () => context.push(
-                  '/more/messages/new',
-                  extra: MessageDraft(
-                    refType: entry.refType ?? 'other',
-                    refId: entry.refId,
-                    refLabel: sentence,
+          : _ListCard(
+              [
+                for (final e in items.take(_top))
+                  ActivityRow(
+                    key: ValueKey('act-${e.id}'),
+                    entry: e,
+                    names: names,
                   ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+              ],
+              footer: items.length <= _top
+                  ? null
+                  : Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Padding(
+                        padding: const EdgeInsets.all(AppSpace.xs),
+                        child: AppButton(
+                          label: l.activitySeeAll,
+                          variant: AppButtonVariant.text,
+                          onPressed: () => context.push('/more/activity'),
+                        ),
+                      ),
+                    ),
+            ),
     );
   }
 }
