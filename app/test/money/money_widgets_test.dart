@@ -373,6 +373,7 @@ void main() {
       await price(tester, 0, '60');
       await price(tester, 1, '50');
       expect(amount(tester), '110');
+      expect(find.text('৳১১০'), findsOneWidget); // sticky running total
 
       // Tapping again removes the line and its price.
       await tapChip(tester, 'আলু');
