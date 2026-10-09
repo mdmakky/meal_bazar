@@ -22,6 +22,7 @@ import 'package:meal_bazar/features/month/application/month_providers.dart';
 import 'package:meal_bazar/features/month/domain/month.dart';
 import 'package:meal_bazar/features/notices/application/notice_providers.dart';
 import 'package:meal_bazar/features/notices/domain/notice.dart';
+import 'package:meal_bazar/features/push/application/inbox_providers.dart';
 import 'package:meal_bazar/features/messages/application/message_providers.dart';
 import 'package:meal_bazar/features/today/application/day_grid.dart';
 import 'package:meal_bazar/features/today/presentation/today_screen.dart';
@@ -88,6 +89,7 @@ Future<void> pump(
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
+        inboxUnreadCountProvider.overrideWithValue(const AsyncData(0)),
         if (local.isEmpty) mealRepositoryProvider.overrideWithValue(repo),
         ...local,
         ...extra,
@@ -339,7 +341,7 @@ void main() {
   ) async {
     when(() => repo.entriesForDay(any(), any())).thenAnswer((_) async => []);
     final extra = [
-      latestPinnedUnreadProvider.overrideWithValue(
+      homeNoticesProvider.overrideWithValue([
         Notice(
           id: 'n1',
           messId: 'mess1',
@@ -347,7 +349,7 @@ void main() {
           createdAt: DateTime(2026),
           pinned: true,
         ),
-      ),
+      ]),
       attentionProvider.overrideWith(
         (ref, id) async => (
           pendingDeposits: 0,
@@ -390,7 +392,7 @@ void main() {
       tester,
       extra: [
         flagsOff(['ai_meal_draft', 'notices', 'duty', 'recurring']),
-        latestPinnedUnreadProvider.overrideWithValue(
+        homeNoticesProvider.overrideWithValue([
           Notice(
             id: 'n1',
             messId: 'mess1',
@@ -398,7 +400,7 @@ void main() {
             createdAt: DateTime(2026),
             pinned: true,
           ),
-        ),
+        ]),
         attentionProvider.overrideWith(
           (ref, id) async => (
             pendingDeposits: 0,

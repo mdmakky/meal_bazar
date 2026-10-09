@@ -12,58 +12,70 @@ import '../../reminders/application/reminder_service.dart';
 import '../application/push_service.dart';
 import '../domain/push.dart';
 
+/// Icon, title and subtitle of a push type (settings switches, inbox rows).
+(IconData, String, String) pushTypeCopy(
+  AppLocalizations l,
+  PushType t,
+) => switch (t) {
+  PushType.joinRequest => (
+    Icons.person_add_alt,
+    l.pushJoinRequest,
+    l.pushJoinRequestSub,
+  ),
+  PushType.depositPending => (
+    Icons.hourglass_top,
+    l.pushDepositPending,
+    l.pushDepositPendingSub,
+  ),
+  PushType.depositVerified => (
+    Icons.verified_outlined,
+    l.pushDepositVerified,
+    l.pushDepositVerifiedSub,
+  ),
+  PushType.depositRejected => (
+    Icons.block,
+    l.pushDepositRejected,
+    l.pushDepositRejectedSub,
+  ),
+  PushType.depositAdded => (
+    Icons.savings_outlined,
+    l.inboxPushDepositAdded,
+    l.inboxPushDepositAddedSub,
+  ),
+  PushType.notice => (Icons.campaign_outlined, l.pushNotice, l.pushNoticeSub),
+  PushType.bazarAdded => (
+    Icons.shopping_basket_outlined,
+    l.pushBazar,
+    l.pushBazarSub,
+  ),
+  PushType.bazarRequest => (
+    Icons.add_shopping_cart,
+    l.inboxPushBazarRequest,
+    l.inboxPushBazarRequestSub,
+  ),
+  PushType.bazarRequestReviewed => (
+    Icons.fact_check_outlined,
+    l.inboxPushBazarReviewed,
+    l.inboxPushBazarReviewedSub,
+  ),
+  PushType.expenseAdded => (
+    Icons.receipt_long_outlined,
+    l.pushExpense,
+    l.pushExpenseSub,
+  ),
+  PushType.monthClosed => (
+    Icons.event_available_outlined,
+    l.pushMonthClosed,
+    l.pushMonthClosedSub,
+  ),
+  PushType.dueReminder => (Icons.payments_outlined, l.pushDue, l.pushDueSub),
+  PushType.message => (Icons.forum_outlined, l.pushMessage, l.pushMessageSub),
+  PushType.groupMessage => (Icons.groups_outlined, l.pushGroup, l.pushGroupSub),
+};
+
 /// One switch per push type, saved to `profiles.notification_prefs`.
 class NotificationSettingsScreen extends ConsumerWidget {
   const NotificationSettingsScreen({super.key});
-
-  static (IconData, String, String) _copy(
-    AppLocalizations l,
-    PushType t,
-  ) => switch (t) {
-    PushType.joinRequest => (
-      Icons.person_add_alt,
-      l.pushJoinRequest,
-      l.pushJoinRequestSub,
-    ),
-    PushType.depositPending => (
-      Icons.hourglass_top,
-      l.pushDepositPending,
-      l.pushDepositPendingSub,
-    ),
-    PushType.depositVerified => (
-      Icons.verified_outlined,
-      l.pushDepositVerified,
-      l.pushDepositVerifiedSub,
-    ),
-    PushType.depositRejected => (
-      Icons.block,
-      l.pushDepositRejected,
-      l.pushDepositRejectedSub,
-    ),
-    PushType.notice => (Icons.campaign_outlined, l.pushNotice, l.pushNoticeSub),
-    PushType.bazarAdded => (
-      Icons.shopping_basket_outlined,
-      l.pushBazar,
-      l.pushBazarSub,
-    ),
-    PushType.expenseAdded => (
-      Icons.receipt_long_outlined,
-      l.pushExpense,
-      l.pushExpenseSub,
-    ),
-    PushType.monthClosed => (
-      Icons.event_available_outlined,
-      l.pushMonthClosed,
-      l.pushMonthClosedSub,
-    ),
-    PushType.dueReminder => (Icons.payments_outlined, l.pushDue, l.pushDueSub),
-    PushType.message => (Icons.forum_outlined, l.pushMessage, l.pushMessageSub),
-    PushType.groupMessage => (
-      Icons.groups_outlined,
-      l.pushGroup,
-      l.pushGroupSub,
-    ),
-  };
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -150,7 +162,7 @@ class NotificationSettingsScreen extends ConsumerWidget {
                                 ref.featureOn('mess_group'))))
                       _toggle(
                         context,
-                        _copy(l, t),
+                        pushTypeCopy(l, t),
                         value: p.isOn(t),
                         onChanged: (on) => set(t, on),
                       ),

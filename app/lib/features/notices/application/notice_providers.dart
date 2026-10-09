@@ -25,12 +25,9 @@ final unreadNoticeCountProvider = Provider<int>(
   (ref) => ref.watch(currentNoticesProvider).where((n) => !n.isRead).length,
 );
 
-/// The newest unread pinned notice, for the Home banner.
-final latestPinnedUnreadProvider = Provider<Notice?>(
-  (ref) => ref
-      .watch(currentNoticesProvider)
-      .where((n) => n.pinned && !n.isRead)
-      .firstOrNull,
+/// The notices Home shows (see [homeNotices]), pinned then newest first.
+final homeNoticesProvider = Provider<List<Notice>>(
+  (ref) => homeNotices(ref.watch(currentNoticesProvider)),
 );
 
 final noticeControllerProvider = Provider<NoticeController>(

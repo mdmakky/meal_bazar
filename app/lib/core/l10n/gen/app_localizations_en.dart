@@ -3346,4 +3346,44 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get mealOffConfirmAction => 'Yes, turn off';
+
+  @override
+  String get homeNoticeAll => 'All notices';
+
+  @override
+  String get inboxTitle => 'Notifications';
+
+  @override
+  String get inboxMoreSub => 'Everything you were told, in one place';
+
+  @override
+  String get inboxMarkAllRead => 'Mark all read';
+
+  @override
+  String get inboxEmpty =>
+      'No notifications yet. Deposits, bazar and notices will show up here.';
+
+  @override
+  String get inboxUnread => 'Unread';
+
+  @override
+  String get inboxPushDepositAdded => 'Deposits for you';
+
+  @override
+  String get inboxPushDepositAddedSub =>
+      'When the manager records a deposit for you';
+
+  @override
+  String get inboxPushBazarRequest => 'Member bazar';
+
+  @override
+  String get inboxPushBazarRequestSub =>
+      'When a member sends their bazar for approval';
+
+  @override
+  String get inboxPushBazarReviewed => 'My bazar reviewed';
+
+  @override
+  String get inboxPushBazarReviewedSub =>
+      'When the manager approves or returns your bazar';
 }

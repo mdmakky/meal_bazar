@@ -59,3 +59,9 @@ List<Notice> visibleNotices(Iterable<Notice> all, DateTime now) =>
           ? (a.pinned ? -1 : 1)
           : b.createdAt.compareTo(a.createdAt),
     );
+
+/// What Home keeps showing from [visible] (already live and sorted): a pinned
+/// notice or one with an expiry stays until it expires, read or not; any
+/// other notice shows until I read it.
+List<Notice> homeNotices(Iterable<Notice> visible) =>
+    visible.where((n) => n.pinned || n.expiresAt != null || !n.isRead).toList();

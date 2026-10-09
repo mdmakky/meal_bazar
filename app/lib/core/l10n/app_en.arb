@@ -1640,5 +1640,17 @@
   },
   "mealOffConfirmTitle": "Turn off {meal} meal {day}?",
   "mealOffConfirmBody": "Everyone in the mess group will be told, from you.",
-  "mealOffConfirmAction": "Yes, turn off"
+  "mealOffConfirmAction": "Yes, turn off",
+  "homeNoticeAll": "All notices",
+  "inboxTitle": "Notifications",
+  "inboxMoreSub": "Everything you were told, in one place",
+  "inboxMarkAllRead": "Mark all read",
+  "inboxEmpty": "No notifications yet. Deposits, bazar and notices will show up here.",
+  "inboxUnread": "Unread",
+  "inboxPushDepositAdded": "Deposits for you",
+  "inboxPushDepositAddedSub": "When the manager records a deposit for you",
+  "inboxPushBazarRequest": "Member bazar",
+  "inboxPushBazarRequestSub": "When a member sends their bazar for approval",
+  "inboxPushBazarReviewed": "My bazar reviewed",
+  "inboxPushBazarReviewedSub": "When the manager approves or returns your bazar"
 }

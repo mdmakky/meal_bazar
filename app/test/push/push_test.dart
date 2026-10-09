@@ -89,8 +89,11 @@ void main() {
         'deposit_pending',
         'deposit_verified',
         'deposit_rejected',
+        'deposit_added',
         'notice',
         'bazar_added',
+        'bazar_request',
+        'bazar_request_reviewed',
         'expense_added',
         'month_closed',
         'due_reminder',
@@ -275,14 +278,14 @@ void main() {
       expect(find.text('Deposits to verify'), findsNothing);
       expect(switchOn(tester, 'New bazar'), isFalse);
       expect(switchOn(tester, 'New notices'), isTrue);
-      expect(find.byType(SwitchListTile), findsNWidgets(9));
+      expect(find.byType(SwitchListTile), findsNWidgets(11));
     });
 
     testWidgets('managers also get join requests and deposits to verify', (
       tester,
     ) async {
       await pump(tester, manager: true);
-      expect(find.byType(SwitchListTile), findsNWidgets(11));
+      expect(find.byType(SwitchListTile), findsNWidgets(14));
     });
 
     testWidgets('a toggle saves the whole map', (tester) async {
@@ -314,7 +317,7 @@ void main() {
       when(repo.fetchPrefs).thenAnswer((_) async => const NotificationPrefs());
       await tester.tap(find.text('Try again'));
       await tester.pumpAndSettle();
-      expect(find.byType(SwitchListTile), findsNWidgets(9));
+      expect(find.byType(SwitchListTile), findsNWidgets(11));
     });
   });
 
