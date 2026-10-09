@@ -354,6 +354,7 @@ void main() {
           pendingMembers: 0,
           mealsMissing: 0,
           pendingRecurring: 2,
+          pendingBazarRequests: 0,
         ),
       ),
       dutiesProvider.overrideWith(
@@ -405,6 +406,7 @@ void main() {
             pendingMembers: 0,
             mealsMissing: 0,
             pendingRecurring: 2,
+            pendingBazarRequests: 0,
           ),
         ),
         dutiesProvider.overrideWith(

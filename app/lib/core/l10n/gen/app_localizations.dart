@@ -3698,6 +3698,18 @@ abstract class AppLocalizations {
   /// **'কাল বাজার করবেন {name}'**
   String dutyTomorrowOther(String name);
 
+  /// No description provided for @dutyDayAfterMine.
+  ///
+  /// In bn, this message translates to:
+  /// **'পরশু আপনার বাজারের পালা'**
+  String get dutyDayAfterMine;
+
+  /// No description provided for @dutyDayAfterOther.
+  ///
+  /// In bn, this message translates to:
+  /// **'পরশু বাজার করবেন {name}'**
+  String dutyDayAfterOther(String name);
+
   /// No description provided for @dutyNextMonth.
   ///
   /// In bn, this message translates to:
@@ -5287,6 +5299,204 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'কে কে বাজারে গেছে'**
   String get bazarBuyers;
+
+  /// No description provided for @bazarReqTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাজারের হিসাব দিন'**
+  String get bazarReqTitle;
+
+  /// No description provided for @bazarReqHelp.
+  ///
+  /// In bn, this message translates to:
+  /// **'ম্যানেজার গ্রহণ করলে মেসের হিসাবে যোগ হবে'**
+  String get bazarReqHelp;
+
+  /// No description provided for @bazarReqWith.
+  ///
+  /// In bn, this message translates to:
+  /// **'কে কে বাজারে গেছে'**
+  String get bazarReqWith;
+
+  /// No description provided for @bazarReqOwnPocket.
+  ///
+  /// In bn, this message translates to:
+  /// **'নিজের টাকায়'**
+  String get bazarReqOwnPocket;
+
+  /// No description provided for @bazarReqMessFund.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেসের টাকা থেকে'**
+  String get bazarReqMessFund;
+
+  /// No description provided for @bazarReqSend.
+  ///
+  /// In bn, this message translates to:
+  /// **'জমা দিন'**
+  String get bazarReqSend;
+
+  /// No description provided for @bazarReqSent.
+  ///
+  /// In bn, this message translates to:
+  /// **'জমা হয়েছে, ম্যানেজারের যাচাইয়ের অপেক্ষায়'**
+  String get bazarReqSent;
+
+  /// No description provided for @bazarReqFab.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাজার জমা দিন'**
+  String get bazarReqFab;
+
+  /// No description provided for @bazarReqMine.
+  ///
+  /// In bn, this message translates to:
+  /// **'আমার জমা'**
+  String get bazarReqMine;
+
+  /// No description provided for @bazarReqPending.
+  ///
+  /// In bn, this message translates to:
+  /// **'অপেক্ষায়'**
+  String get bazarReqPending;
+
+  /// No description provided for @bazarReqApproved.
+  ///
+  /// In bn, this message translates to:
+  /// **'গৃহীত'**
+  String get bazarReqApproved;
+
+  /// No description provided for @bazarReqRejected.
+  ///
+  /// In bn, this message translates to:
+  /// **'ফেরত'**
+  String get bazarReqRejected;
+
+  /// No description provided for @bazarReqCancelled.
+  ///
+  /// In bn, this message translates to:
+  /// **'তুলে নেওয়া'**
+  String get bazarReqCancelled;
+
+  /// No description provided for @bazarReqReason.
+  ///
+  /// In bn, this message translates to:
+  /// **'কারণ: {reason}'**
+  String bazarReqReason(String reason);
+
+  /// No description provided for @bazarReqCancel.
+  ///
+  /// In bn, this message translates to:
+  /// **'তুলে নিন'**
+  String get bazarReqCancel;
+
+  /// No description provided for @bazarReqCancelTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'জমা তুলে নেবেন?'**
+  String get bazarReqCancelTitle;
+
+  /// No description provided for @bazarReqCancelBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'{amount} এর বাজারটি ম্যানেজারের কাছে আর যাবে না।'**
+  String bazarReqCancelBody(String amount);
+
+  /// No description provided for @bazarReqCancelDone.
+  ///
+  /// In bn, this message translates to:
+  /// **'জমা তুলে নেওয়া হয়েছে'**
+  String get bazarReqCancelDone;
+
+  /// No description provided for @bazarReqReview.
+  ///
+  /// In bn, this message translates to:
+  /// **'যাচাইয়ের অপেক্ষায়'**
+  String get bazarReqReview;
+
+  /// No description provided for @bazarReqWithNames.
+  ///
+  /// In bn, this message translates to:
+  /// **'সঙ্গে {names}'**
+  String bazarReqWithNames(String names);
+
+  /// No description provided for @bazarReqOf.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name} এর বাজার'**
+  String bazarReqOf(String name);
+
+  /// No description provided for @bazarReqPaidOwn.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name} নিজের টাকায় দিয়েছেন'**
+  String bazarReqPaidOwn(String name);
+
+  /// No description provided for @bazarReqPaidFund.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেসের টাকা থেকে দেওয়া'**
+  String get bazarReqPaidFund;
+
+  /// No description provided for @bazarReqApprove.
+  ///
+  /// In bn, this message translates to:
+  /// **'গ্রহণ করুন'**
+  String get bazarReqApprove;
+
+  /// No description provided for @bazarReqReject.
+  ///
+  /// In bn, this message translates to:
+  /// **'ফেরত দিন'**
+  String get bazarReqReject;
+
+  /// No description provided for @bazarReqRejectTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাজার ফেরত দেবেন?'**
+  String get bazarReqRejectTitle;
+
+  /// No description provided for @bazarReqRejectReason.
+  ///
+  /// In bn, this message translates to:
+  /// **'কারণ (ঐচ্ছিক)'**
+  String get bazarReqRejectReason;
+
+  /// No description provided for @bazarReqApproveDone.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাজার যোগ হয়েছে'**
+  String get bazarReqApproveDone;
+
+  /// No description provided for @bazarReqRejectDone.
+  ///
+  /// In bn, this message translates to:
+  /// **'ফেরত পাঠানো হয়েছে'**
+  String get bazarReqRejectDone;
+
+  /// No description provided for @bazarReqAttn.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count}টি বাজার যাচাই বাকি'**
+  String bazarReqAttn(String count);
+
+  /// No description provided for @bazarReqFailFutureDate.
+  ///
+  /// In bn, this message translates to:
+  /// **'সামনের তারিখে বাজার দেওয়া যায় না'**
+  String get bazarReqFailFutureDate;
+
+  /// No description provided for @bazarReqFailNotPending.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই বাজারটি আর অপেক্ষায় নেই'**
+  String get bazarReqFailNotPending;
+
+  /// No description provided for @bazarReqFailItemsInvalid.
+  ///
+  /// In bn, this message translates to:
+  /// **'জিনিসের তালিকা ঠিক নেই'**
+  String get bazarReqFailItemsInvalid;
 
   /// No description provided for @bazarPickBuyer.
   ///

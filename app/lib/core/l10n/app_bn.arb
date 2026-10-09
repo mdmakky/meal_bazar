@@ -1226,6 +1226,15 @@
       }
     }
   },
+  "dutyDayAfterMine": "পরশু আপনার বাজারের পালা",
+  "dutyDayAfterOther": "পরশু বাজার করবেন {name}",
+  "@dutyDayAfterOther": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "dutyNextMonth": "পরের মাস",
   "splitEqualAll": "সবাই সমান",
   "splitByMeal": "মিল অনুযায়ী",
@@ -1630,6 +1639,81 @@
   "adminSaveAnyway": "তবুও সেভ করুন",
   "stampPaid": "পরিশোধিত",
   "bazarBuyers": "কে কে বাজারে গেছে",
+  "bazarReqTitle": "বাজারের হিসাব দিন",
+  "bazarReqHelp": "ম্যানেজার গ্রহণ করলে মেসের হিসাবে যোগ হবে",
+  "bazarReqWith": "কে কে বাজারে গেছে",
+  "bazarReqOwnPocket": "নিজের টাকায়",
+  "bazarReqMessFund": "মেসের টাকা থেকে",
+  "bazarReqSend": "জমা দিন",
+  "bazarReqSent": "জমা হয়েছে, ম্যানেজারের যাচাইয়ের অপেক্ষায়",
+  "bazarReqFab": "বাজার জমা দিন",
+  "bazarReqMine": "আমার জমা",
+  "bazarReqPending": "অপেক্ষায়",
+  "bazarReqApproved": "গৃহীত",
+  "bazarReqRejected": "ফেরত",
+  "bazarReqCancelled": "তুলে নেওয়া",
+  "bazarReqReason": "কারণ: {reason}",
+  "@bazarReqReason": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "bazarReqCancel": "তুলে নিন",
+  "bazarReqCancelTitle": "জমা তুলে নেবেন?",
+  "bazarReqCancelBody": "{amount} এর বাজারটি ম্যানেজারের কাছে আর যাবে না।",
+  "@bazarReqCancelBody": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "bazarReqCancelDone": "জমা তুলে নেওয়া হয়েছে",
+  "bazarReqReview": "যাচাইয়ের অপেক্ষায়",
+  "bazarReqWithNames": "সঙ্গে {names}",
+  "@bazarReqWithNames": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "bazarReqOf": "{name} এর বাজার",
+  "@bazarReqOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bazarReqPaidOwn": "{name} নিজের টাকায় দিয়েছেন",
+  "@bazarReqPaidOwn": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bazarReqPaidFund": "মেসের টাকা থেকে দেওয়া",
+  "bazarReqApprove": "গ্রহণ করুন",
+  "bazarReqReject": "ফেরত দিন",
+  "bazarReqRejectTitle": "বাজার ফেরত দেবেন?",
+  "bazarReqRejectReason": "কারণ (ঐচ্ছিক)",
+  "bazarReqApproveDone": "বাজার যোগ হয়েছে",
+  "bazarReqRejectDone": "ফেরত পাঠানো হয়েছে",
+  "bazarReqAttn": "{count}টি বাজার যাচাই বাকি",
+  "@bazarReqAttn": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "bazarReqFailFutureDate": "সামনের তারিখে বাজার দেওয়া যায় না",
+  "bazarReqFailNotPending": "এই বাজারটি আর অপেক্ষায় নেই",
+  "bazarReqFailItemsInvalid": "জিনিসের তালিকা ঠিক নেই",
   "bazarPickBuyer": "অন্তত একজন বাছুন",
   "bazarPayer": "কে টাকা দিয়েছে",
   "bazarTotal": "মোট",

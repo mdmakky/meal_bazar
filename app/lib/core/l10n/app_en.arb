@@ -1040,6 +1040,15 @@
       }
     }
   },
+  "dutyDayAfterMine": "Your bazar turn the day after tomorrow",
+  "dutyDayAfterOther": "{name} does the bazar the day after tomorrow",
+  "@dutyDayAfterOther": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "dutyNextMonth": "Next month",
   "splitEqualAll": "Everyone",
   "splitByMeal": "By meals",
@@ -1444,6 +1453,81 @@
   "adminSaveAnyway": "Save anyway",
   "stampPaid": "Paid",
   "bazarBuyers": "Who went to the bazar",
+  "bazarReqTitle": "Submit bazar",
+  "bazarReqHelp": "It joins the mess accounts once a manager accepts it",
+  "bazarReqWith": "Who went to the bazar",
+  "bazarReqOwnPocket": "My own money",
+  "bazarReqMessFund": "From the mess fund",
+  "bazarReqSend": "Submit",
+  "bazarReqSent": "Sent. Waiting for the manager",
+  "bazarReqFab": "Submit bazar",
+  "bazarReqMine": "My submissions",
+  "bazarReqPending": "Waiting",
+  "bazarReqApproved": "Accepted",
+  "bazarReqRejected": "Returned",
+  "bazarReqCancelled": "Withdrawn",
+  "bazarReqReason": "Reason: {reason}",
+  "@bazarReqReason": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "bazarReqCancel": "Withdraw",
+  "bazarReqCancelTitle": "Withdraw this bazar?",
+  "bazarReqCancelBody": "The {amount} bazar will no longer go to the manager.",
+  "@bazarReqCancelBody": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "bazarReqCancelDone": "Withdrawn",
+  "bazarReqReview": "Waiting for review",
+  "bazarReqWithNames": "With {names}",
+  "@bazarReqWithNames": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "bazarReqOf": "{name}'s bazar",
+  "@bazarReqOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bazarReqPaidOwn": "{name} paid from their own money",
+  "@bazarReqPaidOwn": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bazarReqPaidFund": "Paid from the mess fund",
+  "bazarReqApprove": "Accept",
+  "bazarReqReject": "Return",
+  "bazarReqRejectTitle": "Return this bazar?",
+  "bazarReqRejectReason": "Reason (optional)",
+  "bazarReqApproveDone": "Bazar added",
+  "bazarReqRejectDone": "Returned to the member",
+  "bazarReqAttn": "{count} bazars to review",
+  "@bazarReqAttn": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "bazarReqFailFutureDate": "A bazar can't be dated in the future",
+  "bazarReqFailNotPending": "This bazar is no longer waiting",
+  "bazarReqFailItemsInvalid": "The item list isn't valid",
   "bazarPickBuyer": "Pick at least one person",
   "bazarPayer": "Who paid",
   "bazarTotal": "Total",

@@ -15,6 +15,9 @@ enum FailureKind {
   previousMonthOpen,
   laterMonthClosed,
   cutoffPassed,
+  futureDate,
+  bazarRequestNotPending,
+  itemsInvalid,
   invalidOtp,
   invalidCredentials,
   emailTaken,
@@ -57,6 +60,9 @@ const _sqlKeys = {
   'NOT_YOUR_DUTY': FailureKind.notManager,
   'INVALID_ROTATION': FailureKind.validation,
   'TOO_SOON': FailureKind.rateLimited,
+  'FUTURE_DATE': FailureKind.futureDate,
+  'BAZAR_REQUEST_NOT_PENDING': FailureKind.bazarRequestNotPending,
+  'ITEMS_INVALID': FailureKind.itemsInvalid,
 };
 
 AppFailure mapError(Object error) {

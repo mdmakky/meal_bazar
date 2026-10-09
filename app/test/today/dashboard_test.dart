@@ -84,6 +84,7 @@ const noAttention = (
   pendingMembers: 0,
   mealsMissing: 0,
   pendingRecurring: 0,
+  pendingBazarRequests: 0,
 );
 
 /// Six periods, oldest first; the first [empty] have no spending at all.
@@ -228,6 +229,7 @@ Future<void> pumpDashboard(
       ),
       GoRoute(path: '/money', builder: (_, s) => Text('money ${s.uri}')),
       GoRoute(path: '/meals', builder: (_, _) => const Text('meals tab')),
+      GoRoute(path: '/bazar', builder: (_, _) => const Text('bazar tab')),
       GoRoute(
         path: '/more/activity',
         builder: (_, _) => const Text('all activity'),
@@ -281,6 +283,7 @@ void main() {
           pendingMembers: 0,
           mealsMissing: 3,
           pendingRecurring: 0,
+          pendingBazarRequests: 0,
         ),
       );
       expect(find.text(l.attnTitle), findsOneWidget);
@@ -306,12 +309,31 @@ void main() {
           pendingMembers: 1,
           mealsMissing: 0,
           pendingRecurring: 2,
+          pendingBazarRequests: 0,
         ),
       );
       expect(find.text(l.attnJoin('১')), findsOneWidget);
       expect(find.text(l.attnMessages('৪')), findsOneWidget);
       expect(find.text(l.recurringPending('২')), findsOneWidget);
       expect(find.text(l.attnDeposits('০')), findsNothing);
+    });
+
+    testWidgets('needs attention: bazars to review open the bazar tab', (
+      tester,
+    ) async {
+      await pumpDashboard(
+        tester,
+        attention: (
+          pendingDeposits: 0,
+          pendingMembers: 0,
+          mealsMissing: 0,
+          pendingRecurring: 0,
+          pendingBazarRequests: 2,
+        ),
+      );
+      await tester.tap(find.text(l.bazarReqAttn('২')));
+      await tester.pumpAndSettle();
+      expect(find.text('bazar tab'), findsOneWidget);
     });
 
     testWidgets('nothing to do: no attention card at all', (tester) async {
@@ -330,6 +352,7 @@ void main() {
           pendingMembers: 0,
           mealsMissing: 0,
           pendingRecurring: 2,
+          pendingBazarRequests: 0,
         ),
       );
       expect(find.text(l.attnTitle), findsNothing);

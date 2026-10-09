@@ -8,10 +8,14 @@ import '../../../core/platform/platform_config.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../mess/application/mess_providers.dart';
 import '../../mess/presentation/common.dart';
+import '../../money/presentation/money_sheets.dart'
+    show showBazarForm, showBazarRequestForm;
 import '../application/duty_providers.dart';
+import '../domain/duty.dart';
 
-/// Who has bazar duty today and tomorrow, for the Home screen. Renders
-/// nothing while loading, on error, or when nobody is on duty.
+/// Who has bazar duty today, tomorrow and the day after, for the Home
+/// screen. Renders nothing while loading, on error, or when nobody is on
+/// duty in those three days.
 class TodayDutyCard extends ConsumerWidget {
   const TodayDutyCard({super.key});
 
@@ -22,33 +26,39 @@ class TodayDutyCard extends ConsumerWidget {
       return const SizedBox.shrink();
     }
     final t = today();
-    final tomorrow = DateTime(t.year, t.month, t.day + 1);
-    final duties = ref.watch(dutiesProvider((messId, t, tomorrow))).value;
+    final days = [
+      for (var i = 0; i < 3; i++) DateTime(t.year, t.month, t.day + i),
+    ];
+    final duties = ref.watch(dutiesProvider((messId, t, days.last))).value;
     if (duties == null || duties.isEmpty) return const SizedBox.shrink();
 
     final l = AppLocalizations.of(context);
     final p = context.palette;
     final text = Theme.of(context).textTheme;
     final me = ref.watch(currentMembershipProvider)?.member.id;
-    final names = {
+    final manager = ref.watch(amIManagerProvider);
+    final names = <String, String>{
       for (final m in ref.watch(membersProvider(messId)).value ?? const [])
         m.id: m.displayName,
     };
     final myToday = duties
         .where((d) => d.date == t && d.memberId == me)
         .firstOrNull;
+    // A manager writes the bazar itself; a member sends it for approval.
+    final canSubmit = manager || ref.featureOn('member_bazar');
 
-    String line(DateTime day) {
-      final on = duties.where((d) => d.date == day);
-      if (on.isEmpty) return '';
-      if (on.any((d) => d.memberId == me)) {
-        return day == t ? l.dutyTodayMine : l.dutyTomorrowMine;
-      }
-      final who = on.map((d) => names[d.memberId] ?? '').join(', ');
-      return day == t ? l.dutyTodayOther(who) : l.dutyTomorrowOther(who);
-    }
-
-    final lines = [line(t), line(tomorrow)].where((s) => s.isNotEmpty);
+    final lines = [
+      for (final (i, day) in days.indexed)
+        if (dutyLine(
+              l,
+              i,
+              duties.where((d) => d.date == day),
+              me: me,
+              names: names,
+            )
+            case final s?)
+          s,
+    ];
 
     // Home's card rhythm: each block owns the 16 dp below it.
     return Padding(
@@ -88,28 +98,44 @@ class TodayDutyCard extends ConsumerWidget {
                           : text.bodyMedium?.copyWith(color: p.inkSecondary),
                     ),
                   if (myToday != null)
-                    myToday.done
-                        ? Text(
-                            l.dutyDone,
-                            style: text.bodyMedium?.copyWith(color: p.advance),
-                          )
-                        : Align(
-                            alignment: AlignmentDirectional.centerStart,
-                            child: AppButton(
-                              label: l.dutyMarkDone,
-                              icon: Icons.check,
-                              variant: AppButtonVariant.secondary,
-                              onPressed: () async {
-                                try {
-                                  await ref
-                                      .read(dutyControllerProvider)
-                                      .setDone(myToday, true);
-                                } catch (e) {
-                                  if (context.mounted) showFailure(context, e);
-                                }
-                              },
+                    AnimatedSwitcher(
+                      duration: AppMotion.of(context, AppMotion.base),
+                      child: myToday.done
+                          ? Text(
+                              l.dutyDone,
+                              key: const ValueKey('done'),
+                              style: text.bodyMedium?.copyWith(
+                                color: p.advance,
+                              ),
+                            )
+                          : Padding(
+                              padding: const EdgeInsets.only(top: AppSpace.xs),
+                              child: Wrap(
+                                spacing: AppSpace.sm,
+                                runSpacing: AppSpace.sm,
+                                children: [
+                                  if (canSubmit)
+                                    AppButton(
+                                      label: l.bazarReqTitle,
+                                      icon: Icons.receipt_long_outlined,
+                                      onPressed: () => _submit(
+                                        context,
+                                        ref,
+                                        myToday,
+                                        manager: manager,
+                                      ),
+                                    ),
+                                  AppButton(
+                                    label: l.dutyMarkDone,
+                                    icon: Icons.check,
+                                    variant: AppButtonVariant.secondary,
+                                    onPressed: () =>
+                                        _markDone(context, ref, myToday),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
+                    ),
                 ],
               ),
             ),
@@ -118,4 +144,59 @@ class TodayDutyCard extends ConsumerWidget {
       ),
     );
   }
+
+  /// Submitting the bazar is doing the duty: once it is sent (or, for a
+  /// manager, saved) the duty is ticked too.
+  Future<void> _submit(
+    BuildContext context,
+    WidgetRef ref,
+    BazarDuty duty, {
+    required bool manager,
+  }) async {
+    final open = manager ? showBazarForm : showBazarRequestForm;
+    final sent = await open(context);
+    if (!sent || !context.mounted) return;
+    // Best effort: the bazar is in; the tick can still be done by hand.
+    ref
+        .read(dutyControllerProvider)
+        .setDone(duty, true)
+        .catchError((Object e) => debugPrint('duty done: $e'));
+  }
+
+  Future<void> _markDone(
+    BuildContext context,
+    WidgetRef ref,
+    BazarDuty duty,
+  ) async {
+    try {
+      await ref.read(dutyControllerProvider).setDone(duty, true);
+    } catch (e) {
+      if (context.mounted) showFailure(context, e);
+    }
+  }
+}
+
+/// Day [offset] (0 today, 1 tomorrow, 2 the day after): who does the bazar,
+/// "you" when it is [me]. Null when nobody is on duty that day.
+String? dutyLine(
+  AppLocalizations l,
+  int offset,
+  Iterable<BazarDuty> on, {
+  required String? me,
+  required Map<String, String> names,
+}) {
+  if (on.isEmpty) return null;
+  if (on.any((d) => d.memberId == me)) {
+    return switch (offset) {
+      0 => l.dutyTodayMine,
+      1 => l.dutyTomorrowMine,
+      _ => l.dutyDayAfterMine,
+    };
+  }
+  final who = on.map((d) => names[d.memberId] ?? '').join(', ');
+  return switch (offset) {
+    0 => l.dutyTodayOther(who),
+    1 => l.dutyTomorrowOther(who),
+    _ => l.dutyDayAfterOther(who),
+  };
 }

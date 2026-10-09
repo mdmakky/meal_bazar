@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:meal_bazar/core/dates.dart';
 import 'package:meal_bazar/core/l10n/gen/app_localizations.dart';
 import 'package:meal_bazar/core/theme/app_theme.dart';
+import 'package:meal_bazar/core/widgets/app_button.dart';
 import 'package:meal_bazar/core/widgets/app_card.dart';
 import 'package:meal_bazar/features/duty/application/duty_providers.dart';
 import 'package:meal_bazar/features/duty/data/duty_repository.dart';
@@ -12,6 +14,11 @@ import 'package:meal_bazar/features/duty/presentation/duty_screen.dart';
 import 'package:meal_bazar/features/duty/presentation/today_duty_card.dart';
 import 'package:meal_bazar/features/mess/application/mess_providers.dart';
 import 'package:meal_bazar/features/mess/domain/member.dart';
+import 'package:meal_bazar/features/money/application/bazar_request_providers.dart';
+import 'package:meal_bazar/features/money/application/money_providers.dart';
+import 'package:meal_bazar/features/money/data/bazar_request_repository.dart';
+import 'package:meal_bazar/features/money/data/money_repository.dart';
+import 'package:meal_bazar/features/money/domain/bazar_request.dart';
 import 'package:meal_bazar/features/reminders/application/reminder_service.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
@@ -19,6 +26,10 @@ import 'package:timezone/data/latest.dart' as tzdata;
 import '../reminders/reminders_test.dart' show FakeNotifications;
 
 class MockDutyRepository extends Mock implements DutyRepository {}
+
+class MockRequests extends Mock implements BazarRequestRepository {}
+
+class MockMoneyRepository extends Mock implements MoneyRepository {}
 
 class FixedMess extends CurrentMessId {
   @override
@@ -56,10 +67,12 @@ Future<void> pump(
   Widget child, {
   required MockDutyRepository repo,
   required Member me,
+  List<Override> extra = const [],
 }) async {
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
+        ...extra,
         dutyRepositoryProvider.overrideWithValue(repo),
         currentMessIdProvider.overrideWith(FixedMess.new),
         currentMembershipProvider.overrideWithValue(Membership(member: me)),
@@ -81,6 +94,9 @@ Future<void> pump(
 void main() {
   setUpAll(() {
     registerFallbackValue(DateTime(2000));
+    registerFallbackValue(
+      BazarRequest(id: 'x', messId: 'x', date: DateTime(2000), amount: 1),
+    );
     registerFallbackValue(duty('x', DateTime(2000), 'x'));
     registerFallbackValue(
       DutyRotation(memberIds: const [], from: DateTime(2000), days: 1),
@@ -163,7 +179,7 @@ void main() {
     final t = today();
     final tomorrow = DateTime(t.year, t.month, t.day + 1);
 
-    testWidgets('my duty today offers mark done', (tester) async {
+    testWidgets('my duty today offers submit and mark done', (tester) async {
       final repo = MockDutyRepository();
       when(
         () => repo.duties(any(), any(), any()),
@@ -172,6 +188,7 @@ void main() {
       await pump(tester, const TodayDutyCard(), repo: repo, me: karim);
 
       expect(find.text('আজ আপনার বাজারের পালা'), findsOneWidget);
+      expect(find.widgetWithText(AppButton, 'বাজারের হিসাব দিন'), findsOne);
       await tester.tap(find.text('বাজার করেছি'));
       await tester.pumpAndSettle();
       verify(() => repo.markMine('d1', true)).called(1);
@@ -201,6 +218,65 @@ void main() {
       expect(find.text('আজ বাজার করবেন রহিম'), findsOneWidget);
       expect(find.text('কাল আপনার বাজারের পালা'), findsOneWidget);
       expect(find.text('বাজার করেছি'), findsNothing);
+    });
+
+    testWidgets('three days: today, tomorrow and the day after', (
+      tester,
+    ) async {
+      final repo = MockDutyRepository();
+      final dayAfter = DateTime(t.year, t.month, t.day + 2);
+      when(() => repo.duties(any(), any(), any())).thenAnswer(
+        (_) async => [
+          duty('d1', t, 'm-rahim'),
+          duty('d2', tomorrow, 'm-rahim'),
+          duty('d3', dayAfter, 'm-karim'),
+        ],
+      );
+      await pump(tester, const TodayDutyCard(), repo: repo, me: karim);
+
+      verify(() => repo.duties('mess1', t, dayAfter)).called(1);
+      expect(find.text('আজ বাজার করবেন রহিম'), findsOneWidget);
+      expect(find.text('কাল বাজার করবেন রহিম'), findsOneWidget);
+      expect(find.text('পরশু আপনার বাজারের পালা'), findsOneWidget);
+      expect(find.text('বাজারের হিসাব দিন'), findsNothing);
+    });
+
+    testWidgets('submitting my bazar ticks the duty', (tester) async {
+      final repo = MockDutyRepository();
+      final requests = MockRequests();
+      final money = MockMoneyRepository();
+      when(
+        () => repo.duties(any(), any(), any()),
+      ).thenAnswer((_) async => [duty('d1', t, 'm-karim')]);
+      when(() => repo.markMine(any(), any())).thenAnswer((_) async {});
+      when(() => requests.submit(any())).thenAnswer((_) async {});
+      when(() => money.itemNames(any())).thenAnswer((_) async => []);
+      await pump(
+        tester,
+        const TodayDutyCard(),
+        repo: repo,
+        me: karim,
+        extra: [
+          bazarRequestRepositoryProvider.overrideWithValue(requests),
+          moneyRepositoryProvider.overrideWithValue(money),
+          monthsProvider.overrideWith((ref, id) async => const []),
+        ],
+      );
+
+      await tester.tap(find.text('বাজারের হিসাব দিন'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const Key('amount')), '320');
+      final send = find.widgetWithText(AppButton, 'জমা দিন');
+      await tester.ensureVisible(send);
+      await tester.tap(send);
+      await tester.pumpAndSettle();
+
+      final r =
+          verify(() => requests.submit(captureAny())).captured.single
+              as BazarRequest;
+      expect(r.amount, 320);
+      expect(r.buyerIds, ['m-karim']);
+      verify(() => repo.markMine('d1', true)).called(1);
     });
 
     testWidgets('nobody on duty renders nothing', (tester) async {
