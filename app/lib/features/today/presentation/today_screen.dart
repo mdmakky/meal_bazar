@@ -46,6 +46,10 @@ class TodayScreen extends ConsumerStatefulWidget {
 class _TodayScreenState extends ConsumerState<TodayScreen> {
   DateTime _day = today();
 
+  /// The last day's grid, shown while another day loads so stepping the
+  /// date never blanks the page.
+  (String, Map<String, MealEntry>)? _lastGrid;
+
   void _shift(int days) =>
       setState(() => _day = dayOnly(_day.add(Duration(days: days, hours: 2))));
 
@@ -70,6 +74,10 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     final membersAsync = ref.watch(membersProvider(messId));
     final typesAsync = ref.watch(mealTypesProvider(messId));
     final gridAsync = ref.watch(dayGridProvider(key));
+    if (gridAsync.value case final g?) _lastGrid = (messId, g);
+    final grid =
+        gridAsync.value ?? (_lastGrid?.$1 == messId ? _lastGrid?.$2 : null);
+    final gridLoading = !gridAsync.hasValue && grid != null;
 
     void retry() {
       ref.invalidate(membersProvider(messId));
@@ -98,7 +106,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     final error = [
       if (!membersAsync.hasValue) membersAsync.error,
       if (!typesAsync.hasValue) typesAsync.error,
-      if (!gridAsync.hasValue) gridAsync.error,
+      if (grid == null) gridAsync.error,
     ].nonNulls.firstOrNull;
 
     final Widget body;
@@ -106,15 +114,13 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     List<MealType> types = const [];
     if (error != null) {
       body = ErrorView(message: failureText(context, error), onRetry: retry);
-    } else if (!membersAsync.hasValue ||
-        !typesAsync.hasValue ||
-        !gridAsync.hasValue) {
+    } else if (!membersAsync.hasValue || !typesAsync.hasValue || grid == null) {
       body = const LoadingView(rows: 5);
     } else {
       (:rows, :types) = gridShape(
         membersAsync.value!,
         typesAsync.value!,
-        gridAsync.value!.values,
+        grid.values,
         _day,
       );
       final hasMembers = membersAsync.value!.any(
@@ -123,6 +129,15 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
       body = CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
+          // Another day is loading: a hairline, not a blank page.
+          SliverToBoxAdapter(
+            child: SizedBox(
+              height: 2,
+              child: gridLoading
+                  ? const LinearProgressIndicator(minHeight: 2)
+                  : null,
+            ),
+          ),
           const SliverToBoxAdapter(child: PlatformBanner()),
           if (manager && ref.featureOn('setup_checklist'))
             SliverToBoxAdapter(child: SetupChecklist(messId: messId)),
