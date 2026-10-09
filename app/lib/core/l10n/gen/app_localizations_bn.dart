@@ -57,9 +57,6 @@ class AppLocalizationsBn extends AppLocalizations {
   String get navMore => 'আরও';
 
   @override
-  String get syncSynced => 'সেভ হয়েছে';
-
-  @override
   String get syncSyncing => 'সিঙ্ক হচ্ছে';
 
   @override

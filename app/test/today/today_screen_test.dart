@@ -423,7 +423,7 @@ void main() {
         mealRepositoryProvider.overrideWithValue(repo),
       ],
     );
-    expect(find.text(l.syncSynced), findsOneWidget);
+    expect(find.text(l.syncFailed), findsNothing);
 
     await failed('mine', 'mess1');
     await tester.pumpAndSettle();
@@ -432,7 +432,7 @@ void main() {
 
     await tester.tap(find.text(l.syncDiscard));
     await tester.pumpAndSettle();
-    expect(find.text(l.syncSynced), findsOneWidget);
+    expect(find.text(l.syncFailed), findsNothing);
     final left = await db.select(db.syncQueue).get();
     expect(left.map((o) => o.id), ['other']);
 

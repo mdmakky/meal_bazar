@@ -57,9 +57,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navMore => 'More';
 
   @override
-  String get syncSynced => 'Saved';
-
-  @override
   String get syncSyncing => 'Syncing';
 
   @override

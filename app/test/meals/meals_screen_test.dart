@@ -663,7 +663,7 @@ void main() {
         ),
       ],
     );
-    expect(find.text(l.syncSynced), findsOneWidget);
+    expect(find.text(l.syncFailed), findsNothing);
     expect(cell('Karim দুপুর: ১'), findsOneWidget);
 
     await tester.tap(cell('Karim দুপুর: ১'));

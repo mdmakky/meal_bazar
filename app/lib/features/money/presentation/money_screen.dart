@@ -907,14 +907,17 @@ class _BazarList extends ConsumerWidget {
             _paidFrom(l, names, b.paidByMemberId),
           ].join(' · '),
           trailing: _amountTrailing(context, b.amount),
-          status: SyncBadge(
-            state: opState(ops[b.id]),
-            onRetry: () => ref.read(syncServiceProvider).retryFailed(),
-            onDiscard: () async {
-              await ref.read(appDbProvider).discard([?ops[b.id]?.id]);
-              ref.invalidate(bazarsProvider(messId));
-            },
-          ),
+          // Only a pending or failed write says anything.
+          status: ops[b.id] == null
+              ? null
+              : SyncBadge(
+                  state: opState(ops[b.id]),
+                  onRetry: () => ref.read(syncServiceProvider).retryFailed(),
+                  onDiscard: () async {
+                    await ref.read(appDbProvider).discard([?ops[b.id]?.id]);
+                    ref.invalidate(bazarsProvider(messId));
+                  },
+                ),
           onTap: () => showBazarDetail(context, b),
         ),
       ),

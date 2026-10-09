@@ -74,10 +74,11 @@ void main() {
     expect(find.text('৳১,৪১০ ÷ ২০.৫ মিল'), findsNothing);
   });
 
-  testWidgets('SyncBadge states', (tester) async {
+  testWidgets('SyncBadge states; synced says nothing', (tester) async {
     var retried = false;
     await pumpApp(tester, const SyncBadge(state: SyncState.synced));
-    expect(find.text('সেভ হয়েছে'), findsOneWidget);
+    expect(find.byType(Text), findsNothing);
+    expect(find.text('সেভ হয়েছে'), findsNothing);
 
     await pumpApp(tester, const SyncBadge(state: SyncState.offline));
     expect(find.text('অফলাইনে সেভ হয়েছে'), findsOneWidget);

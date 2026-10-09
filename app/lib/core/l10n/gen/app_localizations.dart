@@ -194,12 +194,6 @@ abstract class AppLocalizations {
   /// **'আরও'**
   String get navMore;
 
-  /// No description provided for @syncSynced.
-  ///
-  /// In bn, this message translates to:
-  /// **'সেভ হয়েছে'**
-  String get syncSynced;
-
   /// No description provided for @syncSyncing.
   ///
   /// In bn, this message translates to:
