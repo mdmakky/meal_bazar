@@ -7,6 +7,7 @@ import 'core/platform/platform_widgets.dart';
 import 'core/router.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/application/auth_providers.dart';
+import 'features/push/application/push_service.dart';
 import 'features/reminders/application/reminder_service.dart';
 
 class MealBazarApp extends ConsumerWidget {
@@ -15,6 +16,7 @@ class MealBazarApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(reminderSyncProvider);
+    ref.watch(pushSyncProvider);
     final locale = ref.watch(myProfileProvider.select((p) => p.value?.locale));
     final accentLight = ref.watch(
       platformConfigProvider.select((c) => c.accentLight),

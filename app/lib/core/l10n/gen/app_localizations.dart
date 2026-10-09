@@ -5389,6 +5389,174 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'বাদ দিতে বাঁয়ে সরান'**
   String get bazarSwipeHint;
+
+  /// No description provided for @pushTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'নোটিফিকেশন'**
+  String get pushTitle;
+
+  /// No description provided for @pushIntro.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেসের কোন খবর ফোনে পেতে চান, বেছে নিন'**
+  String get pushIntro;
+
+  /// No description provided for @pushPermissionBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেসের খবর পেতে ফোনের নোটিফিকেশন চালু করুন'**
+  String get pushPermissionBody;
+
+  /// No description provided for @pushOpenSub.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাজার, খরচ, জমা, নোটিশ'**
+  String get pushOpenSub;
+
+  /// No description provided for @pushJoinRequest.
+  ///
+  /// In bn, this message translates to:
+  /// **'যোগদানের অনুরোধ'**
+  String get pushJoinRequest;
+
+  /// No description provided for @pushJoinRequestSub.
+  ///
+  /// In bn, this message translates to:
+  /// **'কেউ মেসে যোগ দিতে চাইলে'**
+  String get pushJoinRequestSub;
+
+  /// No description provided for @pushDepositPending.
+  ///
+  /// In bn, this message translates to:
+  /// **'যাচাইয়ের অপেক্ষায় জমা'**
+  String get pushDepositPending;
+
+  /// No description provided for @pushDepositPendingSub.
+  ///
+  /// In bn, this message translates to:
+  /// **'কোনো সদস্য টাকা জমা দিলে'**
+  String get pushDepositPendingSub;
+
+  /// No description provided for @pushDepositVerified.
+  ///
+  /// In bn, this message translates to:
+  /// **'জমা গৃহীত হলে'**
+  String get pushDepositVerified;
+
+  /// No description provided for @pushDepositVerifiedSub.
+  ///
+  /// In bn, this message translates to:
+  /// **'ম্যানেজার আপনার জমা যাচাই করলে'**
+  String get pushDepositVerifiedSub;
+
+  /// No description provided for @pushDepositRejected.
+  ///
+  /// In bn, this message translates to:
+  /// **'জমা বাতিল হলে'**
+  String get pushDepositRejected;
+
+  /// No description provided for @pushDepositRejectedSub.
+  ///
+  /// In bn, this message translates to:
+  /// **'ম্যানেজার আপনার জমা বাতিল করলে'**
+  String get pushDepositRejectedSub;
+
+  /// No description provided for @pushNotice.
+  ///
+  /// In bn, this message translates to:
+  /// **'নতুন নোটিশ'**
+  String get pushNotice;
+
+  /// No description provided for @pushNoticeSub.
+  ///
+  /// In bn, this message translates to:
+  /// **'নোটিশ বোর্ডে কিছু লেখা হলে'**
+  String get pushNoticeSub;
+
+  /// No description provided for @pushBazar.
+  ///
+  /// In bn, this message translates to:
+  /// **'নতুন বাজার'**
+  String get pushBazar;
+
+  /// No description provided for @pushBazarSub.
+  ///
+  /// In bn, this message translates to:
+  /// **'কেউ বাজারের হিসাব যোগ করলে'**
+  String get pushBazarSub;
+
+  /// No description provided for @pushExpense.
+  ///
+  /// In bn, this message translates to:
+  /// **'নতুন খরচ'**
+  String get pushExpense;
+
+  /// No description provided for @pushExpenseSub.
+  ///
+  /// In bn, this message translates to:
+  /// **'বিল বা অন্য খরচ যোগ হলে'**
+  String get pushExpenseSub;
+
+  /// No description provided for @pushMonthClosed.
+  ///
+  /// In bn, this message translates to:
+  /// **'মাস বন্ধ'**
+  String get pushMonthClosed;
+
+  /// No description provided for @pushMonthClosedSub.
+  ///
+  /// In bn, this message translates to:
+  /// **'মাসের হিসাব চূড়ান্ত হলে'**
+  String get pushMonthClosedSub;
+
+  /// No description provided for @pushDue.
+  ///
+  /// In bn, this message translates to:
+  /// **'বকেয়ার রিমাইন্ডার'**
+  String get pushDue;
+
+  /// No description provided for @pushDueSub.
+  ///
+  /// In bn, this message translates to:
+  /// **'ম্যানেজার বকেয়া মনে করিয়ে দিলে'**
+  String get pushDueSub;
+
+  /// No description provided for @dueRemindButton.
+  ///
+  /// In bn, this message translates to:
+  /// **'বকেয়া মনে করিয়ে দিন'**
+  String get dueRemindButton;
+
+  /// No description provided for @dueRemindConfirmTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'বকেয়া রিমাইন্ডার পাঠাবেন?'**
+  String get dueRemindConfirmTitle;
+
+  /// No description provided for @dueRemindConfirmBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'যাদের বকেয়া আছে, তারা ফোনে নিজের বকেয়ার পরিমাণসহ নোটিফিকেশন পাবেন।'**
+  String get dueRemindConfirmBody;
+
+  /// No description provided for @dueRemindSend.
+  ///
+  /// In bn, this message translates to:
+  /// **'পাঠান'**
+  String get dueRemindSend;
+
+  /// No description provided for @dueRemindSent.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count} জনকে রিমাইন্ডার পাঠানো হয়েছে'**
+  String dueRemindSent(String count);
+
+  /// No description provided for @dueRemindNone.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাউকে পাঠানো যায়নি: বকেয়া থাকা সদস্যদের ফোনে নোটিফিকেশন চালু নেই'**
+  String get dueRemindNone;
 }
 
 class _AppLocalizationsDelegate

@@ -18,6 +18,7 @@ import '../features/mess/presentation/mess_screens.dart';
 import '../features/money/presentation/money_screen.dart';
 import '../features/money/presentation/months_screen.dart';
 import '../features/notices/presentation/notices_screen.dart';
+import '../features/push/presentation/push_screens.dart';
 import '../features/recurring/presentation/meal_defaults_screen.dart';
 import '../features/recurring/presentation/recurring_screen.dart';
 import '../features/reminders/presentation/reminders_screen.dart';
@@ -231,6 +232,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'reminders',
                     builder: (_, _) => const RemindersScreen(),
+                  ),
+                  GoRoute(
+                    path: 'notifications',
+                    builder: (_, _) => const NotificationSettingsScreen(),
                   ),
                   GoRoute(
                     path: 'meal-defaults',
