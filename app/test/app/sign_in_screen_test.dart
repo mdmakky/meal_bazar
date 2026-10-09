@@ -9,25 +9,33 @@ import 'package:meal_bazar/features/auth/data/auth_repository.dart';
 import 'package:meal_bazar/features/auth/presentation/sign_in_screen.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../platform/fixed_config.dart';
+
 class MockAuthRepository extends Mock implements AuthRepository {}
 
 void main() {
   final l = AppLocalizationsBn();
   late MockAuthRepository repo;
 
-  Future<void> pump(WidgetTester tester, {bool google = true}) =>
-      tester.pumpWidget(
-        ProviderScope(
-          overrides: [authRepositoryProvider.overrideWithValue(repo)],
-          child: MaterialApp(
-            theme: AppTheme.light(),
-            locale: const Locale('bn'),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: SignInScreen(googleEnabled: google),
-          ),
-        ),
-      );
+  Future<void> pump(
+    WidgetTester tester, {
+    bool google = true,
+    Map<String, Object?> config = const {},
+  }) => tester.pumpWidget(
+    ProviderScope(
+      overrides: [
+        authRepositoryProvider.overrideWithValue(repo),
+        platformConfig(config),
+      ],
+      child: MaterialApp(
+        theme: AppTheme.light(),
+        locale: const Locale('bn'),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: SignInScreen(googleEnabled: google),
+      ),
+    ),
+  );
 
   Future<void> fill(WidgetTester tester, String email, String password) async {
     await tester.enterText(find.byKey(const Key('email')), email);
@@ -85,5 +93,41 @@ void main() {
     expect(find.byKey(const Key('email')), findsOneWidget);
     expect(find.byType(SnackBar), findsNothing);
     expect(find.text(l.genericError), findsNothing);
+  });
+
+  testWidgets('platform: google_login off hides the Google button', (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      config: {
+        'features': {'google_login': false},
+      },
+    );
+    expect(find.text(l.signInGoogle), findsNothing);
+    expect(find.byKey(const Key('email')), findsOneWidget);
+  });
+
+  testWidgets('platform: email_login off hides the email form', (tester) async {
+    await pump(
+      tester,
+      config: {
+        'features': {'email_login': false},
+      },
+    );
+    expect(find.text(l.signInGoogle), findsOneWidget);
+    expect(find.byKey(const Key('email')), findsNothing);
+    expect(find.text(l.signInOrEmail), findsNothing);
+  });
+
+  testWidgets('branding: config app name and tagline', (tester) async {
+    await pump(
+      tester,
+      config: {
+        'branding': {'app_name_bn': 'মেস খাতা', 'tagline_bn': 'সহজ হিসাব'},
+      },
+    );
+    expect(find.text('মেস খাতা'), findsOneWidget);
+    expect(find.text('সহজ হিসাব'), findsOneWidget);
   });
 }
