@@ -145,6 +145,7 @@ void main() {
     when(() => repo.mealTypes(any())).thenAnswer(
       (_) async => [type('lunch', 'দুপুর', 1), type('dinner', 'রাত', 2)],
     );
+    when(() => repo.mealOffDeadlines(any(), any())).thenAnswer((_) async => {});
   });
 
   testWidgets('first viewport: date, headcount, rate, day summary, actions', (
@@ -255,26 +256,69 @@ void main() {
     expect(find.text('-৳৩৫৯.৭৫'), findsOneWidget);
     expect(find.text('১২.৫'), findsOneWidget);
     expect(find.text(l.myTodayTitle), findsOneWidget);
-    expect(find.text(l.mealOffHint('১০')), findsOneWidget);
-    // Before the cutoff: lunch is on and can be switched off.
-    final lunch = find.byKey(const ValueKey('my-lunch'));
-    expect(tester.widget<SwitchListTile>(lunch).value, isTrue);
-    expect(tester.widget<SwitchListTile>(lunch).onChanged, isNotNull);
-    await tester.tap(lunch);
+    // Today, then tomorrow under its own header; my count reads "১ মিল".
+    expect(find.text(l.myTomorrow), findsOneWidget);
+    expect(find.text(l.myMealCount('১')), findsWidgets);
+    final lunch = find.byKey(ValueKey('my-${isoDate(day)}-lunch'));
+    final sw = find.descendant(of: lunch, matching: find.byType(Switch));
+    expect(tester.widget<Switch>(sw).value, isTrue);
+    expect(tester.widget<Switch>(sw).onChanged, isNotNull);
+    await tester.tap(sw);
     await tester.pumpAndSettle();
     verify(() => repo.setMyMealOff('mess1', day, 'lunch', off: true)).called(1);
   });
 
-  testWidgets('members: after the cutoff the switches are locked', (
+  testWidgets('members: SQL deadlines per row; past one is locked', (
     tester,
   ) async {
+    final tomorrow = DateTime(day.year, day.month, day.day + 1);
+    // Deadlines as SQL returns them: lunch 13:00 Dhaka (07:00 UTC).
+    DateTime at(DateTime d, int utcHour) =>
+        DateTime.utc(d.year, d.month, d.day, utcHour);
+    when(() => repo.mealOffDeadlines(any(), any())).thenAnswer((inv) async {
+      final d = inv.positionalArguments[1] as DateTime;
+      return {'lunch': at(d, 7), 'dinner': at(d, 13)};
+    });
     when(
       () => repo.entriesForDay(any(), any()),
     ).thenAnswer((_) async => [entry('rahim', 'lunch', 1)]);
-    await pump(tester, manager: false, now: day.add(const Duration(hours: 9)));
-    final lunch = find.byKey(const ValueKey('my-lunch'));
-    expect(tester.widget<SwitchListTile>(lunch).onChanged, isNull);
+    // 15:00 Dhaka today: lunch closed, dinner open until 19:00.
+    await pump(tester, manager: false, now: at(day, 9));
+    await tester.pumpAndSettle();
+
+    Switch switchOf(DateTime d, String t) => tester.widget<Switch>(
+      find.descendant(
+        of: find.byKey(ValueKey('my-${isoDate(d)}-$t')),
+        matching: find.byType(Switch),
+      ),
+    );
+    expect(switchOf(day, 'lunch').onChanged, isNull);
     expect(find.text(l.mealOffCutoffPassed), findsOneWidget);
+    expect(switchOf(day, 'dinner').onChanged, isNotNull);
+    expect(find.text(l.mealOffUntil('সন্ধ্যা ৭টা')), findsOneWidget);
+    // Tomorrow's rows show tomorrow's deadlines.
+    expect(switchOf(tomorrow, 'lunch').onChanged, isNotNull);
+    expect(find.text(l.mealOffUntil('কাল দুপুর ১টা')), findsOneWidget);
+    expect(find.text(l.mealOffUntil('কাল সন্ধ্যা ৭টা')), findsOneWidget);
+  });
+
+  testWidgets('members: card fits 360 dp at 1.3× text', (tester) async {
+    tester.view.physicalSize = const Size(360, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    when(
+      () => repo.mealOffDeadlines(any(), any()),
+    ).thenAnswer((_) async => {'lunch': DateTime.utc(2000)});
+    when(
+      () => repo.entriesForDay(any(), any()),
+    ).thenAnswer((_) async => [entry('rahim', 'lunch', 1, guests: 2)]);
+    await pump(tester, manager: false);
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text(l.myTomorrow));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('Home: notice banner, monthly bills prompt, duty card', (

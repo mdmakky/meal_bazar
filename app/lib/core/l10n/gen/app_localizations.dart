@@ -1058,12 +1058,6 @@ abstract class AppLocalizations {
   /// **'মিল বন্ধের শেষ সময়'**
   String get settingsCutoff;
 
-  /// No description provided for @settingsCutoffHelp.
-  ///
-  /// In bn, this message translates to:
-  /// **'সদস্যরা আগের দিন এই সময়ের মধ্যে মিল বন্ধ করতে পারবেন'**
-  String get settingsCutoffHelp;
-
   /// No description provided for @settingsSave.
   ///
   /// In bn, this message translates to:
@@ -2827,30 +2821,6 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'কালকের মিল বন্ধ করতে আজ রাত {time}টার আগে'**
   String mealOffHint(String time);
-
-  /// No description provided for @mealOffTomorrow.
-  ///
-  /// In bn, this message translates to:
-  /// **'কাল মিল বন্ধ'**
-  String get mealOffTomorrow;
-
-  /// No description provided for @mealOffTomorrowTitle.
-  ///
-  /// In bn, this message translates to:
-  /// **'কাল কোন মিল বন্ধ থাকবে?'**
-  String get mealOffTomorrowTitle;
-
-  /// No description provided for @mealOffSave.
-  ///
-  /// In bn, this message translates to:
-  /// **'ঠিক আছে'**
-  String get mealOffSave;
-
-  /// No description provided for @mealOffSaved.
-  ///
-  /// In bn, this message translates to:
-  /// **'কালকের মিল আপডেট হলো'**
-  String get mealOffSaved;
 
   /// No description provided for @receiptAttach.
   ///
@@ -6019,6 +5989,114 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'গ্রুপে নতুন বার্তা এলে। বন্ধ করলে গ্রুপ মিউট থাকবে'**
   String get pushGroupSub;
+
+  /// No description provided for @mealOffUntil.
+  ///
+  /// In bn, this message translates to:
+  /// **'{time} পর্যন্ত'**
+  String mealOffUntil(String time);
+
+  /// No description provided for @myMealCount.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count} মিল'**
+  String myMealCount(String count);
+
+  /// No description provided for @myMealOff.
+  ///
+  /// In bn, this message translates to:
+  /// **'বন্ধ'**
+  String get myMealOff;
+
+  /// No description provided for @myTomorrow.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাল'**
+  String get myTomorrow;
+
+  /// No description provided for @dayTomorrow.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাল'**
+  String get dayTomorrow;
+
+  /// No description provided for @dayYesterday.
+  ///
+  /// In bn, this message translates to:
+  /// **'গতকাল'**
+  String get dayYesterday;
+
+  /// No description provided for @settingsLeadTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'মিল বন্ধের সময়সীমা'**
+  String get settingsLeadTitle;
+
+  /// No description provided for @settingsLeadHelp.
+  ///
+  /// In bn, this message translates to:
+  /// **'খাবারের কতক্ষণ আগ পর্যন্ত সদস্যরা নিজের মিল বন্ধ বা চালু করতে পারবেন'**
+  String get settingsLeadHelp;
+
+  /// No description provided for @settingsLeadHours.
+  ///
+  /// In bn, this message translates to:
+  /// **'খাবারের {hours} ঘণ্টা আগে'**
+  String settingsLeadHours(String hours);
+
+  /// No description provided for @settingsLeadPrevDay.
+  ///
+  /// In bn, this message translates to:
+  /// **'আগের দিন {time}'**
+  String settingsLeadPrevDay(String time);
+
+  /// No description provided for @settingsLeadCustom.
+  ///
+  /// In bn, this message translates to:
+  /// **'নিজে ঠিক করুন'**
+  String get settingsLeadCustom;
+
+  /// No description provided for @settingsLeadCustomLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'খাবারের কত ঘণ্টা আগে (০–৪৮)'**
+  String get settingsLeadCustomLabel;
+
+  /// No description provided for @settingsLeadCustomInvalid.
+  ///
+  /// In bn, this message translates to:
+  /// **'০ থেকে ৪৮ ঘণ্টার মধ্যে দিন'**
+  String get settingsLeadCustomInvalid;
+
+  /// No description provided for @settingsLeadExample.
+  ///
+  /// In bn, this message translates to:
+  /// **'আজ {meal} মিল বন্ধ করা যাবে {time} পর্যন্ত'**
+  String settingsLeadExample(String meal, String time);
+
+  /// No description provided for @mealTypesServeTime.
+  ///
+  /// In bn, this message translates to:
+  /// **'খাবারের সময়'**
+  String get mealTypesServeTime;
+
+  /// No description provided for @mealOffHintLead.
+  ///
+  /// In bn, this message translates to:
+  /// **'খাবারের {hours} ঘণ্টা আগ পর্যন্ত নিজের মিল বন্ধ করা যায়'**
+  String mealOffHintLead(String hours);
+
+  /// No description provided for @msgMealOff.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name} {day} {meal} মিল বন্ধ করেছেন'**
+  String msgMealOff(String name, String day, String meal);
+
+  /// No description provided for @msgMealOn.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name} {day} {meal} মিল আবার চালু করেছেন'**
+  String msgMealOn(String name, String day, String meal);
 }
 
 class _AppLocalizationsDelegate

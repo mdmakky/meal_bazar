@@ -7,6 +7,7 @@ class MealType {
     required this.sortOrder,
     required this.weight,
     required this.enabled,
+    this.serveTime = '13:00:00',
   });
 
   factory MealType.fromJson(Map<String, dynamic> json) => MealType(
@@ -16,6 +17,7 @@ class MealType {
     sortOrder: json['sort_order'] as int,
     weight: (json['weight'] as num).toDouble(),
     enabled: json['enabled'] as bool,
+    serveTime: json['serve_time'] as String? ?? '13:00:00',
   );
 
   final String id;
@@ -24,6 +26,9 @@ class MealType {
   final int sortOrder;
   final double weight;
   final bool enabled;
+
+  /// When it is served, Postgres `time` ('HH:MM:SS', Asia/Dhaka).
+  final String serveTime;
 }
 
 /// One member × day × meal type. No row means 0 meals.
@@ -84,11 +89,3 @@ MealEntry stepMeal(MealEntry e, double delta) {
 MealEntry toggleMealOff(MealEntry e) => e.isOff
     ? e.copyWith(isOff: false, count: 1)
     : e.copyWith(isOff: true, count: 0);
-
-/// When a member can no longer switch [date]'s meal off: the previous day at
-/// `messes.meal_off_cutoff` ('HH:MM[:SS]'), Asia/Dhaka (UTC+6, no DST).
-/// UX only; SQL `set_my_meal_off` enforces it.
-DateTime mealOffDeadline(DateTime date, String cutoff) {
-  final p = cutoff.split(':').map(int.parse).toList();
-  return DateTime.utc(date.year, date.month, date.day - 1, p[0] - 6, p[1]);
-}

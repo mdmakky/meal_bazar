@@ -39,7 +39,7 @@ RPCs: `create_mess(name, month_start_day) → mess_id`, `join_mess(code) → mem
 ### Phase 2 — meals
 | Table | Columns |
 |---|---|
-| `meal_types` | `mess_id`, `name`, `sort_order`, `weight numeric(4,2)`, `enabled` |
+| `meal_types` | `mess_id`, `name`, `sort_order`, `weight numeric(4,2)`, `enabled`, `serve_time time` (0024) |
 | `meal_entries` | `mess_id`, `member_id`, `date`, `meal_type_id`, `count numeric(3,1)` (check: a multiple of 0.5 between 0 and 5), `guest_count smallint` 0–20, `is_off`, `updated_by`. Unique on `(member_id, date, meal_type_id)`. |
 
 ### Phase 3 — money
@@ -150,8 +150,19 @@ One group conversation per mess on the 0022 tables (not separate ones: the feed,
 | `push_enqueue(…, p_route, p_tag)` | 8-argument form; `p_tag` lands in `data.tag` (the gateway sets the Android notification tag, so a newer push with the same tag replaces the older). The 7-argument form delegates with no tag. |
 | push `group_message` | AFTER INSERT on a group message → every other active member. Title `<mess> · গ্রুপ` / `<mess> · group`, body `<sender>: <first 80 chars>`, route `/more/messages/<thread_id>`, tag = thread id. Off when `push`, `messages` or `mess_group` is false, or the user's `group_message` pref is false (the in-app "mute group"). |
 
+### Meal-off deadline (0024)
+| Object | Purpose |
+|---|---|
+| `messes.meal_off_lead_minutes` | int 0–2880, nullable. How long before a meal's `serve_time` a member may still switch it. Null (default, all messes) = the old rule: previous day at `meal_off_cutoff`. |
+| `meal_types.serve_time` | `time not null`, Asia/Dhaka. Backfilled and filled on insert from the name (`default_serve_time`: সকাল 08:00, দুপুর 13:30, রাত 21:00, else 13:00). Manager-edited like the rest of the row. |
+| `meal_off_deadline(p_mess, p_date, p_meal_type) → timestamptz` | `(date + serve_time) at time zone 'Asia/Dhaka' − lead`, or `(date − 1 + meal_off_cutoff)` with no lead. Security invoker (null for a mess I can't read). |
+| `meal_off_deadlines(p_mess, p_from, p_to) → (date, meal_type_id, deadline)` | The same for every meal type and day (≤ 32 days); the app shows these. |
+| `set_my_meal_off(p_mess, p_date, p_meal_type, p_off)` | Own row only, active members. `FEATURE_OFF` when the `member_meal_off` flag is false, `MEAL_TYPE_INVALID`, `CUTOFF_PASSED` from the deadline on (managers skip both the flag and the deadline). Closed-month and suspension triggers still apply. A real change (off ↔ on) calls `post_meal_off_notice`. |
+| `messages.kind`, `messages.meta` | `user` (default) or `system`. A system message's `meta` is `{t: 'meal_off', member, name, date, meal, meal_name, off}`; `body` is the bn text without the name (`আজ রাতের মিল বন্ধ করেছেন`; day word আজ/কাল/গতকাল or `DD/MM` in Bangla digits). The app renders it as a centred pill per viewer locale. |
+| `post_meal_off_notice(…)` | Server-only (no client execute). Posts the notice into the mess group (`ensure_mess_group`) as the member; deletes the member's notice for the same (date, meal) from the last 2 minutes first (flip-flop collapse; the new insert re-pushes with the group tag, replacing the old push). Skipped when `messages` or `mess_group` is false. Push follows `group_message`. |
+
 ## Error codes
-RPCs and triggers raise `errcode 'P0001'` with a short message key that the app maps to bn/en text: `MONTH_CLOSED`, `LAST_MANAGER`, `INVALID_INVITE`, `ALREADY_MEMBER`, `NOT_MANAGER`, `REASON_REQUIRED`, `MESS_SUSPENDED`, `USER_SUSPENDED`, `NOT_PLATFORM_ADMIN`, `LAST_ADMIN`, `INVALID_CONFIG`, `TOO_SOON`.
+RPCs and triggers raise `errcode 'P0001'` with a short message key that the app maps to bn/en text: `MONTH_CLOSED`, `LAST_MANAGER`, `INVALID_INVITE`, `ALREADY_MEMBER`, `NOT_MANAGER`, `REASON_REQUIRED`, `MESS_SUSPENDED`, `USER_SUSPENDED`, `NOT_PLATFORM_ADMIN`, `LAST_ADMIN`, `INVALID_CONFIG`, `TOO_SOON`, `CUTOFF_PASSED`, `FEATURE_OFF`.
 
 ## Storage
 The `receipts` bucket is private. Object paths are `{mess_id}/{uuid}.jpg`. Policies: read if `is_mess_member(split_part(name,'/',1)::uuid)`, write if the caller is a manager (v1.1: the uploading member as well).

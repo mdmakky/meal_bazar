@@ -257,7 +257,6 @@
   "settingsTitle": "মেসের সেটিংস",
   "settingsAddress": "ঠিকানা (না দিলেও চলবে)",
   "settingsCutoff": "মিল বন্ধের শেষ সময়",
-  "settingsCutoffHelp": "সদস্যরা আগের দিন এই সময়ের মধ্যে মিল বন্ধ করতে পারবেন",
   "settingsSave": "সেটিংস সেভ করুন",
   "settingsSaved": "সেটিংস সেভ হয়েছে",
   "settingsManagerOnly": "শুধু ম্যানেজার সেটিংস বদলাতে পারেন",
@@ -877,10 +876,6 @@
       }
     }
   },
-  "mealOffTomorrow": "কাল মিল বন্ধ",
-  "mealOffTomorrowTitle": "কাল কোন মিল বন্ধ থাকবে?",
-  "mealOffSave": "ঠিক আছে",
-  "mealOffSaved": "কালকের মিল আপডেট হলো",
   "receiptAttach": "রসিদের ছবি",
   "receiptScreenshot": "পেমেন্টের স্ক্রিনশট (না দিলেও চলবে)",
   "receiptRemove": "ছবি সরান",
@@ -1852,5 +1847,94 @@
     }
   },
   "pushGroup": "মেস গ্রুপ",
-  "pushGroupSub": "গ্রুপে নতুন বার্তা এলে। বন্ধ করলে গ্রুপ মিউট থাকবে"
+  "pushGroupSub": "গ্রুপে নতুন বার্তা এলে। বন্ধ করলে গ্রুপ মিউট থাকবে",
+  "mealOffUntil": "{time} পর্যন্ত",
+  "@mealOffUntil": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "myMealCount": "{count} মিল",
+  "@myMealCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "myMealOff": "বন্ধ",
+  "myTomorrow": "কাল",
+  "dayTomorrow": "কাল",
+  "dayYesterday": "গতকাল",
+  "settingsLeadTitle": "মিল বন্ধের সময়সীমা",
+  "settingsLeadHelp": "খাবারের কতক্ষণ আগ পর্যন্ত সদস্যরা নিজের মিল বন্ধ বা চালু করতে পারবেন",
+  "settingsLeadHours": "খাবারের {hours} ঘণ্টা আগে",
+  "@settingsLeadHours": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsLeadPrevDay": "আগের দিন {time}",
+  "@settingsLeadPrevDay": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsLeadCustom": "নিজে ঠিক করুন",
+  "settingsLeadCustomLabel": "খাবারের কত ঘণ্টা আগে (০–৪৮)",
+  "settingsLeadCustomInvalid": "০ থেকে ৪৮ ঘণ্টার মধ্যে দিন",
+  "settingsLeadExample": "আজ {meal} মিল বন্ধ করা যাবে {time} পর্যন্ত",
+  "@settingsLeadExample": {
+    "placeholders": {
+      "meal": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "mealTypesServeTime": "খাবারের সময়",
+  "mealOffHintLead": "খাবারের {hours} ঘণ্টা আগ পর্যন্ত নিজের মিল বন্ধ করা যায়",
+  "@mealOffHintLead": {
+    "placeholders": {
+      "hours": {
+        "type": "String"
+      }
+    }
+  },
+  "msgMealOff": "{name} {day} {meal} মিল বন্ধ করেছেন",
+  "@msgMealOff": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "day": {
+        "type": "String"
+      },
+      "meal": {
+        "type": "String"
+      }
+    }
+  },
+  "msgMealOn": "{name} {day} {meal} মিল আবার চালু করেছেন",
+  "@msgMealOn": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "day": {
+        "type": "String"
+      },
+      "meal": {
+        "type": "String"
+      }
+    }
+  }
 }

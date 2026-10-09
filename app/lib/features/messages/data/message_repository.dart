@@ -49,7 +49,9 @@ class MessageRepository {
       'messages:$threadId',
       () => _client
           .from('messages')
-          .select('id, thread_id, sender_id, body, created_at, hidden_at')
+          .select(
+            'id, thread_id, sender_id, body, created_at, hidden_at, kind, meta',
+          )
           .eq('thread_id', threadId)
           .order('created_at'),
     );

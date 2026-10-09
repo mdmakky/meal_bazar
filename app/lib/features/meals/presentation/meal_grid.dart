@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/dates.dart';
 import '../../../core/db/db.dart';
 import '../../../core/db/sync.dart';
 import '../../../core/errors.dart';
@@ -11,6 +10,7 @@ import '../../../core/platform/platform_config.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../mess/application/mess_providers.dart';
 import '../../mess/domain/member.dart';
+import '../../mess/domain/mess.dart';
 import '../../today/application/day_grid.dart';
 import '../application/meal_providers.dart';
 import '../domain/meal.dart';
@@ -54,21 +54,96 @@ String? plainMemberId(WidgetRef ref) {
       : null;
 }
 
-/// My member id while I may still switch [day]'s meals off, else null.
-String? ownOffId(WidgetRef ref, DateTime day) {
+/// My member id when I may switch my own meals off (plain active member,
+/// `member_meal_off` on), else null. Each meal's deadline: [mealOffOpen].
+String? ownOffId(WidgetRef ref) {
   final myId = plainMemberId(ref);
-  final mess = ref.watch(currentMessProvider);
-  if (myId == null ||
-      mess == null ||
-      !ref.watch(
-        platformConfigProvider.select((c) => c.feature('member_meal_off')),
-      )) {
-    return null;
+  return myId != null &&
+          ref.watch(
+            platformConfigProvider.select((c) => c.feature('member_meal_off')),
+          )
+      ? myId
+      : null;
+}
+
+/// [typeId]'s meal-off deadline on [key]'s day, from SQL; null while unknown.
+DateTime? mealOffDeadlineOf(WidgetRef ref, MessDay key, String typeId) =>
+    ref.watch(mealOffDeadlinesProvider(key)).value?[typeId];
+
+/// Before the SQL deadline. Unknown (loading, offline with no cache) counts
+/// as open: `set_my_meal_off` refuses a late switch anyway.
+bool mealOffOpen(WidgetRef ref, MessDay key, String typeId) {
+  final d = mealOffDeadlineOf(ref, key, typeId);
+  return d == null || ref.watch(nowProvider)().isBefore(d);
+}
+
+/// Asia/Dhaka wall clock of an instant (UTC+6, no DST).
+DateTime dhakaClock(DateTime t) => t.toUtc().add(const Duration(hours: 6));
+
+/// "সন্ধ্যা ৭টা" / "7 pm" for a wall-clock [hour]:[minute].
+String clockText(BuildContext context, int hour, int minute) {
+  final h = hour % 12 == 0 ? 12 : hour % 12;
+  final mm = ':${minute.toString().padLeft(2, '0')}';
+  if (Localizations.localeOf(context).languageCode != 'bn') {
+    return '$h${minute == 0 ? '' : mm} ${hour < 12 ? 'am' : 'pm'}';
   }
-  final open = ref
-      .watch(nowProvider)()
-      .isBefore(mealOffDeadline(day, mess.mealOffCutoff));
-  return open ? myId : null;
+  final period = switch (hour) {
+    < 4 => 'রাত',
+    < 6 => 'ভোর',
+    < 12 => 'সকাল',
+    < 15 => 'দুপুর',
+    < 18 => 'বিকাল',
+    < 20 => 'সন্ধ্যা',
+    _ => 'রাত',
+  };
+  return Fmt.digits(
+    '$period $h${minute == 0 ? 'টা' : mm}',
+    bangla: bnDigits(context),
+  );
+}
+
+/// Day word for [d] seen on [now]'s day: '' today, কাল / গতকাল, else a date.
+String relativeDay(BuildContext context, DateTime d, DateTime now) {
+  final l = AppLocalizations.of(context);
+  final days = DateTime.utc(
+    d.year,
+    d.month,
+    d.day,
+  ).difference(DateTime.utc(now.year, now.month, now.day)).inDays;
+  return switch (days) {
+    0 => '',
+    1 => l.dayTomorrow,
+    -1 => l.dayYesterday,
+    _ => Fmt.dateLong(
+      d,
+      locale: Localizations.localeOf(context).languageCode,
+      banglaDigits: bnDigits(context),
+    ),
+  };
+}
+
+/// "সন্ধ্যা ৭টা পর্যন্ত" / "কাল সকাল ৭টা পর্যন্ত" for a deadline instant.
+String deadlineText(BuildContext context, DateTime deadline, DateTime now) {
+  final d = dhakaClock(deadline);
+  final day = relativeDay(context, d, dhakaClock(now));
+  final time = clockText(context, d.hour, d.minute);
+  return AppLocalizations.of(
+    context,
+  ).mealOffUntil(day.isEmpty ? time : '$day $time');
+}
+
+/// Bangla genitive of a meal name (রাত → রাতের, নাস্তা → নাস্তার); as is in
+/// English. Same rule as SQL `bn_genitive`.
+String mealOf(BuildContext context, String name) {
+  if (Localizations.localeOf(context).languageCode != 'bn') return name;
+  final last = name.isEmpty ? 0 : name.runes.last;
+  if (last >= 0x09BE && last <= 0x09CC) return '$nameর';
+  final consonant =
+      (last >= 0x0985 && last <= 0x09B9) ||
+      last == 0x09BC ||
+      last == 0x09CE ||
+      (last >= 0x09DC && last <= 0x09DF);
+  return consonant ? '$nameের' : '$name-এর';
 }
 
 MealEntry entryOrZero(
@@ -180,86 +255,6 @@ Future<void> markMealOff(
   }
 }
 
-/// Member: pick tomorrow's meal types to have off, then save the changes.
-Future<void> offTomorrow(BuildContext context, WidgetRef ref) async {
-  final l = AppLocalizations.of(context);
-  final mess = ref.read(currentMessProvider);
-  final me = ref.read(currentMembershipProvider)?.member.id;
-  if (mess == null || me == null) return;
-  final tomorrow = dayOnly(today().add(const Duration(days: 1, hours: 2)));
-  if (!ref
-      .read(nowProvider)()
-      .isBefore(mealOffDeadline(tomorrow, mess.mealOffCutoff))) {
-    AppSnack.show(context, l.mealOffCutoffPassed);
-    return;
-  }
-  final key = (messId: mess.id, day: tomorrow);
-  final Map<String, MealEntry> grid;
-  final List<MealType> active;
-  try {
-    grid = await ref.read(dayGridProvider(key).future);
-    active = [
-      for (final t in await ref.read(mealTypesProvider(mess.id).future))
-        if (t.enabled) t,
-    ];
-  } catch (e) {
-    if (context.mounted) snackFailure(context, e);
-    return;
-  }
-  if (!context.mounted) return;
-  MealEntry current(MealType t) => entryOrZero(grid, key, me, t.id);
-  final off = await _pickOff(context, active, {
-    for (final t in active)
-      if (current(t).isOff) t.id,
-  });
-  if (off == null || !context.mounted) return;
-  for (final t in active) {
-    final e = current(t);
-    if (e.isOff == off.contains(t.id)) continue;
-    if (!await putEntry(context, ref, key, toggleMealOff(e), own: true)) {
-      return;
-    }
-    if (!context.mounted) return;
-  }
-  AppSnack.show(context, l.mealOffSaved);
-}
-
-/// Checklist of meal types; returns the ids to have off, or null if dismissed.
-Future<Set<String>?> _pickOff(
-  BuildContext context,
-  List<MealType> types,
-  Set<String> initial,
-) {
-  final l = AppLocalizations.of(context);
-  final off = {...initial};
-  return AppSheet.show<Set<String>>(
-    context,
-    title: l.mealOffTomorrowTitle,
-    actions: [
-      Builder(
-        builder: (context) => AppButton(
-          label: l.mealOffSave,
-          onPressed: () => Navigator.pop(context, off),
-        ),
-      ),
-    ],
-    child: StatefulBuilder(
-      builder: (context, setState) => Column(
-        children: [
-          for (final t in types)
-            CheckboxListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(t.name),
-              value: off.contains(t.id),
-              onChanged: (v) =>
-                  setState(() => v == true ? off.add(t.id) : off.remove(t.id)),
-            ),
-        ],
-      ),
-    ),
-  );
-}
-
 /// This mess's worst queue state; a failed write names why and offers retry
 /// or discard (the next pull restores the server's value).
 class SyncLine extends ConsumerWidget {
@@ -304,22 +299,30 @@ class SyncLine extends ConsumerWidget {
   }
 }
 
-/// Members: when tomorrow's meals can still be switched off.
+/// Members: the mess's meal-off rule in one line (deadlines come from SQL).
 class MealOffHint extends StatelessWidget {
-  const MealOffHint({super.key, required this.cutoff, this.padded = true});
+  const MealOffHint({super.key, required this.mess, this.padded = true});
 
-  /// Postgres `time`, e.g. '22:00:00'.
-  final String cutoff;
+  final Mess mess;
 
   /// Page gutters around it; off inside a card.
   final bool padded;
 
   @override
   Widget build(BuildContext context) {
-    final p = cutoff.split(':').map(int.parse).toList();
-    // ponytail: copy says "tonight"/pm; fine for evening cutoffs (the default).
-    final h = p[0] % 12 == 0 ? 12 : p[0] % 12;
-    final time = p[1] == 0 ? '$h' : '$h:${p[1].toString().padLeft(2, '0')}';
+    final l = AppLocalizations.of(context);
+    final bn = bnDigits(context);
+    final lead = mess.mealOffLeadMinutes;
+    final String line;
+    if (lead == null) {
+      final [h, m, ...] = mess.mealOffCutoff.split(':').map(int.parse).toList();
+      // ponytail: copy says "tonight"/pm; fine for evening cutoffs (the default).
+      final h12 = h % 12 == 0 ? 12 : h % 12;
+      final time = m == 0 ? '$h12' : '$h12:${'$m'.padLeft(2, '0')}';
+      line = l.mealOffHint(Fmt.digits(time, bangla: bn));
+    } else {
+      line = l.mealOffHintLead(decimal(lead / 60, bangla: bn));
+    }
     return Padding(
       padding: padded
           ? const EdgeInsets.fromLTRB(
@@ -329,12 +332,7 @@ class MealOffHint extends StatelessWidget {
               0,
             )
           : EdgeInsets.zero,
-      child: Text(
-        AppLocalizations.of(
-          context,
-        ).mealOffHint(Fmt.digits(time, bangla: bnDigits(context))),
-        style: Theme.of(context).textTheme.bodySmall,
-      ),
+      child: Text(line, style: Theme.of(context).textTheme.bodySmall),
     );
   }
 }
@@ -497,7 +495,10 @@ class MealStepperGrid extends ConsumerWidget {
                           member: m,
                           type: t,
                           editable: editable,
-                          ownOff: ownOffId == m.id && t.enabled,
+                          ownOff:
+                              ownOffId == m.id &&
+                              t.enabled &&
+                              mealOffOpen(ref, dayKey, t.id),
                           stagger:
                               AppMotion.fast *
                               ((r * types.length + i) /

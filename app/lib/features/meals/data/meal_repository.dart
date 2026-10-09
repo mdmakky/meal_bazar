@@ -206,6 +206,7 @@ class MealRepository {
     double? weight,
     bool? enabled,
     int? sortOrder,
+    String? serveTime,
   }) => guard(() async {
     final rows = await _client
         .from('meal_types')
@@ -214,6 +215,7 @@ class MealRepository {
           'weight': ?weight,
           'enabled': ?enabled,
           'sort_order': ?sortOrder,
+          'serve_time': ?serveTime,
         })
         .eq('id', id)
         .select('id');
@@ -296,6 +298,33 @@ class MealRepository {
       },
     ),
   );
+
+  /// SQL `meal_off_deadlines`: each meal type's meal-off deadline on [day],
+  /// by meal type id. Cached for offline.
+  Future<Map<String, DateTime>> mealOffDeadlines(String messId, DateTime day) =>
+      guard(() async {
+        final rows = await _db.cachedRows(
+          'meal_off_deadlines:$messId:${isoDate(day)}',
+          () async => [
+            for (final r in await _client.rpc(
+              'meal_off_deadlines',
+              params: {
+                'p_mess': messId,
+                'p_from': isoDate(day),
+                'p_to': isoDate(day),
+              },
+            ))
+              Map<String, dynamic>.from(r as Map),
+          ],
+        );
+        return {
+          for (final r in rows)
+            if (r['deadline'] != null)
+              r['meal_type_id'] as String: DateTime.parse(
+                r['deadline'] as String,
+              ),
+        };
+      });
 
   /// Creates missing rows for active members (copy of yesterday, else 1).
   Future<int> fillDay(String messId, DateTime day) => guard(() async {

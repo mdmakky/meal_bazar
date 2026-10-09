@@ -70,6 +70,7 @@ class ChatMessage {
     this.pending = false,
     this.failed = false,
     this.hidden = false,
+    this.meta,
   });
 
   factory ChatMessage.fromJson(Map<String, dynamic> j) => ChatMessage(
@@ -79,6 +80,7 @@ class ChatMessage {
     body: j['body'] as String,
     createdAt: DateTime.parse(j['created_at'] as String),
     hidden: j['hidden_at'] != null,
+    meta: j['kind'] == 'system' ? j['meta'] as Map<String, dynamic>? : null,
   );
 
   final String id;
@@ -93,6 +95,10 @@ class ChatMessage {
 
   /// Removed from the group; [body] is empty.
   final bool hidden;
+
+  /// A system notice's payload (supabase 0024), e.g. `{t: 'meal_off', name,
+  /// date, meal_name, off}`; null for people's messages.
+  final Map<String, dynamic>? meta;
 }
 
 const messageSubjectMax = 80;

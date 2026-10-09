@@ -134,6 +134,7 @@ class MessRepository {
     String? address,
     int? monthStartDay,
     String? mealOffCutoff,
+    MealOffLead? mealOffLead,
     bool? fixedRate,
     double? fixedMealRate,
   }) => guard(() async {
@@ -144,6 +145,7 @@ class MessRepository {
           'address': ?address?.trim(),
           'month_start_day': ?monthStartDay,
           'meal_off_cutoff': ?mealOffCutoff,
+          if (mealOffLead != null) 'meal_off_lead_minutes': mealOffLead.minutes,
           'meal_rate_mode': ?switch (fixedRate) {
             null => null,
             true => 'fixed',

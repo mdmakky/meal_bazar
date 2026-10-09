@@ -10,6 +10,7 @@ import '../../../core/ids.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
 import '../../../core/platform/platform_config.dart';
 import '../../../core/widgets/widgets.dart';
+import '../../meals/presentation/meal_grid.dart' show mealOf;
 import '../../mess/application/mess_providers.dart';
 import '../../mess/domain/member.dart';
 import '../../mess/presentation/common.dart';
@@ -783,6 +784,10 @@ class _ThreadState extends ConsumerState<ThreadScreen> {
           )) {
         children.add(_DaySeparator(day: m.createdAt));
       }
+      if (m.meta != null && !m.hidden) {
+        children.add(_SystemPill(message: m));
+        continue;
+      }
       final actionable = t.isGroup && !m.hidden && !m.pending && !m.failed;
       children.add(
         _Bubble(
@@ -884,6 +889,67 @@ class _DaySeparator extends StatelessWidget {
       ),
     );
   }
+}
+
+/// A system notice ("তানভীর আজ রাতের মিল বন্ধ করেছেন") as a centred pill,
+/// worded in my language from its payload; the stored text otherwise.
+class _SystemPill extends StatelessWidget {
+  const _SystemPill({required this.message});
+
+  final ChatMessage message;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpace.md),
+      child: Center(
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: p.surfaceMuted,
+            borderRadius: BorderRadius.circular(AppRadius.xl),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpace.md,
+              vertical: AppSpace.xs,
+            ),
+            child: Text(
+              systemNoticeText(context, message),
+              textAlign: TextAlign.center,
+              style: Theme.of(
+                context,
+              ).textTheme.labelMedium?.copyWith(color: p.inkSecondary),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The words of a system notice for this viewer (day relative to today).
+String systemNoticeText(BuildContext context, ChatMessage m) {
+  final l = AppLocalizations.of(context);
+  final j = m.meta!;
+  final date = DateTime.tryParse('${j['date']}');
+  if (j['t'] != 'meal_off' || date == null) return m.body;
+  final today = DateUtils.dateOnly(DateTime.now());
+  final day = switch (date.difference(today).inDays) {
+    0 => l.msgDayToday,
+    1 => l.dayTomorrow,
+    -1 => l.msgDayYesterday,
+    _ => Fmt.dateLong(
+      date,
+      locale: l.localeName,
+      banglaDigits: l.localeName == 'bn',
+    ),
+  };
+  final name = '${j['name'] ?? ''}';
+  final meal = mealOf(context, '${j['meal_name'] ?? ''}');
+  return j['off'] == true
+      ? l.msgMealOff(name, day, meal)
+      : l.msgMealOn(name, day, meal);
 }
 
 /// Status tag, plus resolve / reopen for whoever may.

@@ -10,6 +10,7 @@ import '../../mess/presentation/common.dart';
 import '../../today/presentation/setup_checklist.dart' show setupFlagMealTypes;
 import '../application/meal_providers.dart';
 import '../domain/meal.dart';
+import 'meal_grid.dart' show clockText;
 import 'meal_widgets.dart';
 
 /// Manager: enable, rename, weigh (0–5, ¼ steps), reorder and add meal types.
@@ -32,15 +33,21 @@ class _MealTypesScreenState extends ConsumerState<MealTypesScreen> {
     if (messId != null) setMessFlag(ref, messId, setupFlagMealTypes);
   }
 
-  MealType _with(MealType t, {String? name, double? weight, bool? enabled}) =>
-      MealType(
-        id: t.id,
-        messId: t.messId,
-        name: name ?? t.name,
-        sortOrder: t.sortOrder,
-        weight: weight ?? t.weight,
-        enabled: enabled ?? t.enabled,
-      );
+  MealType _with(
+    MealType t, {
+    String? name,
+    double? weight,
+    bool? enabled,
+    String? serveTime,
+  }) => MealType(
+    id: t.id,
+    messId: t.messId,
+    name: name ?? t.name,
+    sortOrder: t.sortOrder,
+    weight: weight ?? t.weight,
+    enabled: enabled ?? t.enabled,
+    serveTime: serveTime ?? t.serveTime,
+  );
 
   Future<void> _run(
     List<MealType> optimistic,
@@ -62,17 +69,43 @@ class _MealTypesScreenState extends ConsumerState<MealTypesScreen> {
     String? name,
     double? weight,
     bool? enabled,
+    String? serveTime,
   }) => _run(
     [
       for (final x in items)
         x.id == t.id
-            ? _with(x, name: name, weight: weight, enabled: enabled)
+            ? _with(
+                x,
+                name: name,
+                weight: weight,
+                enabled: enabled,
+                serveTime: serveTime,
+              )
             : x,
     ],
     () => ref
         .read(mealControllerProvider)
-        .updateMealType(t, name: name, weight: weight, enabled: enabled),
+        .updateMealType(
+          t,
+          name: name,
+          weight: weight,
+          enabled: enabled,
+          serveTime: serveTime,
+        ),
   );
+
+  /// When the meal is served: drives the members' meal-off deadline.
+  Future<void> _pickServeTime(List<MealType> items, MealType t) async {
+    final [h, m, ...] = t.serveTime.split(':').map(int.parse).toList();
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(hour: h, minute: m),
+    );
+    if (picked == null || !mounted) return;
+    String two(int n) => n.toString().padLeft(2, '0');
+    final v = '${two(picked.hour)}:${two(picked.minute)}:00';
+    if (v != t.serveTime) await _update(items, t, serveTime: v);
+  }
 
   Future<String?> _askName(String title, [String initial = '']) {
     final l = AppLocalizations.of(context);
@@ -285,6 +318,10 @@ class _MealTypesScreenState extends ConsumerState<MealTypesScreen> {
                             ? null
                             : () => _update(items, t, weight: t.weight + 0.25),
                       ),
+                      _ServeTimeRow(
+                        type: t,
+                        onTap: () => _pickServeTime(items, t),
+                      ),
                     ],
                   ),
                 ),
@@ -300,6 +337,48 @@ class _MealTypesScreenState extends ConsumerState<MealTypesScreen> {
           ),
         );
       },
+    );
+  }
+}
+
+/// "খাবারের সময় · রাত ৯টা"; tap to change.
+class _ServeTimeRow extends StatelessWidget {
+  const _ServeTimeRow({required this.type, required this.onTap});
+
+  final MealType type;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final p = context.palette;
+    final [h, m, ...] = type.serveTime.split(':').map(int.parse).toList();
+    return InkWell(
+      key: ValueKey('serve-${type.id}'),
+      borderRadius: BorderRadius.circular(AppRadius.sm),
+      onTap: onTap,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: AppSize.touch),
+        child: Row(
+          spacing: AppSpace.sm,
+          children: [
+            Icon(Icons.schedule, size: AppSpace.lg, color: p.inkTertiary),
+            Text(
+              l.mealTypesServeTime,
+              style: text.bodyMedium?.copyWith(color: p.inkSecondary),
+            ),
+            Flexible(
+              child: Text(
+                clockText(context, h, m),
+                style: text.titleSmall?.copyWith(
+                  color: type.enabled ? null : p.inkTertiary,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

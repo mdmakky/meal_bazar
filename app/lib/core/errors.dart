@@ -48,6 +48,8 @@ const _sqlKeys = {
   'PREVIOUS_MONTH_OPEN': FailureKind.previousMonthOpen,
   'LATER_MONTH_CLOSED': FailureKind.laterMonthClosed,
   'CUTOFF_PASSED': FailureKind.cutoffPassed,
+  // A platform feature is switched off: same "no permission" message.
+  'FEATURE_OFF': FailureKind.notManager,
   'MEAL_TYPE_INVALID': FailureKind.validation,
   'REASON_REQUIRED': FailureKind.validation,
   'DEPOSIT_NOT_PENDING': FailureKind.validation,

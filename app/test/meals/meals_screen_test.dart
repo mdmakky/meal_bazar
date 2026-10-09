@@ -455,7 +455,10 @@ void main() {
       expect(find.text(l.mealOffCutoffPassed), findsOneWidget);
     });
 
-    testWidgets('after the cutoff own row is read-only', (tester) async {
+    testWidgets('after the SQL deadline own row is read-only', (tester) async {
+      when(
+        () => repo.mealOffDeadlines(any(), any()),
+      ).thenAnswer((_) async => {'lunch': early});
       await pump(tester, manager: false);
       await tester.tap(cell('Rahim দুপুর: ১, +১ জন অতিথি'));
       await tester.pumpAndSettle();

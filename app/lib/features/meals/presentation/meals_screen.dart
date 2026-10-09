@@ -80,7 +80,7 @@ class _MealsScreenState extends ConsumerState<MealsScreen> {
     final manager = ref.watch(amIManagerProvider);
     final mess = ref.watch(currentMessProvider);
     final myId = plainMemberId(ref);
-    final ownOff = ownOffId(ref, _day);
+    final ownOff = ownOffId(ref);
     final membersAsync = ref.watch(membersProvider(messId));
     final typesAsync = ref.watch(mealTypesProvider(messId));
     final gridAsync = ref.watch(dayGridProvider(key));
@@ -182,7 +182,7 @@ class _MealsScreenState extends ConsumerState<MealsScreen> {
             ),
           _DayTotal(dayKey: key, types: types),
           if (myId != null && mess != null && ref.featureOn('member_meal_off'))
-            MealOffHint(cutoff: mess.mealOffCutoff),
+            MealOffHint(mess: mess),
         ],
       ];
     }

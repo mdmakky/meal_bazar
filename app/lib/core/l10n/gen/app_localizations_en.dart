@@ -535,10 +535,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsCutoff => 'Meal-off cutoff';
 
   @override
-  String get settingsCutoffHelp =>
-      'Members can switch a meal off until this time the day before';
-
-  @override
   String get settingsSave => 'Save settings';
 
   @override
@@ -1524,18 +1520,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String mealOffHint(String time) {
     return 'To switch off tomorrow\'s meals, do it before $time pm today';
   }
-
-  @override
-  String get mealOffTomorrow => 'Tomorrow off';
-
-  @override
-  String get mealOffTomorrowTitle => 'Which meals are off tomorrow?';
-
-  @override
-  String get mealOffSave => 'Done';
-
-  @override
-  String get mealOffSaved => 'Tomorrow\'s meals updated';
 
   @override
   String get receiptAttach => 'Receipt photo';
@@ -3267,4 +3251,75 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get pushGroupSub =>
       'New messages in the mess group. Off mutes the group';
+
+  @override
+  String mealOffUntil(String time) {
+    return 'until $time';
+  }
+
+  @override
+  String myMealCount(String count) {
+    return 'Meals: $count';
+  }
+
+  @override
+  String get myMealOff => 'Off';
+
+  @override
+  String get myTomorrow => 'Tomorrow';
+
+  @override
+  String get dayTomorrow => 'tomorrow';
+
+  @override
+  String get dayYesterday => 'yesterday';
+
+  @override
+  String get settingsLeadTitle => 'Meal-off deadline';
+
+  @override
+  String get settingsLeadHelp =>
+      'How long before a meal members can still switch their own meal off or on';
+
+  @override
+  String settingsLeadHours(String hours) {
+    return '$hours h before the meal';
+  }
+
+  @override
+  String settingsLeadPrevDay(String time) {
+    return 'Day before, $time';
+  }
+
+  @override
+  String get settingsLeadCustom => 'Custom';
+
+  @override
+  String get settingsLeadCustomLabel => 'Hours before the meal (0–48)';
+
+  @override
+  String get settingsLeadCustomInvalid => 'Enter 0 to 48 hours';
+
+  @override
+  String settingsLeadExample(String meal, String time) {
+    return 'Today\'s $meal can be switched off until $time';
+  }
+
+  @override
+  String get mealTypesServeTime => 'Serving time';
+
+  @override
+  String mealOffHintLead(String hours) {
+    return 'You can switch your meal off up to $hours h before it';
+  }
+
+  @override
+  String msgMealOff(String name, String day, String meal) {
+    return '$name switched off $meal ($day)';
+  }
+
+  @override
+  String msgMealOn(String name, String day, String meal) {
+    return '$name switched $meal back on ($day)';
+  }
 }
