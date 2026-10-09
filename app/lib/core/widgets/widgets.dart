@@ -1,8 +1,12 @@
 export '../format.dart';
+export '../motion/motion.dart';
+export '../theme/app_theme.dart' show AppType;
 export '../theme/tokens.dart';
 export 'app_button.dart';
 export 'app_card.dart';
+export 'app_nav_bar.dart';
 export 'app_sheet.dart';
+export 'app_snack.dart';
 export 'empty_view.dart';
 export 'error_view.dart';
 export 'figure.dart';

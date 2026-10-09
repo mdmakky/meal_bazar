@@ -10,47 +10,49 @@ class AppShell extends StatelessWidget {
 
   final StatefulNavigationShell shell;
 
+  /// `StatefulShellRoute.navigatorContainerBuilder`: tabs fade through.
+  static Widget branchContainer(
+    BuildContext context,
+    StatefulNavigationShell shell,
+    List<Widget> children,
+  ) => FadeThroughBranches(index: shell.currentIndex, children: children);
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     return Scaffold(
       body: shell,
-      bottomNavigationBar: DecoratedBox(
-        decoration: BoxDecoration(
-          border: Border(top: BorderSide(color: context.palette.border)),
-        ),
-        child: NavigationBar(
-          selectedIndex: shell.currentIndex,
-          onDestinationSelected: (i) =>
-              shell.goBranch(i, initialLocation: i == shell.currentIndex),
-          destinations: [
-            NavigationDestination(
-              icon: const Icon(Icons.home_outlined),
-              selectedIcon: const Icon(Icons.home),
-              label: l.navHome,
-            ),
-            NavigationDestination(
-              icon: const Icon(Icons.restaurant_outlined),
-              selectedIcon: const Icon(Icons.restaurant),
-              label: l.navMeals,
-            ),
-            NavigationDestination(
-              icon: const Icon(Icons.shopping_basket_outlined),
-              selectedIcon: const Icon(Icons.shopping_basket),
-              label: l.navBazar,
-            ),
-            NavigationDestination(
-              icon: const Icon(Icons.account_balance_wallet_outlined),
-              selectedIcon: const Icon(Icons.account_balance_wallet),
-              label: l.navMoney,
-            ),
-            NavigationDestination(
-              icon: const Icon(Icons.more_horiz),
-              selectedIcon: const Icon(Icons.more_horiz),
-              label: l.navMore,
-            ),
-          ],
-        ),
+      bottomNavigationBar: AppNavBar(
+        selectedIndex: shell.currentIndex,
+        onSelected: (i) =>
+            shell.goBranch(i, initialLocation: i == shell.currentIndex),
+        items: [
+          AppNavItem(
+            icon: Icons.home_outlined,
+            selectedIcon: Icons.home,
+            label: l.navHome,
+          ),
+          AppNavItem(
+            icon: Icons.restaurant_outlined,
+            selectedIcon: Icons.restaurant,
+            label: l.navMeals,
+          ),
+          AppNavItem(
+            icon: Icons.shopping_basket_outlined,
+            selectedIcon: Icons.shopping_basket,
+            label: l.navBazar,
+          ),
+          AppNavItem(
+            icon: Icons.account_balance_wallet_outlined,
+            selectedIcon: Icons.account_balance_wallet,
+            label: l.navMoney,
+          ),
+          AppNavItem(
+            icon: Icons.more_horiz,
+            selectedIcon: Icons.more_horiz,
+            label: l.navMore,
+          ),
+        ],
       ),
     );
   }
