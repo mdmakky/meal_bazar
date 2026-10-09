@@ -31,3 +31,29 @@ export function handle(fn: (req: Request) => Promise<Response>) {
     }
   };
 }
+
+// CORS for browser callers (the admin web panel). Auth is a Bearer token, not cookies,
+// so a wildcard is safe; set ADMIN_ORIGINS="https://admin.example.com,..." to restrict it.
+function corsHeaders(req: Request): Record<string, string> {
+  const allowed = (process.env.ADMIN_ORIGINS ?? '').split(',').map((s) => s.trim()).filter(Boolean);
+  const origin = req.headers.get('origin') ?? '';
+  const allow = allowed.length === 0 ? '*' : allowed.includes(origin) ? origin : (allowed[0] ?? '*');
+  return {
+    'access-control-allow-origin': allow,
+    'access-control-allow-headers': 'authorization, content-type',
+    'access-control-allow-methods': 'GET, POST, OPTIONS',
+    'access-control-max-age': '600',
+    vary: 'origin',
+  };
+}
+
+export function withCors(fn: (req: Request) => Promise<Response>) {
+  return async (req: Request): Promise<Response> => {
+    const res = await fn(req);
+    const headers = new Headers(res.headers);
+    for (const [k, v] of Object.entries(corsHeaders(req))) headers.set(k, v);
+    return new Response(res.body, { status: res.status, headers });
+  };
+}
+
+export const preflight = async (req: Request) => new Response(null, { status: 204, headers: corsHeaders(req) });

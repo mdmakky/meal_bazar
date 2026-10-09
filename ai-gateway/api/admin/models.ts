@@ -1,9 +1,9 @@
 import { requireAdmin } from '../../lib/auth';
-import { handle, HttpError, json } from '../../lib/http';
+import { handle, preflight, withCors, HttpError, json } from '../../lib/http';
 import { listModels, type ModelInfo, type Provider } from '../../lib/models';
 
 // GET ?provider=gemini|openrouter|all → {models: ModelInfo[]}. Platform admins only.
-export const GET = handle(async (req) => {
+export const GET = withCors(handle(async (req) => {
   await requireAdmin(req);
   const provider = new URL(req.url).searchParams.get('provider') ?? 'all';
   if (!['gemini', 'openrouter', 'all'].includes(provider)) throw new HttpError(400, 'bad_request');
@@ -16,4 +16,6 @@ export const GET = handle(async (req) => {
     throw new HttpError(502, 'upstream');
   }
   return json({ models });
-});
+}));
+
+export const OPTIONS = preflight;

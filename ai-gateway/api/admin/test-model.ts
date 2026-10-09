@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { requireAdmin } from '../../lib/auth';
-import { handle, HttpError, json, readJson } from '../../lib/http';
+import { handle, preflight, withCors, HttpError, json, readJson } from '../../lib/http';
 import { aiSettings } from '../../lib/platform';
 import { callModel, errorKind } from '../../lib/providers';
 
@@ -11,7 +11,7 @@ const PIXEL = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGP4//8/A
 
 // POST {provider, model, kind} → {ok, latency_ms, sample, error}. Platform admins only; no mess quota.
 // Ignores allow_paid on purpose (the admin is choosing a model); honours the AI_ENABLED kill switch.
-export const POST = handle(async (req) => {
+export const POST = withCors(handle(async (req) => {
   await requireAdmin(req);
   const body = Body.safeParse(await readJson(req, 2_000));
   if (!body.success) throw new HttpError(400, 'bad_request');
@@ -31,4 +31,6 @@ export const POST = handle(async (req) => {
   } catch (e) {
     return json({ ok: false, latency_ms: Date.now() - started, sample: '', error: errorKind(e) });
   }
-});
+}));
+
+export const OPTIONS = preflight;

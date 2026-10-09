@@ -43,3 +43,16 @@ describe('auth', () => {
     expect((await cron(new Request('http://x', { headers: { authorization: 'Bearer wrong' } }))).status).toBe(401);
   });
 });
+
+import { preflight, withCors, json } from '../lib/http';
+describe('admin CORS', () => {
+  it('answers preflight and decorates responses', async () => {
+    const req = new Request('https://gw/api/admin/models', { method: 'OPTIONS', headers: { origin: 'https://admin.test' } });
+    const pre = await preflight(req);
+    expect(pre.status).toBe(204);
+    expect(pre.headers.get('access-control-allow-headers')).toContain('authorization');
+    const res = await withCors(async () => json({ ok: true }))(req);
+    expect(res.headers.get('access-control-allow-origin')).toBe('*');
+    expect(await res.json()).toEqual({ ok: true });
+  });
+});
