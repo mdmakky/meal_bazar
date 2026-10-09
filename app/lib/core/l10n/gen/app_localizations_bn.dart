@@ -2119,4 +2119,557 @@ class AppLocalizationsBn extends AppLocalizations {
   String rateBalanceFood(String meals, String rate) {
     return 'খাবার খরচ = $meals মিল × $rate (নির্দিষ্ট রেট)';
   }
+
+  @override
+  String get adminTitle => 'মিল বাজার অ্যাডমিন';
+
+  @override
+  String get adminTitleShort => 'অ্যাডমিন';
+
+  @override
+  String get adminSignIn => 'লগইন করুন';
+
+  @override
+  String get adminSignInGoogle => 'গুগল দিয়ে লগইন';
+
+  @override
+  String get adminSignInHint =>
+      'শুধু প্ল্যাটফর্ম অ্যাডমিনরা এখানে ঢুকতে পারেন।';
+
+  @override
+  String get adminSignOut => 'লগআউট';
+
+  @override
+  String get adminAccessDenied => 'প্রবেশাধিকার নেই';
+
+  @override
+  String get adminAccessDeniedBody =>
+      'এই অ্যাকাউন্ট প্ল্যাটফর্ম অ্যাডমিন নয়। অন্য অ্যাকাউন্টে লগইন করুন।';
+
+  @override
+  String get adminNavDashboard => 'ড্যাশবোর্ড';
+
+  @override
+  String get adminNavMesses => 'মেস';
+
+  @override
+  String get adminNavUsers => 'ইউজার';
+
+  @override
+  String get adminNavSettings => 'সেটিংস';
+
+  @override
+  String get adminNavAi => 'এআই';
+
+  @override
+  String get adminNavBranding => 'ব্র্যান্ডিং';
+
+  @override
+  String get adminNavCredentials => 'ক্রেডেনশিয়াল';
+
+  @override
+  String get adminNavDeletion => 'মুছে ফেলার সারি';
+
+  @override
+  String get adminStatUsersTotal => 'মোট ইউজার';
+
+  @override
+  String get adminStatUsers7d => 'নতুন ইউজার (৭ দিন)';
+
+  @override
+  String get adminStatMessesTotal => 'মোট মেস';
+
+  @override
+  String get adminStatMessesActive7d => 'সক্রিয় মেস (৭ দিন)';
+
+  @override
+  String get adminStatMeals7d => 'মিল (৭ দিন)';
+
+  @override
+  String get adminStatBazars7d => 'বাজার (৭ দিন)';
+
+  @override
+  String get adminStatAiCalls7d => 'এআই কল (৭ দিন)';
+
+  @override
+  String get adminStatSuspendedMesses => 'স্থগিত মেস';
+
+  @override
+  String get adminStatDeletionPending => 'মুছে ফেলার অপেক্ষায়';
+
+  @override
+  String get adminAiUsage30d => 'এআই ব্যবহার, শেষ ৩০ দিন';
+
+  @override
+  String get adminAiUsageEmpty => 'এই সময়ে কোনো এআই কল হয়নি';
+
+  @override
+  String get adminDeletionEmpty => 'মুছে ফেলার কোনো অনুরোধ নেই';
+
+  @override
+  String get adminUserId => 'ইউজার আইডি';
+
+  @override
+  String get adminRequestedAt => 'অনুরোধের সময়';
+
+  @override
+  String get adminProcessedAt => 'সম্পন্ন';
+
+  @override
+  String get adminLastError => 'শেষ ত্রুটি';
+
+  @override
+  String get adminSearchMesses => 'মেসের নাম দিয়ে খুঁজুন, তারপর Enter';
+
+  @override
+  String get adminSearchUsers => 'ইমেইল বা নাম দিয়ে খুঁজুন, তারপর Enter';
+
+  @override
+  String get adminNoResults => 'কিছু পাওয়া যায়নি';
+
+  @override
+  String adminPage(String page) {
+    return 'পৃষ্ঠা $page';
+  }
+
+  @override
+  String get adminName => 'নাম';
+
+  @override
+  String get adminMembers => 'সদস্য';
+
+  @override
+  String get adminManagers => 'ম্যানেজার';
+
+  @override
+  String get adminCreated => 'তৈরি';
+
+  @override
+  String get adminLastActivity => 'শেষ কাজ';
+
+  @override
+  String get adminLastSignIn => 'শেষ লগইন';
+
+  @override
+  String get adminMessCount => 'মেস';
+
+  @override
+  String get adminStatus => 'অবস্থা';
+
+  @override
+  String get adminRole => 'ভূমিকা';
+
+  @override
+  String get adminRoleAdmin => 'অ্যাডমিন';
+
+  @override
+  String get adminActive => 'চালু';
+
+  @override
+  String get adminSuspended => 'স্থগিত';
+
+  @override
+  String get adminSuspend => 'স্থগিত করুন';
+
+  @override
+  String get adminUnsuspend => 'আবার চালু করুন';
+
+  @override
+  String adminSuspendMess(String name) {
+    return '\"$name\" মেস স্থগিত করবেন?';
+  }
+
+  @override
+  String adminUnsuspendMess(String name) {
+    return '\"$name\" মেস আবার চালু করবেন?';
+  }
+
+  @override
+  String adminSuspendUser(String email) {
+    return '$email স্থগিত করবেন?';
+  }
+
+  @override
+  String adminUnsuspendUser(String email) {
+    return '$email আবার চালু করবেন?';
+  }
+
+  @override
+  String get adminReason => 'কারণ';
+
+  @override
+  String get adminMakeAdmin => 'অ্যাডমিন বানান';
+
+  @override
+  String get adminRemoveAdmin => 'অ্যাডমিন থেকে সরান';
+
+  @override
+  String get adminSaved => 'সেভ হয়েছে';
+
+  @override
+  String get adminRawJson => 'অ্যাডভান্সড: কাঁচা JSON';
+
+  @override
+  String get adminAdd => 'যোগ করুন';
+
+  @override
+  String get adminMoveUp => 'ওপরে নিন';
+
+  @override
+  String get adminMoveDown => 'নিচে নিন';
+
+  @override
+  String get adminErrRequired => 'এটা দিতে হবে';
+
+  @override
+  String get adminErrNumber => 'একটা সংখ্যা দিন';
+
+  @override
+  String get adminErrRange => 'সীমার বাইরে';
+
+  @override
+  String get adminErrVersion => '১.২.৩ ধরনের ভার্সন দিন';
+
+  @override
+  String get adminErrEmail => 'সঠিক ইমেইল দিন';
+
+  @override
+  String get adminErrUrl => 'http(s):// দিয়ে শুরু হওয়া লিংক দিন';
+
+  @override
+  String get adminErrTime => 'HH:MM ধরনে সময় দিন';
+
+  @override
+  String get adminErrHex => '#RRGGBB ধরনে রং দিন';
+
+  @override
+  String get adminErrMealTypes => 'অন্তত একটা বেলা রাখুন';
+
+  @override
+  String get adminErrChain => 'প্রতিটি চেইনে ১ থেকে ৫টি মডেল রাখুন';
+
+  @override
+  String get adminFeatures => 'ফিচার';
+
+  @override
+  String get adminFeaturesHelp =>
+      'বন্ধ করলে অ্যাপে ওই ফিচারের সব পথ লুকিয়ে যায়। ডেটা থেকে যায়।';
+
+  @override
+  String get adminAppSection => 'অ্যাপ';
+
+  @override
+  String get adminMaintenance => 'রক্ষণাবেক্ষণ মোড';
+
+  @override
+  String get adminMaintenanceHelp =>
+      'চালু থাকলে অ্যাপে পুরো পর্দার নোটিশ দেখায়';
+
+  @override
+  String get adminMessageBn => 'বার্তা (বাংলা)';
+
+  @override
+  String get adminMessageEn => 'বার্তা (ইংরেজি)';
+
+  @override
+  String get adminVersions => 'ভার্সন';
+
+  @override
+  String get adminMinVersion => 'ন্যূনতম ভার্সন';
+
+  @override
+  String get adminMinVersionHelp => 'এর নিচে থাকলে আপডেট করতে বলা হয়';
+
+  @override
+  String get adminLatestVersion => 'সর্বশেষ ভার্সন';
+
+  @override
+  String get adminUpdateMessageBn => 'আপডেট বার্তা (বাংলা)';
+
+  @override
+  String get adminUpdateMessageEn => 'আপডেট বার্তা (ইংরেজি)';
+
+  @override
+  String get adminSupport => 'সহায়তা';
+
+  @override
+  String get adminSupportEmail => 'সহায়তার ইমেইল';
+
+  @override
+  String get adminSupportWhatsapp => 'সহায়তার হোয়াটসঅ্যাপ';
+
+  @override
+  String get adminPrivacyUrl => 'প্রাইভেসি পলিসির লিংক';
+
+  @override
+  String get adminBanner => 'ব্যানার';
+
+  @override
+  String get adminBannerActive => 'হোমে ব্যানার দেখান';
+
+  @override
+  String get adminBannerLevel => 'ধরন';
+
+  @override
+  String get adminDefaults => 'নতুন মেসের ডিফল্ট';
+
+  @override
+  String get adminDefaultsHelp => 'শুধু নতুন মেস তৈরির সময় কাজে লাগে';
+
+  @override
+  String get adminMonthStartDay => 'মাস শুরুর দিন (১–২৮)';
+
+  @override
+  String get adminCutoff => 'মিল বন্ধের শেষ সময়';
+
+  @override
+  String get adminMealTypes => 'বেলা';
+
+  @override
+  String get adminWeight => 'ওজন';
+
+  @override
+  String get adminExpenseCategories => 'খরচের ধরন';
+
+  @override
+  String get adminSplit => 'ভাগ';
+
+  @override
+  String get adminSplitEqual => 'সমান ভাগ';
+
+  @override
+  String get adminSplitMeal => 'মিল অনুযায়ী';
+
+  @override
+  String get adminCatalogue => 'বাজারের তালিকা';
+
+  @override
+  String get adminCatalogueHelp =>
+      'বাজার যোগ করার সময় যে জিনিসগুলো বাছাই করা যায়';
+
+  @override
+  String get adminAddGroup => 'গ্রুপ যোগ করুন';
+
+  @override
+  String get adminAddItem => 'জিনিস যোগ করুন';
+
+  @override
+  String get adminGroupName => 'গ্রুপের নাম';
+
+  @override
+  String get adminUnit => 'একক';
+
+  @override
+  String get adminPaymentMethods => 'পেমেন্টের মাধ্যম';
+
+  @override
+  String get adminPaymentMethodsHelp =>
+      'কী বদলানো যায় না, শুধু নাম আর দেখানো/লুকানো';
+
+  @override
+  String get adminLabelBn => 'নাম (বাংলা)';
+
+  @override
+  String get adminLabelEn => 'নাম (ইংরেজি)';
+
+  @override
+  String get adminAppNameBn => 'অ্যাপের নাম (বাংলা)';
+
+  @override
+  String get adminAppNameEn => 'অ্যাপের নাম (ইংরেজি)';
+
+  @override
+  String get adminTaglineBn => 'ট্যাগলাইন (বাংলা)';
+
+  @override
+  String get adminTaglineEn => 'ট্যাগলাইন (ইংরেজি)';
+
+  @override
+  String get adminBrandingReleaseNote =>
+      'লগইন ও অ্যাকাউন্ট পর্দায় নাম, ট্যাগলাইন, লোগো আর রং বদলায়। লঞ্চার আইকন আর হোম স্ক্রিনের নাম বদলাতে নতুন রিলিজ লাগবে (অ্যান্ড্রয়েডের সীমাবদ্ধতা)।';
+
+  @override
+  String get adminLogo => 'লোগো';
+
+  @override
+  String get adminLogoUpload => 'লোগো আপলোড';
+
+  @override
+  String get adminLogoReplace => 'লোগো বদলান';
+
+  @override
+  String get adminLogoRemove => 'লোগো সরান';
+
+  @override
+  String get adminLogoDefault => 'লোগো না থাকলে অ্যাপ নিজের \"ম\" চিহ্ন দেখায়';
+
+  @override
+  String get adminLogoSaveHint => 'আপলোডের পর সেভ চাপলে অ্যাপে দেখাবে';
+
+  @override
+  String get adminAccent => 'অ্যাকসেন্ট রং';
+
+  @override
+  String get adminAccentLight => 'লাইট থিম';
+
+  @override
+  String get adminAccentDark => 'ডার্ক থিম';
+
+  @override
+  String adminContrast(String ratio) {
+    return 'কনট্রাস্ট $ratio:১';
+  }
+
+  @override
+  String get adminContrastOk => 'কনট্রাস্ট ঠিক আছে (৩:১ বা বেশি)';
+
+  @override
+  String get adminContrastLow =>
+      'কনট্রাস্ট কম (৩:১ এর নিচে): চিহ্ন ঝাপসা দেখাবে';
+
+  @override
+  String get adminSecretsHelp =>
+      'কী শুধু লেখা যায়, পড়া যায় না। সেভ করা মান কখনো দেখানো হয় না, শুধু শেষ ৪ অক্ষর।';
+
+  @override
+  String get adminSecretNotSet => 'সেট করা নেই (এনভ ভ্যারিয়েবল ব্যবহার হবে)';
+
+  @override
+  String get adminSecretSet => 'সেট করুন';
+
+  @override
+  String get adminSecretReplace => 'বদলান';
+
+  @override
+  String get adminSecretValue => 'নতুন মান';
+
+  @override
+  String get adminSecretValueHelp => 'আগের মান মুছে এটা বসবে';
+
+  @override
+  String adminSecretDeleteTitle(String name) {
+    return '$name মুছবেন?';
+  }
+
+  @override
+  String get adminSecretDeleteBody =>
+      'মুছলে গেটওয়ে আবার এনভ ভ্যারিয়েবল ব্যবহার করবে।';
+
+  @override
+  String adminUpdatedAt(String date) {
+    return 'আপডেট $date';
+  }
+
+  @override
+  String get adminAiSettings => 'এআই সেটিংস';
+
+  @override
+  String get adminAiEnabled => 'এআই চালু';
+
+  @override
+  String get adminAllowPaid => 'পেইড মডেল চলতে দিন';
+
+  @override
+  String get adminAllowPaidHelp =>
+      'বন্ধ থাকলে গেটওয়ে দাম আছে এমন OpenRouter মডেল বাদ দেয়';
+
+  @override
+  String get adminQuotaMeal => 'দৈনিক মিল খসড়া কোটা (মেস প্রতি)';
+
+  @override
+  String get adminQuotaBazar => 'দৈনিক বাজার স্ক্যান কোটা (মেস প্রতি)';
+
+  @override
+  String get adminTimeoutMs => 'টাইমআউট (মিলিসেকেন্ড)';
+
+  @override
+  String get adminTemperature => 'টেম্পারেচার';
+
+  @override
+  String get adminTextChain => 'টেক্সট চেইন (মিলের খসড়া)';
+
+  @override
+  String get adminVisionChain => 'ভিশন চেইন (রসিদ স্ক্যান)';
+
+  @override
+  String get adminChains => 'চেইন';
+
+  @override
+  String get adminChainEmpty => 'কোনো মডেল নেই। তালিকা থেকে যোগ করুন।';
+
+  @override
+  String get adminAddManually => 'হাতে মডেল যোগ';
+
+  @override
+  String get adminProvider => 'প্রোভাইডার';
+
+  @override
+  String get adminModelId => 'মডেল আইডি';
+
+  @override
+  String get adminModel => 'মডেল';
+
+  @override
+  String get adminModelCatalogue => 'মডেল তালিকা';
+
+  @override
+  String get adminAll => 'সব';
+
+  @override
+  String get adminSearchModels => 'মডেল খুঁজুন';
+
+  @override
+  String get adminFree => 'ফ্রি';
+
+  @override
+  String get adminPaid => 'পেইড';
+
+  @override
+  String get adminVision => 'ভিশন';
+
+  @override
+  String get adminText => 'টেক্সট';
+
+  @override
+  String get adminMinContext => 'ন্যূনতম কনটেক্সট';
+
+  @override
+  String get adminMaxPrice => 'সর্বোচ্চ দাম \$/১M';
+
+  @override
+  String get adminContext => 'কনটেক্সট';
+
+  @override
+  String get adminInputPrice => 'ইনপুট \$/১M';
+
+  @override
+  String get adminOutputPrice => 'আউটপুট \$/১M';
+
+  @override
+  String get adminAddToText => 'টেক্সট চেইনে যোগ';
+
+  @override
+  String get adminAddToVision => 'ভিশন চেইনে যোগ';
+
+  @override
+  String get adminTest => 'টেস্ট';
+
+  @override
+  String adminTestOk(String ms, String sample) {
+    return 'ঠিক আছে · $ms ms · $sample';
+  }
+
+  @override
+  String get adminGatewayMissing =>
+      'এআই গেটওয়ে সেট করা নেই। env.json-এ AI_GATEWAY_URL দিয়ে প্যানেল আবার বিল্ড করুন, আর গেটওয়ের CORS-এ এই সাইটের ঠিকানা যোগ করুন।';
+
+  @override
+  String get adminPaidWarningTitle => 'পেইড মডেল সেভ করবেন?';
+
+  @override
+  String get adminPaidWarningBody =>
+      '\"পেইড মডেল চলতে দিন\" বন্ধ, তাই গেটওয়ে এই মডেলগুলো বাদ দেবে:';
+
+  @override
+  String get adminSaveAnyway => 'তবুও সেভ করুন';
 }
