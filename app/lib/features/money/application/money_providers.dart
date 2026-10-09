@@ -99,6 +99,14 @@ final monthsProvider = FutureProvider.family<List<MessMonth>, String>(
   (ref, messId) => ref.watch(moneyRepositoryProvider).months(messId),
 );
 
+/// The first day new meals/bazar/expenses/deposits may carry: the day after
+/// the latest closed month (null: nothing closed). Pickers start here and
+/// the meal grid is read-only before it.
+final firstOpenDateProvider = FutureProvider.family<DateTime?, String>(
+  (ref, messId) async =>
+      firstOpenDate(await ref.watch(monthsProvider(messId).future)),
+);
+
 typedef MessDate = ({String messId, DateTime day});
 
 /// The billing period containing a given day, with its SQL totals.

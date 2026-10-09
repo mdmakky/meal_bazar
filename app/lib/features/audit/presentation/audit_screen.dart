@@ -9,8 +9,10 @@ import '../../mess/presentation/common.dart'
     show InitialsAvatar, RaisedGroup, StatusTag;
 import '../application/audit_providers.dart';
 import '../domain/audit.dart';
+import 'my_activity_screen.dart';
 
-/// Who did what, newest first. Visible to every member (RLS: audit_read).
+/// Who did what, newest first. Managers only in the app (RLS still lets every
+/// member read it); a member who deep-links here gets [MyActivityScreen].
 class AuditScreen extends ConsumerStatefulWidget {
   const AuditScreen({super.key});
 
@@ -23,6 +25,7 @@ class _AuditScreenState extends ConsumerState<AuditScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (!ref.watch(amIManagerProvider)) return const MyActivityScreen();
     final l = AppLocalizations.of(context);
     final messId = ref.watch(currentMessIdProvider);
 

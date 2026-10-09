@@ -77,6 +77,26 @@ class MonthRepository {
         memberTransparencyFromJson,
       );
 
+  /// The caller's previous period; null when it had no activity at all.
+  Future<LastMonth?> lastMonth(String messId) async => (await _list(
+    'my_last_month',
+    {'p_mess': messId},
+    LastMonth.fromJson,
+  )).firstOrNull;
+
+  /// Pending deposits and bazar requests dated in `[from, to)`.
+  Future<PendingItems> pendingItems(
+    String messId,
+    DateTime from,
+    DateTime to,
+  ) async =>
+      (await _list('month_pending_items', {
+        'p_mess': messId,
+        'p_from': isoDate(from),
+        'p_to': isoDate(to),
+      }, pendingItemsFromJson)).firstOrNull ??
+      (deposits: 0, bazarRequests: 0);
+
   Future<List<T>> _list<T>(
     String fn,
     Map<String, dynamic> params,

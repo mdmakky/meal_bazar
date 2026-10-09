@@ -398,30 +398,44 @@ class _AmountFieldState extends State<_AmountField> {
   }
 }
 
-class _DateChip extends StatelessWidget {
+/// The entry's date. Closed months cannot be picked ([firstOpenDateProvider]).
+class _DateChip extends ConsumerWidget {
   const _DateChip({required this.value, required this.onChanged});
 
   final DateTime value;
   final ValueChanged<DateTime> onChanged;
 
   @override
-  Widget build(BuildContext context) => Align(
-    alignment: AlignmentDirectional.centerStart,
-    child: ActionChip(
-      avatar: const Icon(Icons.calendar_today_outlined),
-      label: Text(longDate(context, value)),
-      tooltip: AppLocalizations.of(context).moneyChangeDate,
-      onPressed: () async {
-        final d = await showDatePicker(
-          context: context,
-          initialDate: value,
-          firstDate: DateTime(2020),
-          lastDate: today().add(const Duration(days: 31)),
-        );
-        if (d != null) onChanged(dayOnly(d));
-      },
-    ),
-  );
+  Widget build(BuildContext context, WidgetRef ref) {
+    final messId = ref.watch(currentMessIdProvider);
+    final open = messId == null
+        ? null
+        : ref.watch(firstOpenDateProvider(messId)).value;
+    final first = open ?? DateTime(2020);
+    var last = today().add(const Duration(days: 31));
+    if (last.isBefore(first)) last = first;
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: ActionChip(
+        avatar: const Icon(Icons.calendar_today_outlined),
+        label: Text(longDate(context, value)),
+        tooltip: AppLocalizations.of(context).moneyChangeDate,
+        onPressed: () async {
+          final d = await showDatePicker(
+            context: context,
+            initialDate: value.isBefore(first)
+                ? first
+                : value.isAfter(last)
+                ? last
+                : value,
+            firstDate: first,
+            lastDate: last,
+          );
+          if (d != null) onChanged(dayOnly(d));
+        },
+      ),
+    );
+  }
 }
 
 class _MemberChips extends ConsumerWidget {

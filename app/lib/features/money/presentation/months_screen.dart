@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/dates.dart';
 import '../../../core/failure_text.dart';
@@ -9,6 +10,7 @@ import '../../../core/widgets/widgets.dart';
 import '../../mess/application/mess_providers.dart';
 import '../../mess/presentation/common.dart';
 import '../../month/application/month_providers.dart';
+import '../../month/domain/month.dart' show PendingItems;
 import '../../report/presentation/report_actions.dart';
 import '../application/money_providers.dart';
 import '../domain/money.dart';
@@ -160,12 +162,8 @@ class _MonthsScreenState extends ConsumerState<MonthsScreen> {
 
   Future<void> _close(BuildContext context, String messId) async {
     final l = AppLocalizations.of(context);
-    final done = await AppSheet.show<bool>(
-      context,
-      title: l.monthClose,
-      child: CloseMonthForm(messId: messId),
-    );
-    if (done == true && context.mounted) {
+    final done = await showCloseMonthSheet(context, messId);
+    if (done && context.mounted) {
       setState(() => _justClosed = true);
       showSnack(context, l.monthClosedDone);
     }
@@ -192,18 +190,116 @@ String rangeLabel(BuildContext context, DateTime start, DateTime end) =>
       longDate(context, end.subtract(const Duration(days: 1))),
     );
 
-/// Confirmation: pick the month, read its SQL totals, then close it.
+/// The close-month confirmation sheet; true once the month is closed.
+/// [previous] preselects the month just ended (Home's call to action).
+Future<bool> showCloseMonthSheet(
+  BuildContext context,
+  String messId, {
+  bool? previous,
+}) async =>
+    await AppSheet.show<bool>(
+      context,
+      title: AppLocalizations.of(context).monthClose,
+      child: CloseMonthForm(messId: messId, previous: previous),
+    ) ==
+    true;
+
+/// What still blocks closing: pending deposits (→ হিসাব) and bazar requests
+/// (→ বাজার), each a link. Nothing when both are zero.
+class PendingItemsBlock extends StatelessWidget {
+  const PendingItemsBlock({
+    super.key,
+    required this.pending,
+    this.beforeNavigate,
+  });
+
+  final PendingItems pending;
+
+  /// Runs before going to a tab (the sheet pops itself first).
+  final VoidCallback? beforeNavigate;
+
+  @override
+  Widget build(BuildContext context) {
+    if (pending.deposits + pending.bazarRequests == 0) {
+      return const SizedBox.shrink();
+    }
+    final l = AppLocalizations.of(context);
+    final p = context.palette;
+    final text = Theme.of(context).textTheme;
+    final bn = banglaDigits(context);
+    Widget link(String label, IconData icon, String route) => InkWell(
+      borderRadius: BorderRadius.circular(AppRadius.sm),
+      onTap: () {
+        final router = GoRouter.of(context);
+        beforeNavigate?.call();
+        router.go(route);
+      },
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: AppSize.touch),
+        child: Row(
+          spacing: AppSpace.sm,
+          children: [
+            Icon(icon, size: 20, color: p.warning),
+            Expanded(child: Text(label, style: text.bodyMedium)),
+            Icon(Icons.chevron_right, size: 20, color: p.inkTertiary),
+          ],
+        ),
+      ),
+    );
+    return Container(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpace.md,
+        AppSpace.md,
+        AppSpace.sm,
+        AppSpace.xs,
+      ),
+      decoration: BoxDecoration(
+        border: Border.all(color: p.warning),
+        borderRadius: BorderRadius.circular(AppRadius.md),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            l.closeMonthPendingTitle,
+            style: text.labelLarge?.copyWith(color: p.warning),
+          ),
+          if (pending.deposits > 0)
+            link(
+              l.closeMonthPendingDeposits(
+                Fmt.digits('${pending.deposits}', bangla: bn),
+              ),
+              Icons.savings_outlined,
+              '/money',
+            ),
+          if (pending.bazarRequests > 0)
+            link(
+              l.closeMonthPendingBazar(
+                Fmt.digits('${pending.bazarRequests}', bangla: bn),
+              ),
+              Icons.shopping_basket_outlined,
+              '/bazar',
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Confirmation: pick the month, read its SQL totals, say what closing does,
+/// show what still blocks it, then close it.
 class CloseMonthForm extends ConsumerStatefulWidget {
-  const CloseMonthForm({super.key, required this.messId});
+  const CloseMonthForm({super.key, required this.messId, this.previous});
 
   final String messId;
+  final bool? previous;
 
   @override
   ConsumerState<CloseMonthForm> createState() => _CloseMonthFormState();
 }
 
 class _CloseMonthFormState extends ConsumerState<CloseMonthForm> {
-  bool? _previous;
+  late bool? _previous = widget.previous;
   var _saving = false;
   Object? _error;
 
@@ -240,6 +336,35 @@ class _CloseMonthFormState extends ConsumerState<CloseMonthForm> {
         : today();
     final totals = ref.watch(
       periodTotalsProvider((messId: widget.messId, day: day)),
+    );
+    final period = totals.value?.$1;
+    // Unknown (offline) counts as none: close_month still refuses.
+    final pending = period == null
+        ? null
+        : ref
+              .watch(
+                pendingItemsProvider((
+                  messId: widget.messId,
+                  from: period.start,
+                  to: period.end,
+                )),
+              )
+              .value;
+    final blocked =
+        pending != null && pending.deposits + pending.bazarRequests > 0;
+    final p = context.palette;
+    Widget point(IconData icon, String s) => Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: AppSpace.sm,
+      children: [
+        Icon(icon, size: 18, color: p.inkSecondary),
+        Expanded(
+          child: Text(
+            s,
+            style: text.bodyMedium?.copyWith(color: p.inkSecondary),
+          ),
+        ),
+      ],
     );
     Widget line(String name, String value) => Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSpace.xs),
@@ -308,10 +433,16 @@ class _CloseMonthFormState extends ConsumerState<CloseMonthForm> {
             );
           },
         ),
-        Text(
-          l.monthCloseBody,
-          style: text.bodyMedium?.copyWith(color: context.palette.inkSecondary),
-        ),
+        Text(l.closeMonthWhatHappens, style: text.labelLarge),
+        point(Icons.verified_outlined, l.closeMonthFinal),
+        point(Icons.lock_outline, l.closeMonthLocked),
+        point(Icons.redo, l.closeMonthCarry),
+        point(Icons.notifications_none, l.closeMonthNotify),
+        if (pending != null)
+          PendingItemsBlock(
+            pending: pending,
+            beforeNavigate: () => Navigator.pop(context, false),
+          ),
         if (_error != null)
           Text(
             failureText(context, _error!),
@@ -321,7 +452,7 @@ class _CloseMonthFormState extends ConsumerState<CloseMonthForm> {
           key: const Key('confirm-close'),
           label: l.monthClose,
           loading: _saving,
-          onPressed: totals.hasValue ? () => _submit(day) : null,
+          onPressed: totals.hasValue && !blocked ? () => _submit(day) : null,
         ),
       ],
     );

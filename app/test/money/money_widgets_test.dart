@@ -20,6 +20,7 @@ import 'package:meal_bazar/features/money/presentation/months_screen.dart';
 import 'package:meal_bazar/features/month/application/month_providers.dart';
 import 'package:meal_bazar/features/month/domain/month.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
 import '../platform/fixed_config.dart';
 
@@ -935,7 +936,9 @@ void main() {
       await tester.tap(find.widgetWithText(AppButton, l.monthClose));
       await tester.pumpAndSettle();
       verifyNever(() => repo.closeMonth(any(), any()));
-      expect(find.text(l.monthCloseBody), findsOneWidget);
+      expect(find.text(l.closeMonthWhatHappens), findsOneWidget);
+      expect(find.text(l.closeMonthLocked), findsOneWidget);
+      expect(find.text(l.closeMonthNotify), findsOneWidget);
       expect(find.text('৳৬৮.৭৮'), findsOneWidget);
 
       await tester.tap(find.byKey(const Key('confirm-close')));
@@ -943,6 +946,74 @@ void main() {
       verify(() => repo.closeMonth('mess1', any())).called(1);
       expect(find.text(l.monthClosedDone), findsWidgets); // card + snack
       expect(find.byType(StampMark), findsOneWidget);
+    });
+
+    testWidgets('pending deposits and bazar requests block the close', (
+      tester,
+    ) async {
+      await pump(
+        tester,
+        const MonthsScreen(),
+        extra: [
+          pendingItemsProvider.overrideWith(
+            (ref, k) async => (deposits: 2, bazarRequests: 1),
+          ),
+        ],
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(AppButton, l.monthClose));
+      await tester.pumpAndSettle();
+      expect(find.text(l.closeMonthPendingTitle), findsOneWidget);
+      expect(find.text(l.closeMonthPendingDeposits('২')), findsOneWidget);
+      expect(find.text(l.closeMonthPendingBazar('১')), findsOneWidget);
+      final confirm = tester.widget<AppButton>(
+        find.byKey(const Key('confirm-close')),
+      );
+      expect(confirm.onPressed, isNull);
+    });
+
+    test('PENDING_ITEMS maps to its own failure', () {
+      expect(
+        mapError(const PostgrestException(message: 'PENDING_ITEMS')).kind,
+        FailureKind.pendingItems,
+      );
+    });
+
+    test('firstOpenDate is the end of the latest closed month', () {
+      MessMonth m(int month, {bool closed = true}) => MessMonth(
+        id: '$month',
+        start: DateTime(2026, month),
+        end: DateTime(2026, month + 1),
+        closed: closed,
+      );
+      expect(firstOpenDate(const []), isNull);
+      expect(firstOpenDate([m(9, closed: false)]), isNull);
+      expect(
+        firstOpenDate([m(9, closed: false), m(8), m(7)]),
+        DateTime(2026, 9),
+      );
+    });
+
+    test('firstOpenDateProvider reads the months list', () async {
+      final c = ProviderContainer(
+        overrides: [
+          monthsProvider.overrideWith(
+            (ref, id) async => [
+              MessMonth(
+                id: 'aug',
+                start: DateTime(2026, 8),
+                end: DateTime(2026, 9),
+                closed: true,
+              ),
+            ],
+          ),
+        ],
+      );
+      addTearDown(c.dispose);
+      expect(
+        await c.read(firstOpenDateProvider('mess1').future),
+        DateTime(2026, 9),
+      );
     });
 
     testWidgets('reopen requires a reason of at least 5 characters', (

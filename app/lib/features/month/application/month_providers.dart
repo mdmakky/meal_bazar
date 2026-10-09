@@ -83,6 +83,22 @@ final periodSummaryProvider =
       return (p, t, b);
     });
 
+/// The caller's previous period, for the Home "last month" card.
+final lastMonthProvider = FutureProvider.family<LastMonth?, String>(
+  (ref, messId) => ref.watch(monthRepositoryProvider).lastMonth(messId),
+);
+
+/// What blocks closing `[from, to)`: pending deposits and bazar requests.
+final pendingItemsProvider =
+    FutureProvider.family<
+      PendingItems,
+      ({String messId, DateTime from, DateTime to})
+    >(
+      (ref, k) => ref
+          .watch(monthRepositoryProvider)
+          .pendingItems(k.messId, k.from, k.to),
+    );
+
 /// The start of the mess month containing [day], for [periodSummaryProvider]
 /// keys only; SQL `month_period` still decides the real range.
 DateTime periodStartFor(DateTime day, int monthStartDay) =>
@@ -100,4 +116,6 @@ List<ProviderOrFamily> monthProviders(String messId) => [
   messCashProvider(messId),
   transparencyProvider(messId),
   periodSummaryProvider,
+  lastMonthProvider(messId),
+  pendingItemsProvider,
 ];

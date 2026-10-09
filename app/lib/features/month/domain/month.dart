@@ -162,6 +162,59 @@ MemberTransparency memberTransparencyFromJson(Map<String, dynamic> j) => (
   closingBalance: _d(j['closing_balance']),
 );
 
+/// The caller's previous period (`my_last_month`). The money figures are
+/// the caller's closed snapshot, null while the month is open.
+class LastMonth {
+  const LastMonth({
+    required this.start,
+    required this.end,
+    required this.closed,
+    this.meals,
+    this.foodCost,
+    this.extraCost,
+    this.credit,
+    this.openingBalance,
+    this.closingBalance,
+  });
+
+  factory LastMonth.fromJson(Map<String, dynamic> j) {
+    double? n(String k) => j[k] == null ? null : _d(j[k]);
+    return LastMonth(
+      start: DateTime.parse(j['start_date'] as String),
+      end: DateTime.parse(j['end_date'] as String),
+      closed: j['status'] == 'closed',
+      meals: n('meals'),
+      foodCost: n('food_cost'),
+      extraCost: n('extra_cost'),
+      credit: n('credit'),
+      openingBalance: n('opening_balance'),
+      closingBalance: n('closing_balance'),
+    );
+  }
+
+  final DateTime start;
+
+  /// Exclusive: the first day of the current period.
+  final DateTime end;
+  final bool closed;
+  final double? meals;
+  final double? foodCost;
+  final double? extraCost;
+  final double? credit;
+  final double? openingBalance;
+
+  /// Positive = advance, negative = due.
+  final double? closingBalance;
+}
+
+/// Pending items that block closing a period (`month_pending_items`).
+typedef PendingItems = ({int deposits, int bazarRequests});
+
+PendingItems pendingItemsFromJson(Map<String, dynamic> j) => (
+  deposits: j['pending_deposits'] as int,
+  bazarRequests: j['pending_bazar_requests'] as int,
+);
+
 /// Member lists for a period: a member who left shows only while the period
 /// still has something of theirs ([figures] are its SQL numbers).
 bool shownInPeriod({required bool left, required Iterable<double> figures}) =>

@@ -2006,6 +2006,180 @@ abstract class AppLocalizations {
   /// **'শুধু ম্যানেজার মাস বন্ধ বা খুলতে পারেন'**
   String get monthManagerOnly;
 
+  /// No description provided for @lastMonthNewMonth.
+  ///
+  /// In bn, this message translates to:
+  /// **'{month} মাস শুরু হয়েছে'**
+  String lastMonthNewMonth(String month);
+
+  /// No description provided for @lastMonthFinalTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'গত মাসের চূড়ান্ত হিসাব'**
+  String get lastMonthFinalTitle;
+
+  /// No description provided for @lastMonthMeals.
+  ///
+  /// In bn, this message translates to:
+  /// **'আমার মিল'**
+  String get lastMonthMeals;
+
+  /// No description provided for @lastMonthCost.
+  ///
+  /// In bn, this message translates to:
+  /// **'আমার খরচ'**
+  String get lastMonthCost;
+
+  /// No description provided for @lastMonthCostProof.
+  ///
+  /// In bn, this message translates to:
+  /// **'খাবার {food} + অন্যান্য {extra}'**
+  String lastMonthCostProof(String food, String extra);
+
+  /// No description provided for @lastMonthPaid.
+  ///
+  /// In bn, this message translates to:
+  /// **'আমি দিয়েছি'**
+  String get lastMonthPaid;
+
+  /// No description provided for @lastMonthOpening.
+  ///
+  /// In bn, this message translates to:
+  /// **'আগের মাসের জের'**
+  String get lastMonthOpening;
+
+  /// No description provided for @lastMonthFinalBalance.
+  ///
+  /// In bn, this message translates to:
+  /// **'চূড়ান্ত ব্যালেন্স'**
+  String get lastMonthFinalBalance;
+
+  /// No description provided for @lastMonthAdvance.
+  ///
+  /// In bn, this message translates to:
+  /// **'জমা আছে'**
+  String get lastMonthAdvance;
+
+  /// No description provided for @lastMonthDue.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাকি'**
+  String get lastMonthDue;
+
+  /// No description provided for @lastMonthSettled.
+  ///
+  /// In bn, this message translates to:
+  /// **'হিসাব মিটে গেছে'**
+  String get lastMonthSettled;
+
+  /// No description provided for @lastMonthCarried.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই ব্যালেন্স নতুন মাসে যোগ হয়েছে'**
+  String get lastMonthCarried;
+
+  /// No description provided for @lastMonthReport.
+  ///
+  /// In bn, this message translates to:
+  /// **'মাসের PDF'**
+  String get lastMonthReport;
+
+  /// No description provided for @lastMonthPay.
+  ///
+  /// In bn, this message translates to:
+  /// **'জমা দিন'**
+  String get lastMonthPay;
+
+  /// No description provided for @lastMonthHide.
+  ///
+  /// In bn, this message translates to:
+  /// **'লুকান'**
+  String get lastMonthHide;
+
+  /// No description provided for @lastMonthNotFinal.
+  ///
+  /// In bn, this message translates to:
+  /// **'গত মাসের হিসাব এখনো চূড়ান্ত হয়নি — ম্যানেজার মাস বন্ধ করলে চূড়ান্ত ব্যালেন্স দেখা যাবে'**
+  String get lastMonthNotFinal;
+
+  /// No description provided for @closeMonthCtaTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'গত মাস বন্ধ করুন'**
+  String get closeMonthCtaTitle;
+
+  /// No description provided for @closeMonthCtaBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'{month}-এর হিসাব চূড়ান্ত করুন। বন্ধ করলে সবার ব্যালেন্স নতুন মাসে যাবে।'**
+  String closeMonthCtaBody(String month);
+
+  /// No description provided for @closeMonthPendingTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'বন্ধ করার আগে এগুলো মিটিয়ে নিন'**
+  String get closeMonthPendingTitle;
+
+  /// No description provided for @closeMonthPendingDeposits.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count}টি জমা যাচাই বাকি'**
+  String closeMonthPendingDeposits(String count);
+
+  /// No description provided for @closeMonthPendingBazar.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count}টি বাজার অনুরোধ বাকি'**
+  String closeMonthPendingBazar(String count);
+
+  /// No description provided for @closeMonthWhatHappens.
+  ///
+  /// In bn, this message translates to:
+  /// **'বন্ধ করলে যা হবে'**
+  String get closeMonthWhatHappens;
+
+  /// No description provided for @closeMonthFinal.
+  ///
+  /// In bn, this message translates to:
+  /// **'সবার ব্যালেন্স চূড়ান্ত হবে'**
+  String get closeMonthFinal;
+
+  /// No description provided for @closeMonthLocked.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই মাসে আর কিছু যোগ বা বদলানো যাবে না'**
+  String get closeMonthLocked;
+
+  /// No description provided for @closeMonthCarry.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রত্যেকের ব্যালেন্স নতুন মাসে যোগ হবে'**
+  String get closeMonthCarry;
+
+  /// No description provided for @closeMonthNotify.
+  ///
+  /// In bn, this message translates to:
+  /// **'সব সদস্য নোটিফিকেশন পাবেন'**
+  String get closeMonthNotify;
+
+  /// No description provided for @closeMonthPendingItems.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই মাসে যাচাই বাকি জমা বা বাজার অনুরোধ আছে। আগে হিসাব ট্যাবে জমা আর বাজার ট্যাবে অনুরোধগুলো অনুমোদন বা বাতিল করুন, তারপর মাস বন্ধ করুন।'**
+  String get closeMonthPendingItems;
+
+  /// No description provided for @closeMonthDayLocked.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই মাস বন্ধ — শুধু দেখা যাবে'**
+  String get closeMonthDayLocked;
+
+  /// No description provided for @activityMoreTile.
+  ///
+  /// In bn, this message translates to:
+  /// **'আমার কার্যকলাপ'**
+  String get activityMoreTile;
+
   /// No description provided for @monthPreviousOpen.
   ///
   /// In bn, this message translates to:

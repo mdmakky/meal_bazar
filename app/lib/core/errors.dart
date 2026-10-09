@@ -15,6 +15,7 @@ enum FailureKind {
   previousMonthOpen,
   laterMonthClosed,
   cutoffPassed,
+  pendingItems,
   invalidOtp,
   invalidCredentials,
   emailTaken,
@@ -48,6 +49,7 @@ const _sqlKeys = {
   'PREVIOUS_MONTH_OPEN': FailureKind.previousMonthOpen,
   'LATER_MONTH_CLOSED': FailureKind.laterMonthClosed,
   'CUTOFF_PASSED': FailureKind.cutoffPassed,
+  'PENDING_ITEMS': FailureKind.pendingItems,
   // A platform feature is switched off: same "no permission" message.
   'FEATURE_OFF': FailureKind.notManager,
   'MEAL_TYPE_INVALID': FailureKind.validation,

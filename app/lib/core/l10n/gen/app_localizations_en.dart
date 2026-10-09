@@ -1059,6 +1059,106 @@ class AppLocalizationsEn extends AppLocalizations {
   String get monthManagerOnly => 'Only a manager can close or reopen a month';
 
   @override
+  String lastMonthNewMonth(String month) {
+    return '$month has begun';
+  }
+
+  @override
+  String get lastMonthFinalTitle => 'Last month\'s final account';
+
+  @override
+  String get lastMonthMeals => 'My meals';
+
+  @override
+  String get lastMonthCost => 'My cost';
+
+  @override
+  String lastMonthCostProof(String food, String extra) {
+    return 'Food $food + other $extra';
+  }
+
+  @override
+  String get lastMonthPaid => 'I paid';
+
+  @override
+  String get lastMonthOpening => 'Brought forward';
+
+  @override
+  String get lastMonthFinalBalance => 'Final balance';
+
+  @override
+  String get lastMonthAdvance => 'In credit';
+
+  @override
+  String get lastMonthDue => 'Due';
+
+  @override
+  String get lastMonthSettled => 'All settled';
+
+  @override
+  String get lastMonthCarried =>
+      'This balance has been carried into the new month';
+
+  @override
+  String get lastMonthReport => 'Month PDF';
+
+  @override
+  String get lastMonthPay => 'Pay now';
+
+  @override
+  String get lastMonthHide => 'Hide';
+
+  @override
+  String get lastMonthNotFinal =>
+      'Last month isn\'t final yet. Your final balance shows once the manager closes the month';
+
+  @override
+  String get closeMonthCtaTitle => 'Close last month';
+
+  @override
+  String closeMonthCtaBody(String month) {
+    return 'Finalise $month. Closing carries everyone\'s balance into the new month.';
+  }
+
+  @override
+  String get closeMonthPendingTitle => 'Resolve these before closing';
+
+  @override
+  String closeMonthPendingDeposits(String count) {
+    return '$count deposits to verify';
+  }
+
+  @override
+  String closeMonthPendingBazar(String count) {
+    return '$count bazar requests to review';
+  }
+
+  @override
+  String get closeMonthWhatHappens => 'When you close';
+
+  @override
+  String get closeMonthFinal => 'Everyone\'s balance becomes final';
+
+  @override
+  String get closeMonthLocked => 'Nothing in this month can be added or edited';
+
+  @override
+  String get closeMonthCarry => 'Each balance carries into the new month';
+
+  @override
+  String get closeMonthNotify => 'All members get a notification';
+
+  @override
+  String get closeMonthPendingItems =>
+      'This month still has pending deposits or bazar requests. Approve or reject them first (deposits under Money, requests under Bazar), then close the month.';
+
+  @override
+  String get closeMonthDayLocked => 'This month is closed: view only';
+
+  @override
+  String get activityMoreTile => 'My activity';
+
+  @override
   String get monthPreviousOpen => 'Close the earlier month first';
 
   @override

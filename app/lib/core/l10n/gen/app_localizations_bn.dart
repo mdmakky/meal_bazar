@@ -1053,6 +1053,105 @@ class AppLocalizationsBn extends AppLocalizations {
   String get monthManagerOnly => 'শুধু ম্যানেজার মাস বন্ধ বা খুলতে পারেন';
 
   @override
+  String lastMonthNewMonth(String month) {
+    return '$month মাস শুরু হয়েছে';
+  }
+
+  @override
+  String get lastMonthFinalTitle => 'গত মাসের চূড়ান্ত হিসাব';
+
+  @override
+  String get lastMonthMeals => 'আমার মিল';
+
+  @override
+  String get lastMonthCost => 'আমার খরচ';
+
+  @override
+  String lastMonthCostProof(String food, String extra) {
+    return 'খাবার $food + অন্যান্য $extra';
+  }
+
+  @override
+  String get lastMonthPaid => 'আমি দিয়েছি';
+
+  @override
+  String get lastMonthOpening => 'আগের মাসের জের';
+
+  @override
+  String get lastMonthFinalBalance => 'চূড়ান্ত ব্যালেন্স';
+
+  @override
+  String get lastMonthAdvance => 'জমা আছে';
+
+  @override
+  String get lastMonthDue => 'বাকি';
+
+  @override
+  String get lastMonthSettled => 'হিসাব মিটে গেছে';
+
+  @override
+  String get lastMonthCarried => 'এই ব্যালেন্স নতুন মাসে যোগ হয়েছে';
+
+  @override
+  String get lastMonthReport => 'মাসের PDF';
+
+  @override
+  String get lastMonthPay => 'জমা দিন';
+
+  @override
+  String get lastMonthHide => 'লুকান';
+
+  @override
+  String get lastMonthNotFinal =>
+      'গত মাসের হিসাব এখনো চূড়ান্ত হয়নি — ম্যানেজার মাস বন্ধ করলে চূড়ান্ত ব্যালেন্স দেখা যাবে';
+
+  @override
+  String get closeMonthCtaTitle => 'গত মাস বন্ধ করুন';
+
+  @override
+  String closeMonthCtaBody(String month) {
+    return '$month-এর হিসাব চূড়ান্ত করুন। বন্ধ করলে সবার ব্যালেন্স নতুন মাসে যাবে।';
+  }
+
+  @override
+  String get closeMonthPendingTitle => 'বন্ধ করার আগে এগুলো মিটিয়ে নিন';
+
+  @override
+  String closeMonthPendingDeposits(String count) {
+    return '$countটি জমা যাচাই বাকি';
+  }
+
+  @override
+  String closeMonthPendingBazar(String count) {
+    return '$countটি বাজার অনুরোধ বাকি';
+  }
+
+  @override
+  String get closeMonthWhatHappens => 'বন্ধ করলে যা হবে';
+
+  @override
+  String get closeMonthFinal => 'সবার ব্যালেন্স চূড়ান্ত হবে';
+
+  @override
+  String get closeMonthLocked => 'এই মাসে আর কিছু যোগ বা বদলানো যাবে না';
+
+  @override
+  String get closeMonthCarry => 'প্রত্যেকের ব্যালেন্স নতুন মাসে যোগ হবে';
+
+  @override
+  String get closeMonthNotify => 'সব সদস্য নোটিফিকেশন পাবেন';
+
+  @override
+  String get closeMonthPendingItems =>
+      'এই মাসে যাচাই বাকি জমা বা বাজার অনুরোধ আছে। আগে হিসাব ট্যাবে জমা আর বাজার ট্যাবে অনুরোধগুলো অনুমোদন বা বাতিল করুন, তারপর মাস বন্ধ করুন।';
+
+  @override
+  String get closeMonthDayLocked => 'এই মাস বন্ধ — শুধু দেখা যাবে';
+
+  @override
+  String get activityMoreTile => 'আমার কার্যকলাপ';
+
+  @override
   String get monthPreviousOpen => 'আগের মাসটা আগে বন্ধ করুন';
 
   @override

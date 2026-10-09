@@ -573,6 +573,73 @@
   "monthNoneClosed": "এখনো কোনো মাস বন্ধ হয়নি",
   "monthHistory": "আগের মাসগুলো",
   "monthManagerOnly": "শুধু ম্যানেজার মাস বন্ধ বা খুলতে পারেন",
+  "lastMonthNewMonth": "{month} মাস শুরু হয়েছে",
+  "@lastMonthNewMonth": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "lastMonthFinalTitle": "গত মাসের চূড়ান্ত হিসাব",
+  "lastMonthMeals": "আমার মিল",
+  "lastMonthCost": "আমার খরচ",
+  "lastMonthCostProof": "খাবার {food} + অন্যান্য {extra}",
+  "@lastMonthCostProof": {
+    "placeholders": {
+      "food": {
+        "type": "String"
+      },
+      "extra": {
+        "type": "String"
+      }
+    }
+  },
+  "lastMonthPaid": "আমি দিয়েছি",
+  "lastMonthOpening": "আগের মাসের জের",
+  "lastMonthFinalBalance": "চূড়ান্ত ব্যালেন্স",
+  "lastMonthAdvance": "জমা আছে",
+  "lastMonthDue": "বাকি",
+  "lastMonthSettled": "হিসাব মিটে গেছে",
+  "lastMonthCarried": "এই ব্যালেন্স নতুন মাসে যোগ হয়েছে",
+  "lastMonthReport": "মাসের PDF",
+  "lastMonthPay": "জমা দিন",
+  "lastMonthHide": "লুকান",
+  "lastMonthNotFinal": "গত মাসের হিসাব এখনো চূড়ান্ত হয়নি — ম্যানেজার মাস বন্ধ করলে চূড়ান্ত ব্যালেন্স দেখা যাবে",
+  "closeMonthCtaTitle": "গত মাস বন্ধ করুন",
+  "closeMonthCtaBody": "{month}-এর হিসাব চূড়ান্ত করুন। বন্ধ করলে সবার ব্যালেন্স নতুন মাসে যাবে।",
+  "@closeMonthCtaBody": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "closeMonthPendingTitle": "বন্ধ করার আগে এগুলো মিটিয়ে নিন",
+  "closeMonthPendingDeposits": "{count}টি জমা যাচাই বাকি",
+  "@closeMonthPendingDeposits": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "closeMonthPendingBazar": "{count}টি বাজার অনুরোধ বাকি",
+  "@closeMonthPendingBazar": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "closeMonthWhatHappens": "বন্ধ করলে যা হবে",
+  "closeMonthFinal": "সবার ব্যালেন্স চূড়ান্ত হবে",
+  "closeMonthLocked": "এই মাসে আর কিছু যোগ বা বদলানো যাবে না",
+  "closeMonthCarry": "প্রত্যেকের ব্যালেন্স নতুন মাসে যোগ হবে",
+  "closeMonthNotify": "সব সদস্য নোটিফিকেশন পাবেন",
+  "closeMonthPendingItems": "এই মাসে যাচাই বাকি জমা বা বাজার অনুরোধ আছে। আগে হিসাব ট্যাবে জমা আর বাজার ট্যাবে অনুরোধগুলো অনুমোদন বা বাতিল করুন, তারপর মাস বন্ধ করুন।",
+  "closeMonthDayLocked": "এই মাস বন্ধ — শুধু দেখা যাবে",
+  "activityMoreTile": "আমার কার্যকলাপ",
   "monthPreviousOpen": "আগের মাসটা আগে বন্ধ করুন",
   "monthLaterClosed": "পরের মাসটা আগে খুলুন",
   "aiDraftLabel": "AI খসড়া",

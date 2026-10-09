@@ -15,6 +15,8 @@ import '../../ai/presentation/ai_entry.dart';
 import '../../export/presentation/export_actions.dart';
 import '../../mess/domain/member.dart';
 import '../../mess/presentation/common.dart' show SectionTitle;
+import '../../money/application/money_providers.dart'
+    show firstOpenDateProvider;
 import '../../money/presentation/money_sheets.dart';
 import '../../recurring/application/recurring_providers.dart';
 import '../../recurring/domain/recurring.dart';
@@ -78,10 +80,14 @@ class _MealsScreenState extends ConsumerState<MealsScreen> {
     if (messId == null) return const Scaffold(body: LoadingView());
 
     final key = (messId: messId, day: _day);
+    // A day inside a closed month is view-only: no steppers, no "+".
+    final firstOpen = ref.watch(firstOpenDateProvider(messId)).value;
+    final closed = firstOpen != null && _day.isBefore(firstOpen);
     final manager = ref.watch(amIManagerProvider);
+    final edit = manager && !closed;
     final mess = ref.watch(currentMessProvider);
     final myId = plainMemberId(ref);
-    final ownOff = ownOffId(ref);
+    final ownOff = closed ? null : ownOffId(ref);
     final membersAsync = ref.watch(membersProvider(messId));
     final typesAsync = ref.watch(mealTypesProvider(messId));
     final gridAsync = ref.watch(dayGridProvider(key));
@@ -141,7 +147,8 @@ class _MealsScreenState extends ConsumerState<MealsScreen> {
             onAction: () => context.push('/more/meal-types'),
           )
         else ...[
-          if (manager)
+          if (closed) const _ClosedDayNote(),
+          if (edit)
             _BulkActions(
               dayKey: key,
               members: [
@@ -161,12 +168,12 @@ class _MealsScreenState extends ConsumerState<MealsScreen> {
                 dayKey: key,
                 rows: rows,
                 types: types,
-                editable: manager,
+                editable: edit,
                 ownOffId: ownOff,
               ),
             ),
           ),
-          if (manager)
+          if (edit)
             Padding(
               padding: const EdgeInsets.fromLTRB(
                 AppSpace.gutter,
@@ -182,14 +189,17 @@ class _MealsScreenState extends ConsumerState<MealsScreen> {
               ),
             ),
           _DayTotal(dayKey: key, types: types),
-          if (myId != null && mess != null && ref.featureOn('member_meal_off'))
+          if (!closed &&
+              myId != null &&
+              mess != null &&
+              ref.featureOn('member_meal_off'))
             MealOffHint(mess: mess),
         ],
       ];
     }
 
     return Scaffold(
-      floatingActionButton: manager && rows.isNotEmpty && types.isNotEmpty
+      floatingActionButton: edit && rows.isNotEmpty && types.isNotEmpty
           ? PressableScale(
               haptic: true,
               child: FloatingActionButton(
@@ -246,6 +256,38 @@ class _MealsScreenState extends ConsumerState<MealsScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Above a closed month's grid: a lock and "view only".
+class _ClosedDayNote extends StatelessWidget {
+  const _ClosedDayNote();
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpace.gutter,
+        AppSpace.xs,
+        AppSpace.gutter,
+        AppSpace.sm,
+      ),
+      child: Row(
+        spacing: AppSpace.xs,
+        children: [
+          Icon(Icons.lock_outline, size: 16, color: p.inkTertiary),
+          Expanded(
+            child: Text(
+              AppLocalizations.of(context).closeMonthDayLocked,
+              style: Theme.of(
+                context,
+              ).textTheme.labelMedium?.copyWith(color: p.inkTertiary),
+            ),
+          ),
+        ],
       ),
     );
   }

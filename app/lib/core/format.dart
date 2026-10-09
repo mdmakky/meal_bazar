@@ -74,6 +74,10 @@ abstract final class Fmt {
     return digits(s, bangla: banglaDigits);
   }
 
+  /// Month name: `অক্টোবর` (bn) or `October` (en).
+  static String monthName(DateTime d, {required String locale}) =>
+      (locale.startsWith('bn') ? _bnMonths : _enMonths)[d.month - 1];
+
   /// Long date: `৮ অক্টোবর ২০২৬` (bn) or `8 October 2026` (en).
   static String dateLong(
     DateTime d, {

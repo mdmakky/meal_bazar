@@ -21,6 +21,7 @@ import 'package:meal_bazar/features/meals/data/meal_repository.dart';
 import 'package:meal_bazar/features/meals/domain/meal.dart';
 import 'package:meal_bazar/features/meals/presentation/meal_grid.dart';
 import 'package:meal_bazar/features/meals/presentation/meals_screen.dart';
+import 'package:meal_bazar/features/money/application/money_providers.dart';
 import 'package:meal_bazar/features/mess/application/mess_providers.dart';
 import 'package:meal_bazar/features/mess/domain/member.dart';
 import 'package:meal_bazar/features/mess/domain/mess.dart';
@@ -429,6 +430,29 @@ void main() {
     expect(cell('${l.mealCellIncrease} Karim দুপুর'), findsNothing);
     expect(find.text(l.mealGridAllOne), findsNothing);
     expect(find.byTooltip(l.cookShare), findsNothing);
+    expect(find.byType(FloatingActionButton), findsNothing);
+    await tester.tap(cell('Karim দুপুর: ১'));
+    await tester.pumpAndSettle();
+    verifyNever(() => repo.save(any(), any(), source: any(named: 'source')));
+  });
+
+  testWidgets('a closed month is read-only with a lock, no MONTH_CLOSED tap', (
+    tester,
+  ) async {
+    stubDay([entry('karim', 'lunch', 1)]);
+    await pump(
+      tester,
+      local: [
+        mealRepositoryProvider.overrideWithValue(repo),
+        firstOpenDateProvider.overrideWith(
+          (ref, id) async => day.add(const Duration(days: 2)),
+        ),
+      ],
+    );
+
+    expect(find.text(l.closeMonthDayLocked), findsOneWidget);
+    expect(cell('${l.mealCellIncrease} Karim দুপুর'), findsNothing);
+    expect(find.text(l.mealGridAllOne), findsNothing);
     expect(find.byType(FloatingActionButton), findsNothing);
     await tester.tap(cell('Karim দুপুর: ১'));
     await tester.pumpAndSettle();

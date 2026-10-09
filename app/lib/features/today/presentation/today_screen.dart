@@ -28,6 +28,7 @@ import '../../month/application/month_providers.dart';
 import '../../notices/presentation/latest_notice_banner.dart';
 import '../application/day_grid.dart';
 import 'dashboard.dart';
+import 'last_month_card.dart';
 import 'setup_checklist.dart';
 
 /// হোম, by role. Manager: the setup checklist, the day's statement card
@@ -122,6 +123,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
           if (manager && ref.featureOn('setup_checklist'))
             SliverToBoxAdapter(child: SetupChecklist(messId: messId)),
           const SliverToBoxAdapter(child: LatestNoticeBanner()),
+          SliverToBoxAdapter(child: LastMonthCard(messId: messId)),
           SliverToBoxAdapter(
             child: manager
                 ? _TodayHero(

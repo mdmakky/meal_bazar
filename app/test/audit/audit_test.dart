@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:meal_bazar/core/l10n/gen/app_localizations.dart';
 import 'package:meal_bazar/core/theme/app_theme.dart';
+import 'package:meal_bazar/features/audit/application/audit_providers.dart';
 import 'package:meal_bazar/features/audit/data/audit_repository.dart';
 import 'package:meal_bazar/features/audit/domain/audit.dart';
 import 'package:meal_bazar/features/audit/presentation/audit_screen.dart';
@@ -390,6 +391,7 @@ void main() {
           auditRepositoryProvider.overrideWithValue(repo),
           currentMessIdProvider.overrideWith(FixedMess.new),
           membersProvider('mess1').overrideWith((ref) async => []),
+          amIManagerProvider.overrideWithValue(true),
         ],
         child: MaterialApp(
           theme: AppTheme.light(),
@@ -417,5 +419,32 @@ void main() {
         limit: 50,
       ),
     ).called(1);
+  });
+
+  testWidgets('a member deep-linking to the audit log gets their activity', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          currentMessIdProvider.overrideWith(FixedMess.new),
+          membersProvider('mess1').overrideWith((ref) async => []),
+          amIManagerProvider.overrideWithValue(false),
+          myActivityProvider('mess1').overrideWith((ref) async => []),
+        ],
+        child: MaterialApp(
+          theme: AppTheme.light(),
+          locale: const Locale('bn'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const AuditScreen(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final l = lookupAppLocalizations(const Locale('bn'));
+    expect(find.text(l.activityTitle), findsOneWidget);
+    expect(find.text(l.auditTitle), findsNothing);
+    expect(find.text(l.activityEmpty), findsOneWidget);
   });
 }

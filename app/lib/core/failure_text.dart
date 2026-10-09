@@ -17,6 +17,7 @@ String failureText(BuildContext context, Object error) {
     FailureKind.previousMonthOpen => l.monthPreviousOpen,
     FailureKind.laterMonthClosed => l.monthLaterClosed,
     FailureKind.cutoffPassed => l.mealOffCutoffPassed,
+    FailureKind.pendingItems => l.closeMonthPendingItems,
     FailureKind.invalidOtp => l.failureInvalidOtp,
     FailureKind.invalidCredentials => l.failureInvalidCredentials,
     FailureKind.emailTaken => l.failureEmailTaken,

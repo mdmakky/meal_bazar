@@ -296,6 +296,15 @@ class MessMonth {
   final bool closed;
 }
 
+/// The end (exclusive, so the first open day) of the latest closed month.
+DateTime? firstOpenDate(Iterable<MessMonth> months) {
+  DateTime? first;
+  for (final m in months) {
+    if (m.closed && (first == null || m.end.isAfter(first))) first = m.end;
+  }
+  return first;
+}
+
 final _amount = RegExp(r'^\d+(\.\d{1,2})?$');
 
 /// A typed amount: Bangla or Latin digits, ≥ 0, at most 2 decimals, below

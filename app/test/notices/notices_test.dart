@@ -259,4 +259,25 @@ void main() {
     expect(find.text('Notice older'), findsNothing);
     expect(find.text('Notice read'), findsNothing);
   });
+
+  for (final manager in [true, false]) {
+    testWidgets(
+      'More: ${manager ? 'manager sees the audit log' : 'member sees my activity'}',
+      (tester) async {
+        tester.view.physicalSize = const Size(1080, 7200);
+        tester.view.devicePixelRatio = 3;
+        addTearDown(tester.view.reset);
+        await pump(tester, '/more', manager: manager);
+        await tester.pumpAndSettle();
+        expect(
+          find.text(l.auditTitle),
+          manager ? findsOneWidget : findsNothing,
+        );
+        expect(
+          find.text(l.activityMoreTile),
+          manager ? findsNothing : findsOneWidget,
+        );
+      },
+    );
+  }
 }

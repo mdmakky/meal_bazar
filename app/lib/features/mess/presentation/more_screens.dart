@@ -112,8 +112,15 @@ class MoreScreen extends ConsumerWidget {
           l.dutyTitle,
           () => context.push('/more/duty'),
         ),
-      if (on('audit_log'))
+      // The whole mess log is the manager's; members see what concerns them.
+      if (isManager && on('audit_log'))
         tile(Icons.history, l.auditTitle, () => context.push('/more/audit')),
+      if (!isManager && messId != null)
+        tile(
+          Icons.history,
+          l.activityMoreTile,
+          () => context.push('/more/activity'),
+        ),
       if (on('export'))
         tile(
           Icons.file_download_outlined,
