@@ -80,7 +80,7 @@ class _Title extends StatelessWidget {
       ),
       child: Semantics(
         header: true,
-        child: Text(text, style: large ? t.headlineSmall : t.titleMedium),
+        child: Text(text, style: large ? t.headlineSmall : t.titleLarge),
       ),
     );
   }
@@ -112,67 +112,110 @@ class _Quiet extends StatelessWidget {
   );
 }
 
-/// Figures two per row, divided by hairlines (not cards).
+/// Stat cards two per row; a row's cards share their height.
 class _StatGrid extends StatelessWidget {
-  const _StatGrid(this.figures);
+  const _StatGrid(this.stats);
 
-  final List<Widget> figures;
+  final List<Widget> stats;
 
   @override
-  Widget build(BuildContext context) {
-    final line = BorderSide(color: context.palette.border);
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
-      decoration: BoxDecoration(
-        border: Border(top: line, bottom: line),
-      ),
-      child: Column(
-        children: [
-          for (var i = 0; i < figures.length; i += 2)
-            DecoratedBox(
-              decoration: BoxDecoration(
-                border: i == 0 ? null : Border(top: line),
-              ),
-              child: IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(child: _cell(figures[i], right: true)),
-                    VerticalDivider(width: 1, color: line.color),
-                    Expanded(
-                      child: i + 1 < figures.length
-                          ? _cell(figures[i + 1])
-                          : const SizedBox.shrink(),
-                    ),
-                  ],
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
+    child: Column(
+      spacing: AppSpace.sm,
+      children: [
+        for (var i = 0; i < stats.length; i += 2)
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: AppSpace.sm,
+              children: [
+                Expanded(child: stats[i]),
+                Expanded(
+                  child: i + 1 < stats.length
+                      ? stats[i + 1]
+                      : const SizedBox.shrink(),
                 ),
-              ),
+              ],
             ),
-        ],
-      ),
-    );
-  }
-
-  Widget _cell(Widget f, {bool right = false}) => Padding(
-    padding: EdgeInsets.fromLTRB(
-      right ? 0 : AppSpace.md,
-      AppSpace.sm,
-      right ? AppSpace.md : 0,
-      AppSpace.sm,
+          ),
+      ],
     ),
-    child: f,
   );
 }
 
-Figure _stat(String label, String value, String? proof, {Color? color}) =>
-    Figure(
-      label: label,
-      value: value,
-      proof: proof,
-      valueColor: color,
-      compact: true,
-      initiallyExpanded: true,
+/// A raised stat card: overline label, the (rolling) value, its proof.
+class StatTile extends StatelessWidget {
+  const StatTile({
+    super.key,
+    required this.label,
+    required this.value,
+    this.proof,
+  });
+
+  final String label;
+  final Widget value;
+  final String? proof;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final proof = this.proof;
+    return AppCard.raised(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpace.lg,
+        AppSpace.md,
+        AppSpace.md,
+        AppSpace.md,
+      ),
+      child: MergeSemantics(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: AppSpace.xs,
+          children: [
+            Text(label, style: AppType.overline(context)),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerStart,
+              child: value,
+            ),
+            if (proof != null)
+              Text(
+                proof,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: p.inkTertiary,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+          ],
+        ),
+      ),
     );
+  }
+}
+
+/// A stat's value: rolling money or count, '…' while a part still loads.
+Widget _value(
+  BuildContext context,
+  num? v, {
+  bool isMoney = true,
+  Color? color,
+  bool signed = false,
+  TextStyle? style,
+}) {
+  final s = style ?? Theme.of(context).textTheme.headlineSmall;
+  final bn = bnDigits(context);
+  if (v == null) return Text('…', style: s);
+  return isMoney
+      ? RollingNumber.money(
+          v,
+          banglaDigits: bn,
+          signed: signed,
+          color: color,
+          style: s,
+        )
+      : RollingNumber(v, banglaDigits: bn, color: color, style: s);
+}
 
 String _count(int n, bool bn) => Fmt.digits('$n', bangla: bn);
 
@@ -219,38 +262,42 @@ class _ManagerStats extends ConsumerWidget {
         double sum(List<MemberBalance> xs) =>
             xs.fold(0.0, (s, b) => s + b.closingBalance);
         return _StatGrid([
-          _stat(
-            l.dashMembers,
-            _count(active, bn),
-            pending > 0
+          StatTile(
+            label: l.dashMembers,
+            value: _value(context, active, isMoney: false),
+            proof: pending > 0
                 ? l.dashMembersPending(_count(pending, bn))
                 : l.dashMembersProof,
           ),
-          _stat(
-            l.dashRate,
-            m(t.mealRate),
-            t.fixedRate
+          StatTile(
+            label: l.dashRate,
+            value: _value(context, t.mealRate),
+            proof: t.fixedRate
                 ? [l.rateFixed, ?rateGapText(l, t, m)].join(' · ')
                 : l.moneyMealRateProof(
                     m(t.foodTotal),
                     decimal(t.totalMeals, bangla: bn),
                   ),
           ),
-          _stat(
-            l.dashBazar,
-            bazar == null ? '…' : m(bazar),
-            l.dashBazarProof(m(t.foodTotal)),
+          StatTile(
+            label: l.dashBazar,
+            value: _value(context, bazar),
+            proof: l.dashBazarProof(m(t.foodTotal)),
           ),
-          _stat(
-            l.dashExtra,
-            m(t.extraTotal),
-            l.dashExtraProof(m(t.foodTotal + t.extraTotal)),
+          StatTile(
+            label: l.dashExtra,
+            value: _value(context, t.extraTotal),
+            proof: l.dashExtraProof(m(t.foodTotal + t.extraTotal)),
           ),
-          _stat(l.dashDeposits, m(t.creditTotal), l.moneyDepositProof),
-          _stat(
-            l.dashMeals,
-            Fmt.meals(t.totalMeals, banglaDigits: bn),
-            period == null
+          StatTile(
+            label: l.dashDeposits,
+            value: _value(context, t.creditTotal),
+            proof: l.moneyDepositProof,
+          ),
+          StatTile(
+            label: l.dashMeals,
+            value: _value(context, t.totalMeals, isMoney: false),
+            proof: period == null
                 ? null
                 : l.dashPeriod(
                     shortDate(context, period.start),
@@ -260,19 +307,27 @@ class _ManagerStats extends ConsumerWidget {
                     ),
                   ),
           ),
-          _stat(
-            l.dashDues,
-            list == null ? '…' : m(-sum(dues)),
-            list == null ? null : l.dashDuesProof(_count(dues.length, bn)),
-            color: dues.isEmpty ? null : p.due,
+          StatTile(
+            label: l.dashDues,
+            value: _value(
+              context,
+              list == null ? null : -sum(dues),
+              color: dues.isEmpty ? null : p.due,
+            ),
+            proof: list == null
+                ? null
+                : l.dashDuesProof(_count(dues.length, bn)),
           ),
-          _stat(
-            l.dashAdvances,
-            list == null ? '…' : m(sum(advances)),
-            list == null
+          StatTile(
+            label: l.dashAdvances,
+            value: _value(
+              context,
+              list == null ? null : sum(advances),
+              color: advances.isEmpty ? null : p.advance,
+            ),
+            proof: list == null
                 ? null
                 : l.dashAdvancesProof(_count(advances.length, bn)),
-            color: advances.isEmpty ? null : p.advance,
           ),
         ]);
       },
@@ -299,43 +354,97 @@ class _DuesList extends ConsumerWidget {
         if (list.isEmpty) return _Quiet(l.balanceEmpty);
         final sorted = [...list]
           ..sort((a, b) => a.closingBalance.compareTo(b.closingBalance));
-        return Column(
-          children: [
-            const Divider(),
-            for (final b in sorted) ...[
-              ListTile(
-                key: ValueKey('due-${b.memberId}'),
-                minTileHeight: AppSize.touch + AppSpace.sm,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: AppSpace.gutter,
-                ),
-                title: Text(b.displayName, style: text.titleSmall),
-                subtitle: Text(
-                  l.balanceMeals(Fmt.meals(b.meals, banglaDigits: bn)),
-                ),
-                trailing: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Money(
-                      b.closingBalance,
-                      signed: true,
-                      banglaDigits: bn,
-                      style: text.titleSmall,
-                    ),
-                    Text(
-                      balanceWord(l, b.closingBalance),
-                      style: text.labelSmall,
-                    ),
-                  ],
-                ),
-                onTap: () => showBillSheet(context, messId, b),
+        return _ListCard([
+          for (final b in sorted)
+            ListTile(
+              key: ValueKey('due-${b.memberId}'),
+              minTileHeight: AppSize.touch + AppSpace.sm,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: AppSpace.lg,
               ),
-              const Divider(),
-            ],
-          ],
-        );
+              leading: Initial(b.displayName),
+              title: Text(b.displayName, style: text.titleSmall),
+              subtitle: Text(
+                l.balanceMeals(Fmt.meals(b.meals, banglaDigits: bn)),
+              ),
+              trailing: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Money(
+                    b.closingBalance,
+                    signed: true,
+                    banglaDigits: bn,
+                    style: text.titleSmall,
+                  ),
+                  Text(
+                    balanceWord(l, b.closingBalance),
+                    style: text.labelSmall,
+                  ),
+                ],
+              ),
+              onTap: () => showBillSheet(context, messId, b),
+            ),
+        ]);
       },
+    );
+  }
+}
+
+/// Rows in one raised card, hairlines between, staggered in on first build.
+class _ListCard extends StatelessWidget {
+  const _ListCard(this.rows);
+
+  final List<Widget> rows;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
+    child: AppCard.raised(
+      padding: EdgeInsets.zero,
+      child: StaggeredList(
+        child: Column(
+          children: StaggeredList.wrap([
+            for (final (i, r) in rows.indexed)
+              i == 0
+                  ? r
+                  : DecoratedBox(
+                      position: DecorationPosition.foreground,
+                      decoration: BoxDecoration(
+                        border: Border(
+                          top: BorderSide(color: context.palette.border),
+                        ),
+                      ),
+                      child: r,
+                    ),
+          ]),
+        ),
+      ),
+    ),
+  );
+}
+
+/// A member's first letter (Bangla grapheme intact) on an ink circle.
+class Initial extends StatelessWidget {
+  const Initial(this.name, {super.key});
+
+  final String name;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final first = name.trim().characters.firstOrNull ?? '?';
+    return ExcludeSemantics(
+      child: CircleAvatar(
+        radius: 20,
+        backgroundColor: p.ink,
+        child: Text(
+          first.toUpperCase(),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(color: p.onInk, height: 1),
+        ),
+      ),
     );
   }
 }
@@ -350,7 +459,6 @@ class _MyAccount extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
-    final p = context.palette;
     final bn = bnDigits(context);
     final myId = ref.watch(currentMembershipProvider)?.member.id;
     final rate = ref.watch(monthTotalsProvider(messId)).value?.mealRate;
@@ -375,34 +483,40 @@ class _MyAccount extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppSpace.gutter,
                   ),
-                  child: Figure(
+                  child: StatTile(
                     label: l.balanceClosing,
-                    value: m(c),
+                    value: _value(
+                      context,
+                      c,
+                      signed: true,
+                      style: Theme.of(context).textTheme.displaySmall,
+                    ),
                     proof: balanceWord(l, c),
-                    valueColor: c < 0
-                        ? p.due
-                        : c > 0
-                        ? p.advance
-                        : null,
-                    initiallyExpanded: true,
                   ),
                 ),
                 _StatGrid([
-                  _stat(
-                    l.dashMyMeals,
-                    Fmt.meals(b.meals, banglaDigits: bn),
-                    null,
+                  StatTile(
+                    label: l.dashMyMeals,
+                    value: _value(context, b.meals, isMoney: false),
                   ),
-                  _stat(
-                    l.dashMyFood,
-                    m(b.foodCost),
-                    l.dashMyFoodProof(
+                  StatTile(
+                    label: l.dashMyFood,
+                    value: _value(context, b.foodCost),
+                    proof: l.dashMyFoodProof(
                       Fmt.meals(b.meals, banglaDigits: bn),
                       rate == null ? '…' : m(rate),
                     ),
                   ),
-                  _stat(l.dashExtra, m(b.extraCost), l.moneyExtraProof),
-                  _stat(l.dashMyPaid, m(b.credit), l.balanceCredit),
+                  StatTile(
+                    label: l.dashExtra,
+                    value: _value(context, b.extraCost),
+                    proof: l.moneyExtraProof,
+                  ),
+                  StatTile(
+                    label: l.dashMyPaid,
+                    value: _value(context, b.credit),
+                    proof: l.balanceCredit,
+                  ),
                 ]),
                 Padding(
                   padding: const EdgeInsets.symmetric(
@@ -472,23 +586,18 @@ class _RecentBazar extends ConsumerWidget {
       onRetry: () => ref.invalidate(bazarsProvider(messId)),
       data: (page) => page.items.isEmpty
           ? _Quiet(l.bazarEmpty)
-          : Column(
-              children: [
-                const Divider(),
-                for (final b in page.items.take(5)) ...[
-                  ListTile(
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: AppSpace.gutter,
-                    ),
-                    title: Text(names[b.buyerMemberId] ?? l.bazarTitle),
-                    subtitle: Text(shortDate(context, b.date)),
-                    trailing: Money(b.amount, banglaDigits: bn),
-                    onTap: () => showBazarDetail(context, b),
+          : _ListCard([
+              for (final b in page.items.take(5))
+                ListTile(
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: AppSpace.lg,
                   ),
-                  const Divider(),
-                ],
-              ],
-            ),
+                  title: Text(names[b.buyerMemberId] ?? l.bazarTitle),
+                  subtitle: Text(shortDate(context, b.date)),
+                  trailing: Money(b.amount, banglaDigits: bn),
+                  onTap: () => showBazarDetail(context, b),
+                ),
+            ]),
     );
   }
 }
@@ -531,17 +640,40 @@ FlTitlesData _titles({
 
 FlGridData _grid(BuildContext context) => FlGridData(
   drawVerticalLine: false,
-  getDrawingHorizontalLine: (_) =>
-      FlLine(color: context.palette.border, strokeWidth: 1),
+  getDrawingHorizontalLine: (_) => FlLine(
+    color: context.palette.border,
+    strokeWidth: 1,
+    dashArray: const [2, 4],
+  ),
 );
 
+/// A chart in a raised card, labelled by its summary for screen readers.
 Widget _chartBox(String summary, Widget chart) => Semantics(
   container: true,
   label: summary,
   excludeSemantics: true,
   child: Padding(
-    padding: const EdgeInsets.fromLTRB(AppSpace.sm, 0, AppSpace.gutter, 0),
-    child: SizedBox(height: _chartHeight, child: chart),
+    padding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
+    child: AppCard.raised(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpace.xs,
+        AppSpace.lg,
+        AppSpace.lg,
+        AppSpace.sm,
+      ),
+      child: SizedBox(height: _chartHeight, child: chart),
+    ),
+  ),
+);
+
+/// Grows its marks in once (0 → 1) on first build; instant with reduced
+/// motion. Later data changes just redraw.
+Widget _growIn(Widget Function(double t) chart) => Builder(
+  builder: (context) => TweenAnimationBuilder<double>(
+    tween: Tween(begin: 0, end: 1),
+    duration: AppMotion.of(context, AppMotion.slow * 2),
+    curve: AppMotion.arrive,
+    builder: (context, t, _) => RepaintBoundary(child: chart(t)),
   ),
 );
 
@@ -572,52 +704,56 @@ class DailyMealsChart extends ConsumerWidget {
         );
         return _chartBox(
           summary,
-          BarChart(
-            BarChartData(
-              maxY: top.meals * 1.15,
-              minY: 0,
-              alignment: BarChartAlignment.spaceBetween,
-              barTouchData: const BarTouchData(enabled: false),
-              borderData: FlBorderData(show: false),
-              gridData: _grid(context),
-              titlesData: _titles(
-                left: (v, meta) => SideTitleWidget(
-                  meta: meta,
-                  child: _axisText(
-                    context,
-                    Fmt.digits(meta.formattedValue, bangla: bn),
-                  ),
-                ),
-                bottom: (v, meta) {
-                  final d = days[v.toInt()].date;
-                  // Week starts and today: enough to orient, no clutter.
-                  final show = v.toInt() % 7 == 0 || d == now;
-                  return SideTitleWidget(
+          _growIn(
+            (grow) => BarChart(
+              duration: Duration.zero,
+              BarChartData(
+                maxY: top.meals * 1.15,
+                minY: 0,
+                alignment: BarChartAlignment.spaceBetween,
+                barTouchData: const BarTouchData(enabled: false),
+                borderData: FlBorderData(show: false),
+                gridData: _grid(context),
+                titlesData: _titles(
+                  left: (v, meta) => SideTitleWidget(
                     meta: meta,
-                    child: show
-                        ? _axisText(context, Fmt.digits('${d.day}', bangla: bn))
-                        : const SizedBox.shrink(),
-                  );
-                },
-              ),
-              barGroups: [
-                for (final (i, d) in days.indexed)
-                  BarChartGroupData(
-                    x: i,
-                    barRods: [
-                      BarChartRodData(
-                        toY: d.meals,
-                        width: 6,
-                        color: d.date == now
-                            ? p.accent
-                            : p.ink.withValues(alpha: 0.35),
-                        borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(2),
-                        ),
-                      ),
-                    ],
+                    child: _axisText(
+                      context,
+                      Fmt.digits(meta.formattedValue, bangla: bn),
+                    ),
                   ),
-              ],
+                  bottom: (v, meta) {
+                    final d = days[v.toInt()].date;
+                    // Week starts and today: enough to orient, no clutter.
+                    final show = v.toInt() % 7 == 0 || d == now;
+                    return SideTitleWidget(
+                      meta: meta,
+                      child: show
+                          ? _axisText(
+                              context,
+                              Fmt.digits('${d.day}', bangla: bn),
+                            )
+                          : const SizedBox.shrink(),
+                    );
+                  },
+                ),
+                barGroups: [
+                  for (final (i, d) in days.indexed)
+                    BarChartGroupData(
+                      x: i,
+                      barRods: [
+                        BarChartRodData(
+                          toY: d.meals * grow,
+                          width: 6,
+                          color: d.date == now
+                              ? p.accent
+                              : p.ink.withValues(alpha: 0.28),
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                      ],
+                    ),
+                ],
+              ),
             ),
           ),
         );
@@ -647,47 +783,55 @@ class CategoryBars extends ConsumerWidget {
         final max = rows.map((r) => r.total).reduce(math.max);
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
-          child: Column(
-            spacing: AppSpace.md,
-            children: [
-              for (final r in rows)
-                MergeSemantics(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    spacing: AppSpace.xs,
-                    children: [
-                      Row(
+          child: AppCard.raised(
+            child: _growIn(
+              (grow) => Column(
+                spacing: AppSpace.md,
+                children: [
+                  for (final r in rows)
+                    MergeSemantics(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        spacing: AppSpace.xs,
                         children: [
-                          Expanded(
-                            child: Text(
-                              r.isBazar ? l.bazarTitle : r.category,
-                              style: text.bodyMedium?.copyWith(color: p.ink),
-                            ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  r.isBazar ? l.bazarTitle : r.category,
+                                  style: text.bodyMedium?.copyWith(
+                                    color: p.ink,
+                                  ),
+                                ),
+                              ),
+                              Money(
+                                r.total,
+                                banglaDigits: bn,
+                                style: text.bodyMedium,
+                              ),
+                            ],
                           ),
-                          Money(
-                            r.total,
-                            banglaDigits: bn,
-                            style: text.bodyMedium,
+                          ExcludeSemantics(
+                            child: FractionallySizedBox(
+                              alignment: AlignmentDirectional.centerStart,
+                              widthFactor: max == 0 ? 0 : grow * r.total / max,
+                              child: Container(
+                                height: AppSpace.sm,
+                                decoration: BoxDecoration(
+                                  color: p.ink.withValues(alpha: 0.28),
+                                  borderRadius: BorderRadius.circular(
+                                    AppSpace.xs,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
                         ],
                       ),
-                      ExcludeSemantics(
-                        child: FractionallySizedBox(
-                          alignment: AlignmentDirectional.centerStart,
-                          widthFactor: max == 0 ? 0 : r.total / max,
-                          child: Container(
-                            height: AppSpace.sm,
-                            decoration: BoxDecoration(
-                              color: p.ink.withValues(alpha: 0.35),
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-            ],
+                    ),
+                ],
+              ),
+            ),
           ),
         );
       },
@@ -722,53 +866,65 @@ class MonthlyRateChart extends ConsumerWidget {
         final top = points.map((x) => x.mealRate).reduce(math.max);
         return _chartBox(
           summary,
-          LineChart(
-            LineChartData(
-              minY: 0,
-              maxY: top * 1.2,
-              lineTouchData: const LineTouchData(enabled: false),
-              borderData: FlBorderData(show: false),
-              gridData: _grid(context),
-              titlesData: _titles(
-                leftReserved: 40,
-                bottomInterval: 1,
-                left: (v, meta) => SideTitleWidget(
-                  meta: meta,
-                  child: _axisText(
-                    context,
-                    Fmt.digits(meta.formattedValue, bangla: bn),
-                  ),
-                ),
-                bottom: (v, meta) {
-                  final i = v.toInt();
-                  return SideTitleWidget(
+          _growIn(
+            (grow) => LineChart(
+              duration: Duration.zero,
+              LineChartData(
+                minY: 0,
+                maxY: top * 1.2,
+                lineTouchData: const LineTouchData(enabled: false),
+                borderData: FlBorderData(show: false),
+                gridData: _grid(context),
+                titlesData: _titles(
+                  leftReserved: 40,
+                  bottomInterval: 1,
+                  left: (v, meta) => SideTitleWidget(
                     meta: meta,
-                    child: v == i && i >= 0 && i < points.length
-                        ? SizedBox(
-                            width: AppSpace.xxxl,
-                            child: FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: _axisText(context, month(points[i].start)),
-                            ),
-                          )
-                        : const SizedBox.shrink(),
-                  );
-                },
-              ),
-              lineBarsData: [
-                LineChartBarData(
-                  spots: [
-                    for (final (i, x) in points.indexed)
-                      FlSpot(i.toDouble(), x.mealRate),
-                  ],
-                  color: p.ink,
-                  barWidth: 2,
-                  dotData: FlDotData(
-                    getDotPainter: (_, _, _, _) =>
-                        FlDotCirclePainter(radius: 3, color: p.ink),
+                    child: _axisText(
+                      context,
+                      Fmt.digits(meta.formattedValue, bangla: bn),
+                    ),
                   ),
+                  bottom: (v, meta) {
+                    final i = v.toInt();
+                    return SideTitleWidget(
+                      meta: meta,
+                      child: v == i && i >= 0 && i < points.length
+                          ? SizedBox(
+                              width: AppSpace.xxxl,
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: _axisText(
+                                  context,
+                                  month(points[i].start),
+                                ),
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                    );
+                  },
                 ),
-              ],
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: [
+                      for (final (i, x) in points.indexed)
+                        FlSpot(i.toDouble(), x.mealRate * grow),
+                    ],
+                    color: p.ink,
+                    barWidth: 2,
+                    isCurved: true,
+                    preventCurveOverShooting: true,
+                    dotData: FlDotData(
+                      // The current period is live: its dot is turmeric.
+                      getDotPainter: (_, _, _, i) => FlDotCirclePainter(
+                        radius: i == points.length - 1 ? 4 : 3,
+                        color: i == points.length - 1 ? p.accent : p.ink,
+                        strokeWidth: 0,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );
