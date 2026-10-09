@@ -81,7 +81,7 @@ $$;
 -- paid for or went to, expenses I paid for or share. My own actions are left out.
 create or replace function public.my_activity(p_mess uuid, p_limit int default 30)
 returns table (id bigint, at timestamptz, action text, entity text, ref_type text,
-               ref_id uuid, actor_name text, old jsonb, new jsonb)
+               ref_id uuid, actor_id uuid, actor_name text, old jsonb, new jsonb)
 language sql stable set search_path = public as $$
   with me as (
     select m.id from mess_members m
@@ -97,6 +97,7 @@ language sql stable set search_path = public as $$
          case a.entity when 'meal_entries' then 'meal' when 'deposits' then 'deposit'
                        when 'bazars' then 'bazar' else 'expense' end,
          a.entity_id,
+         a.actor_id,
          (select am.display_name from mess_members am
           where am.mess_id = p_mess and am.user_id = a.actor_id limit 1),
          a.old, a.new
