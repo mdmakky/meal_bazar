@@ -24,14 +24,24 @@ enum MoneyTab { members, expense, deposit }
 /// হিসাব: this month's figures, then members / expenses / deposits.
 /// Bazar has its own tab ([BazarScreen]).
 class MoneyScreen extends ConsumerStatefulWidget {
-  const MoneyScreen({super.key});
+  const MoneyScreen({super.key, this.tab});
+
+  /// Opens on this tab (`/money?tab=deposit`), e.g. from Home's attention list.
+  final MoneyTab? tab;
 
   @override
   ConsumerState<MoneyScreen> createState() => _MoneyScreenState();
 }
 
 class _MoneyScreenState extends ConsumerState<MoneyScreen> {
-  var _tab = MoneyTab.members;
+  late var _tab = widget.tab ?? MoneyTab.members;
+
+  @override
+  void didUpdateWidget(MoneyScreen old) {
+    super.didUpdateWidget(old);
+    final tab = widget.tab;
+    if (tab != null && tab != old.tab) _tab = tab;
+  }
 
   @override
   Widget build(BuildContext context) {

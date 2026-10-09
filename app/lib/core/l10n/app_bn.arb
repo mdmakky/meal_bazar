@@ -1018,7 +1018,7 @@
     }
   },
   "dashCategoryTitle": "কোথায় খরচ হলো",
-  "dashMonthlyTitle": "মিল রেট, গত ৬ মাস",
+  "dashMonthlyTitle": "মাসে মাসে মিল রেট",
   "dashChartEmpty": "এই মাসে এখনো কিছু নেই",
   "dashRecentBazar": "সাম্প্রতিক বাজার",
   "dashNobodyThatDay": "এই দিনে কেউ মেসে ছিল না",
@@ -1695,5 +1695,75 @@
       }
     }
   },
-  "dueRemindNone": "কাউকে পাঠানো যায়নি: বকেয়া থাকা সদস্যদের ফোনে নোটিফিকেশন চালু নেই"
+  "dueRemindNone": "কাউকে পাঠানো যায়নি: বকেয়া থাকা সদস্যদের ফোনে নোটিফিকেশন চালু নেই",
+  "auditVerified": "যাচাই করেছেন",
+  "auditRejected": "বাতিল করেছেন",
+  "auditOff": "অফ",
+  "attnTitle": "এখন যা দেখতে হবে",
+  "attnDeposits": "{count}টি জমা যাচাই বাকি",
+  "@attnDeposits": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "attnJoin": "{count}টি যোগদানের অনুরোধ",
+  "@attnJoin": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "attnMessages": "{count}টি নতুন বার্তা",
+  "@attnMessages": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "attnMeals": "আজ {count} জনের মিল বসানো হয়নি",
+  "@attnMeals": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "cashTitle": "হাতে নগদ (মেস ফান্ড)",
+  "cashProof": "জমা {deposits} − ফান্ড থেকে খরচ {spent}",
+  "@cashProof": {
+    "placeholders": {
+      "deposits": {
+        "type": "String"
+      },
+      "spent": {
+        "type": "String"
+      }
+    }
+  },
+  "cashPending": "যাচাই বাকি {amount}, এখনো ধরা হয়নি",
+  "@cashPending": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "dashSeeAll": "সবাই দেখুন",
+  "dashOthers": "অন্যান্য",
+  "dashAllSettled": "কারো বকেয়া নেই",
+  "mineBalance": "আমার হিসাব",
+  "myTodayTitle": "আজ আমার মিল",
+  "transTitle": "সবার হিসাব",
+  "transNote": "এই মাস · জমা, নিজের পকেট থেকে দেওয়া টাকা আর ব্যালেন্স",
+  "transDeposits": "জমা",
+  "transOwnPocket": "নিজে দিয়েছেন",
+  "transBalance": "ব্যালেন্স",
+  "activityTitle": "আমার বিষয়ে এন্ট্রি",
+  "activityEmpty": "ম্যানেজার আপনার মিল, জমা বা বাজার নিয়ে কিছু লিখলে এখানে দেখাবে",
+  "reportProblem": "সমস্যা জানান",
+  "messagesComingSoon": "বার্তা পাঠানোর সুবিধা শিগগিরই আসছে। ততক্ষণ ম্যানেজারকে সরাসরি জানান।"
 }

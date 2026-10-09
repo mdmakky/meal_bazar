@@ -3149,7 +3149,7 @@ abstract class AppLocalizations {
   /// No description provided for @dashMonthlyTitle.
   ///
   /// In bn, this message translates to:
-  /// **'মিল রেট, গত ৬ মাস'**
+  /// **'মাসে মাসে মিল রেট'**
   String get dashMonthlyTitle;
 
   /// No description provided for @dashChartEmpty.
@@ -5557,6 +5557,156 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'কাউকে পাঠানো যায়নি: বকেয়া থাকা সদস্যদের ফোনে নোটিফিকেশন চালু নেই'**
   String get dueRemindNone;
+
+  /// No description provided for @auditVerified.
+  ///
+  /// In bn, this message translates to:
+  /// **'যাচাই করেছেন'**
+  String get auditVerified;
+
+  /// No description provided for @auditRejected.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাতিল করেছেন'**
+  String get auditRejected;
+
+  /// No description provided for @auditOff.
+  ///
+  /// In bn, this message translates to:
+  /// **'অফ'**
+  String get auditOff;
+
+  /// No description provided for @attnTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'এখন যা দেখতে হবে'**
+  String get attnTitle;
+
+  /// No description provided for @attnDeposits.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count}টি জমা যাচাই বাকি'**
+  String attnDeposits(String count);
+
+  /// No description provided for @attnJoin.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count}টি যোগদানের অনুরোধ'**
+  String attnJoin(String count);
+
+  /// No description provided for @attnMessages.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count}টি নতুন বার্তা'**
+  String attnMessages(String count);
+
+  /// No description provided for @attnMeals.
+  ///
+  /// In bn, this message translates to:
+  /// **'আজ {count} জনের মিল বসানো হয়নি'**
+  String attnMeals(String count);
+
+  /// No description provided for @cashTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'হাতে নগদ (মেস ফান্ড)'**
+  String get cashTitle;
+
+  /// No description provided for @cashProof.
+  ///
+  /// In bn, this message translates to:
+  /// **'জমা {deposits} − ফান্ড থেকে খরচ {spent}'**
+  String cashProof(String deposits, String spent);
+
+  /// No description provided for @cashPending.
+  ///
+  /// In bn, this message translates to:
+  /// **'যাচাই বাকি {amount}, এখনো ধরা হয়নি'**
+  String cashPending(String amount);
+
+  /// No description provided for @dashSeeAll.
+  ///
+  /// In bn, this message translates to:
+  /// **'সবাই দেখুন'**
+  String get dashSeeAll;
+
+  /// No description provided for @dashOthers.
+  ///
+  /// In bn, this message translates to:
+  /// **'অন্যান্য'**
+  String get dashOthers;
+
+  /// No description provided for @dashAllSettled.
+  ///
+  /// In bn, this message translates to:
+  /// **'কারো বকেয়া নেই'**
+  String get dashAllSettled;
+
+  /// No description provided for @mineBalance.
+  ///
+  /// In bn, this message translates to:
+  /// **'আমার হিসাব'**
+  String get mineBalance;
+
+  /// No description provided for @myTodayTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'আজ আমার মিল'**
+  String get myTodayTitle;
+
+  /// No description provided for @transTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'সবার হিসাব'**
+  String get transTitle;
+
+  /// No description provided for @transNote.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই মাস · জমা, নিজের পকেট থেকে দেওয়া টাকা আর ব্যালেন্স'**
+  String get transNote;
+
+  /// No description provided for @transDeposits.
+  ///
+  /// In bn, this message translates to:
+  /// **'জমা'**
+  String get transDeposits;
+
+  /// No description provided for @transOwnPocket.
+  ///
+  /// In bn, this message translates to:
+  /// **'নিজে দিয়েছেন'**
+  String get transOwnPocket;
+
+  /// No description provided for @transBalance.
+  ///
+  /// In bn, this message translates to:
+  /// **'ব্যালেন্স'**
+  String get transBalance;
+
+  /// No description provided for @activityTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'আমার বিষয়ে এন্ট্রি'**
+  String get activityTitle;
+
+  /// No description provided for @activityEmpty.
+  ///
+  /// In bn, this message translates to:
+  /// **'ম্যানেজার আপনার মিল, জমা বা বাজার নিয়ে কিছু লিখলে এখানে দেখাবে'**
+  String get activityEmpty;
+
+  /// No description provided for @reportProblem.
+  ///
+  /// In bn, this message translates to:
+  /// **'সমস্যা জানান'**
+  String get reportProblem;
+
+  /// No description provided for @messagesComingSoon.
+  ///
+  /// In bn, this message translates to:
+  /// **'বার্তা পাঠানোর সুবিধা শিগগিরই আসছে। ততক্ষণ ম্যানেজারকে সরাসরি জানান।'**
+  String get messagesComingSoon;
 }
 
 class _AppLocalizationsDelegate

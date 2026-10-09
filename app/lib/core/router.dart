@@ -15,6 +15,8 @@ import '../features/meals/presentation/meals_screen.dart';
 import '../features/mess/application/mess_providers.dart';
 import '../features/mess/domain/member.dart';
 import '../features/mess/presentation/mess_screens.dart';
+import '../features/messages/domain/message_draft.dart';
+import '../features/messages/presentation/new_message_placeholder.dart';
 import '../features/money/presentation/money_screen.dart';
 import '../features/money/presentation/months_screen.dart';
 import '../features/notices/presentation/notices_screen.dart';
@@ -173,7 +175,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: '/money',
-                builder: (_, _) => const MoneyScreen(),
+                builder: (_, state) => MoneyScreen(
+                  tab: MoneyTab.values
+                      .asNameMap()[state.uri.queryParameters['tab']],
+                ),
                 routes: [
                   GoRoute(
                     path: 'months',
@@ -244,6 +249,12 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'recurring',
                     builder: (_, _) => const RecurringScreen(),
+                  ),
+                  GoRoute(
+                    path: 'messages/new',
+                    builder: (_, state) => NewMessagePlaceholder(
+                      draft: state.extra as MessageDraft?,
+                    ),
                   ),
                 ],
               ),
