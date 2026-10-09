@@ -21,6 +21,6 @@ export const POST = handle(async (req) => {
   if (error) throw rpcError(error);
   if (!ctx) throw new HttpError(403, 'forbidden');
 
-  const draft = await generate(mealPrompt(ctx as MealContext, date, text), (raw) => toMealDraft(raw, ctx as MealContext), ai.models);
+  const draft = await generate(mealPrompt(ctx as MealContext, date, text), (raw) => toMealDraft(raw, ctx as MealContext), ai.text);
   return json(draft ? { draft } : { unavailable: true, reason: 'providers' });
 });

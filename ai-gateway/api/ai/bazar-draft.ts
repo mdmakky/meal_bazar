@@ -16,6 +16,6 @@ export const POST = handle(async (req) => {
   const blocked = await consumeQuota(sb, body.data.mess_id, 'bazar_draft', ai.quotaBazarDraft);
   if (blocked) return json(blocked);
 
-  const draft = await generate(bazarPrompt(body.data.image_base64), toBazarDraft, ai.models);
+  const draft = await generate(bazarPrompt(body.data.image_base64), toBazarDraft, ai.vision);
   return json(draft ? { draft } : { unavailable: true, reason: 'providers' });
 });

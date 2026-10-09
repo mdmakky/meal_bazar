@@ -24,6 +24,13 @@ export async function consumeQuota(
   return data === true ? null : { unavailable: true, reason: 'quota' };
 }
 
+// Admin endpoints: the caller's JWT must pass is_platform_admin().
+export async function requireAdmin(req: Request): Promise<void> {
+  const { data, error } = await userClient(req).rpc('is_platform_admin');
+  if (error) throw rpcError(error);
+  if (data !== true) throw new HttpError(403, 'forbidden');
+}
+
 export function rpcError(e: { code?: string; message?: string }): HttpError {
   if (e.message === 'NOT_AUTHENTICATED' || e.code?.startsWith('PGRST3') || /jwt/i.test(e.message ?? '')) {
     return new HttpError(401, 'unauthorized');
