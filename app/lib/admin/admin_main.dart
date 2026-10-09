@@ -18,6 +18,8 @@ Future<void> main() async {
   await initSupabase();
   runApp(
     ProviderScope(
+      // No automatic retries: a failed load shows its error + retry button.
+      retry: (_, _) => null,
       overrides: [
         // The panel keeps no local copy; AuthRepository's DB stays unopened.
         appDbProvider.overrideWithValue(
