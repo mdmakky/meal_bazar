@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../core/l10n/gen/app_localizations.dart';
+import '../../../core/platform/platform_config.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../meals/presentation/meal_widgets.dart' show pickOne;
 import '../../mess/application/mess_providers.dart';
@@ -117,7 +118,7 @@ class MemberShareActions extends ConsumerWidget {
                   ),
           ),
         ),
-        if (balance.closingBalance < 0)
+        if (balance.closingBalance < 0 && ref.featureOn('due_reminders'))
           Expanded(
             child: AppButton(
               label: l.shareBillRemind,

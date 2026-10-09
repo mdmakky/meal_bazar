@@ -26,6 +26,8 @@ import 'package:meal_bazar/features/recurring/application/recurring_providers.da
 import 'package:meal_bazar/features/today/application/day_grid.dart';
 import 'package:meal_bazar/features/today/presentation/today_screen.dart';
 import 'package:mocktail/mocktail.dart';
+
+import '../platform/fixed_config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MockMealRepository extends Mock implements MealRepository {}
@@ -232,6 +234,70 @@ void main() {
     await pump(tester, manager: false, extra: extra);
     expect(find.text('Rent due Friday'), findsOneWidget);
     expect(find.text(l.recurringPending('২')), findsNothing);
+  });
+
+  testWidgets('platform flags hide AI, notices, duty and the bills prompt', (
+    tester,
+  ) async {
+    when(() => repo.entriesForDay(any(), any())).thenAnswer((_) async => []);
+    await pump(
+      tester,
+      extra: [
+        flagsOff(['ai_meal_draft', 'notices', 'duty', 'recurring']),
+        latestPinnedUnreadProvider.overrideWithValue(
+          Notice(
+            id: 'n1',
+            messId: 'mess1',
+            title: 'Rent due Friday',
+            createdAt: DateTime(2026),
+            pinned: true,
+          ),
+        ),
+        pendingRecurringProvider.overrideWith((ref, id) async => 2),
+        dutiesProvider.overrideWith(
+          (ref, k) async => [
+            BazarDuty(id: 'd1', messId: 'mess1', date: day, memberId: 'karim'),
+          ],
+        ),
+      ],
+    );
+    expect(find.text(l.todayActionBazar), findsOneWidget);
+    expect(find.text(l.todayAiEntry), findsNothing);
+    expect(find.text('Rent due Friday'), findsNothing);
+    expect(find.text(l.recurringPending('২')), findsNothing);
+    expect(find.text(l.dutyTodayOther('Karim')), findsNothing);
+  });
+
+  testWidgets('ai master switch off hides the AI row too', (tester) async {
+    when(() => repo.entriesForDay(any(), any())).thenAnswer((_) async => []);
+    await pump(
+      tester,
+      extra: [
+        platformConfig({
+          'ai': {'enabled': false},
+        }),
+      ],
+    );
+    expect(find.text(l.todayAiEntry), findsNothing);
+  });
+
+  testWidgets('platform banner shows on Home', (tester) async {
+    when(() => repo.entriesForDay(any(), any())).thenAnswer((_) async => []);
+    await pump(
+      tester,
+      extra: [
+        platformConfig({
+          'app': {
+            'banner': {
+              'active': true,
+              'text_bn': 'নতুন ফিচার এসেছে',
+              'level': 'info',
+            },
+          },
+        }),
+      ],
+    );
+    expect(find.text('নতুন ফিচার এসেছে'), findsOneWidget);
   });
 
   testWidgets('sync badge counts this mess only; discard drops failed ops', (

@@ -10,6 +10,7 @@ import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
 import '../../../core/l10n/gen/app_localizations.dart';
+import '../../../core/platform/platform_config.dart';
 import '../../../core/router.dart';
 import '../../auth/application/auth_providers.dart';
 import '../../mess/application/mess_providers.dart';
@@ -256,7 +257,11 @@ final reminderSyncProvider = Provider<void>((ref) {
   if (signedIn && !memberships.hasValue) return;
   final mess = membership?.mess;
   final active = membership?.member.status == MemberStatus.active;
-  final ctx = signedIn
+  // Turned off platform-wide: null cancels everything already scheduled.
+  final enabled = ref.watch(
+    platformConfigProvider.select((c) => c.feature('reminders')),
+  );
+  final ctx = signedIn && enabled
       ? ReminderContext(
           cutoff: active ? mess?.mealOffCutoff : null,
           isManager: membership?.member.isActiveManager ?? false,

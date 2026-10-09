@@ -2130,4 +2130,56 @@ class AppLocalizationsEn extends AppLocalizations {
   String rateBalanceFood(String meals, String rate) {
     return 'Food = $meals meals × $rate (fixed rate)';
   }
+
+  @override
+  String get platformMaintenanceTitle => 'We\'re doing some maintenance';
+
+  @override
+  String get platformMaintenanceBody =>
+      'The app is paused for a little while. Please open it again soon; your data is safe.';
+
+  @override
+  String get platformMaintenanceRetry => 'Check again';
+
+  @override
+  String get platformSignOut => 'Sign out';
+
+  @override
+  String get platformUpdateTitle => 'A new version is out';
+
+  @override
+  String get platformUpdateBody =>
+      'Update the app from the Play Store to keep things working well.';
+
+  @override
+  String get platformUpdateLater => 'Later';
+
+  @override
+  String get platformBannerDismiss => 'Dismiss';
+
+  @override
+  String get platformSupportTitle => 'Help';
+
+  @override
+  String get platformSupportEmail => 'Email';
+
+  @override
+  String get platformSupportWhatsapp => 'WhatsApp';
+
+  @override
+  String get platformPrivacy => 'Privacy policy';
+
+  @override
+  String get platformCopy => 'Copy';
+
+  @override
+  String get platformCopied => 'Copied';
+
+  @override
+  String get platformAboutTitle => 'About';
+
+  @override
+  String platformVersion(String version) {
+    return 'Version $version';
+  }
 }

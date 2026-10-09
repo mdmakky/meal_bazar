@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/failure_text.dart';
 import '../../../core/ids.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
+import '../../../core/platform/platform_config.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../mess/application/mess_providers.dart';
 import '../../mess/presentation/common.dart';
@@ -341,7 +342,9 @@ class _RecurringPromptCardState extends ConsumerState<RecurringPromptCard> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final messId = ref.watch(currentMessIdProvider);
-    if (messId == null || !ref.watch(amIManagerProvider)) {
+    if (messId == null ||
+        !ref.watch(amIManagerProvider) ||
+        !ref.featureOn('recurring')) {
       return const SizedBox.shrink();
     }
     final n = ref.watch(pendingRecurringProvider(messId)).value ?? 0;

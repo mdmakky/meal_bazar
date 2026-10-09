@@ -6,6 +6,8 @@ import '../../../core/dates.dart';
 import '../../../core/db/sync.dart';
 import '../../../core/failure_text.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
+import '../../../core/platform/platform_config.dart';
+import '../../../core/platform/platform_widgets.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../ai/presentation/ai_entry.dart';
 import '../../duty/presentation/today_duty_card.dart';
@@ -107,7 +109,8 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
       body = CustomScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
-          if (manager)
+          const SliverToBoxAdapter(child: PlatformBanner()),
+          if (manager && ref.featureOn('setup_checklist'))
             SliverToBoxAdapter(child: SetupChecklist(messId: messId)),
           const SliverToBoxAdapter(child: LatestNoticeBanner()),
           const SliverToBoxAdapter(child: RecurringPromptCard()),
@@ -140,12 +143,16 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
               ),
             )
           else ...[
-            if (manager) SliverToBoxAdapter(child: _AiEntry(day: _day)),
+            if (manager &&
+                ref.watch(platformConfigProvider.select((c) => c.aiMealDraft)))
+              SliverToBoxAdapter(child: _AiEntry(day: _day)),
             SliverToBoxAdapter(
               child: _DayMeals(dayKey: key, types: types),
             ),
             const SliverToBoxAdapter(child: TodayDutyCard()),
-            if (myId != null && mess != null)
+            if (myId != null &&
+                mess != null &&
+                ref.featureOn('member_meal_off'))
               SliverToBoxAdapter(
                 child: MealOffHint(cutoff: mess.mealOffCutoff),
               ),
@@ -545,11 +552,12 @@ class _QuickActions extends ConsumerWidget {
               Icons.savings_outlined,
               () => showAddDepositSheet(context),
             ),
-            action(
-              l.todayActionGuest,
-              Icons.person_add_alt,
-              () => addGuest(context, ref, dayKey, members, types),
-            ),
+            if (ref.featureOn('guest_meals'))
+              action(
+                l.todayActionGuest,
+                Icons.person_add_alt,
+                () => addGuest(context, ref, dayKey, members, types),
+              ),
             action(
               l.todayActionMealOff,
               Icons.no_meals_outlined,

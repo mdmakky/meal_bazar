@@ -7,6 +7,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../../core/failure_text.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
+import '../../../core/platform/platform_config.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../money/domain/money.dart' show parseAmount;
 import '../../notices/application/notice_providers.dart';
@@ -28,6 +29,7 @@ class MoreScreen extends ConsumerWidget {
         .toList();
 
     final unread = ref.watch(unreadNoticeCountProvider);
+    final on = ref.featureOn;
     final bn = AppLocalizations.of(context).localeName == 'bn';
 
     Widget tile(
@@ -72,39 +74,46 @@ class MoreScreen extends ConsumerWidget {
           l.mealTypesTitle,
           () => context.push('/more/meal-types'),
         ),
-        tile(
-          Icons.tune,
-          l.mealDefaultTitle,
-          () => context.push('/more/meal-defaults'),
-        ),
-        tile(
-          Icons.event_repeat,
-          l.recurringTitle,
-          () => context.push('/more/recurring'),
-        ),
+        if (on('meal_defaults'))
+          tile(
+            Icons.tune,
+            l.mealDefaultTitle,
+            () => context.push('/more/meal-defaults'),
+          ),
+        if (on('recurring'))
+          tile(
+            Icons.event_repeat,
+            l.recurringTitle,
+            () => context.push('/more/recurring'),
+          ),
       ],
-      tile(
-        Icons.campaign_outlined,
-        l.noticeTitle,
-        () => context.push('/more/notices'),
-        badge: unread,
-      ),
-      tile(
-        Icons.shopping_basket_outlined,
-        l.dutyTitle,
-        () => context.push('/more/duty'),
-      ),
-      tile(Icons.history, l.auditTitle, () => context.push('/more/audit')),
-      tile(
-        Icons.file_download_outlined,
-        l.exportTitle,
-        () => context.push('/more/export'),
-      ),
-      tile(
-        Icons.notifications_outlined,
-        l.remindTitle,
-        () => context.push('/more/reminders'),
-      ),
+      if (on('notices'))
+        tile(
+          Icons.campaign_outlined,
+          l.noticeTitle,
+          () => context.push('/more/notices'),
+          badge: unread,
+        ),
+      if (on('duty'))
+        tile(
+          Icons.shopping_basket_outlined,
+          l.dutyTitle,
+          () => context.push('/more/duty'),
+        ),
+      if (on('audit_log'))
+        tile(Icons.history, l.auditTitle, () => context.push('/more/audit')),
+      if (on('export'))
+        tile(
+          Icons.file_download_outlined,
+          l.exportTitle,
+          () => context.push('/more/export'),
+        ),
+      if (on('reminders'))
+        tile(
+          Icons.notifications_outlined,
+          l.remindTitle,
+          () => context.push('/more/reminders'),
+        ),
       tile(
         Icons.person_outline,
         l.accountTitle,
@@ -296,34 +305,36 @@ class _InviteScreenState extends ConsumerState<InviteScreen> {
               style: text.bodyMedium?.copyWith(color: p.inkTertiary),
             ),
           ),
-          const SizedBox(height: AppSpace.xl),
-          Center(
-            // Always dark on light: scanners misread inverted codes.
-            child: Container(
-              padding: const EdgeInsets.all(AppSpace.md),
-              decoration: BoxDecoration(
-                color: AppPalette.light.surface,
-                border: Border.all(color: p.border),
-                borderRadius: BorderRadius.circular(AppRadius.md),
-              ),
-              child: Semantics(
-                label: l.inviteQrLabel,
-                child: QrImageView(
-                  data: inviteLink(code),
-                  size: AppSpace.xxxl * 4,
-                  padding: EdgeInsets.zero,
-                  eyeStyle: QrEyeStyle(
-                    eyeShape: QrEyeShape.square,
-                    color: AppPalette.light.ink,
-                  ),
-                  dataModuleStyle: QrDataModuleStyle(
-                    dataModuleShape: QrDataModuleShape.square,
-                    color: AppPalette.light.ink,
+          if (ref.featureOn('invite_qr')) ...[
+            const SizedBox(height: AppSpace.xl),
+            Center(
+              // Always dark on light: scanners misread inverted codes.
+              child: Container(
+                padding: const EdgeInsets.all(AppSpace.md),
+                decoration: BoxDecoration(
+                  color: AppPalette.light.surface,
+                  border: Border.all(color: p.border),
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                ),
+                child: Semantics(
+                  label: l.inviteQrLabel,
+                  child: QrImageView(
+                    data: inviteLink(code),
+                    size: AppSpace.xxxl * 4,
+                    padding: EdgeInsets.zero,
+                    eyeStyle: QrEyeStyle(
+                      eyeShape: QrEyeShape.square,
+                      color: AppPalette.light.ink,
+                    ),
+                    dataModuleStyle: QrDataModuleStyle(
+                      dataModuleShape: QrDataModuleShape.square,
+                      color: AppPalette.light.ink,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
+          ],
         ],
       );
     }
@@ -490,34 +501,38 @@ class _MessSettingsScreenState extends ConsumerState<MessSettingsScreen> {
                 ),
                 onTap: _pickCutoff,
               ),
-              const SizedBox(height: AppSpace.lg),
-              Text(
-                l.rateSection,
-                style: Theme.of(context).textTheme.titleSmall,
-              ),
-              const SizedBox(height: AppSpace.xs),
-              Text(l.rateHelp, style: Theme.of(context).textTheme.bodySmall),
-              const SizedBox(height: AppSpace.sm),
-              SegmentedButton<bool>(
-                segments: [
-                  ButtonSegment(value: false, label: Text(l.rateCalculated)),
-                  ButtonSegment(value: true, label: Text(l.rateFixed)),
-                ],
-                selected: {_fixedRate},
-                onSelectionChanged: (v) => setState(() => _fixedRate = v.first),
-              ),
-              if (_fixedRate) ...[
-                const SizedBox(height: AppSpace.md),
-                TextFormField(
-                  controller: _rate,
-                  keyboardType: const TextInputType.numberWithOptions(
-                    decimal: true,
-                  ),
-                  decoration: InputDecoration(labelText: l.rateAmountLabel),
-                  validator: (v) => (parseAmount(v ?? '') ?? 0) > 0
-                      ? null
-                      : l.rateAmountRequired,
+              // Kept while the mess already uses a fixed rate.
+              if (ref.featureOn('fixed_rate') || _fixedRate) ...[
+                const SizedBox(height: AppSpace.lg),
+                Text(
+                  l.rateSection,
+                  style: Theme.of(context).textTheme.titleSmall,
                 ),
+                const SizedBox(height: AppSpace.xs),
+                Text(l.rateHelp, style: Theme.of(context).textTheme.bodySmall),
+                const SizedBox(height: AppSpace.sm),
+                SegmentedButton<bool>(
+                  segments: [
+                    ButtonSegment(value: false, label: Text(l.rateCalculated)),
+                    ButtonSegment(value: true, label: Text(l.rateFixed)),
+                  ],
+                  selected: {_fixedRate},
+                  onSelectionChanged: (v) =>
+                      setState(() => _fixedRate = v.first),
+                ),
+                if (_fixedRate) ...[
+                  const SizedBox(height: AppSpace.md),
+                  TextFormField(
+                    controller: _rate,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    decoration: InputDecoration(labelText: l.rateAmountLabel),
+                    validator: (v) => (parseAmount(v ?? '') ?? 0) > 0
+                        ? null
+                        : l.rateAmountRequired,
+                  ),
+                ],
               ],
             ],
           ),

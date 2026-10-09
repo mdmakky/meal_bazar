@@ -6,6 +6,7 @@ import '../../../core/db/db.dart';
 import '../../../core/db/sync.dart';
 import '../../../core/failure_text.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
+import '../../../core/platform/platform_config.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../mess/application/mess_providers.dart';
 import '../../share_bills/presentation/share_bill_actions.dart';
@@ -43,6 +44,8 @@ class _MoneyScreenState extends ConsumerState<MoneyScreen> {
         body: EmptyView(message: l.moneyNoMess),
       );
     }
+    final pdf = ref.featureOn('pdf_report');
+    final export = ref.featureOn('export');
     final (addLabel, add) = switch (_tab) {
       MoneyTab.expense => (l.expenseAdd, showAddExpenseSheet),
       MoneyTab.members ||
@@ -57,18 +60,22 @@ class _MoneyScreenState extends ConsumerState<MoneyScreen> {
             icon: const Icon(Icons.event_note_outlined),
             onPressed: () => context.push('/money/months'),
           ),
-          PopupMenuButton<String>(
-            onSelected: (v) => switch (v) {
-              'share' => shareMonthReport(context, messId: messId),
-              'print' => printMonthReport(context, messId: messId),
-              _ => context.push('/more/export'),
-            },
-            itemBuilder: (_) => [
-              PopupMenuItem(value: 'share', child: Text(l.reportShare)),
-              PopupMenuItem(value: 'print', child: Text(l.reportPrint)),
-              PopupMenuItem(value: 'export', child: Text(l.exportTitle)),
-            ],
-          ),
+          if (pdf || export)
+            PopupMenuButton<String>(
+              onSelected: (v) => switch (v) {
+                'share' => shareMonthReport(context, messId: messId),
+                'print' => printMonthReport(context, messId: messId),
+                _ => context.push('/more/export'),
+              },
+              itemBuilder: (_) => [
+                if (pdf) ...[
+                  PopupMenuItem(value: 'share', child: Text(l.reportShare)),
+                  PopupMenuItem(value: 'print', child: Text(l.reportPrint)),
+                ],
+                if (export)
+                  PopupMenuItem(value: 'export', child: Text(l.exportTitle)),
+              ],
+            ),
         ],
       ),
       floatingActionButton: isManager
@@ -77,6 +84,8 @@ class _MoneyScreenState extends ConsumerState<MoneyScreen> {
               label: Text(addLabel),
               onPressed: () => add(context),
             )
+          : !ref.featureOn('member_deposits')
+          ? null
           : FloatingActionButton.extended(
               icon: const Icon(Icons.add),
               label: Text(l.depositVerifyMine),
@@ -422,7 +431,7 @@ class _Balances extends ConsumerWidget {
           ? SliverToBoxAdapter(child: EmptyView(message: l.balanceEmpty))
           : SliverList.list(
               children: [
-                if (isManager)
+                if (isManager && ref.featureOn('share_bills'))
                   Padding(
                     padding: const EdgeInsets.fromLTRB(
                       AppSpace.gutter,
@@ -544,7 +553,7 @@ class BillBreakdown extends ConsumerWidget {
           ),
           style: text.titleSmall,
         ),
-        if (ref.watch(amIManagerProvider)) ...[
+        if (ref.watch(amIManagerProvider) && ref.featureOn('share_bills')) ...[
           const SizedBox(height: AppSpace.md),
           MemberShareActions(balance: balance),
         ],
@@ -681,8 +690,10 @@ class _DepositList extends ConsumerWidget {
         loadMore: ref.read(depositsProvider(messId).notifier).loadMore,
         row: (d) => Column(
           children: [
-            _depositRow(context, l, bn, names, isManager, d),
-            if (isManager && d.status == DepositStatus.pending)
+            _depositRow(context, ref, l, bn, names, isManager, d),
+            if (isManager &&
+                d.status == DepositStatus.pending &&
+                ref.featureOn('deposit_verification'))
               _VerifyActions(deposit: d, name: names[d.memberId] ?? ''),
           ],
         ),
@@ -692,6 +703,7 @@ class _DepositList extends ConsumerWidget {
 
   Widget _depositRow(
     BuildContext context,
+    WidgetRef ref,
     AppLocalizations l,
     bool bn,
     Map<String, String> names,
@@ -710,7 +722,7 @@ class _DepositList extends ConsumerWidget {
       mainAxisSize: MainAxisSize.min,
       spacing: AppSpace.sm,
       children: [
-        _Tag(methodLabel(l, d.method)),
+        _Tag(methodLabel(l, d.method, ref.watch(platformConfigProvider))),
         Money(d.amount, banglaDigits: bn),
       ],
     ),

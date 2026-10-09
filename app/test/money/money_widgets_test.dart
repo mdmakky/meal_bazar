@@ -21,6 +21,8 @@ import 'package:meal_bazar/features/month/application/month_providers.dart';
 import 'package:meal_bazar/features/month/domain/month.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../platform/fixed_config.dart';
+
 class MockMoneyRepository extends Mock implements MoneyRepository {}
 
 class MockStorage extends Mock implements StorageService {}
@@ -559,6 +561,83 @@ void main() {
       expect(d.method, PayMethod.bkash);
       expect(d.trxId, 'AB12CD34');
       expect(d.status, DepositStatus.verified);
+    });
+
+    testWidgets('platform: split off hides the selected-members option', (
+      tester,
+    ) async {
+      await pump(
+        tester,
+        opener(showAddExpenseSheet),
+        extra: [
+          flagsOff(['split']),
+        ],
+      );
+      await openSheet(tester);
+      expect(find.widgetWithText(ChoiceChip, l.splitByMeal), findsOneWidget);
+      expect(find.widgetWithText(ChoiceChip, l.splitSelected), findsNothing);
+    });
+
+    testWidgets('platform: catalogue from config; scan and photo hidden', (
+      tester,
+    ) async {
+      await pump(
+        tester,
+        opener(showAddBazarSheet),
+        extra: [
+          platformConfig({
+            'features': {'ai_bazar_scan': false, 'receipts': false},
+            'catalogue': {
+              'groups': [
+                {
+                  'name': 'ফলমূল',
+                  'items': [
+                    {'name': 'আম', 'unit': 'কেজি'},
+                  ],
+                },
+              ],
+            },
+          }),
+        ],
+      );
+      await openSheet(tester);
+      expect(find.text('ফলমূল'), findsOneWidget);
+      expect(find.text(l.bazarPickerStaples), findsNothing);
+      expect(find.text(l.bazarScan), findsNothing);
+      expect(find.text(l.receiptAttach), findsNothing);
+      final chip = find.widgetWithText(FilterChip, 'আম');
+      await tester.ensureVisible(chip);
+      await tester.tap(chip);
+      await tester.pumpAndSettle();
+      expect(
+        find.widgetWithText(TextFormField, 'কেজি'),
+        findsOneWidget,
+        reason: 'the config unit fills the line',
+      );
+    });
+
+    testWidgets('platform: payment methods relabeled and hidden', (
+      tester,
+    ) async {
+      await pump(
+        tester,
+        opener(showAddDepositSheet),
+        extra: [
+          platformConfig({
+            'payment_methods': [
+              {'key': 'bkash', 'label_bn': 'বিকাশ (পার্সোনাল)'},
+              {'key': 'bank', 'enabled': false},
+            ],
+          }),
+        ],
+      );
+      await openSheet(tester);
+      expect(
+        find.widgetWithText(ChoiceChip, 'বিকাশ (পার্সোনাল)'),
+        findsOneWidget,
+      );
+      expect(find.widgetWithText(ChoiceChip, l.depositBank), findsNothing);
+      expect(find.widgetWithText(ChoiceChip, l.depositNagad), findsOneWidget);
     });
   });
 

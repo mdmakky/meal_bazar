@@ -2119,4 +2119,56 @@ class AppLocalizationsBn extends AppLocalizations {
   String rateBalanceFood(String meals, String rate) {
     return 'খাবার খরচ = $meals মিল × $rate (নির্দিষ্ট রেট)';
   }
+
+  @override
+  String get platformMaintenanceTitle => 'একটু কাজ চলছে';
+
+  @override
+  String get platformMaintenanceBody =>
+      'অ্যাপটি কিছুক্ষণের জন্য বন্ধ আছে। একটু পরে আবার খুলুন, আপনার হিসাব নিরাপদ আছে।';
+
+  @override
+  String get platformMaintenanceRetry => 'আবার দেখুন';
+
+  @override
+  String get platformSignOut => 'সাইন আউট';
+
+  @override
+  String get platformUpdateTitle => 'নতুন ভার্সন এসেছে';
+
+  @override
+  String get platformUpdateBody =>
+      'ঠিকঠাক চালাতে Play Store থেকে অ্যাপটি আপডেট করে নিন।';
+
+  @override
+  String get platformUpdateLater => 'পরে করব';
+
+  @override
+  String get platformBannerDismiss => 'বন্ধ করুন';
+
+  @override
+  String get platformSupportTitle => 'সাহায্য';
+
+  @override
+  String get platformSupportEmail => 'ইমেইল';
+
+  @override
+  String get platformSupportWhatsapp => 'WhatsApp';
+
+  @override
+  String get platformPrivacy => 'প্রাইভেসি পলিসি';
+
+  @override
+  String get platformCopy => 'কপি করুন';
+
+  @override
+  String get platformCopied => 'কপি হয়েছে';
+
+  @override
+  String get platformAboutTitle => 'অ্যাপ সম্পর্কে';
+
+  @override
+  String platformVersion(String version) {
+    return 'ভার্সন $version';
+  }
 }

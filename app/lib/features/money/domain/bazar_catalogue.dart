@@ -36,12 +36,19 @@ const bazarCatalogue = <BazarGroup, List<CatalogueItem>>{
   ],
 };
 
-/// The catalogue unit for [name], if it is a catalogue item.
-String? catalogueUnit(String name) => bazarCatalogue.values
-    .expand((g) => g)
-    .where((i) => i.name == name)
-    .firstOrNull
-    ?.unit;
+/// A catalogue group from the platform config (named by the admin).
+typedef CatalogueGroup = ({String name, List<CatalogueItem> items});
+
+/// The catalogue unit for [name], if it is a catalogue item. [groups] is the
+/// platform config's catalogue; null means the built-in one.
+String? catalogueUnit(String name, [List<CatalogueGroup>? groups]) {
+  final unit =
+      (groups?.expand((g) => g.items) ?? bazarCatalogue.values.expand((g) => g))
+          .where((i) => i.name == name)
+          .firstOrNull
+          ?.unit;
+  return unit == null || unit.isEmpty ? null : unit;
+}
 
 /// The [n] most bought item names, most frequent first (ties by name).
 List<String> frequentItems(Iterable<String> names, {int n = 6}) {

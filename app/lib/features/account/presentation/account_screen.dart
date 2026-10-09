@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/failure_text.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
+import '../../../core/platform/platform_config.dart';
+import '../../../core/platform/platform_widgets.dart';
+import '../../../core/version.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../auth/application/auth_providers.dart';
 import '../../mess/presentation/common.dart';
@@ -119,6 +123,24 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                     : (s) => _save(locale: s.first),
               ),
             ),
+            const SupportSection(),
+            SectionTitle(l.platformAboutTitle),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: AppSpace.gutter),
+              child: BrandHeader(),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpace.gutter,
+                AppSpace.sm,
+                AppSpace.gutter,
+                0,
+              ),
+              child: Text(
+                l.platformVersion(appVersion),
+                style: text.labelSmall,
+              ),
+            ),
             const SizedBox(height: AppSpace.xxl),
             const Divider(),
             ListTile(
@@ -215,6 +237,47 @@ class _DeleteConfirmState extends State<_DeleteConfirm> {
           variant: AppButtonVariant.text,
           onPressed: () => Navigator.pop(context, false),
         ),
+      ],
+    );
+  }
+}
+
+/// Support email / WhatsApp and the privacy policy from the platform config.
+/// Each is selectable with a copy button; hidden when the admin left it blank.
+class SupportSection extends ConsumerWidget {
+  const SupportSection({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final c = ref.watch(platformConfigProvider);
+    final rows = [
+      (Icons.mail_outline, l.platformSupportEmail, c.supportEmail),
+      (Icons.chat_outlined, l.platformSupportWhatsapp, c.supportWhatsapp),
+      (Icons.privacy_tip_outlined, l.platformPrivacy, c.privacyUrl),
+    ].where((r) => r.$3.isNotEmpty).toList();
+    if (rows.isEmpty) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SectionTitle(l.platformSupportTitle),
+        for (final (icon, label, value) in rows)
+          ListTile(
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: AppSpace.gutter,
+            ),
+            leading: Icon(icon),
+            title: Text(label),
+            subtitle: SelectableText(value),
+            trailing: IconButton(
+              tooltip: l.platformCopy,
+              icon: const Icon(Icons.copy_outlined),
+              onPressed: () async {
+                await Clipboard.setData(ClipboardData(text: value));
+                if (context.mounted) showSnack(context, l.platformCopied);
+              },
+            ),
+          ),
       ],
     );
   }

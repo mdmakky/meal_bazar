@@ -8,6 +8,7 @@ import '../../../core/dates.dart';
 import '../../../core/failure_text.dart';
 import '../../../core/ids.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
+import '../../../core/platform/platform_config.dart';
 import '../../../core/storage.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../ai/presentation/ai_entry.dart';
@@ -89,13 +90,16 @@ String shortDate(BuildContext context, DateTime d) {
   return s.substring(0, s.lastIndexOf(' '));
 }
 
-String methodLabel(AppLocalizations l, PayMethod m) => switch (m) {
-  PayMethod.cash => l.depositCash,
-  PayMethod.bkash => l.depositBkash,
-  PayMethod.nagad => l.depositNagad,
-  PayMethod.bank => l.depositBank,
-  PayMethod.other => l.depositOther,
-};
+/// The admin's label from [config] when set, else the built-in one.
+String methodLabel(AppLocalizations l, PayMethod m, [PlatformConfig? config]) =>
+    config?.methodLabel(m.name, l.localeName) ??
+    switch (m) {
+      PayMethod.cash => l.depositCash,
+      PayMethod.bkash => l.depositBkash,
+      PayMethod.nagad => l.depositNagad,
+      PayMethod.bank => l.depositBank,
+      PayMethod.other => l.depositOther,
+    };
 
 String splitLabel(AppLocalizations l, SplitMethod s) =>
     s == SplitMethod.meal ? l.expenseSplitMeal : l.expenseSplitEqual;
@@ -462,6 +466,7 @@ mixin _Photo<W extends ConsumerStatefulWidget> on ConsumerState<W> {
     final bytes = photo;
     final path = photoPath;
     if (bytes == null && path == null) {
+      if (!ref.featureOn('receipts')) return const SizedBox.shrink();
       return Align(
         alignment: AlignmentDirectional.centerStart,
         child: TextButton.icon(
@@ -709,7 +714,10 @@ class _BazarFormState extends ConsumerState<_BazarForm>
             name: name,
             price: 0,
             qty: 1,
-            unit: catalogueUnit(name),
+            unit: catalogueUnit(
+              name,
+              ref.read(platformConfigProvider).catalogue,
+            ),
           ),
         )..price.clear(),
       );
@@ -751,7 +759,8 @@ class _BazarFormState extends ConsumerState<_BazarForm>
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: AppSpace.lg,
           children: [
-            if (_b == null)
+            if (_b == null &&
+                ref.watch(platformConfigProvider.select((c) => c.aiBazarScan)))
               Align(
                 alignment: AlignmentDirectional.centerStart,
                 child: AppButton(
@@ -783,11 +792,12 @@ class _BazarFormState extends ConsumerState<_BazarForm>
               onPaidBy: (id) => setState(() => _paidBy = id),
             ),
             _Label(l.bazarItems),
-            _Picker(
-              messId: messId,
-              selected: {for (final i in _items) i.name.text.trim()},
-              onToggle: _toggle,
-            ),
+            if (ref.featureOn('bazar_picker'))
+              _Picker(
+                messId: messId,
+                selected: {for (final i in _items) i.name.text.trim()},
+                onToggle: _toggle,
+              ),
             for (final i in _items) _itemRow(i),
             Align(
               alignment: AlignmentDirectional.centerStart,
@@ -954,16 +964,19 @@ class _Picker extends ConsumerWidget {
     final frequent = ref.watch(frequentItemsProvider(messId)).value ?? [];
     final groups = <(String, List<String>)>[
       if (frequent.isNotEmpty) (l.bazarPickerFrequent, frequent),
-      for (final MapEntry(:key, :value) in bazarCatalogue.entries)
-        (
-          switch (key) {
-            BazarGroup.staples => l.bazarPickerStaples,
-            BazarGroup.veg => l.bazarPickerVeg,
-            BazarGroup.protein => l.bazarPickerProtein,
-            BazarGroup.spice => l.bazarPickerSpice,
-          },
-          [for (final i in value) i.name],
-        ),
+      if (ref.watch(platformConfigProvider).catalogue case final custom?)
+        for (final g in custom) (g.name, [for (final i in g.items) i.name])
+      else
+        for (final MapEntry(:key, :value) in bazarCatalogue.entries)
+          (
+            switch (key) {
+              BazarGroup.staples => l.bazarPickerStaples,
+              BazarGroup.veg => l.bazarPickerVeg,
+              BazarGroup.protein => l.bazarPickerProtein,
+              BazarGroup.spice => l.bazarPickerSpice,
+            },
+            [for (final i in value) i.name],
+          ),
     ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1328,7 +1341,9 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm>
                   for (final (s, label) in [
                     (_Split.equal, l.splitEqualAll),
                     (_Split.meal, l.splitByMeal),
-                    (_Split.selected, l.splitSelected),
+                    // Kept while editing a split that already uses it.
+                    if (ref.featureOn('split') || _split == _Split.selected)
+                      (_Split.selected, l.splitSelected),
                   ])
                     ChoiceChip(
                       label: Text(label),
@@ -1466,6 +1481,7 @@ class _DepositFormState extends ConsumerState<_DepositForm>
             ),
             ..._methodFields(
               l,
+              ref.watch(platformConfigProvider),
               _method,
               _trx,
               (m) => setState(() => _method = m),
@@ -1507,6 +1523,7 @@ class _DepositFormState extends ConsumerState<_DepositForm>
 /// Method chips, then TrxID for mobile/bank payments.
 List<Widget> _methodFields(
   AppLocalizations l,
+  PlatformConfig config,
   PayMethod method,
   TextEditingController trx,
   ValueChanged<PayMethod> onMethod,
@@ -1517,11 +1534,13 @@ List<Widget> _methodFields(
     runSpacing: AppSpace.sm,
     children: [
       for (final m in PayMethod.values)
-        ChoiceChip(
-          label: Text(methodLabel(l, m)),
-          selected: m == method,
-          onSelected: (_) => onMethod(m),
-        ),
+        // A disabled method stays visible only when already picked.
+        if (config.methodEnabled(m.name) || m == method)
+          ChoiceChip(
+            label: Text(methodLabel(l, m, config)),
+            selected: m == method,
+            onSelected: (_) => onMethod(m),
+          ),
     ],
   ),
   if (method.hasTrxId)
@@ -1598,6 +1617,7 @@ class _MyDepositFormState extends ConsumerState<_MyDepositForm>
             ),
             ..._methodFields(
               l,
+              ref.watch(platformConfigProvider),
               _method,
               _trx,
               (m) => setState(() => _method = m),
