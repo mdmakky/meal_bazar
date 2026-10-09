@@ -47,6 +47,7 @@ RPCs: `create_mess(name, month_start_day) → mess_id`, `join_mess(code) → mem
 |---|---|
 | `bazars` | `mess_id`, `date`, `buyer_member_id`, `amount`, `paid_by_member_id` (null = mess fund), `note`, `receipt_path`, `source` |
 | `bazar_items` | `bazar_id`, `name`, `qty numeric(10,3)`, `unit`, `price` |
+| `bazar_buyers` (0018) | `bazar_id`, `mess_id`, `member_id`; pk `(bazar_id, member_id)`. Who went to the bazar (several allowed). Informational only: no money math reads it; the credit still goes to the single `paid_by_member_id`. Write all at once with `set_bazar_buyers(bazar_id, uuid[])` (manager; `NOT_FOUND` / `NOT_MANAGER` / `NOT_MEMBER`), which also keeps `bazars.buyer_member_id` = the first buyer for older clients. Backfilled from `buyer_member_id`. Closed-month guard via the parent bazar's date. |
 | `expense_categories` | `mess_id`, `name`, `default_split` (meal/equal), `sort_order` |
 | `expenses` | `mess_id`, `date`, `category_id`, `amount`, `split`, `paid_by_member_id`, `note`, `receipt_path` |
 | `expense_shares` (0012) | `expense_id`, `mess_id`, `member_id`, `weight numeric(6,2)` (default 1). When an equal-split expense has rows here, only those members pay, in proportion to weight. Write all at once with `set_expense_shares(expense_id, jsonb)`. The closed-month guard uses the parent expense's date. |
