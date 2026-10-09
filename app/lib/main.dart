@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'app.dart';
@@ -10,9 +11,13 @@ import 'core/theme/app_theme.dart';
 import 'core/widgets/widgets.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  // The native splash stays until LaunchIntro has drawn the same picture.
+  FlutterNativeSplash.preserve(
+    widgetsBinding: WidgetsFlutterBinding.ensureInitialized(),
+  );
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   if (!Env.isConfigured) {
+    FlutterNativeSplash.remove();
     runApp(const ConfigMissingApp());
     return;
   }

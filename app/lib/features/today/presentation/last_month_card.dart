@@ -289,18 +289,37 @@ class _FinalAccount extends ConsumerWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: AppSpace.xs),
-                Row(
-                  spacing: AppSpace.xs,
-                  children: [
-                    Icon(Icons.redo, size: 16, color: p.inkSecondary),
-                    Expanded(
-                      child: Text(
-                        l.lastMonthCarried,
-                        style: text.bodySmall?.copyWith(color: p.inkSecondary),
-                      ),
+                const SizedBox(height: AppSpace.md),
+                // The carry-forward, set apart as a quiet note of its own.
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: p.surfaceMuted,
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpace.md,
+                      vertical: AppSpace.sm,
                     ),
-                  ],
+                    child: Row(
+                      spacing: AppSpace.sm,
+                      children: [
+                        Icon(
+                          Icons.subdirectory_arrow_right,
+                          size: 18,
+                          color: p.inkSecondary,
+                        ),
+                        Expanded(
+                          child: Text(
+                            l.lastMonthCarried,
+                            style: text.bodySmall?.copyWith(
+                              color: p.inkSecondary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
                 const SizedBox(height: AppSpace.lg),
                 Row(

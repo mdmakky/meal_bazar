@@ -1,9 +1,11 @@
 flutter_native_splash:
+  # Plain background only: the logo arrives in Flutter (LaunchIntro), so the
+  # launch is one continuous motion instead of a still logo, then an animation.
   color: "#FAFAF9"
-  image: assets/icon/splash.png
   android_12:
     color: "#FAFAF9"
-    image: assets/icon/splash.png
+    # Transparent, so Android 12+ shows no icon instead of the launcher icon.
+    image: assets/icon/splash_blank.png
   android: true
   ios: true
   web: false
