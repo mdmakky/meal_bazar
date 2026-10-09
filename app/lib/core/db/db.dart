@@ -35,6 +35,9 @@ class Bazars extends Table {
   TextColumn get date => text()();
   RealColumn get amount => real()();
   TextColumn get buyerMemberId => text().nullable()();
+
+  /// Every buyer's member id, comma-joined (schema 2).
+  TextColumn get buyerIds => text().nullable()();
   TextColumn get paidByMemberId => text().nullable()();
   TextColumn get note => text().nullable()();
   TextColumn get source => text()();
@@ -101,7 +104,14 @@ class AppDb extends _$AppDb {
   AppDb(super.e);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    onUpgrade: (m, from, to) async {
+      if (from < 2) await m.addColumn(bazars, bazars.buyerIds);
+    },
+  );
 
   /// Fetches [fetch] and caches it; on a network failure returns the cache.
   Future<List<Map<String, dynamic>>> cachedRows(

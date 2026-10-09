@@ -2727,4 +2727,44 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get stampPaid => 'পরিশোধিত';
+
+  @override
+  String get bazarBuyers => 'কে কে বাজারে গেছে';
+
+  @override
+  String get bazarPickBuyer => 'অন্তত একজন বাছুন';
+
+  @override
+  String get bazarPayer => 'কে টাকা দিয়েছে';
+
+  @override
+  String get bazarTotal => 'মোট';
+
+  @override
+  String get bazarItemRemoved => 'আইটেম বাদ দেওয়া হলো';
+
+  @override
+  String get undo => 'ফিরিয়ে আনুন';
+
+  @override
+  String get bazarPickerTitle => 'তালিকা থেকে বাছুন';
+
+  @override
+  String get bazarPickerSearch => 'খুঁজুন বা নতুন নাম লিখুন';
+
+  @override
+  String bazarPickerAddNamed(String name) {
+    return '“$name” যোগ করুন';
+  }
+
+  @override
+  String get bazarUnitNone => 'একক ছাড়া';
+
+  @override
+  String bazarQtyLabel(String qty) {
+    return 'পরিমাণ $qty, একক বদলাতে ট্যাপ করুন';
+  }
+
+  @override
+  String get bazarSwipeHint => 'বাদ দিতে বাঁয়ে সরান';
 }

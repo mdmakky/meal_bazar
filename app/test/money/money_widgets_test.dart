@@ -216,6 +216,21 @@ Future<void> pump(
   );
 }
 
+/// Scrolls the bazar page until [f] is on screen (rows below are lazy).
+Future<void> reveal(WidgetTester tester, Finder f) async {
+  await tester.scrollUntilVisible(
+    f,
+    200,
+    scrollable: find
+        .descendant(
+          of: find.byType(CustomScrollView),
+          matching: find.byType(Scrollable),
+        )
+        .first,
+  );
+  await tester.pumpAndSettle();
+}
+
 /// A screen with one button that opens [open].
 Widget opener(Future<void> Function(BuildContext) open) => Scaffold(
   body: Builder(
@@ -275,58 +290,27 @@ void main() {
   });
 
   group('sheets', () {
-    testWidgets('bazar from the mess fund: paid_by null', (tester) async {
-      await pump(tester, opener(showAddBazarSheet));
-      await openSheet(tester);
-      await tester.enterText(find.byKey(const Key('amount')), '১২৫০.৫০');
-      await tester.tap(find.widgetWithText(ChoiceChip, 'Karim'));
-      await tapSave(tester);
-
-      final b =
-          verify(() => repo.saveBazar(captureAny())).captured.single as Bazar;
-      expect(b.messId, 'mess1');
-      expect(b.amount, 1250.5);
-      expect(b.buyerMemberId, 'k');
-      expect(b.paidByMemberId, isNull);
-      expect(b.items, isEmpty);
-      expect(find.text(l.moneySaved), findsOneWidget);
-    });
-
-    testWidgets('bazar from own pocket needs a member, then sets paid_by', (
-      tester,
-    ) async {
-      await pump(tester, opener(showAddBazarSheet));
-      await openSheet(tester);
-      await tester.enterText(find.byKey(const Key('amount')), '300');
-      await tester.tap(find.text(l.moneyPaidPocket));
-      await tester.pumpAndSettle();
-      await tapSave(tester);
-      expect(find.text(l.moneyPickMember), findsOneWidget);
-      verifyNever(() => repo.saveBazar(any()));
-
-      // Chips: buyer row first, payer row second.
-      final payer = find.widgetWithText(ChoiceChip, 'Rahim').last;
-      await tester.ensureVisible(payer);
-      await tester.pumpAndSettle();
-      await tester.tap(payer);
-      await tester.pumpAndSettle();
-      await tapSave(tester);
-      final b =
-          verify(() => repo.saveBazar(captureAny())).captured.single as Bazar;
-      expect(b.paidByMemberId, 'me');
-      expect(b.buyerMemberId, isNull);
-    });
-
-    Future<void> tapChip(WidgetTester tester, String name) async {
-      final chip = find.widgetWithText(FilterChip, name).last;
-      await tester.ensureVisible(chip);
-      await tester.tap(chip);
+    Future<void> tapIt(WidgetTester tester, Finder f) async {
+      await reveal(tester, f);
+      await tester.tap(f);
       await tester.pumpAndSettle();
     }
 
+    Future<void> buyer(WidgetTester tester, String name) =>
+        tapIt(tester, find.widgetWithText(FilterChip, name));
+
+    /// Finds [name] through the picker's search and toggles its chip.
+    Future<void> pick(WidgetTester tester, String name) async {
+      final search = find.byKey(const Key('picker-search'));
+      await reveal(tester, search);
+      await tester.enterText(search, name);
+      await tester.pumpAndSettle();
+      await tapIt(tester, find.widgetWithText(FilterChip, name));
+    }
+
     Future<void> price(WidgetTester tester, int i, String v) async {
-      final f = find.widgetWithText(TextFormField, l.bazarItemPrice).at(i);
-      await tester.ensureVisible(f);
+      final f = find.byKey(const Key('item-price')).at(i);
+      await reveal(tester, f);
       await tester.enterText(f, v);
       await tester.pumpAndSettle();
     }
@@ -336,6 +320,84 @@ void main() {
         .controller!
         .text;
 
+    Bazar saved() =>
+        verify(() => repo.saveBazar(captureAny())).captured.single as Bazar;
+
+    testWidgets('bazar needs a buyer; several buyers, mess fund by default', (
+      tester,
+    ) async {
+      await pump(tester, opener(showAddBazarSheet));
+      await openSheet(tester);
+      expect(find.text(l.bazarAdd), findsOneWidget);
+      await tester.enterText(find.byKey(const Key('amount')), '১২৫০.৫০');
+      await tapSave(tester);
+      expect(find.text(l.bazarPickBuyer), findsWidgets);
+      verifyNever(() => repo.saveBazar(any()));
+
+      await buyer(tester, 'Karim');
+      await buyer(tester, 'Rahim');
+      await tapSave(tester);
+      final b = saved();
+      expect(b.messId, 'mess1');
+      expect(b.amount, 1250.5);
+      expect(b.buyers, ['k', 'me']);
+      expect(b.buyerMemberId, 'k', reason: 'first pick is mirrored');
+      expect(b.paidByMemberId, isNull);
+      expect(b.items, isEmpty);
+      expect(find.text(l.moneySaved), findsOneWidget);
+    });
+
+    testWidgets('a buyer can be unpicked; one member pays', (tester) async {
+      await pump(tester, opener(showAddBazarSheet));
+      await openSheet(tester);
+      await tester.enterText(find.byKey(const Key('amount')), '300');
+      await buyer(tester, 'Karim');
+      await buyer(tester, 'Rahim');
+      await buyer(tester, 'Karim'); // unpick
+      await tapIt(tester, find.widgetWithText(ChoiceChip, 'Karim'));
+      expect(find.text(l.moneyPaidPocketHelp), findsOneWidget);
+      await tapSave(tester);
+      final b = saved();
+      expect(b.buyers, ['me']);
+      expect(b.paidByMemberId, 'k');
+    });
+
+    testWidgets('editing keeps the buyers; delete sits in the overflow', (
+      tester,
+    ) async {
+      when(() => repo.deleteBazar(any())).thenAnswer((_) async {});
+      final existing = Bazar(
+        id: 'b1',
+        messId: 'mess1',
+        date: DateTime(2026, 10, 2),
+        amount: 120,
+        buyers: const ['me', 'k'],
+        items: const [
+          BazarItem(id: 'i1', name: 'আলু', price: 120, qty: 2, unit: 'কেজি'),
+        ],
+      );
+      await pump(tester, opener((c) => showBazarForm(c, existing: existing)));
+      await openSheet(tester);
+      expect(find.text(l.bazarEdit), findsOneWidget);
+      expect(find.text('২ কেজি'), findsOneWidget);
+      expect(find.widgetWithText(AppButton, l.delete), findsNothing);
+      await tapSave(tester);
+      final b = saved();
+      expect(b.id, 'b1');
+      expect(b.buyers, ['me', 'k']);
+      expect(b.items.single.name, 'আলু');
+
+      await pump(tester, opener((c) => showBazarForm(c, existing: existing)));
+      await openSheet(tester);
+      await tester.tap(find.byType(PopupMenuButton<int>));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(l.delete).last);
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(TextButton, l.delete).last);
+      await tester.pumpAndSettle();
+      verify(() => repo.deleteBazar('b1')).called(1);
+    });
+
     testWidgets('picker: frequent items first, then the catalogue', (
       tester,
     ) async {
@@ -344,96 +406,153 @@ void main() {
       ).thenAnswer((_) async => ['মুরগি', 'ডিম', 'ডিম', 'বিস্কুট']);
       await pump(tester, opener(showAddBazarSheet));
       await openSheet(tester);
+      // Category tabs; the first (most bought) is open.
       expect(find.text(l.bazarPickerFrequent), findsOneWidget);
       expect(find.text(l.bazarPickerStaples), findsOneWidget);
       expect(find.text(l.bazarPickerSpice), findsOneWidget);
       // A mess's own item that is not in the catalogue.
       expect(find.widgetWithText(FilterChip, 'বিস্কুট'), findsOneWidget);
-      Offset x(String n) =>
-          tester.getTopLeft(find.widgetWithText(FilterChip, n).first);
-      expect(x('ডিম').dy, lessThanOrEqualTo(x('মুরগি').dy));
-      expect(x('ডিম').dx, lessThan(x('মুরগি').dx));
+      expect(find.widgetWithText(FilterChip, 'চাল'), findsNothing);
+      Offset at(String n) =>
+          tester.getTopLeft(find.widgetWithText(FilterChip, n));
+      final (egg, chicken) = (at('ডিম'), at('মুরগি'));
+      expect(
+        egg.dy < chicken.dy || (egg.dy == chicken.dy && egg.dx < chicken.dx),
+        isTrue,
+        reason: 'ডিম (bought twice) reads before মুরগি',
+      );
+
+      await tapIt(tester, find.text(l.bazarPickerStaples));
+      expect(find.widgetWithText(FilterChip, 'চাল'), findsOneWidget);
+      expect(find.widgetWithText(FilterChip, 'বিস্কুট'), findsNothing);
     });
 
-    testWidgets('picker adds and removes lines; their sum fills the amount', (
+    testWidgets('picker search finds across tabs and adds a new name', (
       tester,
     ) async {
-      when(() => repo.itemNames(any())).thenAnswer((_) async => []);
       await pump(tester, opener(showAddBazarSheet));
       await openSheet(tester);
+      final search = find.byKey(const Key('picker-search'));
+      await tester.enterText(search, 'মরিচ');
+      await tester.pumpAndSettle();
+      // Veg and spice tabs both have a মরিচ.
+      expect(find.widgetWithText(FilterChip, 'কাঁচা মরিচ'), findsOneWidget);
+      expect(find.widgetWithText(FilterChip, 'মরিচ গুঁড়া'), findsOneWidget);
+      expect(find.widgetWithText(FilterChip, 'আলু'), findsNothing);
 
-      await tapChip(tester, 'আলু');
-      await tapChip(tester, 'ডিম');
+      await tester.enterText(search, 'সাবান');
+      await tester.pumpAndSettle();
+      await tapIt(tester, find.text(l.bazarPickerAddNamed('সাবান')));
+      expect(find.byKey(const Key('item-price')), findsOneWidget);
       expect(
-        find.widgetWithText(TextFormField, l.bazarItemPrice),
-        findsNWidgets(2),
+        tester
+            .widget<TextFormField>(find.byKey(const Key('item-name')))
+            .controller!
+            .text,
+        'সাবান',
       );
-      expect(find.text('কেজি'), findsOneWidget);
-      expect(find.text('হালি'), findsOneWidget);
+    });
+
+    testWidgets('picker adds and removes lines; sum fills amount and total', (
+      tester,
+    ) async {
+      await pump(tester, opener(showAddBazarSheet));
+      await openSheet(tester);
+      await buyer(tester, 'Karim');
+
+      await pick(tester, 'আলু');
+      await pick(tester, 'ডিম');
+      expect(find.byKey(const Key('item-price')), findsNWidgets(2));
+      expect(find.text('১ কেজি'), findsOneWidget);
+      expect(find.text('১ হালি'), findsOneWidget);
       await price(tester, 0, '60');
       await price(tester, 1, '50');
-      expect(amount(tester), '110');
+      expect(amount(tester), '১১০');
       expect(find.text('৳১১০'), findsOneWidget); // sticky running total
 
-      // Tapping again removes the line and its price.
-      await tapChip(tester, 'আলু');
-      expect(
-        find.widgetWithText(TextFormField, l.bazarItemPrice),
-        findsOneWidget,
-      );
-      expect(amount(tester), '50');
+      // Tapping the chip again removes the line and its price.
+      await pick(tester, 'আলু');
+      expect(find.byKey(const Key('item-price')), findsOneWidget);
+      expect(amount(tester), '৫০');
+      expect(find.text('৳৫০'), findsOneWidget);
 
-      // The qty stepper.
-      final plus = find.byTooltip('${l.mealCellIncrease} ${l.bazarItemQty}');
-      await tester.ensureVisible(plus);
-      await tester.tap(plus);
-      await tester.pumpAndSettle();
+      // The qty stepper, then the unit chooser.
+      await tapIt(
+        tester,
+        find.bySemanticsLabel('${l.mealCellIncrease} ${l.bazarItemQty}'),
+      );
+      expect(find.text('২ হালি'), findsOneWidget);
+      await tapIt(tester, find.text('২ হালি'));
+      await tapIt(tester, find.text('ডজন').last);
+      expect(find.text('২ ডজন'), findsOneWidget);
 
       await tapSave(tester);
-      final b =
-          verify(() => repo.saveBazar(captureAny())).captured.single as Bazar;
-      expect(b.amount, 50);
-      final item = b.items.single;
+      final item = saved().items.single;
       expect(
         (item.name, item.qty, item.unit, item.price),
-        ('ডিম', 2.0, 'হালি', 50.0),
+        ('ডিম', 2.0, 'ডজন', 50.0),
       );
+    });
+
+    testWidgets('swipe removes a line; undo puts it back', (tester) async {
+      await pump(tester, opener(showAddBazarSheet));
+      await openSheet(tester);
+      await pick(tester, 'আলু');
+      await pick(tester, 'ডিম');
+      await price(tester, 0, '60');
+      await price(tester, 1, '50');
+      expect(amount(tester), '১১০');
+
+      await tester.fling(find.text('১ কেজি'), const Offset(-600, 0), 2000);
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('item-price')), findsOneWidget);
+      expect(amount(tester), '৫০');
+      expect(find.text(l.bazarItemRemoved), findsOneWidget);
+
+      await tester.tap(find.text(l.undo));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('item-price')), findsNWidgets(2));
+      expect(amount(tester), '১১০');
+      final first = tester.widget<TextFormField>(
+        find.byKey(const Key('item-name')).first,
+      );
+      expect(first.controller!.text, 'আলু', reason: 'back in its place');
     });
 
     testWidgets('a typed amount is kept; the sum becomes a hint', (
       tester,
     ) async {
-      when(() => repo.itemNames(any())).thenAnswer((_) async => []);
       await pump(tester, opener(showAddBazarSheet));
       await openSheet(tester);
       await tester.enterText(find.byKey(const Key('amount')), '700');
-      await tapChip(tester, 'চাল');
+      await pick(tester, 'চাল');
       await price(tester, 0, '650');
       expect(amount(tester), '700');
       expect(find.text(l.bazarItemsSum('৳৬৫০')), findsOneWidget);
-      await tester.tap(find.text(l.bazarUseSum));
-      await tester.pumpAndSettle();
-      expect(amount(tester), '650');
+      await tapIt(tester, find.text(l.bazarUseSum));
+      expect(amount(tester), '৬৫০');
+      expect(find.text(l.bazarItemsSum('৳৬৫০')), findsNothing);
     });
 
-    testWidgets('custom item line', (tester) async {
-      when(() => repo.itemNames(any())).thenAnswer((_) async => []);
+    testWidgets('custom item line; a line without a price blocks save', (
+      tester,
+    ) async {
       await pump(tester, opener(showAddBazarSheet));
       await openSheet(tester);
-      final custom = find.text(l.bazarPickerCustom);
-      await tester.ensureVisible(custom);
-      await tester.tap(custom);
+      await buyer(tester, 'Rahim');
+      await tapIt(tester, find.text(l.bazarAddItem));
+      await tester.enterText(find.byKey(const Key('item-name')), 'সাবান');
       await tester.pumpAndSettle();
-      await tester.enterText(
-        find.widgetWithText(TextFormField, l.bazarItemName),
-        'সাবান',
-      );
+      await tapSave(tester);
+      expect(find.text(l.bazarItemInvalid), findsWidgets);
+      verifyNever(() => repo.saveBazar(any()));
+
       await price(tester, 0, '40');
       await tapSave(tester);
-      final b =
-          verify(() => repo.saveBazar(captureAny())).captured.single as Bazar;
+      final b = saved();
       expect(b.amount, 40);
       expect(b.items.single.name, 'সাবান');
+      expect(b.items.single.qty, 1);
     });
 
     testWidgets('invalid amount blocks submit', (tester) async {
@@ -443,6 +562,33 @@ void main() {
       await tapSave(tester);
       expect(find.text(l.moneyAmountInvalid), findsOneWidget);
       verifyNever(() => repo.saveBazar(any()));
+    });
+
+    testWidgets('360 dp at 1.3× text: no overflow', (tester) async {
+      await pump(tester, opener(showAddBazarSheet));
+      tester.view.physicalSize = const Size(1080, 2220); // 360 × 740 dp
+      tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await tester.pumpAndSettle();
+      await openSheet(tester);
+      await buyer(tester, 'Karim');
+      await pick(tester, 'সয়াবিন তেল');
+      await price(tester, 0, '১২৫০');
+      await tapIt(
+        tester,
+        find.bySemanticsLabel('${l.mealCellIncrease} ${l.bazarItemQty}'),
+      );
+      await tapIt(
+        tester,
+        find.bySemanticsLabel('${l.mealCellDecrease} ${l.bazarItemQty}'),
+      );
+      await tapIt(
+        tester,
+        find.bySemanticsLabel('${l.mealCellDecrease} ${l.bazarItemQty}'),
+      );
+      expect(find.text('০.৫ লিটার'), findsOneWidget);
+      await tapIt(tester, find.widgetWithText(ChoiceChip, 'Karim'));
+      expect(tester.takeException(), isNull);
     });
 
     testWidgets('expense takes the category default split', (tester) async {
@@ -611,7 +757,7 @@ void main() {
       await tester.tap(chip);
       await tester.pumpAndSettle();
       expect(
-        find.widgetWithText(TextFormField, 'কেজি'),
+        find.text('১ কেজি'),
         findsOneWidget,
         reason: 'the config unit fills the line',
       );
@@ -652,7 +798,7 @@ void main() {
           messId: 'mess1',
           date: DateTime(2026, 10, 2),
           amount: 820,
-          buyerMemberId: 'k',
+          buyers: ['k'],
         ),
       ],
     );
@@ -820,15 +966,17 @@ void main() {
       await pump(tester, opener(showAddBazarSheet));
       await openSheet(tester);
       await tester.enterText(find.byKey(const Key('amount')), '200');
+      await tester.tap(find.widgetWithText(FilterChip, 'Karim'));
+      await tester.pumpAndSettle();
       final attach = find.text(l.receiptAttach);
-      await tester.ensureVisible(attach);
+      await reveal(tester, attach);
       await tester.tap(attach);
       await tester.pumpAndSettle();
       expect(find.byType(Image), findsOneWidget);
 
       await tapSave(tester);
       expect(find.text(l.networkError), findsOneWidget);
-      expect(find.text(l.bazarAdd), findsOneWidget); // sheet still open
+      expect(find.text(l.bazarAdd), findsOneWidget); // page still open
       expect(find.byKey(const Key('amount')), findsOneWidget);
       verifyNever(() => repo.saveBazar(any()));
 

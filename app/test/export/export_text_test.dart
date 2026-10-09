@@ -128,7 +128,7 @@ void main() {
         messId: 'x',
         date: DateTime(2026, 10, 5),
         amount: 650.5,
-        buyerMemberId: 'a',
+        buyers: ['a'],
         note: 'চাল, ডাল',
         items: const [
           BazarItem(id: 'i', name: 'চাল', price: 400, qty: 5, unit: 'kg'),

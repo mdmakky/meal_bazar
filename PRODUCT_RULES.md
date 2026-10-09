@@ -16,6 +16,7 @@ These are the business rules. The SQL implementation is in `supabase/migrations`
 ## 2. Money
 - Every amount is `numeric(12,2)` and at least 0. Currency is shown as ৳.
 - **Bazar** (a grocery purchase) is always a *food* cost.
+  One or more members can be recorded as having gone to the bazar (**buyers**, at least one in the app). Buyers are informational only and change no money math; only the payer below gets a credit.
 - **Expense** has a category and a `split`:
   - `meal`: added to the food cost (it affects the meal rate). Example: cooking gas, if the mess wants that.
   - `equal`: split equally among the members **present on the expense date**.

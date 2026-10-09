@@ -54,7 +54,7 @@ class Bazar {
     required this.messId,
     required this.date,
     required this.amount,
-    this.buyerMemberId,
+    this.buyers = const [],
     this.paidByMemberId,
     this.note,
     this.items = const [],
@@ -67,7 +67,13 @@ class Bazar {
     messId: j['mess_id'] as String,
     date: DateTime.parse(j['date'] as String),
     amount: _d(j['amount']),
-    buyerMemberId: j['buyer_member_id'] as String?,
+    buyers: switch (j['bazar_buyers']) {
+      final List rows when rows.isNotEmpty => [
+        for (final r in rows)
+          (r as Map<String, dynamic>)['member_id'] as String,
+      ],
+      _ => [?j['buyer_member_id'] as String?],
+    },
     paidByMemberId: j['paid_by_member_id'] as String?,
     note: j['note'] as String?,
     source: j['source'] as String? ?? 'app',
@@ -82,7 +88,18 @@ class Bazar {
   final String messId;
   final DateTime date;
   final double amount;
-  final String? buyerMemberId;
+
+  /// `bazar_buyers`: who went to the bazar (informational, no money math).
+  final List<String> buyers;
+
+  /// The first buyer, mirrored into `bazars.buyer_member_id` for old clients.
+  String? get buyerMemberId => buyers.firstOrNull;
+
+  /// "Rahim, Karim" in pick order (unknown ids skipped); null when none.
+  String? buyerNames(Map<String, String> names) {
+    final known = [for (final id in buyers) ?names[id]];
+    return known.isEmpty ? null : known.join(', ');
+  }
 
   /// Null = paid from the mess fund; set = that member's own pocket (credit).
   final String? paidByMemberId;

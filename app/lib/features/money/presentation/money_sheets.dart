@@ -1,4 +1,9 @@
+import 'dart:math' as math;
+
+import 'package:flutter/foundation.dart'
+    show ValueListenable, listEquals, setEquals;
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart' show CustomSemanticsAction;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -29,15 +34,6 @@ Future<void> showAddExpenseSheet(BuildContext context) =>
 
 Future<void> showAddDepositSheet(BuildContext context) =>
     showDepositForm(context);
-
-Future<void> showBazarForm(BuildContext context, {Bazar? existing}) {
-  final l = AppLocalizations.of(context);
-  return _showForm(
-    context,
-    existing == null ? l.bazarAdd : l.bazarEdit,
-    (key) => _BazarForm(key: key, existing: existing),
-  );
-}
 
 Future<void> showExpenseForm(BuildContext context, {Expense? existing}) {
   final l = AppLocalizations.of(context);
@@ -655,23 +651,42 @@ Future<void> showReceipt(BuildContext context, String path) => showDialog<void>(
 );
 
 // ── Bazar ─────────────────────────────────────────────────────────────────
+//
+// Performance: typing never rebuilds the page. Rows own their rebuilds (each
+// field listens to its own controller), the total is a listenable only the
+// footer and the sum hint watch, the item list and the picker are cached
+// widget instances that rebuild only on add/remove, and each picker chip
+// rebuilds only when its own check flips.
 
-class _ItemCtrls {
-  _ItemCtrls([BazarItem? i])
-    : name = TextEditingController(text: i?.name),
-      qty = TextEditingController(text: i?.qty == null ? '' : _num(i!.qty!)),
-      unit = TextEditingController(text: i?.unit),
-      price = TextEditingController(text: i == null ? '' : _num(i.price));
+/// One item row's state. It lives outside the row widget, so a lazily
+/// rebuilt row (scrolled away and back) keeps its text, qty and unit.
+class _Line {
+  _Line({
+    String name = '',
+    double? price,
+    this.qty = 1,
+    this.unit,
+    this.fresh = true,
+  }) : name = TextEditingController(text: name),
+       price = TextEditingController(text: price == null ? '' : _num(price));
 
-  final TextEditingController name, qty, unit, price;
+  final TextEditingController name, price;
+  double? qty;
+  String? unit;
 
-  bool get isEmpty =>
-      [name, qty, unit, price].every((c) => c.text.trim().isEmpty);
+  /// Added after the page opened: the row grows in once.
+  bool fresh;
+
+  bool get isEmpty => name.text.trim().isEmpty && price.text.trim().isEmpty;
+
+  /// Empty lines are skipped on save; others need a name and a valid price.
+  bool get valid =>
+      isEmpty ||
+      (name.text.trim().isNotEmpty && parseAmount(price.text) != null);
 
   void dispose() {
-    for (final c in [name, qty, unit, price]) {
-      c.dispose();
-    }
+    name.dispose();
+    price.dispose();
   }
 }
 
@@ -679,111 +694,188 @@ class _ItemCtrls {
 String _num(double v) =>
     v == v.roundToDouble() ? v.toInt().toString() : v.toString();
 
-class _BazarForm extends ConsumerStatefulWidget {
-  const _BazarForm({super.key, this.existing});
+/// Add / edit a bazar on a full-screen page: who went, who paid, the total,
+/// then the items (one compact row each) with the catalogue picker.
+Future<void> showBazarForm(BuildContext context, {Bazar? existing}) async {
+  final done = await Navigator.of(context).push<String>(
+    MaterialPageRoute(
+      fullscreenDialog: true,
+      builder: (_) => _BazarPage(existing: existing),
+    ),
+  );
+  if (done != null && context.mounted) showSnack(context, done);
+}
+
+class _BazarPage extends ConsumerStatefulWidget {
+  const _BazarPage({this.existing});
 
   final Bazar? existing;
 
   @override
-  ConsumerState<_BazarForm> createState() => _BazarFormState();
+  ConsumerState<_BazarPage> createState() => _BazarPageState();
 }
 
-class _BazarFormState extends ConsumerState<_BazarForm>
-    with _Submit<_BazarForm>, _Photo<_BazarForm> {
+class _BazarPageState extends ConsumerState<_BazarPage>
+    with _Submit<_BazarPage>, _Photo<_BazarPage> {
   late final Bazar? _b = widget.existing;
   late final _amount = TextEditingController(
     text: _b == null ? '' : _num(_b.amount),
   );
   late final _note = TextEditingController(text: _b?.note);
   late var _date = _b?.date ?? today();
-  late var _buyer = _b?.buyerMemberId;
-  late var _pocket = _b?.paidByMemberId != null;
+
+  /// In pick order; the first is mirrored into `buyer_member_id`.
+  late final _buyers = <String>{...?_b?.buyers};
+
+  /// Null = the mess fund.
   late var _paidBy = _b?.paidByMemberId;
-  late final _items = [for (final i in _b?.items ?? const []) _ItemCtrls(i)];
   late var _source = _b?.source ?? 'app';
 
   /// The user typed an amount: item changes stop overwriting it.
   late var _amountTyped = _b != null;
 
+  /// The rows, changed only by add / remove / undo / scan.
+  final _lines = ValueNotifier<List<_Line>>(const []);
+
+  /// Every line ever made, disposed with the page. A removed row is never
+  /// disposed on the spot: its fields still build in the frame that drops it.
+  final _made = <_Line>[];
+
+  /// Sum of the line prices.
+  final _sum = ValueNotifier<double>(0);
+
+  /// The lines' names, for the picker's checks. Notifies only on a change.
+  final _names = ValueNotifier<Set<String>>(const {});
+
+  /// Save-blocking problems, repeated in the footer: the field showing the
+  /// error may be scrolled away (or an unbuilt row of the lazy list).
+  var _problems = const <String>[];
+
   @override
   void initState() {
     super.initState();
     photoPath = _b?.receiptPath;
-  }
-
-  /// AI reads a receipt or ফর্দ into a draft; the user still reviews and saves.
-  Future<void> _scan() async {
-    final draft = await scanBazarReceipt(context);
-    if (draft == null || !mounted) return;
-    setState(() {
-      // Replaced rows are not disposed: their fields may still build this frame.
-      _items
-        ..clear()
-        ..addAll([
-          for (final d in draft.items)
-            _ItemCtrls(
-              BazarItem(
-                id: '',
-                name: d.name,
-                price: d.price,
-                qty: d.qty,
-                unit: d.unit,
-              ),
-            ),
-        ]);
-      _amount.text = _num(
-        draft.total ?? itemsTotal(draft.items.map((d) => d.price)),
-      );
-      _amountTyped = draft.total != null;
-      _source = 'ai';
-    });
+    _setLines([
+      for (final i in _b?.items ?? const <BazarItem>[])
+        _track(
+          _Line(
+            name: i.name,
+            price: i.price,
+            qty: i.qty,
+            unit: i.unit,
+            fresh: false,
+          ),
+        ),
+    ]);
   }
 
   @override
   void dispose() {
     _amount.dispose();
     _note.dispose();
-    for (final i in _items) {
+    _lines.dispose();
+    _sum.dispose();
+    _names.dispose();
+    for (final i in _made) {
       i.dispose();
     }
     super.dispose();
   }
 
-  double get _itemsSum =>
-      itemsTotal([for (final i in _items) parseAmount(i.price.text) ?? 0]);
+  _Line _track(_Line line) {
+    _made.add(line);
+    line.price.addListener(_recalc);
+    line.name.addListener(_rename);
+    return line;
+  }
 
-  /// Items changed: the amount follows their sum until the user types one.
-  void _itemsChanged() => setState(() {
+  void _setLines(List<_Line> next) {
+    _lines.value = next;
+    _recalc();
+    _rename();
+  }
+
+  /// The amount follows the items' sum until the user types one.
+  /// A filled-in amount in the locale's digits, like the user would type it.
+  String _typed(double v) => Fmt.digits(_num(v), bangla: banglaDigits(context));
+
+  void _recalc() {
+    final sum = itemsTotal([
+      for (final i in _lines.value) parseAmount(i.price.text) ?? 0,
+    ]);
+    _sum.value = sum;
     if (_amountTyped) return;
-    final sum = _itemsSum;
-    _amount.text = sum == 0 ? '' : _num(sum);
-  });
+    final text = sum == 0 ? '' : _typed(sum);
+    if (_amount.text != text) _amount.text = text;
+  }
 
-  _ItemCtrls? _line(String name) =>
-      _items.where((i) => i.name.text.trim() == name).firstOrNull;
+  void _rename() {
+    final names = {for (final i in _lines.value) i.name.text.trim()}
+      ..remove('');
+    if (!setEquals(names, _names.value)) _names.value = names;
+  }
 
-  /// Picker chip: adds a line (1 × the default unit), or removes it.
+  /// Picker chip: adds a line (1 × the catalogue unit), or removes it.
   void _toggle(String name) {
-    final line = _line(name);
-    if (line != null) {
-      _items.remove(line); // not disposed: its field may still build this frame
-    } else {
-      _items.add(
-        _ItemCtrls(
-          BazarItem(
-            id: '',
-            name: name,
-            price: 0,
-            qty: 1,
-            unit: catalogueUnit(
-              name,
-              ref.read(platformConfigProvider).catalogue,
-            ),
-          ),
-        )..price.clear(),
-      );
-    }
-    _itemsChanged();
+    final lines = _lines.value;
+    final hit = lines.where((i) => i.name.text.trim() == name).firstOrNull;
+    _setLines(
+      hit != null
+          ? [
+              for (final i in lines)
+                if (i != hit) i,
+            ]
+          : [
+              ...lines,
+              _track(
+                _Line(
+                  name: name,
+                  unit: catalogueUnit(
+                    name,
+                    ref.read(platformConfigProvider).catalogue,
+                  ),
+                ),
+              ),
+            ],
+    );
+  }
+
+  void _addBlank() => _setLines([..._lines.value, _track(_Line())]);
+
+  /// Swipe-to-delete, with an undo that puts the line back where it was.
+  void _remove(_Line line) {
+    final lines = [..._lines.value];
+    final at = lines.indexOf(line);
+    if (at < 0) return;
+    _setLines(lines..removeAt(at));
+    final l = AppLocalizations.of(context);
+    AppSnack.show(
+      context,
+      l.bazarItemRemoved,
+      icon: Icons.delete_outline,
+      actionLabel: l.undo,
+      onAction: () {
+        final now = _lines.value;
+        if (!mounted || now.contains(line)) return;
+        line.fresh = true;
+        _setLines([...now]..insert(math.min(at, now.length), line));
+      },
+    );
+  }
+
+  /// AI reads a receipt or ফর্দ into a draft; the user still reviews and saves.
+  Future<void> _scan() async {
+    final draft = await scanBazarReceipt(context);
+    if (draft == null || !mounted) return;
+    _amountTyped = draft.total != null;
+    _source = 'ai';
+    _setLines([
+      for (final d in draft.items)
+        _track(_Line(name: d.name, price: d.price, qty: d.qty, unit: d.unit)),
+    ]);
+    _amount.text = _num(
+      draft.total ?? itemsTotal(draft.items.map((d) => d.price)),
+    );
   }
 
   Bazar _build(String messId, String? receiptPath) => Bazar(
@@ -791,28 +883,39 @@ class _BazarFormState extends ConsumerState<_BazarForm>
     messId: messId,
     date: _date,
     amount: parseAmount(_amount.text)!,
-    buyerMemberId: _buyer,
-    paidByMemberId: _pocket ? _paidBy : null,
+    buyers: [..._buyers],
+    paidByMemberId: _paidBy,
     note: _trimmed(_note),
     source: _source,
     receiptPath: receiptPath,
     items: [
-      for (final i in _items)
+      for (final i in _lines.value)
         if (!i.isEmpty)
           BazarItem(
             id: uuidV4(),
             name: i.name.text.trim(),
             price: parseAmount(i.price.text)!,
-            qty: parseAmount(i.qty.text),
-            unit: _trimmed(i.unit),
+            qty: i.qty,
+            unit: i.unit,
           ),
     ],
   );
 
   @override
   void onSave(String messId) {
+    final formOk = formKey.currentState!.validate();
+    final l = AppLocalizations.of(context);
+    final problems = [
+      if (_buyers.isEmpty) l.bazarPickBuyer,
+      if (!_lines.value.every((i) => i.valid)) l.bazarItemInvalid,
+    ];
+    if (!listEquals(problems, _problems)) setState(() => _problems = problems);
+    if (!formOk || problems.isNotEmpty) return;
     final ctrl = ref.read(moneyControllerProvider);
-    save(() async => ctrl.saveBazar(_build(messId, await uploadPhoto(messId))));
+    run(
+      () async => ctrl.saveBazar(_build(messId, await uploadPhoto(messId))),
+      l.moneySaved,
+    );
   }
 
   @override
@@ -823,239 +926,732 @@ class _BazarFormState extends ConsumerState<_BazarForm>
     ),
   };
 
-  /// The running total, rolling as lines and prices change.
+  /// Built once: rebuilds only when lines are added or removed.
+  late final Widget _itemsSliver = ValueListenableBuilder<List<_Line>>(
+    valueListenable: _lines,
+    builder: (context, lines, _) {
+      final p = context.palette;
+      return DecoratedSliver(
+        decoration: BoxDecoration(
+          color: p.surfaceRaised,
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          boxShadow: AppElevation.raised(p),
+        ),
+        sliver: SliverList.builder(
+          itemCount: lines.length + 1,
+          findChildIndexCallback: (key) => switch (key) {
+            ObjectKey(:final value) when lines.contains(value) => lines.indexOf(
+              value as _Line,
+            ),
+            ValueKey<String>(value: 'add') => lines.length,
+            _ => null,
+          },
+          itemBuilder: (context, i) => i == lines.length
+              ? _AddLineRow(
+                  key: const ValueKey('add'),
+                  divided: lines.isNotEmpty,
+                  onTap: _addBlank,
+                )
+              : _LineRow(
+                  key: ObjectKey(lines[i]),
+                  line: lines[i],
+                  first: i == 0,
+                  onRemove: _remove,
+                ),
+        ),
+      );
+    },
+  );
+
+  /// Built once: the picker keeps its own state (open, tab, search).
+  late final Widget _picker = _Picker(
+    selected: _names,
+    onToggle: _toggle,
+    open: _b == null,
+  );
+
   @override
-  Widget footerLead(BuildContext context) {
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final messId = ref.watch(currentMessIdProvider);
+    final onDelete = this.onDelete;
+    return Scaffold(
+      appBar: AppBar(
+        leading: const CloseButton(),
+        title: Text(_b == null ? l.bazarAdd : l.bazarEdit),
+        actions: [
+          if (onDelete != null)
+            PopupMenuButton<int>(
+              enabled: !saving,
+              onSelected: (_) => onDelete(),
+              itemBuilder: (_) => [
+                PopupMenuItem(value: 0, child: Text(l.delete)),
+              ],
+            ),
+        ],
+      ),
+      body: messId == null
+          ? Padding(
+              padding: const EdgeInsets.all(AppSpace.gutter),
+              child: Text(l.moneyNoMess),
+            )
+          : Column(
+              children: [
+                Expanded(
+                  child: Form(
+                    key: formKey,
+                    child: CustomScrollView(
+                      slivers: [
+                        SliverPadding(
+                          padding: const EdgeInsets.fromLTRB(
+                            AppSpace.gutter,
+                            AppSpace.xs,
+                            AppSpace.gutter,
+                            AppSpace.md,
+                          ),
+                          // Not lazy: its form fields must stay mounted to validate.
+                          sliver: SliverToBoxAdapter(child: _top(messId)),
+                        ),
+                        SliverPadding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpace.gutter,
+                          ),
+                          sliver: _itemsSliver,
+                        ),
+                        SliverPadding(
+                          padding: const EdgeInsets.all(AppSpace.gutter),
+                          sliver: SliverToBoxAdapter(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              spacing: AppSpace.lg,
+                              children: [
+                                photoField(l.receiptAttach),
+                                TextFormField(
+                                  controller: _note,
+                                  maxLength: 300,
+                                  decoration: InputDecoration(
+                                    labelText: l.moneyNote,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                _footer(context, messId),
+              ],
+            ),
+    );
+  }
+
+  /// Date, who went, who paid, the total, the items heading and the picker.
+  Widget _top(String messId) {
     final l = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
-    return Row(
+    final all = ref.watch(membersProvider(messId)).value ?? const <Member>[];
+    final scan =
+        _b == null &&
+        ref.watch(platformConfigProvider.select((c) => c.aiBazarScan));
+    Widget section(String title, Widget child) => Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: AppSpace.sm,
       children: [
-        Expanded(child: Text(l.dashBazar, style: AppType.overline(context))),
-        RollingNumber.money(
-          parseAmount(_amount.text) ?? 0,
-          banglaDigits: banglaDigits(context),
-          style: text.titleLarge,
-        ),
+        Text(title, style: text.titleSmall),
+        child,
       ],
     );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: AppSpace.sm,
+          children: [
+            _DateChip(
+              value: _date,
+              onChanged: (d) => setState(() => _date = d),
+            ),
+            if (scan)
+              TextButton.icon(
+                icon: const Icon(Icons.document_scanner_outlined),
+                label: Text(l.bazarScan),
+                onPressed: saving ? null : _scan,
+              ),
+          ],
+        ),
+        const SizedBox(height: AppSpace.xl),
+        section(
+          l.bazarBuyers,
+          _Required(
+            ok: () => _buyers.isNotEmpty,
+            message: l.bazarPickBuyer,
+            child: Wrap(
+              spacing: AppSpace.sm,
+              runSpacing: AppSpace.sm,
+              children: [
+                for (final m in _pickable(all, null))
+                  FilterChip(
+                    avatar: InitialsAvatar(m.displayName, size: 24),
+                    showCheckmark: false,
+                    label: Text(m.displayName),
+                    selected: _buyers.contains(m.id),
+                    onSelected: (on) => setState(
+                      () => on ? _buyers.add(m.id) : _buyers.remove(m.id),
+                    ),
+                  ),
+                // A buyer who has since left still shows on an edit.
+                for (final m in all)
+                  if (_buyers.contains(m.id) &&
+                      !_pickable(all, null).contains(m))
+                    FilterChip(
+                      label: Text(m.displayName),
+                      selected: true,
+                      onSelected: (_) => setState(() => _buyers.remove(m.id)),
+                    ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: AppSpace.xl),
+        section(
+          l.bazarPayer,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: AppSpace.xs,
+            children: [
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  spacing: AppSpace.sm,
+                  children: [
+                    ChoiceChip(
+                      avatar: const Icon(Icons.account_balance_wallet_outlined),
+                      label: Text(l.moneyPaidFund),
+                      selected: _paidBy == null,
+                      onSelected: (_) => setState(() => _paidBy = null),
+                    ),
+                    for (final m in _pickable(all, _paidBy))
+                      ChoiceChip(
+                        avatar: InitialsAvatar(m.displayName, size: 24),
+                        showCheckmark: false,
+                        label: Text(m.displayName),
+                        selected: _paidBy == m.id,
+                        onSelected: (_) => setState(() => _paidBy = m.id),
+                      ),
+                  ],
+                ),
+              ),
+              if (_paidBy != null) _Label(l.moneyPaidPocketHelp),
+            ],
+          ),
+        ),
+        const SizedBox(height: AppSpace.xl),
+        _AmountField(
+          controller: _amount,
+          onChanged: (_) => _amountTyped = true,
+        ),
+        ListenableBuilder(
+          listenable: Listenable.merge([_amount, _sum]),
+          builder: (context, _) {
+            final sum = _sum.value;
+            if (sum == 0 || parseAmount(_amount.text) == sum) {
+              return const SizedBox.shrink();
+            }
+            return Row(
+              children: [
+                Expanded(child: _Label(l.bazarItemsSum(money(context, sum)))),
+                TextButton(
+                  onPressed: () {
+                    _amountTyped = false;
+                    _amount.text = _typed(sum);
+                  },
+                  child: Text(l.bazarUseSum),
+                ),
+              ],
+            );
+          },
+        ),
+        const SizedBox(height: AppSpace.xl),
+        Text(l.bazarItems, style: text.titleSmall),
+        const SizedBox(height: AppSpace.sm),
+        if (ref.featureOn('bazar_picker')) ...[
+          _picker,
+          const SizedBox(height: AppSpace.md),
+        ],
+      ],
+    );
+  }
+
+  /// Error line, then "মোট" with the rolling total beside Save. Only this
+  /// part listens to the amount.
+  Widget _footer(BuildContext context, String messId) {
+    final l = AppLocalizations.of(context);
+    final p = context.palette;
+    final text = Theme.of(context).textTheme;
+    final error = this.error;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: p.surface,
+        border: Border(top: BorderSide(color: p.border)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpace.gutter,
+            AppSpace.md,
+            AppSpace.gutter,
+            AppSpace.md,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: AppSpace.sm,
+            children: [
+              for (final e in [
+                if (error != null) failureText(context, error),
+                ..._problems,
+              ])
+                Text(e, style: text.bodyMedium?.copyWith(color: p.due)),
+              Row(
+                spacing: AppSpace.lg,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(l.bazarTotal, style: AppType.overline(context)),
+                        ValueListenableBuilder(
+                          valueListenable: _amount,
+                          builder: (context, v, _) => FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: AlignmentDirectional.centerStart,
+                            child: RollingNumber.money(
+                              parseAmount(v.text) ?? 0,
+                              banglaDigits: banglaDigits(context),
+                              style: text.titleLarge,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: AppButton(
+                      label: l.moneySave,
+                      loading: saving,
+                      onPressed: () => onSave(messId),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// One item on one ~56 dp row: name (edit in place), `− ১ কেজি +` (tap the
+/// unit to change it), price. Swipe left to remove. Rebuilds only itself.
+class _LineRow extends StatefulWidget {
+  const _LineRow({
+    super.key,
+    required this.line,
+    required this.first,
+    required this.onRemove,
+  });
+
+  final _Line line;
+  final bool first;
+  final ValueChanged<_Line> onRemove;
+
+  @override
+  State<_LineRow> createState() => _LineRowState();
+}
+
+class _LineRowState extends State<_LineRow> {
+  /// Read once: a row remounted by scrolling does not grow in again.
+  late final bool _grow = widget.line.fresh;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.line.fresh = false;
+  }
+
+  void _setQty(double v) => setState(() => widget.line.qty = v);
+
+  Future<void> _pickUnit() async {
+    final l = AppLocalizations.of(context);
+    final line = widget.line;
+    final picked = await pickOne<String>(
+      context,
+      title: l.bazarItemUnit,
+      options: [
+        for (final u in {?line.unit, ...bazarUnits}) (u, u),
+        ('', l.bazarUnitNone),
+      ],
+    );
+    if (picked == null || !mounted) return;
+    setState(() => line.unit = picked.isEmpty ? null : picked);
   }
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return _WithMess(
-      builder: (messId) => Form(
-        key: formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: AppSpace.lg,
-          children: [
-            if (_b == null &&
-                ref.watch(platformConfigProvider.select((c) => c.aiBazarScan)))
-              Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: AppButton(
-                  label: l.bazarScan,
-                  icon: Icons.document_scanner_outlined,
-                  variant: AppButtonVariant.secondary,
-                  onPressed: saving ? null : _scan,
-                ),
-              ),
-            _AmountField(
-              controller: _amount,
-              onChanged: (_) => setState(() => _amountTyped = true),
-            ),
-            _DateChip(
-              value: _date,
-              onChanged: (d) => setState(() => _date = d),
-            ),
-            _Label(l.bazarBuyer),
-            _MemberChips(
-              messId: messId,
-              selected: _buyer,
-              onSelected: (id) => setState(() => _buyer = id),
-            ),
-            _PaidFrom(
-              messId: messId,
-              pocket: _pocket,
-              paidBy: _paidBy,
-              onPocket: (v) => setState(() => _pocket = v),
-              onPaidBy: (id) => setState(() => _paidBy = id),
-            ),
-            _Label(l.bazarItems),
-            if (ref.featureOn('bazar_picker'))
-              _Picker(
-                messId: messId,
-                selected: {for (final i in _items) i.name.text.trim()},
-                onToggle: _toggle,
-              ),
-            AnimatedSize(
-              duration: AppMotion.of(context, AppMotion.base),
-              curve: AppMotion.state,
-              alignment: Alignment.topCenter,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: AppSpace.sm,
-                children: [
-                  for (final i in _items)
-                    _Appear(key: ObjectKey(i), child: _itemRow(i)),
-                ],
-              ),
-            ),
-            Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: TextButton.icon(
-                icon: const Icon(Icons.add),
-                label: Text(l.bazarPickerCustom),
-                onPressed: () => setState(() => _items.add(_ItemCtrls())),
-              ),
-            ),
-            if (_items.any((i) => !i.isEmpty) &&
-                parseAmount(_amount.text) != _itemsSum)
-              Row(
-                children: [
-                  Expanded(
-                    child: _Label(l.bazarItemsSum(money(context, _itemsSum))),
-                  ),
-                  TextButton(
-                    onPressed: () => setState(() {
-                      _amountTyped = false;
-                      _amount.text = _num(_itemsSum);
-                    }),
-                    child: Text(l.bazarUseSum),
-                  ),
-                ],
-              ),
-            photoField(l.receiptAttach),
-            TextFormField(
-              controller: _note,
-              maxLength: 300,
-              decoration: InputDecoration(labelText: l.moneyNote),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// Name and price, then a qty stepper and the unit.
-  Widget _itemRow(_ItemCtrls i) {
-    final l = AppLocalizations.of(context);
-    final bn = banglaDigits(context);
+    final p = context.palette;
+    final text = Theme.of(context).textTheme;
+    final line = widget.line;
+    final qty = line.qty;
+    final qtyText = [
+      qty == null ? '—' : Fmt.digits(_num(qty), bangla: banglaDigits(context)),
+      ?line.unit,
+    ].join(' ');
     String? need(String? v) =>
-        !i.isEmpty && (v ?? '').trim().isEmpty ? l.bazarItemInvalid : null;
-    final qty = parseAmount(i.qty.text);
-    void setQty(double v) => setState(() => i.qty.text = _num(v));
-    return Column(
-      spacing: AppSpace.sm,
-      children: [
-        Row(
-          spacing: AppSpace.sm,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 3,
-              child: TextFormField(
-                controller: i.name,
-                maxLength: 60,
-                decoration: InputDecoration(
-                  labelText: l.bazarItemName,
-                  counterText: '',
-                ),
-                onChanged: (_) => setState(() {}),
-                validator: need,
-              ),
-            ),
-            Expanded(
-              flex: 2,
-              child: TextFormField(
-                controller: i.price,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                decoration: InputDecoration(
-                  labelText: l.bazarItemPrice,
-                  prefixText: '৳ ',
-                ),
-                onChanged: (_) => _itemsChanged(),
-                validator: (v) =>
-                    need(v) ??
-                    (i.isEmpty || parseAmount(v!) != null
-                        ? null
-                        : l.moneyAmountInvalid),
-              ),
-            ),
-          ],
-        ),
-        Row(
-          spacing: AppSpace.xs,
-          children: [
-            IconButton(
-              tooltip: '${l.mealCellDecrease} ${l.bazarItemQty}',
-              onPressed: qty == null || qty <= 0.5
-                  ? null
-                  : () => setQty(qty - (qty > 1 ? 1 : 0.5)),
-              icon: const Icon(Icons.remove),
-            ),
-            SizedBox(
-              width: AppSize.touch,
+        !line.isEmpty && (v ?? '').trim().isEmpty ? l.bazarItemInvalid : null;
+    const none = InputBorder.none;
+    OutlineInputBorder box([Color? c]) => OutlineInputBorder(
+      borderRadius: BorderRadius.circular(AppRadius.sm),
+      borderSide: c == null ? BorderSide.none : BorderSide(color: c),
+    );
+    final name = TextFormField(
+      key: const Key('item-name'),
+      controller: line.name,
+      autofocus: _grow && line.name.text.isEmpty,
+      maxLength: 60,
+      textInputAction: TextInputAction.next,
+      style: text.bodyLarge,
+      decoration: InputDecoration(
+        hintText: l.bazarItemName,
+        counterText: '',
+        isDense: true,
+        border: none,
+        enabledBorder: none,
+        focusedBorder: none,
+        errorBorder: none,
+        focusedErrorBorder: none,
+        contentPadding: const EdgeInsets.symmetric(vertical: AppSpace.md),
+      ),
+      validator: need,
+    );
+    final minus = _QtyButton(
+      icon: Icons.remove,
+      label: '${l.mealCellDecrease} ${l.bazarItemQty}',
+      onTap: qty == null || qty <= 0.5
+          ? null
+          : () => _setQty(qty - (qty > 1 ? 1 : 0.5)),
+    );
+    final label = Semantics(
+      button: true,
+      label: l.bazarQtyLabel(qtyText),
+      excludeSemantics: true,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        onTap: _pickUnit,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            minWidth: AppSize.stepTarget,
+            minHeight: AppSize.touch,
+          ),
+          child: Center(
+            widthFactor: 1,
+            child: PopOnChange(
+              value: qty,
               child: Text(
-                qty == null ? '—' : Fmt.digits(_num(qty), bangla: bn),
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                qtyText,
+                key: const Key('item-qty'),
+                maxLines: 1,
+                style: text.labelLarge?.copyWith(
                   fontFeatures: const [FontFeature.tabularFigures()],
                 ),
               ),
             ),
-            IconButton(
-              tooltip: '${l.mealCellIncrease} ${l.bazarItemQty}',
-              onPressed: () =>
-                  setQty(qty == null ? 1 : (qty < 1 ? qty + 0.5 : qty + 1)),
-              icon: const Icon(Icons.add),
-            ),
-            Expanded(
-              child: TextFormField(
-                controller: i.unit,
-                maxLength: 12,
-                decoration: InputDecoration(
-                  labelText: l.bazarItemUnit,
-                  counterText: '',
+          ),
+        ),
+      ),
+    );
+    final plus = _QtyButton(
+      icon: Icons.add,
+      label: '${l.mealCellIncrease} ${l.bazarItemQty}',
+      onTap: () => _setQty(qty == null ? 1 : (qty < 1 ? qty + 0.5 : qty + 1)),
+    );
+    final price = SizedBox(
+      width: _priceWidth,
+      child: TextFormField(
+        key: const Key('item-price'),
+        controller: line.price,
+        textAlign: TextAlign.start,
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        inputFormatters: [
+          FilteringTextInputFormatter.allow(RegExp('[0-9০-৯.]')),
+        ],
+        style: text.titleSmall?.copyWith(
+          fontFeatures: const [FontFeature.tabularFigures()],
+        ),
+        decoration: InputDecoration(
+          hintText: l.bazarItemPrice,
+          prefixText: '৳',
+          isDense: true,
+          filled: true,
+          fillColor: p.surfaceMuted,
+          errorMaxLines: 2,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: AppSpace.sm,
+            vertical: AppSpace.md,
+          ),
+          border: box(),
+          enabledBorder: box(),
+          focusedBorder: box(p.ink),
+          errorBorder: box(p.due),
+          focusedErrorBorder: box(p.due),
+        ),
+        validator: (v) =>
+            need(v) ??
+            (line.isEmpty || parseAmount(v!) != null
+                ? null
+                : l.moneyAmountInvalid),
+      ),
+    );
+    final row = Padding(
+      padding: const EdgeInsetsDirectional.only(
+        start: AppSpace.lg,
+        end: AppSpace.md,
+      ),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: AppSize.gridRow),
+        // One line normally; at a narrow width or a large text scale the
+        // name gets its own line and the qty label may shrink.
+        child: LayoutBuilder(
+          builder: (context, box) =>
+              box.maxWidth / MediaQuery.textScalerOf(context).scale(1) >=
+                  _oneLineWidth
+              ? Row(
+                  children: [
+                    Expanded(child: name),
+                    minus,
+                    label,
+                    plus,
+                    const SizedBox(width: AppSpace.xs),
+                    price,
+                  ],
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    name,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        minus,
+                        Flexible(child: label),
+                        plus,
+                        const SizedBox(width: AppSpace.xs),
+                        price,
+                      ],
+                    ),
+                  ],
+                ),
+        ),
+      ),
+    );
+    return Dismissible(
+      key: ObjectKey(line),
+      direction: DismissDirection.endToStart,
+      onDismissed: (_) => widget.onRemove(line),
+      background: ColoredBox(
+        color: p.due,
+        child: Align(
+          alignment: AlignmentDirectional.centerEnd,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpace.xl),
+            child: Icon(Icons.delete_outline, color: p.onInk),
+          ),
+        ),
+      ),
+      child: Semantics(
+        customSemanticsActions: {
+          CustomSemanticsAction(label: l.bazarRemoveItem): () =>
+              widget.onRemove(line),
+        },
+        child: _Appear(
+          animate: _grow,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _Hairline(visible: !widget.first),
+              row,
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+const double _priceWidth = 96;
+
+/// Row width (per text-scale unit) below which an item takes two lines.
+const double _oneLineWidth = 280;
+
+/// The inset hairline between rows on the items card.
+class _Hairline extends StatelessWidget {
+  const _Hairline({required this.visible});
+
+  final bool visible;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsetsDirectional.only(start: AppSpace.lg),
+    child: Divider(
+      height: AppSize.hairline,
+      color: visible ? null : Colors.transparent,
+    ),
+  );
+}
+
+/// The card's last row: "+ আইটেম যোগ করুন".
+class _AddLineRow extends StatelessWidget {
+  const _AddLineRow({super.key, required this.divided, required this.onTap});
+
+  final bool divided;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _Hairline(visible: divided),
+        Material(
+          type: MaterialType.transparency,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: divided
+                ? const BorderRadius.vertical(
+                    bottom: Radius.circular(AppRadius.md),
+                  )
+                : BorderRadius.circular(AppRadius.md),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: AppSize.gridRow),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpace.lg),
+                child: Row(
+                  spacing: AppSpace.md,
+                  children: [
+                    Icon(Icons.add, size: AppSize.spinner, color: p.ink),
+                    Flexible(
+                      child: Text(
+                        AppLocalizations.of(context).bazarAddItem,
+                        style: Theme.of(context).textTheme.labelLarge,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-            IconButton(
-              tooltip: l.bazarRemoveItem,
-              icon: const Icon(Icons.close),
-              onPressed: () {
-                _items.remove(i); // not disposed: see _toggle
-                _itemsChanged();
-              },
-            ),
-          ],
+          ),
         ),
       ],
     );
   }
 }
 
-/// Categorized item chips: this mess's most bought, then the catalogue.
-/// A chip is selected while its line is in the form.
-class _Picker extends ConsumerWidget {
-  const _Picker({
-    required this.messId,
-    required this.selected,
-    required this.onToggle,
-  });
+/// A 28 dp circle in a 40 × 48 dp hit area (the meal grid's step button).
+class _QtyButton extends StatelessWidget {
+  const _QtyButton({required this.icon, required this.label, this.onTap});
 
-  final String messId;
-  final Set<String> selected;
-  final ValueChanged<String> onToggle;
+  final IconData icon;
+  final String label;
+  final VoidCallback? onTap;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = AppLocalizations.of(context);
-    final frequent = ref.watch(frequentItemsProvider(messId)).value ?? [];
-    final groups = <(String, List<String>)>[
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final on = onTap != null;
+    return Semantics(
+      button: true,
+      enabled: on,
+      label: label,
+      excludeSemantics: true,
+      child: PressableScale(
+        enabled: on,
+        haptic: on,
+        scale: 0.85,
+        child: InkResponse(
+          onTap: onTap,
+          radius: AppSize.stepTarget / 2,
+          child: SizedBox(
+            width: AppSize.stepTarget,
+            height: AppSize.touch,
+            child: Center(
+              child: AnimatedContainer(
+                duration: AppMotion.of(context, AppMotion.fast),
+                width: AppSize.stepFace,
+                height: AppSize.stepFace,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: on ? p.surfaceMuted : Colors.transparent,
+                  border: Border.all(color: on ? p.surfaceMuted : p.border),
+                ),
+                child: Icon(
+                  icon,
+                  size: AppSize.dot * 2,
+                  color: on ? p.ink : p.inkTertiary,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// "তালিকা থেকে বাছুন": a collapsible card with a search field, scrolling
+/// category tabs and the chips of one tab (or the search's matches). A chip
+/// is checked while its line is on the bazar; tapping toggles the line.
+class _Picker extends ConsumerStatefulWidget {
+  const _Picker({
+    required this.selected,
+    required this.onToggle,
+    required this.open,
+  });
+
+  final ValueListenable<Set<String>> selected;
+  final ValueChanged<String> onToggle;
+
+  /// Starts open (new bazar) or collapsed (edit).
+  final bool open;
+
+  @override
+  ConsumerState<_Picker> createState() => _PickerState();
+}
+
+class _PickerState extends ConsumerState<_Picker> {
+  late var _open = widget.open;
+  final _query = TextEditingController();
+  var _tab = 0;
+
+  @override
+  void dispose() {
+    _query.dispose();
+    super.dispose();
+  }
+
+  List<(String, List<String>)> _groups(AppLocalizations l) {
+    final messId = ref.watch(currentMessIdProvider);
+    final frequent = messId == null
+        ? const <String>[]
+        : ref.watch(frequentItemsProvider(messId)).value ?? const [];
+    return [
       if (frequent.isNotEmpty) (l.bazarPickerFrequent, frequent),
       if (ref.watch(platformConfigProvider).catalogue case final custom?)
         for (final g in custom) (g.name, [for (final i in g.items) i.name])
@@ -1071,30 +1667,300 @@ class _Picker extends ConsumerWidget {
             [for (final i in value) i.name],
           ),
     ];
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: AppSpace.sm,
-      children: [
-        Text(l.bazarPickerHelp, style: Theme.of(context).textTheme.bodySmall),
-        for (final (title, names) in groups) ...[
-          Text(title, style: Theme.of(context).textTheme.labelMedium),
-          Wrap(
-            spacing: AppSpace.sm,
-            runSpacing: AppSpace.sm,
-            children: [
-              for (final n in names)
-                PopOnChange(
-                  value: selected.contains(n),
-                  child: FilterChip(
-                    label: Text(n),
-                    selected: selected.contains(n),
-                    onSelected: (_) => onToggle(n),
-                  ),
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final p = context.palette;
+    final groups = _groups(l);
+    final tab = groups.isEmpty ? 0 : math.min(_tab, groups.length - 1);
+    final q = _query.text.trim();
+    final names = q.isEmpty
+        ? (groups.isEmpty ? const <String>[] : groups[tab].$2)
+        : {
+            for (final (_, ns) in groups)
+              for (final n in ns)
+                if (n.toLowerCase().contains(q.toLowerCase())) n,
+          }.toList();
+    return AppCard(
+      padding: EdgeInsets.zero,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          InkWell(
+            onTap: () => setState(() => _open = !_open),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: AppSize.touch),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpace.lg,
+                  vertical: AppSpace.sm,
                 ),
-            ],
+                child: Row(
+                  spacing: AppSpace.md,
+                  children: [
+                    Icon(
+                      Icons.playlist_add,
+                      size: AppSize.spinner,
+                      color: p.inkSecondary,
+                    ),
+                    Expanded(
+                      child: Text(l.bazarPickerTitle, style: text.labelLarge),
+                    ),
+                    AnimatedRotation(
+                      turns: _open ? 0.5 : 0,
+                      duration: AppMotion.of(context, AppMotion.base),
+                      curve: AppMotion.state,
+                      child: Icon(Icons.expand_more, color: p.inkSecondary),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          AnimatedSize(
+            duration: AppMotion.of(context, AppMotion.base),
+            curve: AppMotion.state,
+            alignment: Alignment.topCenter,
+            child: !_open
+                ? const SizedBox(width: double.infinity)
+                : Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpace.lg,
+                      0,
+                      AppSpace.lg,
+                      AppSpace.lg,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      spacing: AppSpace.md,
+                      children: [
+                        TextField(
+                          key: const Key('picker-search'),
+                          controller: _query,
+                          onChanged: (_) => setState(() {}),
+                          textInputAction: TextInputAction.search,
+                          decoration: InputDecoration(
+                            isDense: true,
+                            hintText: l.bazarPickerSearch,
+                            prefixIcon: const Icon(Icons.search),
+                            suffixIcon: q.isEmpty
+                                ? null
+                                : IconButton(
+                                    tooltip: MaterialLocalizations.of(
+                                      context,
+                                    ).deleteButtonTooltip,
+                                    icon: const Icon(Icons.close),
+                                    onPressed: () => setState(_query.clear),
+                                  ),
+                          ),
+                        ),
+                        if (q.isEmpty && groups.isNotEmpty)
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: [
+                                for (final (i, (title, _)) in groups.indexed)
+                                  _Tab(
+                                    title,
+                                    selected: i == tab,
+                                    onTap: () => setState(() => _tab = i),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        Wrap(
+                          spacing: AppSpace.sm,
+                          runSpacing: AppSpace.sm,
+                          children: [
+                            for (final n in names)
+                              _PickChip(
+                                key: ValueKey(n),
+                                name: n,
+                                selected: widget.selected,
+                                onToggle: widget.onToggle,
+                              ),
+                            if (q.isNotEmpty && !names.contains(q))
+                              ActionChip(
+                                avatar: const Icon(Icons.add),
+                                label: Text(l.bazarPickerAddNamed(q)),
+                                onPressed: () {
+                                  widget.onToggle(q);
+                                  setState(_query.clear);
+                                },
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
           ),
         ],
-      ],
+      ),
+    );
+  }
+}
+
+/// A category tab: label with an ink underline when selected.
+class _Tab extends StatelessWidget {
+  const _Tab(this.label, {required this.selected, required this.onTap});
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final text = Theme.of(context).textTheme;
+    return Semantics(
+      selected: selected,
+      button: true,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: AppSize.touch),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpace.md),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              spacing: AppSpace.xs,
+              children: [
+                Text(
+                  label,
+                  style: text.labelLarge?.copyWith(
+                    color: selected ? p.ink : p.inkSecondary,
+                  ),
+                ),
+                AnimatedContainer(
+                  duration: AppMotion.of(context, AppMotion.chip),
+                  curve: AppMotion.state,
+                  height: 2,
+                  width: selected ? AppSpace.xl : 0,
+                  decoration: BoxDecoration(
+                    color: p.ink,
+                    borderRadius: BorderRadius.circular(1),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A catalogue chip that rebuilds only when its own check flips.
+class _PickChip extends StatefulWidget {
+  const _PickChip({
+    super.key,
+    required this.name,
+    required this.selected,
+    required this.onToggle,
+  });
+
+  final String name;
+  final ValueListenable<Set<String>> selected;
+  final ValueChanged<String> onToggle;
+
+  @override
+  State<_PickChip> createState() => _PickChipState();
+}
+
+class _PickChipState extends State<_PickChip> {
+  late bool _on = widget.selected.value.contains(widget.name);
+
+  @override
+  void initState() {
+    super.initState();
+    widget.selected.addListener(_sync);
+  }
+
+  @override
+  void dispose() {
+    widget.selected.removeListener(_sync);
+    super.dispose();
+  }
+
+  void _sync() {
+    final on = widget.selected.value.contains(widget.name);
+    if (on != _on) setState(() => _on = on);
+  }
+
+  @override
+  Widget build(BuildContext context) => PopOnChange(
+    value: _on,
+    child: FilterChip(
+      label: Text(widget.name),
+      selected: _on,
+      onSelected: (_) => widget.onToggle(widget.name),
+    ),
+  );
+}
+
+/// Overlapping initials of everyone who went to the bazar (3, then "+n").
+class BuyerAvatars extends StatelessWidget {
+  const BuyerAvatars(this.names, {super.key, this.size = 24});
+
+  final List<String> names;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    if (names.isEmpty) return const SizedBox.shrink();
+    final p = context.palette;
+    final shown = names.take(3).toList();
+    final more = names.length - shown.length;
+    final step = size * 0.7;
+    final count = shown.length + (more > 0 ? 1 : 0);
+    Widget ring(Widget child) => DecoratedBox(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: p.surfaceRaised, width: 1.5),
+      ),
+      child: child,
+    );
+    return ExcludeSemantics(
+      child: SizedBox(
+        width: size + step * (count - 1),
+        height: size,
+        child: Stack(
+          children: [
+            for (final (i, n) in shown.indexed)
+              PositionedDirectional(
+                start: step * i,
+                child: ring(InitialsAvatar(n, size: size)),
+              ),
+            if (more > 0)
+              PositionedDirectional(
+                start: step * shown.length,
+                child: ring(
+                  Container(
+                    width: size,
+                    height: size,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: p.surfaceMuted,
+                    ),
+                    child: Text(
+                      '+${Fmt.digits('$more', bangla: banglaDigits(context))}',
+                      textScaler: TextScaler.noScaling,
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: p.inkSecondary,
+                        height: 1,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -1144,11 +2010,13 @@ class _BazarDetail extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
-    final names = {
-      for (final m in ref.watch(membersProvider(bazar.messId)).value ?? [])
+    final names = <String, String>{
+      for (final m
+          in ref.watch(membersProvider(bazar.messId)).value ?? const <Member>[])
         m.id: m.displayName,
     };
-    final buyer = names[bazar.buyerMemberId];
+    final buyerNames = [for (final id in bazar.buyers) ?names[id]];
+    final buyer = bazar.buyerNames(names);
     final payer = names[bazar.paidByMemberId];
     final bn = banglaDigits(context);
     Widget line(String label, Widget value, {TextStyle? style}) => Padding(
@@ -1164,10 +2032,17 @@ class _BazarDetail extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: AppSpace.sm,
       children: [
+        if (buyer != null)
+          Row(
+            spacing: AppSpace.sm,
+            children: [
+              BuyerAvatars(buyerNames),
+              Expanded(child: Text(buyer, style: text.titleSmall)),
+            ],
+          ),
         _Label(
           [
             longDate(context, bazar.date),
-            ?buyer,
             bazar.paidByMemberId == null
                 ? l.moneyPaidFund
                 : '${l.moneyPaidPocket}${payer == null ? '' : ' ($payer)'}',
@@ -1750,9 +2625,12 @@ class _MyDepositFormState extends ConsumerState<_MyDepositForm>
 
 /// A new bazar line grows open and fades in (instant with reduced motion).
 class _Appear extends StatefulWidget {
-  const _Appear({super.key, required this.child});
+  const _Appear({required this.child, this.animate = true});
 
   final Widget child;
+
+  /// False: shown as-is (e.g. a row remounted by scrolling).
+  final bool animate;
 
   @override
   State<_Appear> createState() => _AppearState();
@@ -1766,7 +2644,9 @@ class _AppearState extends State<_Appear> with SingleTickerProviderStateMixin {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_c.isDismissed) {
-      AppMotion.reduced(context) ? _c.value = 1 : _c.forward();
+      !widget.animate || AppMotion.reduced(context)
+          ? _c.value = 1
+          : _c.forward();
     }
   }
 

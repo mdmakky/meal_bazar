@@ -1364,5 +1364,17 @@
   "adminPaidWarningTitle": "Save paid models?",
   "adminPaidWarningBody": "\"Allow paid models\" is off, so the gateway will skip these models:",
   "adminSaveAnyway": "Save anyway",
-  "stampPaid": "Paid"
+  "stampPaid": "Paid",
+  "bazarBuyers": "Who went to the bazar",
+  "bazarPickBuyer": "Pick at least one person",
+  "bazarPayer": "Who paid",
+  "bazarTotal": "Total",
+  "bazarItemRemoved": "Item removed",
+  "undo": "Undo",
+  "bazarPickerTitle": "Pick from the list",
+  "bazarPickerSearch": "Search or type a new item",
+  "bazarPickerAddNamed": "Add “{name}”",
+  "bazarUnitNone": "No unit",
+  "bazarQtyLabel": "Quantity {qty}, tap to change the unit",
+  "bazarSwipeHint": "Swipe left to remove"
 }

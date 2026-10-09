@@ -2736,4 +2736,44 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get stampPaid => 'Paid';
+
+  @override
+  String get bazarBuyers => 'Who went to the bazar';
+
+  @override
+  String get bazarPickBuyer => 'Pick at least one person';
+
+  @override
+  String get bazarPayer => 'Who paid';
+
+  @override
+  String get bazarTotal => 'Total';
+
+  @override
+  String get bazarItemRemoved => 'Item removed';
+
+  @override
+  String get undo => 'Undo';
+
+  @override
+  String get bazarPickerTitle => 'Pick from the list';
+
+  @override
+  String get bazarPickerSearch => 'Search or type a new item';
+
+  @override
+  String bazarPickerAddNamed(String name) {
+    return 'Add “$name”';
+  }
+
+  @override
+  String get bazarUnitNone => 'No unit';
+
+  @override
+  String bazarQtyLabel(String qty) {
+    return 'Quantity $qty, tap to change the unit';
+  }
+
+  @override
+  String get bazarSwipeHint => 'Swipe left to remove';
 }

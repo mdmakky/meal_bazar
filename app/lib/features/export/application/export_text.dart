@@ -120,7 +120,7 @@ String bazarsCsv(
     [
       b.date,
       b.amount,
-      names[b.buyerMemberId] ?? '',
+      b.buyerNames(names) ?? '',
       _paidBy(l, names, b.paidByMemberId),
       b.items
           .map(

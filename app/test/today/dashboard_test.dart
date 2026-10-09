@@ -95,7 +95,7 @@ Bazar bazar(int i) => Bazar(
   messId: 'mess1',
   date: now,
   amount: 100.0 + i,
-  buyerMemberId: 'karim',
+  buyers: ['karim'],
 );
 
 List<Override> overrides({

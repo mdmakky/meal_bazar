@@ -619,6 +619,17 @@ class $BazarsTable extends Bazars with TableInfo<$BazarsTable, LocalBazar> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _buyerIdsMeta = const VerificationMeta(
+    'buyerIds',
+  );
+  @override
+  late final GeneratedColumn<String> buyerIds = GeneratedColumn<String>(
+    'buyer_ids',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _paidByMemberIdMeta = const VerificationMeta(
     'paidByMemberId',
   );
@@ -688,6 +699,7 @@ class $BazarsTable extends Bazars with TableInfo<$BazarsTable, LocalBazar> {
     date,
     amount,
     buyerMemberId,
+    buyerIds,
     paidByMemberId,
     note,
     source,
@@ -743,6 +755,12 @@ class $BazarsTable extends Bazars with TableInfo<$BazarsTable, LocalBazar> {
           data['buyer_member_id']!,
           _buyerMemberIdMeta,
         ),
+      );
+    }
+    if (data.containsKey('buyer_ids')) {
+      context.handle(
+        _buyerIdsMeta,
+        buyerIds.isAcceptableOrUnknown(data['buyer_ids']!, _buyerIdsMeta),
       );
     }
     if (data.containsKey('paid_by_member_id')) {
@@ -822,6 +840,10 @@ class $BazarsTable extends Bazars with TableInfo<$BazarsTable, LocalBazar> {
         DriftSqlType.string,
         data['${effectivePrefix}buyer_member_id'],
       ),
+      buyerIds: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}buyer_ids'],
+      ),
       paidByMemberId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}paid_by_member_id'],
@@ -861,6 +883,9 @@ class LocalBazar extends DataClass implements Insertable<LocalBazar> {
   final String date;
   final double amount;
   final String? buyerMemberId;
+
+  /// Every buyer's member id, comma-joined (schema 2).
+  final String? buyerIds;
   final String? paidByMemberId;
   final String? note;
   final String source;
@@ -873,6 +898,7 @@ class LocalBazar extends DataClass implements Insertable<LocalBazar> {
     required this.date,
     required this.amount,
     this.buyerMemberId,
+    this.buyerIds,
     this.paidByMemberId,
     this.note,
     required this.source,
@@ -889,6 +915,9 @@ class LocalBazar extends DataClass implements Insertable<LocalBazar> {
     map['amount'] = Variable<double>(amount);
     if (!nullToAbsent || buyerMemberId != null) {
       map['buyer_member_id'] = Variable<String>(buyerMemberId);
+    }
+    if (!nullToAbsent || buyerIds != null) {
+      map['buyer_ids'] = Variable<String>(buyerIds);
     }
     if (!nullToAbsent || paidByMemberId != null) {
       map['paid_by_member_id'] = Variable<String>(paidByMemberId);
@@ -914,6 +943,9 @@ class LocalBazar extends DataClass implements Insertable<LocalBazar> {
       buyerMemberId: buyerMemberId == null && nullToAbsent
           ? const Value.absent()
           : Value(buyerMemberId),
+      buyerIds: buyerIds == null && nullToAbsent
+          ? const Value.absent()
+          : Value(buyerIds),
       paidByMemberId: paidByMemberId == null && nullToAbsent
           ? const Value.absent()
           : Value(paidByMemberId),
@@ -938,6 +970,7 @@ class LocalBazar extends DataClass implements Insertable<LocalBazar> {
       date: serializer.fromJson<String>(json['date']),
       amount: serializer.fromJson<double>(json['amount']),
       buyerMemberId: serializer.fromJson<String?>(json['buyerMemberId']),
+      buyerIds: serializer.fromJson<String?>(json['buyerIds']),
       paidByMemberId: serializer.fromJson<String?>(json['paidByMemberId']),
       note: serializer.fromJson<String?>(json['note']),
       source: serializer.fromJson<String>(json['source']),
@@ -955,6 +988,7 @@ class LocalBazar extends DataClass implements Insertable<LocalBazar> {
       'date': serializer.toJson<String>(date),
       'amount': serializer.toJson<double>(amount),
       'buyerMemberId': serializer.toJson<String?>(buyerMemberId),
+      'buyerIds': serializer.toJson<String?>(buyerIds),
       'paidByMemberId': serializer.toJson<String?>(paidByMemberId),
       'note': serializer.toJson<String?>(note),
       'source': serializer.toJson<String>(source),
@@ -970,6 +1004,7 @@ class LocalBazar extends DataClass implements Insertable<LocalBazar> {
     String? date,
     double? amount,
     Value<String?> buyerMemberId = const Value.absent(),
+    Value<String?> buyerIds = const Value.absent(),
     Value<String?> paidByMemberId = const Value.absent(),
     Value<String?> note = const Value.absent(),
     String? source,
@@ -984,6 +1019,7 @@ class LocalBazar extends DataClass implements Insertable<LocalBazar> {
     buyerMemberId: buyerMemberId.present
         ? buyerMemberId.value
         : this.buyerMemberId,
+    buyerIds: buyerIds.present ? buyerIds.value : this.buyerIds,
     paidByMemberId: paidByMemberId.present
         ? paidByMemberId.value
         : this.paidByMemberId,
@@ -1002,6 +1038,7 @@ class LocalBazar extends DataClass implements Insertable<LocalBazar> {
       buyerMemberId: data.buyerMemberId.present
           ? data.buyerMemberId.value
           : this.buyerMemberId,
+      buyerIds: data.buyerIds.present ? data.buyerIds.value : this.buyerIds,
       paidByMemberId: data.paidByMemberId.present
           ? data.paidByMemberId.value
           : this.paidByMemberId,
@@ -1023,6 +1060,7 @@ class LocalBazar extends DataClass implements Insertable<LocalBazar> {
           ..write('date: $date, ')
           ..write('amount: $amount, ')
           ..write('buyerMemberId: $buyerMemberId, ')
+          ..write('buyerIds: $buyerIds, ')
           ..write('paidByMemberId: $paidByMemberId, ')
           ..write('note: $note, ')
           ..write('source: $source, ')
@@ -1040,6 +1078,7 @@ class LocalBazar extends DataClass implements Insertable<LocalBazar> {
     date,
     amount,
     buyerMemberId,
+    buyerIds,
     paidByMemberId,
     note,
     source,
@@ -1056,6 +1095,7 @@ class LocalBazar extends DataClass implements Insertable<LocalBazar> {
           other.date == this.date &&
           other.amount == this.amount &&
           other.buyerMemberId == this.buyerMemberId &&
+          other.buyerIds == this.buyerIds &&
           other.paidByMemberId == this.paidByMemberId &&
           other.note == this.note &&
           other.source == this.source &&
@@ -1070,6 +1110,7 @@ class BazarsCompanion extends UpdateCompanion<LocalBazar> {
   final Value<String> date;
   final Value<double> amount;
   final Value<String?> buyerMemberId;
+  final Value<String?> buyerIds;
   final Value<String?> paidByMemberId;
   final Value<String?> note;
   final Value<String> source;
@@ -1083,6 +1124,7 @@ class BazarsCompanion extends UpdateCompanion<LocalBazar> {
     this.date = const Value.absent(),
     this.amount = const Value.absent(),
     this.buyerMemberId = const Value.absent(),
+    this.buyerIds = const Value.absent(),
     this.paidByMemberId = const Value.absent(),
     this.note = const Value.absent(),
     this.source = const Value.absent(),
@@ -1097,6 +1139,7 @@ class BazarsCompanion extends UpdateCompanion<LocalBazar> {
     required String date,
     required double amount,
     this.buyerMemberId = const Value.absent(),
+    this.buyerIds = const Value.absent(),
     this.paidByMemberId = const Value.absent(),
     this.note = const Value.absent(),
     required String source,
@@ -1117,6 +1160,7 @@ class BazarsCompanion extends UpdateCompanion<LocalBazar> {
     Expression<String>? date,
     Expression<double>? amount,
     Expression<String>? buyerMemberId,
+    Expression<String>? buyerIds,
     Expression<String>? paidByMemberId,
     Expression<String>? note,
     Expression<String>? source,
@@ -1131,6 +1175,7 @@ class BazarsCompanion extends UpdateCompanion<LocalBazar> {
       if (date != null) 'date': date,
       if (amount != null) 'amount': amount,
       if (buyerMemberId != null) 'buyer_member_id': buyerMemberId,
+      if (buyerIds != null) 'buyer_ids': buyerIds,
       if (paidByMemberId != null) 'paid_by_member_id': paidByMemberId,
       if (note != null) 'note': note,
       if (source != null) 'source': source,
@@ -1147,6 +1192,7 @@ class BazarsCompanion extends UpdateCompanion<LocalBazar> {
     Value<String>? date,
     Value<double>? amount,
     Value<String?>? buyerMemberId,
+    Value<String?>? buyerIds,
     Value<String?>? paidByMemberId,
     Value<String?>? note,
     Value<String>? source,
@@ -1161,6 +1207,7 @@ class BazarsCompanion extends UpdateCompanion<LocalBazar> {
       date: date ?? this.date,
       amount: amount ?? this.amount,
       buyerMemberId: buyerMemberId ?? this.buyerMemberId,
+      buyerIds: buyerIds ?? this.buyerIds,
       paidByMemberId: paidByMemberId ?? this.paidByMemberId,
       note: note ?? this.note,
       source: source ?? this.source,
@@ -1188,6 +1235,9 @@ class BazarsCompanion extends UpdateCompanion<LocalBazar> {
     }
     if (buyerMemberId.present) {
       map['buyer_member_id'] = Variable<String>(buyerMemberId.value);
+    }
+    if (buyerIds.present) {
+      map['buyer_ids'] = Variable<String>(buyerIds.value);
     }
     if (paidByMemberId.present) {
       map['paid_by_member_id'] = Variable<String>(paidByMemberId.value);
@@ -1221,6 +1271,7 @@ class BazarsCompanion extends UpdateCompanion<LocalBazar> {
           ..write('date: $date, ')
           ..write('amount: $amount, ')
           ..write('buyerMemberId: $buyerMemberId, ')
+          ..write('buyerIds: $buyerIds, ')
           ..write('paidByMemberId: $paidByMemberId, ')
           ..write('note: $note, ')
           ..write('source: $source, ')
