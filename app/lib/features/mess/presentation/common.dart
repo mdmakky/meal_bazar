@@ -32,14 +32,14 @@ final inviteCodeFormatters = <TextInputFormatter>[
   ),
 ];
 
-void showSnack(BuildContext context, String message) {
-  ScaffoldMessenger.of(context)
-    ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(content: Text(message)));
-}
+void showSnack(BuildContext context, String message) =>
+    AppSnack.show(context, message);
 
-void showFailure(BuildContext context, Object error) =>
-    showSnack(context, failureText(context, error));
+void showFailure(BuildContext context, Object error) => AppSnack.show(
+  context,
+  failureText(context, error),
+  icon: Icons.error_outline,
+);
 
 /// True when the user confirms.
 Future<bool> confirmDialog(
@@ -164,4 +164,266 @@ class BottomAction extends StatelessWidget {
       ),
     ),
   );
+}
+
+/// A person's first letter in a muted circle (the list's visual anchor).
+class InitialsAvatar extends StatelessWidget {
+  const InitialsAvatar(this.name, {super.key, this.size = 40});
+
+  final String name;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final first = name.trim().characters.firstOrNull ?? '?';
+    return ExcludeSemantics(
+      child: Container(
+        width: size,
+        height: size,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: p.surfaceMuted,
+          shape: BoxShape.circle,
+        ),
+        child: Text(
+          first.toUpperCase(),
+          textScaler: TextScaler.noScaling,
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+            color: p.inkSecondary,
+            fontSize: size * 0.4,
+            height: 1,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A leading icon on a rounded, muted square (settings-style rows).
+class IconTile extends StatelessWidget {
+  const IconTile(this.icon, {super.key, this.color});
+
+  final IconData icon;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        color: p.surfaceMuted,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+      ),
+      child: Icon(icon, size: AppSize.spinner + 2, color: color ?? p.ink),
+    );
+  }
+}
+
+/// Rows grouped on one raised card, split by inset hairlines.
+class RaisedGroup extends StatelessWidget {
+  const RaisedGroup({super.key, required this.children, this.inset = 68});
+
+  final List<Widget> children;
+
+  /// Where the hairline starts (past a leading avatar / icon tile).
+  final double inset;
+
+  @override
+  Widget build(BuildContext context) => AppCard.raised(
+    padding: EdgeInsets.zero,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (var i = 0; i < children.length; i++) ...[
+          if (i > 0) Divider(indent: inset),
+          children[i],
+        ],
+      ],
+    ),
+  );
+}
+
+/// A tappable settings-style row: icon tile, title, optional subtitle,
+/// chevron. Presses scale.
+class NavRow extends StatelessWidget {
+  const NavRow({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.onTap,
+    this.subtitle,
+    this.badge = 0,
+    this.chevron = true,
+    this.color,
+  });
+
+  final IconData icon;
+  final String title;
+  final String? subtitle;
+  final VoidCallback onTap;
+  final int badge;
+  final bool chevron;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    final p = context.palette;
+    final bn = Localizations.localeOf(context).languageCode == 'bn';
+    return PressableScale(
+      scale: 0.98,
+      child: ListTile(
+        minTileHeight: AppSize.touch + AppSpace.md,
+        contentPadding: const EdgeInsets.symmetric(horizontal: AppSpace.lg),
+        leading: Badge(
+          isLabelVisible: badge > 0,
+          label: Text(Fmt.digits('$badge', bangla: bn)),
+          child: IconTile(icon, color: color),
+        ),
+        title: Text(
+          title,
+          style: text.titleSmall?.copyWith(color: color),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+        subtitle: subtitle == null
+            ? null
+            : Text(subtitle!, maxLines: 1, overflow: TextOverflow.ellipsis),
+        trailing: chevron
+            ? Icon(Icons.chevron_right, color: p.inkTertiary)
+            : null,
+        onTap: onTap,
+      ),
+    );
+  }
+}
+
+/// A small outlined tag (role, status, method). [strong] = ink fill.
+class StatusTag extends StatelessWidget {
+  const StatusTag(this.text, {super.key, this.color, this.strong = false});
+
+  final String text;
+  final Color? color;
+  final bool strong;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final c = color ?? (strong ? p.onInk : p.inkSecondary);
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpace.sm,
+        vertical: AppSpace.xs / 2,
+      ),
+      decoration: BoxDecoration(
+        color: strong ? p.ink : p.surfaceMuted,
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+      ),
+      child: Text(
+        text,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(color: c),
+      ),
+    );
+  }
+}
+
+/// A segmented control whose ink pill slides to the picked segment.
+class InkSegmented<T> extends StatelessWidget {
+  const InkSegmented({
+    super.key,
+    required this.segments,
+    required this.selected,
+    required this.onChanged,
+  });
+
+  final List<(T, String)> segments;
+  final T selected;
+  final ValueChanged<T> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final n = segments.length;
+    final i = segments.indexWhere((s) => s.$1 == selected);
+    final d = AppMotion.of(context, AppMotion.base);
+    final label = Theme.of(context).textTheme.labelLarge!;
+    return Container(
+      constraints: const BoxConstraints(minHeight: AppSize.touch),
+      padding: const EdgeInsets.all(AppSpace.xs),
+      decoration: BoxDecoration(
+        color: p.surfaceMuted,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+      ),
+      child: Stack(
+        children: [
+          if (i >= 0)
+            Positioned.fill(
+              child: AnimatedAlign(
+                alignment: Alignment(n == 1 ? 0 : -1 + 2 * i / (n - 1), 0),
+                duration: d,
+                curve: AppMotion.arrive,
+                child: FractionallySizedBox(
+                  widthFactor: 1 / n,
+                  heightFactor: 1,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: p.ink,
+                      borderRadius: BorderRadius.circular(AppRadius.sm),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          Row(
+            children: [
+              for (final (v, text) in segments)
+                Expanded(
+                  child: Semantics(
+                    button: true,
+                    selected: v == selected,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () {
+                        if (v != selected) HapticFeedback.selectionClick();
+                        onChanged(v);
+                      },
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(
+                          minHeight: AppSize.touch - AppSpace.sm,
+                        ),
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpace.xs,
+                            ),
+                            child: AnimatedDefaultTextStyle(
+                              duration: d,
+                              curve: AppMotion.state,
+                              style: label.copyWith(
+                                color: v == selected ? p.onInk : p.inkSecondary,
+                              ),
+                              child: Text(
+                                text,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }

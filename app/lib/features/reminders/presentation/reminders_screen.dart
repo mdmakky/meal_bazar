@@ -5,6 +5,7 @@ import '../../../core/failure_text.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../mess/application/mess_providers.dart';
+import '../../mess/presentation/common.dart' show IconTile, RaisedGroup;
 import '../application/reminder_service.dart';
 import '../domain/reminders.dart';
 
@@ -19,13 +20,24 @@ class RemindersScreen extends ConsumerWidget {
     final permitted = ref.watch(notificationPermissionProvider).value ?? true;
     final isManager = ref.watch(amIManagerProvider);
 
-    Widget toggle(ReminderKind k, String title, String sub) => SwitchListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
-      title: Text(title, style: text.titleSmall),
-      subtitle: Text(sub),
-      value: settings.requireValue.of(k),
-      onChanged: (on) => ref.read(reminderSettingsProvider.notifier).set(k, on),
-    );
+    Widget toggle(ReminderKind k, IconData icon, String title, String sub) =>
+        SwitchListTile(
+          contentPadding: const EdgeInsets.only(
+            left: AppSpace.lg,
+            right: AppSpace.sm,
+          ),
+          secondary: IconTile(icon),
+          title: Text(
+            title,
+            style: text.titleSmall,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          subtitle: Text(sub),
+          value: settings.requireValue.of(k),
+          onChanged: (on) =>
+              ref.read(reminderSettingsProvider.notifier).set(k, on),
+        );
 
     return Scaffold(
       appBar: AppBar(title: Text(l.remindTitle)),
@@ -35,53 +47,73 @@ class RemindersScreen extends ConsumerWidget {
           message: failureText(context, e),
           onRetry: () => ref.invalidate(reminderSettingsProvider),
         ),
-        data: (_) => ListView(
-          children: [
-            if (!permitted)
-              Padding(
-                padding: const EdgeInsets.all(AppSpace.gutter),
-                child: AppCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: AppSpace.sm,
-                    children: [
-                      Text(l.remindPermissionOff, style: text.titleSmall),
-                      Text(l.remindPermissionBody),
-                      AppButton(
-                        label: l.remindPermissionButton,
-                        icon: Icons.notifications_active_outlined,
-                        onPressed: () async {
-                          await ref
-                              .read(localNotificationsProvider)
-                              .requestPermission();
-                          ref.invalidate(notificationPermissionProvider);
-                        },
-                      ),
-                    ],
+        data: (_) => StaggeredList(
+          child: ListView(
+            padding: const EdgeInsets.all(AppSpace.gutter),
+            children: StaggeredList.wrap([
+              if (!permitted)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpace.lg),
+                  child: AppCard.raised(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      spacing: AppSpace.sm,
+                      children: [
+                        Row(
+                          spacing: AppSpace.md,
+                          children: [
+                            IconTile(
+                              Icons.notifications_off_outlined,
+                              color: context.palette.warning,
+                            ),
+                            Expanded(
+                              child: Text(
+                                l.remindPermissionOff,
+                                style: text.titleSmall,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Text(l.remindPermissionBody),
+                        AppButton(
+                          label: l.remindPermissionButton,
+                          icon: Icons.notifications_active_outlined,
+                          onPressed: () async {
+                            await ref
+                                .read(localNotificationsProvider)
+                                .requestPermission();
+                            ref.invalidate(notificationPermissionProvider);
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
+              RaisedGroup(
+                children: [
+                  toggle(
+                    ReminderKind.cutoff,
+                    Icons.schedule,
+                    l.remindCutoffToggle,
+                    l.remindCutoffToggleSub,
+                  ),
+                  if (isManager)
+                    toggle(
+                      ReminderKind.nudge,
+                      Icons.campaign_outlined,
+                      l.remindNudgeToggle,
+                      l.remindNudgeToggleSub,
+                    ),
+                  toggle(
+                    ReminderKind.duty,
+                    Icons.shopping_basket_outlined,
+                    l.remindDutyToggle,
+                    l.remindDutyToggleSub,
+                  ),
+                ],
               ),
-            toggle(
-              ReminderKind.cutoff,
-              l.remindCutoffToggle,
-              l.remindCutoffToggleSub,
-            ),
-            const Divider(),
-            if (isManager) ...[
-              toggle(
-                ReminderKind.nudge,
-                l.remindNudgeToggle,
-                l.remindNudgeToggleSub,
-              ),
-              const Divider(),
-            ],
-            toggle(
-              ReminderKind.duty,
-              l.remindDutyToggle,
-              l.remindDutyToggleSub,
-            ),
-            const Divider(),
-          ],
+            ]),
+          ),
         ),
       ),
     );

@@ -35,7 +35,7 @@ Future<void> showBazarForm(BuildContext context, {Bazar? existing}) {
   return _showForm(
     context,
     existing == null ? l.bazarAdd : l.bazarEdit,
-    _BazarForm(existing: existing),
+    (key) => _BazarForm(key: key, existing: existing),
   );
 }
 
@@ -44,7 +44,7 @@ Future<void> showExpenseForm(BuildContext context, {Expense? existing}) {
   return _showForm(
     context,
     existing == null ? l.expenseAdd : l.expenseEdit,
-    _ExpenseForm(existing: existing),
+    (key) => _ExpenseForm(key: key, existing: existing),
   );
 }
 
@@ -53,7 +53,7 @@ Future<void> showDepositForm(BuildContext context, {Deposit? existing}) {
   return _showForm(
     context,
     existing == null ? l.depositAdd : l.depositEdit,
-    _DepositForm(existing: existing),
+    (key) => _DepositForm(key: key, existing: existing),
   );
 }
 
@@ -61,13 +61,54 @@ Future<void> showDepositForm(BuildContext context, {Deposit? existing}) {
 Future<void> showMyDepositSheet(BuildContext context) => _showForm(
   context,
   AppLocalizations.of(context).depositVerifyMine,
-  const _MyDepositForm(),
+  (key) => _MyDepositForm(key: key),
 );
 
-/// The form pops with the snackbar text (saved / deleted).
-Future<void> _showForm(BuildContext context, String title, Widget form) async {
-  final done = await AppSheet.show<String>(context, title: title, child: form);
+/// The form pops with the snackbar text (saved / deleted). Its save row
+/// (and the bazar's running total) sits in the sheet's sticky footer.
+Future<void> _showForm(
+  BuildContext context,
+  String title,
+  Widget Function(GlobalKey<_Submit> key) form,
+) async {
+  final key = GlobalKey<_Submit>();
+  final done = await AppSheet.show<String>(
+    context,
+    title: title,
+    child: form(key),
+    actions: [_StickyFooter(form: key)],
+  );
   if (done != null && context.mounted) showSnack(context, done);
+}
+
+/// Rebuilds with the form (every setState ticks [_Submit.footerTick]).
+class _StickyFooter extends ConsumerStatefulWidget {
+  const _StickyFooter({required this.form});
+
+  final GlobalKey<_Submit> form;
+
+  @override
+  ConsumerState<_StickyFooter> createState() => _StickyFooterState();
+}
+
+class _StickyFooterState extends ConsumerState<_StickyFooter> {
+  @override
+  Widget build(BuildContext context) {
+    final messId = ref.watch(currentMessIdProvider);
+    if (messId == null) return const SizedBox.shrink();
+    final s = widget.form.currentState;
+    if (s == null) {
+      // The form mounts first in the same frame; this only guards odd trees.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() {});
+      });
+      return const SizedBox.shrink();
+    }
+    return ListenableBuilder(
+      listenable: s.footerTick,
+      builder: (context, _) => s.footer(context, messId),
+    );
+  }
 }
 
 // ── Shared helpers ─────────────────────────────────────────────────────────
@@ -125,6 +166,30 @@ mixin _Submit<W extends ConsumerStatefulWidget> on ConsumerState<W> {
   var saving = false;
   Object? error;
 
+  /// Ticks on every setState so the sticky footer follows the form.
+  final footerTick = ValueNotifier(0);
+
+  /// The footer's save, for the current mess.
+  void onSave(String messId);
+
+  /// Delete, only when editing.
+  VoidCallback? get onDelete => null;
+
+  /// Shown above the buttons (the bazar's running total).
+  Widget? footerLead(BuildContext context) => null;
+
+  @override
+  void setState(VoidCallback fn) {
+    super.setState(fn);
+    footerTick.value++;
+  }
+
+  @override
+  void dispose() {
+    footerTick.dispose();
+    super.dispose();
+  }
+
   Future<void> run(Future<void> Function() action, String done) async {
     if (saving) return;
     setState(() {
@@ -160,12 +225,14 @@ mixin _Submit<W extends ConsumerStatefulWidget> on ConsumerState<W> {
     if (ok && mounted) await run(action, l.moneyDeleted);
   }
 
-  /// Error line plus the action row; [onDelete] only when editing.
-  Widget footer(VoidCallback onSave, {VoidCallback? onDelete}) {
+  /// Error line, the optional lead, then the action row.
+  Widget footer(BuildContext context, String messId) {
     final l = AppLocalizations.of(context);
+    final onDelete = this.onDelete;
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: AppSpace.sm,
+      spacing: AppSpace.md,
       children: [
         if (error != null)
           Text(
@@ -174,6 +241,7 @@ mixin _Submit<W extends ConsumerStatefulWidget> on ConsumerState<W> {
               context,
             ).textTheme.bodyMedium?.copyWith(color: context.palette.due),
           ),
+        ?footerLead(context),
         Row(
           spacing: AppSpace.sm,
           children: [
@@ -189,7 +257,7 @@ mixin _Submit<W extends ConsumerStatefulWidget> on ConsumerState<W> {
               child: AppButton(
                 label: l.moneySave,
                 loading: saving,
-                onPressed: onSave,
+                onPressed: () => onSave(messId),
               ),
             ),
           ],
@@ -368,14 +436,10 @@ class _PaidFrom extends StatelessWidget {
       spacing: AppSpace.sm,
       children: [
         _Label(l.moneyPaidFrom),
-        SegmentedButton<bool>(
-          showSelectedIcon: false,
-          segments: [
-            ButtonSegment(value: false, label: Text(l.moneyPaidFund)),
-            ButtonSegment(value: true, label: Text(l.moneyPaidPocket)),
-          ],
-          selected: {pocket},
-          onSelectionChanged: (s) => onPocket(s.first),
+        InkSegmented<bool>(
+          segments: [(false, l.moneyPaidFund), (true, l.moneyPaidPocket)],
+          selected: pocket,
+          onChanged: onPocket,
         ),
         if (pocket) ...[
           _Label(l.moneyPaidPocketHelp),
@@ -616,7 +680,7 @@ String _num(double v) =>
     v == v.roundToDouble() ? v.toInt().toString() : v.toString();
 
 class _BazarForm extends ConsumerStatefulWidget {
-  const _BazarForm({this.existing});
+  const _BazarForm({super.key, this.existing});
 
   final Bazar? existing;
 
@@ -749,9 +813,39 @@ class _BazarFormState extends ConsumerState<_BazarForm>
   );
 
   @override
+  void onSave(String messId) {
+    final ctrl = ref.read(moneyControllerProvider);
+    save(() async => ctrl.saveBazar(_build(messId, await uploadPhoto(messId))));
+  }
+
+  @override
+  VoidCallback? get onDelete => switch (_b) {
+    null => null,
+    final b => () => delete(
+      () => ref.read(moneyControllerProvider).deleteBazar(b),
+    ),
+  };
+
+  /// The running total, rolling as lines and prices change.
+  @override
+  Widget footerLead(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    return Row(
+      children: [
+        Expanded(child: Text(l.dashBazar, style: AppType.overline(context))),
+        RollingNumber.money(
+          parseAmount(_amount.text) ?? 0,
+          banglaDigits: banglaDigits(context),
+          style: text.titleLarge,
+        ),
+      ],
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final ctrl = ref.read(moneyControllerProvider);
     return _WithMess(
       builder: (messId) => Form(
         key: formKey,
@@ -798,7 +892,19 @@ class _BazarFormState extends ConsumerState<_BazarForm>
                 selected: {for (final i in _items) i.name.text.trim()},
                 onToggle: _toggle,
               ),
-            for (final i in _items) _itemRow(i),
+            AnimatedSize(
+              duration: AppMotion.of(context, AppMotion.base),
+              curve: AppMotion.state,
+              alignment: Alignment.topCenter,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: AppSpace.sm,
+                children: [
+                  for (final i in _items)
+                    _Appear(key: ObjectKey(i), child: _itemRow(i)),
+                ],
+              ),
+            ),
             Align(
               alignment: AlignmentDirectional.centerStart,
               child: TextButton.icon(
@@ -828,15 +934,6 @@ class _BazarFormState extends ConsumerState<_BazarForm>
               controller: _note,
               maxLength: 300,
               decoration: InputDecoration(labelText: l.moneyNote),
-            ),
-            footer(
-              () => save(
-                () async =>
-                    ctrl.saveBazar(_build(messId, await uploadPhoto(messId))),
-              ),
-              onDelete: _b == null
-                  ? null
-                  : () => delete(() => ctrl.deleteBazar(_b)),
             ),
           ],
         ),
@@ -990,10 +1087,13 @@ class _Picker extends ConsumerWidget {
             runSpacing: AppSpace.sm,
             children: [
               for (final n in names)
-                FilterChip(
-                  label: Text(n),
-                  selected: selected.contains(n),
-                  onSelected: (_) => onToggle(n),
+                PopOnChange(
+                  value: selected.contains(n),
+                  child: FilterChip(
+                    label: Text(n),
+                    selected: selected.contains(n),
+                    onSelected: (_) => onToggle(n),
+                  ),
                 ),
             ],
           ),
@@ -1195,7 +1295,10 @@ class _ShareList extends ConsumerWidget {
                   onPressed: w > 1 ? () => _set(m.id, w - 1) : null,
                   icon: const Icon(Icons.remove),
                 ),
-                Text(l.splitWeight(Fmt.digits(_num(w), bangla: bn))),
+                PopOnChange(
+                  value: w,
+                  child: Text(l.splitWeight(Fmt.digits(_num(w), bangla: bn))),
+                ),
                 IconButton(
                   tooltip: '${l.splitWeightMore} ${m.displayName}',
                   onPressed: w < maxWeight ? () => _set(m.id, w + 1) : null,
@@ -1223,7 +1326,7 @@ class _ShareList extends ConsumerWidget {
                       Row(
                         children: [
                           Expanded(child: Text(m.displayName)),
-                          Money(p, banglaDigits: bn),
+                          RollingNumber.money(p, banglaDigits: bn),
                         ],
                       ),
                 ],
@@ -1237,7 +1340,7 @@ class _ShareList extends ConsumerWidget {
 }
 
 class _ExpenseForm extends ConsumerStatefulWidget {
-  const _ExpenseForm({this.existing});
+  const _ExpenseForm({super.key, this.existing});
 
   final Expense? existing;
 
@@ -1293,9 +1396,36 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm>
   }
 
   @override
+  void onSave(String messId) => save(
+    () async => ref
+        .read(moneyControllerProvider)
+        .saveExpense(
+          Expense(
+            id: _e?.id ?? uuidV4(),
+            messId: messId,
+            date: _date,
+            categoryId: _category!,
+            amount: parseAmount(_amount.text)!,
+            split: _split == _Split.meal ? SplitMethod.meal : SplitMethod.equal,
+            shares: _split == _Split.selected ? _weights : const {},
+            paidByMemberId: _pocket ? _paidBy : null,
+            note: _trimmed(_note),
+            receiptPath: await uploadPhoto(messId),
+          ),
+        ),
+  );
+
+  @override
+  VoidCallback? get onDelete => switch (_e) {
+    null => null,
+    final e => () => delete(
+      () => ref.read(moneyControllerProvider).deleteExpense(e),
+    ),
+  };
+
+  @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final ctrl = ref.read(moneyControllerProvider);
     return _WithMess(
       builder: (messId) {
         final cats =
@@ -1381,29 +1511,6 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm>
                 maxLength: 300,
                 decoration: InputDecoration(labelText: l.moneyNote),
               ),
-              footer(
-                () => save(
-                  () async => ctrl.saveExpense(
-                    Expense(
-                      id: _e?.id ?? uuidV4(),
-                      messId: messId,
-                      date: _date,
-                      categoryId: _category!,
-                      amount: parseAmount(_amount.text)!,
-                      split: _split == _Split.meal
-                          ? SplitMethod.meal
-                          : SplitMethod.equal,
-                      shares: _split == _Split.selected ? _weights : const {},
-                      paidByMemberId: _pocket ? _paidBy : null,
-                      note: _trimmed(_note),
-                      receiptPath: await uploadPhoto(messId),
-                    ),
-                  ),
-                ),
-                onDelete: _e == null
-                    ? null
-                    : () => delete(() => ctrl.deleteExpense(_e)),
-              ),
             ],
           ),
         );
@@ -1415,7 +1522,7 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm>
 // ── Deposit ───────────────────────────────────────────────────────────────
 
 class _DepositForm extends ConsumerStatefulWidget {
-  const _DepositForm({this.existing});
+  const _DepositForm({super.key, this.existing});
 
   final Deposit? existing;
 
@@ -1450,9 +1557,36 @@ class _DepositFormState extends ConsumerState<_DepositForm>
   }
 
   @override
+  void onSave(String messId) => save(
+    () async => ref
+        .read(moneyControllerProvider)
+        .saveDeposit(
+          Deposit(
+            id: _d?.id ?? uuidV4(),
+            messId: messId,
+            memberId: _member!,
+            date: _date,
+            amount: parseAmount(_amount.text)!,
+            method: _method,
+            trxId: _method.hasTrxId ? _trimmed(_trx) : null,
+            status: _d?.status ?? DepositStatus.verified,
+            note: _trimmed(_note),
+            screenshotPath: await uploadPhoto(messId),
+          ),
+        ),
+  );
+
+  @override
+  VoidCallback? get onDelete => switch (_d) {
+    null => null,
+    final d => () => delete(
+      () => ref.read(moneyControllerProvider).deleteDeposit(d),
+    ),
+  };
+
+  @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final ctrl = ref.read(moneyControllerProvider);
     return _WithMess(
       builder: (messId) => Form(
         key: formKey,
@@ -1492,27 +1626,6 @@ class _DepositFormState extends ConsumerState<_DepositForm>
               maxLength: 300,
               decoration: InputDecoration(labelText: l.moneyNote),
             ),
-            footer(
-              () => save(
-                () async => ctrl.saveDeposit(
-                  Deposit(
-                    id: _d?.id ?? uuidV4(),
-                    messId: messId,
-                    memberId: _member!,
-                    date: _date,
-                    amount: parseAmount(_amount.text)!,
-                    method: _method,
-                    trxId: _method.hasTrxId ? _trimmed(_trx) : null,
-                    status: _d?.status ?? DepositStatus.verified,
-                    note: _trimmed(_note),
-                    screenshotPath: await uploadPhoto(messId),
-                  ),
-                ),
-              ),
-              onDelete: _d == null
-                  ? null
-                  : () => delete(() => ctrl.deleteDeposit(_d)),
-            ),
           ],
         ),
       ),
@@ -1537,6 +1650,12 @@ List<Widget> _methodFields(
         // A disabled method stays visible only when already picked.
         if (config.methodEnabled(m.name) || m == method)
           ChoiceChip(
+            avatar: Icon(switch (m) {
+              PayMethod.cash => Icons.payments_outlined,
+              PayMethod.bkash || PayMethod.nagad => Icons.phone_android,
+              PayMethod.bank => Icons.account_balance_outlined,
+              PayMethod.other => Icons.more_horiz,
+            }),
             label: Text(methodLabel(l, m, config)),
             selected: m == method,
             onSelected: (_) => onMethod(m),
@@ -1554,7 +1673,7 @@ List<Widget> _methodFields(
 // ── My deposit (member, pending until verified) ───────────────────────────
 
 class _MyDepositForm extends ConsumerStatefulWidget {
-  const _MyDepositForm();
+  const _MyDepositForm({super.key});
 
   @override
   ConsumerState<_MyDepositForm> createState() => _MyDepositFormState();
@@ -1575,6 +1694,9 @@ class _MyDepositFormState extends ConsumerState<_MyDepositForm>
     _trx.dispose();
     super.dispose();
   }
+
+  @override
+  void onSave(String messId) => _send(messId);
 
   Future<void> _send(String messId) async {
     if (!formKey.currentState!.validate()) return;
@@ -1623,10 +1745,45 @@ class _MyDepositFormState extends ConsumerState<_MyDepositForm>
               (m) => setState(() => _method = m),
             ),
             photoField(l.receiptScreenshot),
-            footer(() => _send(messId)),
           ],
         ),
       ),
     );
   }
+}
+
+/// A new bazar line grows open and fades in (instant with reduced motion).
+class _Appear extends StatefulWidget {
+  const _Appear({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  State<_Appear> createState() => _AppearState();
+}
+
+class _AppearState extends State<_Appear> with SingleTickerProviderStateMixin {
+  late final _c = AnimationController(vsync: this, duration: AppMotion.base);
+  late final _t = _c.drive(CurveTween(curve: AppMotion.arrive));
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_c.isDismissed) {
+      AppMotion.reduced(context) ? _c.value = 1 : _c.forward();
+    }
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => SizeTransition(
+    sizeFactor: _t,
+    axisAlignment: -1,
+    child: FadeTransition(opacity: _t, child: widget.child),
+  );
 }

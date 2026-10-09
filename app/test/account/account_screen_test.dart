@@ -57,13 +57,24 @@ void main() {
   FilledButton confirmButton(WidgetTester tester) =>
       tester.widget(find.byKey(const Key('deleteConfirmButton')));
 
+  /// The delete row sits below the fold; scroll the page to it, then tap.
+  Future<void> tapDelete(WidgetTester tester) async {
+    final row = find.byKey(const Key('deleteAccount'));
+    await tester.scrollUntilVisible(
+      row,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(row);
+  }
+
   testWidgets('deletion requires typing the confirm word, then signs out', (
     tester,
   ) async {
     await pump(tester);
     expect(find.widgetWithText(TextField, 'Rahim'), findsOneWidget);
 
-    await tester.tap(find.byKey(const Key('deleteAccount')));
+    await tapDelete(tester);
     await tester.pumpAndSettle();
     expect(find.text(l.accountDeleteKept), findsOneWidget);
     expect(confirmButton(tester).onPressed, isNull);
@@ -93,7 +104,7 @@ void main() {
     ).thenThrow(const AppFailure(FailureKind.lastManager));
     await pump(tester);
 
-    await tester.tap(find.byKey(const Key('deleteAccount')));
+    await tapDelete(tester);
     await tester.pumpAndSettle();
     await tester.enterText(
       find.byKey(const Key('deleteConfirmField')),

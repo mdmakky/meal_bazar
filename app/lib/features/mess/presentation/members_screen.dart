@@ -91,43 +91,51 @@ class _MemberList extends ConsumerWidget {
       );
     }
 
+    final bn = Localizations.localeOf(context).languageCode == 'bn';
+    String count(List<Member> list) => Fmt.digits('${list.length}', bangla: bn);
     Widget row(Member m) =>
         _MemberRow(member: m, isMe: m.id == meId, canManage: isManager);
+    Widget group(List<Widget> rows) => Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
+      child: RaisedGroup(children: rows),
+    );
+    var i = 0; // stagger across sections
+    Widget stagger(Widget w) => Stagger(index: i++, child: w);
     Iterable<Widget> section(String title, List<Member> list) => [
       if (list.isNotEmpty) ...[
-        SectionTitle('$title · ${list.length}'),
-        const Divider(),
-        for (final m in list) ...[row(m), const Divider()],
+        SectionTitle('$title · ${count(list)}'),
+        group([for (final m in list) stagger(row(m))]),
       ],
     ];
 
-    return ListView(
-      padding: const EdgeInsets.only(bottom: AppSpace.xxxl * 2),
-      children: [
-        if (pending.isNotEmpty) ...[
-          SectionTitle('${l.membersPending} · ${pending.length}'),
-          const Divider(),
-          for (final m in pending) ...[_PendingRow(member: m), const Divider()],
+    return StaggeredList(
+      child: ListView(
+        padding: const EdgeInsets.only(bottom: AppSpace.xxxl * 2),
+        children: [
+          if (pending.isNotEmpty) ...[
+            SectionTitle('${l.membersPending} · ${count(pending)}'),
+            group([for (final m in pending) stagger(_PendingRow(member: m))]),
+          ],
+          ...section(l.membersActive, active),
+          ...section(l.membersInactive, inactive),
+          if (left.isNotEmpty)
+            ExpansionTile(
+              tilePadding: const EdgeInsets.symmetric(
+                horizontal: AppSpace.gutter,
+              ),
+              shape: const Border(),
+              collapsedShape: const Border(),
+              title: Text(
+                '${l.membersLeft} · ${count(left)}',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              childrenPadding: const EdgeInsets.only(bottom: AppSpace.lg),
+              children: [
+                group([for (final m in left) row(m)]),
+              ],
+            ),
         ],
-        ...section(l.membersActive, active),
-        ...section(l.membersInactive, inactive),
-        if (left.isNotEmpty)
-          ExpansionTile(
-            tilePadding: const EdgeInsets.symmetric(
-              horizontal: AppSpace.gutter,
-            ),
-            shape: const Border(),
-            collapsedShape: const Border(),
-            title: Text(
-              '${l.membersLeft} · ${left.length}',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            children: [
-              const Divider(),
-              for (final m in left) ...[row(m), const Divider()],
-            ],
-          ),
-      ],
+      ),
     );
   }
 }
@@ -158,16 +166,24 @@ class _MemberRow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final sub = _subtitle(context, member);
+    final p = context.palette;
     return ListTile(
-      minTileHeight: AppSize.touch + AppSpace.md,
-      contentPadding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
+      minTileHeight: AppSize.touch + AppSpace.lg,
+      contentPadding: const EdgeInsets.symmetric(horizontal: AppSpace.lg),
+      leading: InitialsAvatar(member.displayName),
       title: Text(
         isMe ? '${member.displayName} ${l.membersYou}' : member.displayName,
-        style: Theme.of(context).textTheme.titleSmall,
+        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+          color: member.status == MemberStatus.left ? p.inkTertiary : null,
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
       ),
-      subtitle: sub.isEmpty ? null : Text(sub),
+      subtitle: sub.isEmpty
+          ? null
+          : Text(sub, maxLines: 2, overflow: TextOverflow.ellipsis),
       trailing: member.role == MemberRole.manager
-          ? _RoleChip(l.membersRoleManager)
+          ? StatusTag(l.membersRoleManager, strong: true)
           : null,
       onTap: canManage ? () => _manage(context, ref) : null,
     );
@@ -179,7 +195,7 @@ class _MemberRow extends ConsumerWidget {
     ListTile option(_Action a, IconData icon, String label, [String? help]) =>
         ListTile(
           contentPadding: EdgeInsets.zero,
-          leading: Icon(icon),
+          leading: IconTile(icon),
           title: Text(label),
           subtitle: help == null ? null : Text(help),
           onTap: () => Navigator.pop(context, a),
@@ -245,25 +261,6 @@ class _MemberRow extends ConsumerWidget {
   }
 }
 
-class _RoleChip extends StatelessWidget {
-  const _RoleChip(this.label);
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(
-      horizontal: AppSpace.sm,
-      vertical: AppSpace.xs,
-    ),
-    decoration: BoxDecoration(
-      border: Border.all(color: context.palette.borderStrong),
-      borderRadius: BorderRadius.circular(AppRadius.sm),
-    ),
-    child: Text(label, style: Theme.of(context).textTheme.labelMedium),
-  );
-}
-
 class _PendingRow extends ConsumerStatefulWidget {
   const _PendingRow({required this.member});
 
@@ -309,40 +306,55 @@ class _PendingRowState extends ConsumerState<_PendingRow> {
     final l = AppLocalizations.of(context);
     final m = widget.member;
     final sub = _subtitle(context, m);
+    // Name on top, actions under it: fits 360 dp at large text.
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpace.gutter,
-        vertical: AppSpace.sm,
-      ),
-      child: Row(
-        spacing: AppSpace.sm,
+      padding: const EdgeInsets.all(AppSpace.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: AppSpace.md,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  m.displayName,
-                  style: Theme.of(context).textTheme.titleSmall,
-                  overflow: TextOverflow.ellipsis,
+          Row(
+            spacing: AppSpace.md,
+            children: [
+              InitialsAvatar(m.displayName),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      m.displayName,
+                      style: Theme.of(context).textTheme.titleSmall,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (sub.isNotEmpty)
+                      Text(sub, style: Theme.of(context).textTheme.bodySmall),
+                  ],
                 ),
-                if (sub.isNotEmpty)
-                  Text(sub, style: Theme.of(context).textTheme.bodyMedium),
-              ],
-            ),
+              ),
+            ],
           ),
-          AppButton(
-            label: l.membersReject,
-            variant: AppButtonVariant.text,
-            onPressed: _busy ? null : _reject,
-          ),
-          AppButton(
-            label: l.membersApprove,
-            loading: _busy,
-            onPressed: () => _run(
-              () => ref.read(messControllerProvider).approveMember(m),
-              l.membersApproved(m.displayName),
-            ),
+          Row(
+            spacing: AppSpace.sm,
+            children: [
+              Expanded(
+                child: AppButton(
+                  label: l.membersReject,
+                  variant: AppButtonVariant.secondary,
+                  onPressed: _busy ? null : _reject,
+                ),
+              ),
+              Expanded(
+                child: AppButton(
+                  label: l.membersApprove,
+                  loading: _busy,
+                  onPressed: () => _run(
+                    () => ref.read(messControllerProvider).approveMember(m),
+                    l.membersApproved(m.displayName),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

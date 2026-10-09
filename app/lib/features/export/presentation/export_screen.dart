@@ -62,43 +62,73 @@ class _ExportScreenState extends ConsumerState<ExportScreen> {
     final picked = options
         .firstWhere((o) => o.$1.start == _picked, orElse: () => options.first)
         .$1;
-    return ListView(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(AppSpace.gutter),
-          child: Text(l.exportHint),
-        ),
-        SectionTitle(l.exportPeriod),
-        const Divider(),
-        for (final (p, label) in options) ...[
-          ListTile(
-            minTileHeight: AppSize.touch + AppSpace.md,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: AppSpace.gutter,
+    final pal = context.palette;
+    final text = Theme.of(context).textTheme;
+    return StaggeredList(
+      child: ListView(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpace.gutter,
+              AppSpace.lg,
+              AppSpace.gutter,
+              0,
             ),
-            title: Text(rangeLabel(context, p.start, p.end)),
-            subtitle: Text(label),
-            selected: p == picked,
-            trailing: p == picked ? const Icon(Icons.check) : null,
-            onTap: () => setState(() => _picked = p.start),
+            child: Text(
+              l.exportHint,
+              style: text.bodyMedium?.copyWith(color: pal.inkSecondary),
+            ),
           ),
-          const Divider(),
+          SectionTitle(l.exportPeriod),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
+            child: RaisedGroup(
+              children: [
+                for (final (i, (p, label)) in options.indexed)
+                  Stagger(
+                    index: i,
+                    child: ListTile(
+                      minTileHeight: AppSize.touch + AppSpace.md,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: AppSpace.lg,
+                      ),
+                      leading: const IconTile(Icons.calendar_month_outlined),
+                      title: Text(
+                        rangeLabel(context, p.start, p.end),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: text.titleSmall,
+                      ),
+                      subtitle: Text(label),
+                      selected: p == picked,
+                      trailing: p == picked
+                          ? Icon(Icons.check_circle, color: pal.ink)
+                          : Icon(
+                              Icons.radio_button_unchecked,
+                              color: pal.inkTertiary,
+                            ),
+                      onTap: () => setState(() => _picked = p.start),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(AppSpace.gutter),
+            child: AppButton(
+              label: l.exportButton,
+              icon: Icons.file_download_outlined,
+              expand: true,
+              loading: _busy,
+              onPressed: () async {
+                setState(() => _busy = true);
+                await exportMonthCsv(context, messId: messId, period: picked);
+                if (mounted) setState(() => _busy = false);
+              },
+            ),
+          ),
         ],
-        Padding(
-          padding: const EdgeInsets.all(AppSpace.gutter),
-          child: AppButton(
-            label: l.exportButton,
-            icon: Icons.file_download_outlined,
-            expand: true,
-            loading: _busy,
-            onPressed: () async {
-              setState(() => _busy = true);
-              await exportMonthCsv(context, messId: messId, period: picked);
-              if (mounted) setState(() => _busy = false);
-            },
-          ),
-        ),
-      ],
+      ),
     );
   }
 }

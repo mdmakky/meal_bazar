@@ -6,7 +6,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../core/dates.dart';
-import '../../../core/failure_text.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
 import '../../../core/platform/platform_config.dart';
 import '../../meals/application/meal_providers.dart';
@@ -28,7 +27,6 @@ Future<void> exportMonthCsv(
 }) async {
   final ref = ProviderScope.containerOf(context, listen: false);
   final l = AppLocalizations.of(context);
-  final messenger = ScaffoldMessenger.maybeOf(context);
   try {
     final money = ref.read(moneyRepositoryProvider);
     final meals = ref.read(mealRepositoryProvider);
@@ -81,8 +79,7 @@ Future<void> exportMonthCsv(
     ];
     await SharePlus.instance.share(ShareParams(files: files, subject: tag));
   } catch (e) {
-    if (!context.mounted) return;
-    messenger?.showSnackBar(SnackBar(content: Text(failureText(context, e))));
+    if (context.mounted) showFailure(context, e);
   }
 }
 

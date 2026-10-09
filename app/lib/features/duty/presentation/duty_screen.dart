@@ -86,9 +86,14 @@ class _DutyScreenState extends ConsumerState<DutyScreen> {
                   () => _month = DateTime(_month.year, _month.month - 1),
                 ),
               ),
-              Text(
-                monthLabel.substring(monthLabel.indexOf(' ') + 1),
-                style: Theme.of(context).textTheme.titleMedium,
+              Expanded(
+                child: Text(
+                  monthLabel.substring(monthLabel.indexOf(' ') + 1),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
               ),
               IconButton(
                 tooltip: l.dutyNextMonth,
@@ -99,7 +104,6 @@ class _DutyScreenState extends ConsumerState<DutyScreen> {
               ),
             ],
           ),
-          const Divider(height: AppSize.hairline),
           Expanded(
             child: switch (ref.watch(dutiesProvider(key))) {
               AsyncValue(:final value?) => _DutyList(
@@ -178,28 +182,38 @@ class _DutyList extends ConsumerWidget {
       onTap: isManager ? () => _edit(context, d) : null,
     );
 
-    return ListView(
-      children: [
-        if (upcoming.isNotEmpty) ...[
-          SectionTitle(l.dutyMyUpcoming),
-          for (final d in upcoming) ...[
-            tile(d),
-            const Divider(height: AppSize.hairline),
+    // Rows rise in one after another across both groups.
+    Widget group(List<BazarDuty> ds, int offset) => Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
+      child: RaisedGroup(
+        children: [
+          for (var i = 0; i < ds.length; i++)
+            Stagger(index: offset + i, child: tile(ds[i])),
+        ],
+      ),
+    );
+
+    return StaggeredList(
+      child: ListView(
+        padding: const EdgeInsets.only(bottom: AppSpace.xl),
+        children: [
+          if (upcoming.isNotEmpty) ...[
+            SectionTitle(l.dutyMyUpcoming),
+            group(upcoming, 0),
           ],
-          SectionTitle(l.dutyThisMonth),
+          if (duties.isEmpty)
+            EmptyView(
+              message: l.dutyEmpty,
+              icon: Icons.shopping_basket_outlined,
+              actionLabel: isManager ? l.dutyGenerate : null,
+              onAction: isManager ? onGenerate : null,
+            )
+          else ...[
+            SectionTitle(l.dutyThisMonth),
+            group(duties, upcoming.length),
+          ],
         ],
-        if (duties.isEmpty)
-          EmptyView(
-            message: l.dutyEmpty,
-            icon: Icons.shopping_basket_outlined,
-            actionLabel: isManager ? l.dutyGenerate : null,
-            onAction: isManager ? onGenerate : null,
-          ),
-        for (final d in duties) ...[
-          tile(d),
-          const Divider(height: AppSize.hairline),
-        ],
-      ],
+      ),
     );
   }
 
@@ -230,12 +244,19 @@ class DutyTile extends ConsumerWidget {
     final l = AppLocalizations.of(context);
     final p = context.palette;
     final note = duty.note;
+    final name = names[duty.memberId] ?? '';
     return ListTile(
       minTileHeight: AppSize.touch + AppSpace.md,
-      contentPadding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
+      contentPadding: const EdgeInsets.only(
+        left: AppSpace.lg,
+        right: AppSpace.sm,
+      ),
       tileColor: duty.date == today() ? p.accentSoft : null,
+      leading: InitialsAvatar(name),
       title: Text(
-        names[duty.memberId] ?? '',
+        name,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
         style: Theme.of(context).textTheme.titleSmall,
       ),
       subtitle: Text(
@@ -243,6 +264,8 @@ class DutyTile extends ConsumerWidget {
           shortDate(context, duty.date),
           if (note != null && note.isNotEmpty) note,
         ].join(' · '),
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
       ),
       trailing: Checkbox(
         value: duty.done,

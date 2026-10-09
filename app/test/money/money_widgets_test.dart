@@ -373,6 +373,7 @@ void main() {
       await price(tester, 0, '60');
       await price(tester, 1, '50');
       expect(amount(tester), '110');
+      expect(find.text('৳১১০'), findsOneWidget); // sticky running total
 
       // Tapping again removes the line and its price.
       await tapChip(tester, 'আলু');
@@ -700,6 +701,7 @@ void main() {
     expect(find.text('− ৳২৫০'), findsOneWidget);
     expect(find.text(l.balanceFood('১২', '৳৬৮.৭৮')), findsOneWidget);
     expect(find.text('৳৪২৪.৬৩'), findsWidgets);
+    expect(find.text(l.stampPaid), findsOneWidget); // in advance: stamped
     expect(find.text(l.shareBillShare), findsOneWidget);
   });
 
@@ -724,6 +726,8 @@ void main() {
     expect(find.text(l.moneyMealRateProof('৳১,৪১০', '২০½')), findsNothing);
     expect(find.text(l.rateDeficit('৳১৮০')), findsOneWidget);
 
+    await tester.ensureVisible(find.text('Rahim'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Rahim'));
     await tester.pumpAndSettle();
     expect(find.text(l.rateBalanceFood('১২', '৳৬০')), findsOneWidget);
@@ -768,7 +772,8 @@ void main() {
       await tester.tap(find.byKey(const Key('confirm-close')));
       await tester.pumpAndSettle();
       verify(() => repo.closeMonth('mess1', any())).called(1);
-      expect(find.text(l.monthClosedDone), findsOneWidget);
+      expect(find.text(l.monthClosedDone), findsWidgets); // card + snack
+      expect(find.byType(StampMark), findsOneWidget);
     });
 
     testWidgets('reopen requires a reason of at least 5 characters', (

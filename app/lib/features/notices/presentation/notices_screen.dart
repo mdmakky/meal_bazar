@@ -53,12 +53,22 @@ class NoticesScreen extends ConsumerWidget {
               ),
               AsyncValue(:final value?) => RefreshIndicator(
                 onRefresh: () => ref.refresh(noticesProvider(messId).future),
-                child: ListView.separated(
-                  padding: const EdgeInsets.only(bottom: AppSpace.xxxl * 2),
-                  itemCount: value.length,
-                  separatorBuilder: (_, _) =>
-                      const Divider(height: AppSize.hairline),
-                  itemBuilder: (_, i) => NoticeTile(notice: value[i]),
+                child: StaggeredList(
+                  child: ListView.separated(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpace.gutter,
+                      AppSpace.md,
+                      AppSpace.gutter,
+                      AppSpace.xxxl * 2,
+                    ),
+                    itemCount: value.length,
+                    separatorBuilder: (_, _) =>
+                        const SizedBox(height: AppSpace.md),
+                    itemBuilder: (_, i) => Stagger(
+                      index: i,
+                      child: NoticeTile(notice: value[i]),
+                    ),
+                  ),
                 ),
               ),
               AsyncValue(:final error?) => ErrorView(
@@ -83,38 +93,47 @@ class NoticeTile extends StatelessWidget {
     final p = context.palette;
     final n = notice;
 
-    return ListTile(
-      minTileHeight: AppSize.touch + AppSpace.md,
-      contentPadding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
-      leading: SizedBox(
-        width: AppSpace.sm,
-        child: n.isRead
-            ? null
-            : Semantics(
-                label: l.noticeUnread,
-                child: Container(
-                  key: const Key('noticeUnreadDot'),
-                  width: AppSpace.sm,
-                  height: AppSpace.sm,
-                  decoration: BoxDecoration(
-                    color: p.ink,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-      ),
-      title: Text(
-        n.title,
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-        style: text.titleSmall?.copyWith(
-          fontWeight: n.isRead ? FontWeight.w500 : FontWeight.w600,
-        ),
-      ),
-      subtitle: Column(
+    return AppCard.raised(
+      onTap: () => context.push('/more/notices/${n.id}'),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: AppSpace.xs,
         children: [
+          Row(
+            spacing: AppSpace.sm,
+            children: [
+              if (!n.isRead)
+                Semantics(
+                  label: l.noticeUnread,
+                  child: Container(
+                    key: const Key('noticeUnreadDot'),
+                    width: AppSpace.sm,
+                    height: AppSpace.sm,
+                    decoration: BoxDecoration(
+                      color: p.ink,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+              Expanded(
+                child: Text(
+                  n.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: text.titleMedium?.copyWith(
+                    fontWeight: n.isRead ? FontWeight.w500 : FontWeight.w600,
+                  ),
+                ),
+              ),
+              if (n.pinned)
+                Icon(
+                  Icons.push_pin_outlined,
+                  size: AppSize.spinner,
+                  color: p.inkSecondary,
+                  semanticLabel: l.noticePinned,
+                ),
+            ],
+          ),
           if (n.body.isNotEmpty)
             Text(
               n.body,
@@ -128,10 +147,6 @@ class NoticeTile extends StatelessWidget {
           ),
         ],
       ),
-      trailing: n.pinned
-          ? Icon(Icons.push_pin_outlined, semanticLabel: l.noticePinned)
-          : null,
-      onTap: () => context.push('/more/notices/${n.id}'),
     );
   }
 }
