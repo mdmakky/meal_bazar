@@ -18,6 +18,9 @@ import '../../../core/storage.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../ai/presentation/ai_entry.dart';
 import '../../meals/presentation/meal_widgets.dart' show pickOne;
+import '../../messages/domain/message_draft.dart';
+import '../../messages/presentation/messages_screens.dart'
+    show ReportProblemButton;
 import '../../mess/application/mess_providers.dart';
 import '../../mess/domain/member.dart';
 import '../../mess/presentation/common.dart';
@@ -2136,10 +2139,68 @@ class _BazarDetail extends ConsumerWidget {
               ),
           ],
         ),
+        if (!ref.watch(amIManagerProvider) && ref.featureOn('messages'))
+          ReportProblemButton(
+            popFirst: true,
+            draft: MessageDraft(
+              refType: 'bazar',
+              refId: bazar.id,
+              refLabel: entryLabel(
+                context,
+                l.bazarTitle,
+                bazar.amount,
+                bazar.date,
+              ),
+            ),
+          ),
       ],
     );
   }
 }
+
+/// "বাজার ৳1,250 · ৮ অক্টোবর": what a report is about.
+String entryLabel(
+  BuildContext context,
+  String kind,
+  num amount,
+  DateTime date,
+) => '$kind ${money(context, amount)} · ${shortDate(context, date)}';
+
+/// A member's read-only deposit or expense, with "report a problem".
+Future<void> showEntryDetail(
+  BuildContext context, {
+  required String title,
+  required double amount,
+  required List<String> facts,
+  required MessageDraft draft,
+  String? note,
+  String? receiptPath,
+}) => AppSheet.show<void>(
+  context,
+  title: title,
+  child: Builder(
+    builder: (context) => Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: AppSpace.sm,
+      children: [
+        Money(
+          amount,
+          banglaDigits: banglaDigits(context),
+          style: Theme.of(context).textTheme.headlineSmall,
+        ),
+        _Label(facts.join(' · ')),
+        if (note != null) Text(note),
+        if (receiptPath != null)
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: ReceiptThumb(path: receiptPath, size: 96),
+          ),
+        const SizedBox(height: AppSpace.sm),
+        ReportProblemButton(draft: draft, popFirst: true),
+      ],
+    ),
+  ),
+);
 
 // ── Expense ───────────────────────────────────────────────────────────────
 

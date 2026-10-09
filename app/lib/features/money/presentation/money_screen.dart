@@ -12,6 +12,7 @@ import '../../../core/widgets/widgets.dart';
 import '../../mess/application/mess_providers.dart';
 import '../../share_bills/presentation/share_bill_actions.dart';
 import '../../mess/presentation/common.dart';
+import '../../messages/domain/message_draft.dart';
 import '../../month/application/month_providers.dart';
 import '../../month/domain/month.dart';
 import '../../report/presentation/report_actions.dart';
@@ -926,6 +927,8 @@ class _ExpenseList extends ConsumerWidget {
         c.id: c.name,
     };
     final isManager = ref.watch(amIManagerProvider);
+    final me = ref.watch(currentMembershipProvider)?.member.id;
+    final report = ref.featureOn('messages');
     return _asyncSliver(
       context,
       ref.watch(expensesProvider(messId)),
@@ -946,6 +949,28 @@ class _ExpenseList extends ConsumerWidget {
           ),
           onTap: isManager
               ? () => showExpenseForm(context, existing: e)
+              : report && (e.shares.isEmpty || e.shares.containsKey(me))
+              ? () => showEntryDetail(
+                  context,
+                  title: cats[e.categoryId] ?? l.moneyTabExpense,
+                  amount: e.amount,
+                  facts: [
+                    longDate(context, e.date),
+                    _paidFrom(l, names, e.paidByMemberId),
+                  ],
+                  note: e.note,
+                  receiptPath: e.receiptPath,
+                  draft: MessageDraft(
+                    refType: 'expense',
+                    refId: e.id,
+                    refLabel: entryLabel(
+                      context,
+                      cats[e.categoryId] ?? l.moneyTabExpense,
+                      e.amount,
+                      e.date,
+                    ),
+                  ),
+                )
               : e.receiptPath == null
               ? null
               : () => showReceipt(context, e.receiptPath!),
@@ -1021,6 +1046,32 @@ class _DepositList extends ConsumerWidget {
       ),
       onTap: isManager
           ? () => showDepositForm(context, existing: d)
+          : ref.featureOn('messages') &&
+                d.memberId == ref.watch(currentMembershipProvider)?.member.id
+          ? () => showEntryDetail(
+              context,
+              title: l.moneyTabDeposit,
+              amount: d.amount,
+              facts: [
+                longDate(context, d.date),
+                methodLabel(l, d.method, ref.read(platformConfigProvider)),
+                if (d.trxId != null) 'TrxID ${d.trxId}',
+                if (d.status == DepositStatus.pending) l.depositPending,
+                if (d.status == DepositStatus.rejected) l.depositRejected,
+              ],
+              note: d.note,
+              receiptPath: d.screenshotPath,
+              draft: MessageDraft(
+                refType: 'deposit',
+                refId: d.id,
+                refLabel: entryLabel(
+                  context,
+                  l.moneyTabDeposit,
+                  d.amount,
+                  d.date,
+                ),
+              ),
+            )
           : d.screenshotPath == null
           ? null
           : () => showReceipt(context, d.screenshotPath!),
