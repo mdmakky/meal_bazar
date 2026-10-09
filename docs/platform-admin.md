@@ -42,3 +42,22 @@ Seeded keys and their defaults:
 - **Mobile app:** `platformConfigProvider`, cached locally for offline use. Feature flags hide features. Maintenance mode shows a full-screen notice. When the app is below `min_version` it shows a soft update prompt; it blocks only in maintenance mode. A platform banner appears on Home. The bazar catalogue, the payment-method labels and the support contact all come from config.
 - **AI gateway:** reads `ai` and `features` (cached for 60 s). These override the env defaults, and the `AI_ENABLED=false` env kill switch still wins.
 - **Admin web panel:** a Flutter web entrypoint `app/lib/admin/admin_main.dart`, built with `flutter build web -t lib/admin/admin_main.dart` and deployed to Vercel as static files.
+
+## Additions (v2 of this contract)
+
+### Branding: config key `branding`
+`{"app_name_bn":"মিল বাজার","app_name_en":"Meal Bazar","tagline_bn":"মেসের পুরো হিসাব, ফোন থেকেই","tagline_en":"Your whole mess, from your phone","logo_url":null,"accent_light":"#C98A0B","accent_dark":"#E8B33A"}`
+- `logo_url` points to a file in the **public** Storage bucket `branding`. Only platform admins may upload there; everyone may read. When it is null, the app uses the bundled ম mark.
+- The app uses the name, tagline and logo on the sign-in screen and the About/Account screen, and the accent colours from the theme's `accent` token. The colours must be valid `#RRGGBB` and contrast-checked in the admin UI.
+- The **launcher icon and the home-screen app name cannot change without a new release**, which is an Android limitation. The admin UI says so.
+
+### Feature flags: the full list in `features` (all default true)
+`ai, ai_meal_draft, ai_bazar_scan, receipts, notices, duty, reminders, export, recurring, split, fixed_rate, google_login, email_login, member_meal_off, guest_meals, member_deposits, deposit_verification, dashboard_charts, pdf_report, share_bills, due_reminders, cook_share, bazar_picker, meal_defaults, audit_log, offline_mode, setup_checklist, invite_qr`.
+A flag that is false hides every entry point of that feature in the app. The data and code stay in place. Unknown keys are ignored, and a missing key counts as true.
+
+### Platform credentials (write-only)
+- Table `platform_secrets (name text primary key, value text not null, updated_at timestamptz, updated_by uuid)`. RLS is enabled and **has no policies**, and all privileges are revoked from anon and authenticated, so only `service_role` can read it.
+- Allowed names: `GEMINI_API_KEY`, `OPENROUTER_API_KEY`, `SMS_PROVIDER_KEY`, `SMTP_PASSWORD`. The list is checked in the RPC.
+- `admin_set_secret(p_name text, p_value text)` is admin-only and security definer. Passing null or '' deletes the secret. It is audited, with the value never logged.
+- `admin_list_secrets()` is admin-only and returns name, `last4`, updated_at and updated_by. **It never returns values.**
+- `get_platform_secrets()` returns jsonb and is **granted to service_role only**. The AI gateway calls it with the service-role key and caches the result for 60 s. A key stored in the DB beats the env var, and the env var stays as the fallback.
