@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "619380658950",
+    "project_id": "meal-bazar-bd869",
+    "storage_bucket": "meal-bazar-bd869.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:619380658950:android:3551281a03f4ba33fc8487",
+        "android_client_info": {
+          "package_name": "com.mealbazar.meal_bazar"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEbp7XjCaLx72QeP_FJxeTK76mkcqhTY4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
