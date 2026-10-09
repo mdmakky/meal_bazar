@@ -269,24 +269,15 @@ class BrandMark extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final url = ref.watch(platformConfigProvider.select((c) => c.logoUrl));
-    final p = context.palette;
-    final fallback = Container(
+    final fallback = ClipRRect(
       key: const Key('brand-fallback'),
-      width: size,
-      height: size,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: p.ink,
-        borderRadius: BorderRadius.circular(AppRadius.md),
-      ),
-      child: Text(
-        'ম',
-        style: TextStyle(
-          color: p.onInk,
-          fontSize: size * 0.55,
-          fontWeight: FontWeight.w600,
-          height: 1,
-        ),
+      borderRadius: BorderRadius.circular(AppRadius.md),
+      child: Image.asset(
+        'assets/icon/brand.png',
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        semanticLabel: 'Meal Bazar',
       ),
     );
     return Center(
