@@ -46,6 +46,7 @@ class RecurringController {
     } finally {
       _ref.invalidate(recurringBillsProvider(b.messId));
       _ref.invalidate(pendingRecurringProvider(b.messId));
+      _ref.invalidate(attentionProvider(b.messId));
     }
   }
 
@@ -53,6 +54,7 @@ class RecurringController {
   Future<int> apply(String messId) async {
     final n = await _repo.apply(messId, today());
     _ref.invalidate(pendingRecurringProvider(messId));
+    _ref.invalidate(attentionProvider(messId));
     if (n > 0) {
       _ref.invalidate(expensesProvider(messId));
       _ref.invalidate(periodTotalsProvider);

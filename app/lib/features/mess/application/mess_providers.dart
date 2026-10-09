@@ -169,5 +169,6 @@ class MessController {
     await change();
     _ref.invalidate(membersProvider(m.messId));
     _ref.invalidate(myMembershipsProvider);
+    _ref.invalidate(attentionProvider(m.messId));
   }
 }

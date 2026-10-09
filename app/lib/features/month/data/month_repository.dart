@@ -57,6 +57,26 @@ class MonthRepository {
     monthPointFromJson,
   );
 
+  /// Null for a non-member (no row).
+  Future<Attention?> attention(String messId, DateTime day) async =>
+      (await _list('manager_attention', {
+        'p_mess': messId,
+        'p_date': isoDate(day),
+      }, attentionFromJson)).firstOrNull;
+
+  Future<MessCash?> cash(String messId, MonthPeriod p) async => (await _list(
+    'mess_cash',
+    _range(messId, p),
+    messCashFromJson,
+  )).firstOrNull;
+
+  Future<List<MemberTransparency>> transparency(String messId, MonthPeriod p) =>
+      _list(
+        'member_transparency',
+        _range(messId, p),
+        memberTransparencyFromJson,
+      );
+
   Future<List<T>> _list<T>(
     String fn,
     Map<String, dynamic> params,
