@@ -772,7 +772,8 @@ void main() {
       await tester.tap(find.byKey(const Key('confirm-close')));
       await tester.pumpAndSettle();
       verify(() => repo.closeMonth('mess1', any())).called(1);
-      expect(find.text(l.monthClosedDone), findsOneWidget);
+      expect(find.text(l.monthClosedDone), findsWidgets); // card + snack
+      expect(find.byType(StampMark), findsOneWidget);
     });
 
     testWidgets('reopen requires a reason of at least 5 characters', (

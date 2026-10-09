@@ -13,12 +13,22 @@ import '../domain/money.dart';
 import 'money_sheets.dart';
 
 /// `/money/months`: close the month (manager) and the closed-months history.
-class MonthsScreen extends ConsumerWidget {
+/// A successful close lands the বন্ধ stamp.
+class MonthsScreen extends ConsumerStatefulWidget {
   const MonthsScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MonthsScreen> createState() => _MonthsScreenState();
+}
+
+class _MonthsScreenState extends ConsumerState<MonthsScreen> {
+  var _justClosed = false;
+
+  @override
+  Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final p = context.palette;
     final messId = ref.watch(currentMessIdProvider);
     final isManager = ref.watch(amIManagerProvider);
     return Scaffold(
@@ -26,16 +36,38 @@ class MonthsScreen extends ConsumerWidget {
       body: messId == null
           ? EmptyView(message: l.moneyNoMess)
           : ListView(
+              padding: const EdgeInsets.only(bottom: AppSpace.xxxl),
               children: [
                 Padding(
                   padding: const EdgeInsets.all(AppSpace.gutter),
-                  child: isManager
+                  child: _justClosed
+                      ? AppCard.raised(
+                          padding: const EdgeInsets.all(AppSpace.xl),
+                          child: Row(
+                            spacing: AppSpace.lg,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  l.monthClosedDone,
+                                  style: text.titleMedium,
+                                ),
+                              ),
+                              StampMark(l.monthStatusClosed),
+                            ],
+                          ),
+                        )
+                      : isManager
                       ? AppButton(
                           label: l.monthClose,
                           icon: Icons.lock_outline,
                           onPressed: () => _close(context, messId),
                         )
-                      : Text(l.monthManagerOnly),
+                      : Text(
+                          l.monthManagerOnly,
+                          style: text.bodyMedium?.copyWith(
+                            color: p.inkSecondary,
+                          ),
+                        ),
                 ),
                 SectionTitle(l.monthHistory),
                 ref
@@ -49,41 +81,64 @@ class MonthsScreen extends ConsumerWidget {
                       ),
                       data: (months) => months.isEmpty
                           ? EmptyView(message: l.monthNoneClosed)
-                          : Column(
-                              children: [
-                                const Divider(),
-                                for (final m in months) ...[
-                                  ListTile(
-                                    minTileHeight: AppSize.touch + AppSpace.md,
-                                    contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: AppSpace.gutter,
-                                    ),
-                                    title: Text(
-                                      rangeLabel(context, m.start, m.end),
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleSmall,
-                                    ),
-                                    subtitle: Text(
-                                      m.closed
-                                          ? l.monthStatusClosed
-                                          : l.monthStatusOpen,
-                                    ),
-                                    trailing: isManager && m.closed
-                                        ? TextButton(
-                                            onPressed: () =>
-                                                _reopen(context, messId, m),
-                                            child: Text(l.monthReopen),
-                                          )
-                                        : null,
-                                  ),
-                                  const Divider(),
-                                ],
-                              ],
+                          : StaggeredList(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpace.gutter,
+                                ),
+                                child: RaisedGroup(
+                                  children: StaggeredList.wrap([
+                                    for (final m in months)
+                                      _monthRow(context, messId, m, isManager),
+                                  ]),
+                                ),
+                              ),
                             ),
                     ),
               ],
             ),
+    );
+  }
+
+  Widget _monthRow(
+    BuildContext context,
+    String messId,
+    MessMonth m,
+    bool isManager,
+  ) {
+    final l = AppLocalizations.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpace.lg,
+        vertical: AppSpace.md,
+      ),
+      child: Row(
+        spacing: AppSpace.md,
+        children: [
+          IconTile(m.closed ? Icons.lock_outline : Icons.lock_open_outlined),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: AppSpace.xs,
+              children: [
+                Text(
+                  rangeLabel(context, m.start, m.end),
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+                StatusTag(
+                  m.closed ? l.monthStatusClosed : l.monthStatusOpen,
+                  strong: m.closed,
+                ),
+              ],
+            ),
+          ),
+          if (isManager && m.closed)
+            TextButton(
+              onPressed: () => _reopen(context, messId, m),
+              child: Text(l.monthReopen),
+            ),
+        ],
+      ),
     );
   }
 
@@ -94,7 +149,10 @@ class MonthsScreen extends ConsumerWidget {
       title: l.monthClose,
       child: CloseMonthForm(messId: messId),
     );
-    if (done == true && context.mounted) showSnack(context, l.monthClosedDone);
+    if (done == true && context.mounted) {
+      setState(() => _justClosed = true);
+      showSnack(context, l.monthClosedDone);
+    }
   }
 
   Future<void> _reopen(BuildContext context, String messId, MessMonth m) async {
@@ -104,7 +162,10 @@ class MonthsScreen extends ConsumerWidget {
       title: l.monthReopenTitle,
       child: ReopenMonthForm(messId: messId, month: m),
     );
-    if (done == true && context.mounted) showSnack(context, l.monthReopened);
+    if (done == true && context.mounted) {
+      setState(() => _justClosed = false);
+      showSnack(context, l.monthReopened);
+    }
   }
 }
 
