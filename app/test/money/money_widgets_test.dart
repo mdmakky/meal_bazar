@@ -11,6 +11,7 @@ import 'package:meal_bazar/core/widgets/widgets.dart';
 import 'package:meal_bazar/features/mess/application/mess_providers.dart';
 import 'package:meal_bazar/features/mess/domain/member.dart';
 import 'package:meal_bazar/features/mess/domain/mess.dart';
+import 'package:meal_bazar/features/money/application/bazar_request_providers.dart';
 import 'package:meal_bazar/features/money/application/money_providers.dart';
 import 'package:meal_bazar/features/money/data/money_repository.dart';
 import 'package:meal_bazar/features/money/domain/money.dart';
@@ -809,6 +810,8 @@ void main() {
           (category: 'বাজার', total: 1410.0, isBazar: true),
         ],
       ),
+      pendingBazarRequestsProvider.overrideWith((ref, id) async => const []),
+      myBazarRequestsProvider.overrideWith((ref, k) async => const []),
     ];
     await pump(tester, const BazarScreen(), extra: spending);
     await tester.pumpAndSettle();
@@ -822,6 +825,8 @@ void main() {
     await pump(tester, const BazarScreen(), extra: spending, manager: false);
     await tester.pumpAndSettle();
     expect(find.text(l.bazarAdd), findsNothing);
+    expect(find.text(l.bazarReqFab), findsOneWidget);
+    expect(find.byType(ErrorView), findsNothing);
   });
 
   testWidgets('হিসাব has no bazar sub-tab', (tester) async {

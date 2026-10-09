@@ -2109,6 +2109,14 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get dutyDayAfterMine => 'Your bazar turn the day after tomorrow';
+
+  @override
+  String dutyDayAfterOther(String name) {
+    return '$name does the bazar the day after tomorrow';
+  }
+
+  @override
   String get dutyNextMonth => 'Next month';
 
   @override
@@ -2961,6 +2969,118 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bazarBuyers => 'Who went to the bazar';
+
+  @override
+  String get bazarReqTitle => 'Submit bazar';
+
+  @override
+  String get bazarReqHelp =>
+      'It joins the mess accounts once a manager accepts it';
+
+  @override
+  String get bazarReqWith => 'Who went to the bazar';
+
+  @override
+  String get bazarReqOwnPocket => 'My own money';
+
+  @override
+  String get bazarReqMessFund => 'From the mess fund';
+
+  @override
+  String get bazarReqSend => 'Submit';
+
+  @override
+  String get bazarReqSent => 'Sent. Waiting for the manager';
+
+  @override
+  String get bazarReqFab => 'Submit bazar';
+
+  @override
+  String get bazarReqMine => 'My submissions';
+
+  @override
+  String get bazarReqPending => 'Waiting';
+
+  @override
+  String get bazarReqApproved => 'Accepted';
+
+  @override
+  String get bazarReqRejected => 'Returned';
+
+  @override
+  String get bazarReqCancelled => 'Withdrawn';
+
+  @override
+  String bazarReqReason(String reason) {
+    return 'Reason: $reason';
+  }
+
+  @override
+  String get bazarReqCancel => 'Withdraw';
+
+  @override
+  String get bazarReqCancelTitle => 'Withdraw this bazar?';
+
+  @override
+  String bazarReqCancelBody(String amount) {
+    return 'The $amount bazar will no longer go to the manager.';
+  }
+
+  @override
+  String get bazarReqCancelDone => 'Withdrawn';
+
+  @override
+  String get bazarReqReview => 'Waiting for review';
+
+  @override
+  String bazarReqWithNames(String names) {
+    return 'With $names';
+  }
+
+  @override
+  String bazarReqOf(String name) {
+    return '$name\'s bazar';
+  }
+
+  @override
+  String bazarReqPaidOwn(String name) {
+    return '$name paid from their own money';
+  }
+
+  @override
+  String get bazarReqPaidFund => 'Paid from the mess fund';
+
+  @override
+  String get bazarReqApprove => 'Accept';
+
+  @override
+  String get bazarReqReject => 'Return';
+
+  @override
+  String get bazarReqRejectTitle => 'Return this bazar?';
+
+  @override
+  String get bazarReqRejectReason => 'Reason (optional)';
+
+  @override
+  String get bazarReqApproveDone => 'Bazar added';
+
+  @override
+  String get bazarReqRejectDone => 'Returned to the member';
+
+  @override
+  String bazarReqAttn(String count) {
+    return '$count bazars to review';
+  }
+
+  @override
+  String get bazarReqFailFutureDate => 'A bazar can\'t be dated in the future';
+
+  @override
+  String get bazarReqFailNotPending => 'This bazar is no longer waiting';
+
+  @override
+  String get bazarReqFailItemsInvalid => 'The item list isn\'t valid';
 
   @override
   String get bazarPickBuyer => 'Pick at least one person';

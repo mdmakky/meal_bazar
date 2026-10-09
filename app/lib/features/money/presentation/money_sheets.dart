@@ -24,8 +24,10 @@ import '../../messages/presentation/messages_screens.dart'
 import '../../mess/application/mess_providers.dart';
 import '../../mess/domain/member.dart';
 import '../../mess/presentation/common.dart';
+import '../application/bazar_request_providers.dart';
 import '../application/money_providers.dart';
 import '../domain/bazar_catalogue.dart';
+import '../domain/bazar_request.dart';
 import '../domain/money.dart';
 
 // ── Public entry points (also used by the Today quick actions) ────────────
@@ -319,12 +321,16 @@ class _AmountField extends StatefulWidget {
     required this.controller,
     this.autofocus = false,
     this.positive = false,
+    this.readOnly = false,
     this.onChanged,
   });
 
   final TextEditingController controller;
   final bool autofocus;
   final ValueChanged<String>? onChanged;
+
+  /// Follows something else (a member's bazar: the items' sum).
+  final bool readOnly;
 
   /// Deposits must be > 0; bazar and expenses may be 0.
   final bool positive;
@@ -381,6 +387,7 @@ class _AmountFieldState extends State<_AmountField> {
       key: const Key('amount'),
       controller: widget.controller,
       focusNode: _focus,
+      readOnly: widget.readOnly,
       onChanged: widget.onChanged,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       inputFormatters: [FilteringTextInputFormatter.allow(RegExp('[0-9০-৯.]'))],
@@ -400,10 +407,21 @@ class _AmountFieldState extends State<_AmountField> {
 
 /// The entry's date. Closed months cannot be picked ([firstOpenDateProvider]).
 class _DateChip extends ConsumerWidget {
-  const _DateChip({required this.value, required this.onChanged});
+  const _DateChip({
+    required this.value,
+    required this.onChanged,
+    this.last,
+    this.selectable,
+  });
 
   final DateTime value;
   final ValueChanged<DateTime> onChanged;
+
+  /// Latest pickable day (default: a month ahead).
+  final DateTime? last;
+
+  /// Days that may be picked (e.g. not inside a closed month).
+  final bool Function(DateTime)? selectable;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -412,8 +430,13 @@ class _DateChip extends ConsumerWidget {
         ? null
         : ref.watch(firstOpenDateProvider(messId)).value;
     final first = open ?? DateTime(2020);
-    var last = today().add(const Duration(days: 31));
-    if (last.isBefore(first)) last = first;
+    var end = last ?? today().add(const Duration(days: 31));
+    if (end.isBefore(first)) end = first;
+    final initial = value.isBefore(first)
+        ? first
+        : value.isAfter(end)
+        ? end
+        : value;
     return Align(
       alignment: AlignmentDirectional.centerStart,
       child: ActionChip(
@@ -423,13 +446,13 @@ class _DateChip extends ConsumerWidget {
         onPressed: () async {
           final d = await showDatePicker(
             context: context,
-            initialDate: value.isBefore(first)
-                ? first
-                : value.isAfter(last)
-                ? last
-                : value,
+            initialDate: initial,
             firstDate: first,
-            lastDate: last,
+            lastDate: end,
+            // The picker asserts its initial day is selectable.
+            selectableDayPredicate: selectable == null || !selectable!(initial)
+                ? null
+                : selectable,
           );
           if (d != null) onChanged(dayOnly(d));
         },
@@ -769,20 +792,31 @@ String _num(double v) =>
 
 /// Add / edit a bazar on a full-screen page: who went, who paid, the total,
 /// then the items (one compact row each) with the catalogue picker.
-Future<void> showBazarForm(BuildContext context, {Bazar? existing}) async {
+/// True when saved.
+Future<bool> showBazarForm(BuildContext context, {Bazar? existing}) =>
+    _pushBazarPage(context, _BazarPage(existing: existing));
+
+/// A member submits their own bazar for the manager to approve: the same
+/// page, with the member always among the buyers, own pocket or mess fund,
+/// and the amount following the items. True when sent.
+Future<bool> showBazarRequestForm(BuildContext context) =>
+    _pushBazarPage(context, const _BazarPage(request: true));
+
+Future<bool> _pushBazarPage(BuildContext context, _BazarPage page) async {
   final done = await Navigator.of(context).push<String>(
-    MaterialPageRoute(
-      fullscreenDialog: true,
-      builder: (_) => _BazarPage(existing: existing),
-    ),
+    MaterialPageRoute(fullscreenDialog: true, builder: (_) => page),
   );
   if (done != null && context.mounted) showSnack(context, done);
+  return done != null;
 }
 
 class _BazarPage extends ConsumerStatefulWidget {
-  const _BazarPage({this.existing});
+  const _BazarPage({this.existing, this.request = false});
 
   final Bazar? existing;
+
+  /// A member's [BazarRequest], not a bazar.
+  final bool request;
 
   @override
   ConsumerState<_BazarPage> createState() => _BazarPageState();
@@ -797,11 +831,17 @@ class _BazarPageState extends ConsumerState<_BazarPage>
   late final _note = TextEditingController(text: _b?.note);
   late var _date = _b?.date ?? today();
 
+  late final _request = widget.request;
+
   /// In pick order; the first is mirrored into `buyer_member_id`.
+  /// Request mode: only the companions (the submitter is added on send).
   late final _buyers = <String>{...?_b?.buyers};
 
   /// Null = the mess fund.
   late var _paidBy = _b?.paidByMemberId;
+
+  /// Request mode: paid from my own pocket (default) or the mess fund.
+  var _ownPocket = true;
   late var _source = _b?.source ?? 'app';
 
   /// The user typed an amount: item changes stop overwriting it.
@@ -816,6 +856,9 @@ class _BazarPageState extends ConsumerState<_BazarPage>
 
   /// Sum of the line prices.
   final _sum = ValueNotifier<double>(0);
+
+  /// Request mode: the items have a sum, so the amount follows it.
+  final _summed = ValueNotifier(false);
 
   /// The lines' names, for the picker's checks. Notifies only on a change.
   final _names = ValueNotifier<Set<String>>(const {});
@@ -848,6 +891,7 @@ class _BazarPageState extends ConsumerState<_BazarPage>
     _note.dispose();
     _lines.dispose();
     _sum.dispose();
+    _summed.dispose();
     _names.dispose();
     for (final i in _made) {
       i.dispose();
@@ -877,7 +921,10 @@ class _BazarPageState extends ConsumerState<_BazarPage>
       for (final i in _lines.value) parseAmount(i.price.text) ?? 0,
     ]);
     _sum.value = sum;
+    _summed.value = sum > 0;
     if (_amountTyped) return;
+    // A member's amount is typed only while no item has a price.
+    if (_request && sum == 0) return;
     final text = sum == 0 ? '' : _typed(sum);
     if (_amount.text != text) _amount.text = text;
   }
@@ -974,16 +1021,42 @@ class _BazarPageState extends ConsumerState<_BazarPage>
     ],
   );
 
+  /// Request mode: [_buyers] are the companions; I always lead.
+  BazarRequest _buildRequest(String messId, String? receiptPath) {
+    final b = _build(messId, receiptPath);
+    final me = ref.read(currentMembershipProvider)?.member.id;
+    return BazarRequest(
+      id: b.id,
+      messId: messId,
+      date: b.date,
+      amount: b.amount,
+      ownPocket: _ownPocket,
+      buyerIds: [?me, ...b.buyers.where((id) => id != me)],
+      items: b.items,
+      note: b.note,
+      receiptPath: receiptPath,
+    );
+  }
+
   @override
   void onSave(String messId) {
     final formOk = formKey.currentState!.validate();
     final l = AppLocalizations.of(context);
     final problems = [
-      if (_buyers.isEmpty) l.bazarPickBuyer,
+      if (!_request && _buyers.isEmpty) l.bazarPickBuyer,
       if (!_lines.value.every((i) => i.valid)) l.bazarItemInvalid,
     ];
     if (!listEquals(problems, _problems)) setState(() => _problems = problems);
     if (!formOk || problems.isNotEmpty) return;
+    if (_request) {
+      final ctrl = ref.read(bazarRequestControllerProvider);
+      run(
+        () async =>
+            ctrl.submit(_buildRequest(messId, await uploadPhoto(messId))),
+        l.bazarReqSent,
+      );
+      return;
+    }
     final ctrl = ref.read(moneyControllerProvider);
     run(
       () async => ctrl.saveBazar(_build(messId, await uploadPhoto(messId))),
@@ -1051,7 +1124,13 @@ class _BazarPageState extends ConsumerState<_BazarPage>
     return Scaffold(
       appBar: AppBar(
         leading: const CloseButton(),
-        title: Text(_b == null ? l.bazarAdd : l.bazarEdit),
+        title: Text(
+          _request
+              ? l.bazarReqTitle
+              : _b == null
+              ? l.bazarAdd
+              : l.bazarEdit,
+        ),
         actions: [
           if (onDelete != null)
             PopupMenuButton<int>(
@@ -1126,8 +1205,15 @@ class _BazarPageState extends ConsumerState<_BazarPage>
     final text = Theme.of(context).textTheme;
     final all = ref.watch(membersProvider(messId)).value ?? const <Member>[];
     final scan =
+        !_request &&
         _b == null &&
         ref.watch(platformConfigProvider.select((c) => c.aiBazarScan));
+    final closed = _request
+        ? [
+            for (final m in ref.watch(monthsProvider(messId)).value ?? const [])
+              if (m.closed) m,
+          ]
+        : const <MessMonth>[];
     Widget section(String title, Widget child) => Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: AppSpace.sm,
@@ -1147,6 +1233,13 @@ class _BazarPageState extends ConsumerState<_BazarPage>
             _DateChip(
               value: _date,
               onChanged: (d) => setState(() => _date = d),
+              // A member's bazar: not ahead, not in a closed month.
+              last: _request ? today() : null,
+              selectable: _request
+                  ? (d) => !closed.any(
+                      (m) => !d.isBefore(m.start) && d.isBefore(m.end),
+                    )
+                  : null,
             ),
             if (scan)
               TextButton.icon(
@@ -1156,77 +1249,113 @@ class _BazarPageState extends ConsumerState<_BazarPage>
               ),
           ],
         ),
+        if (_request) ...[
+          const SizedBox(height: AppSpace.sm),
+          _Label(l.bazarReqHelp),
+        ],
         const SizedBox(height: AppSpace.xl),
-        section(
-          l.bazarBuyers,
-          _Required(
-            ok: () => _buyers.isNotEmpty,
-            message: l.bazarPickBuyer,
-            child: Wrap(
-              spacing: AppSpace.sm,
-              runSpacing: AppSpace.sm,
-              children: [
-                for (final m in _pickable(all, null))
-                  FilterChip(
-                    avatar: InitialsAvatar(m.displayName, size: 24),
-                    showCheckmark: false,
-                    label: Text(m.displayName),
-                    selected: _buyers.contains(m.id),
-                    onSelected: (on) => setState(
-                      () => on ? _buyers.add(m.id) : _buyers.remove(m.id),
-                    ),
-                  ),
-                // A buyer who has since left still shows on an edit.
-                for (final m in all)
-                  if (_buyers.contains(m.id) &&
-                      !_pickable(all, null).contains(m))
+        if (_request)
+          section(
+            l.bazarReqWith,
+            _companions(all, ref.watch(currentMembershipProvider)?.member.id),
+          )
+        else
+          section(
+            l.bazarBuyers,
+            _Required(
+              ok: () => _buyers.isNotEmpty,
+              message: l.bazarPickBuyer,
+              child: Wrap(
+                spacing: AppSpace.sm,
+                runSpacing: AppSpace.sm,
+                children: [
+                  for (final m in _pickable(all, null))
                     FilterChip(
+                      avatar: InitialsAvatar(m.displayName, size: 24),
+                      showCheckmark: false,
                       label: Text(m.displayName),
-                      selected: true,
-                      onSelected: (_) => setState(() => _buyers.remove(m.id)),
+                      selected: _buyers.contains(m.id),
+                      onSelected: (on) => setState(
+                        () => on ? _buyers.add(m.id) : _buyers.remove(m.id),
+                      ),
                     ),
+                  // A buyer who has since left still shows on an edit.
+                  for (final m in all)
+                    if (_buyers.contains(m.id) &&
+                        !_pickable(all, null).contains(m))
+                      FilterChip(
+                        label: Text(m.displayName),
+                        selected: true,
+                        onSelected: (_) => setState(() => _buyers.remove(m.id)),
+                      ),
+                ],
+              ),
+            ),
+          ),
+        const SizedBox(height: AppSpace.xl),
+        if (_request)
+          section(
+            l.moneyPaidFrom,
+            InkSegmented<bool>(
+              segments: [
+                (true, l.bazarReqOwnPocket),
+                (false, l.bazarReqMessFund),
+              ],
+              selected: _ownPocket,
+              onChanged: (v) => setState(() => _ownPocket = v),
+            ),
+          )
+        else
+          section(
+            l.bazarPayer,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: AppSpace.xs,
+              children: [
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    spacing: AppSpace.sm,
+                    children: [
+                      ChoiceChip(
+                        avatar: const Icon(
+                          Icons.account_balance_wallet_outlined,
+                        ),
+                        label: Text(l.moneyPaidFund),
+                        selected: _paidBy == null,
+                        onSelected: (_) => setState(() => _paidBy = null),
+                      ),
+                      for (final m in _pickable(all, _paidBy))
+                        ChoiceChip(
+                          avatar: InitialsAvatar(m.displayName, size: 24),
+                          showCheckmark: false,
+                          label: Text(m.displayName),
+                          selected: _paidBy == m.id,
+                          onSelected: (_) => setState(() => _paidBy = m.id),
+                        ),
+                    ],
+                  ),
+                ),
+                if (_paidBy != null) _Label(l.moneyPaidPocketHelp),
               ],
             ),
           ),
-        ),
         const SizedBox(height: AppSpace.xl),
-        section(
-          l.bazarPayer,
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: AppSpace.xs,
-            children: [
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  spacing: AppSpace.sm,
-                  children: [
-                    ChoiceChip(
-                      avatar: const Icon(Icons.account_balance_wallet_outlined),
-                      label: Text(l.moneyPaidFund),
-                      selected: _paidBy == null,
-                      onSelected: (_) => setState(() => _paidBy = null),
-                    ),
-                    for (final m in _pickable(all, _paidBy))
-                      ChoiceChip(
-                        avatar: InitialsAvatar(m.displayName, size: 24),
-                        showCheckmark: false,
-                        label: Text(m.displayName),
-                        selected: _paidBy == m.id,
-                        onSelected: (_) => setState(() => _paidBy = m.id),
-                      ),
-                  ],
-                ),
-              ),
-              if (_paidBy != null) _Label(l.moneyPaidPocketHelp),
-            ],
+        if (_request)
+          // Locked to the items' sum once an item has a price.
+          ValueListenableBuilder<bool>(
+            valueListenable: _summed,
+            builder: (context, summed, _) => _AmountField(
+              controller: _amount,
+              positive: true,
+              readOnly: summed,
+            ),
+          )
+        else
+          _AmountField(
+            controller: _amount,
+            onChanged: (_) => _amountTyped = true,
           ),
-        ),
-        const SizedBox(height: AppSpace.xl),
-        _AmountField(
-          controller: _amount,
-          onChanged: (_) => _amountTyped = true,
-        ),
         ListenableBuilder(
           listenable: Listenable.merge([_amount, _sum]),
           builder: (context, _) {
@@ -1255,6 +1384,36 @@ class _BazarPageState extends ConsumerState<_BazarPage>
           _picker,
           const SizedBox(height: AppSpace.md),
         ],
+      ],
+    );
+  }
+
+  /// Request mode: me first (always, not removable), then active members.
+  Widget _companions(List<Member> all, String? myId) {
+    final me = all.where((m) => m.id == myId).firstOrNull;
+    return Wrap(
+      spacing: AppSpace.sm,
+      runSpacing: AppSpace.sm,
+      children: [
+        if (me != null)
+          FilterChip(
+            key: const Key('companion-me'),
+            avatar: InitialsAvatar(me.displayName, size: 24),
+            showCheckmark: false,
+            label: Text(me.displayName),
+            selected: true,
+            onSelected: (_) {},
+          ),
+        for (final m in all)
+          if (m.id != myId && m.status == MemberStatus.active)
+            FilterChip(
+              avatar: InitialsAvatar(m.displayName, size: 24),
+              showCheckmark: false,
+              label: Text(m.displayName),
+              selected: _buyers.contains(m.id),
+              onSelected: (on) =>
+                  setState(() => on ? _buyers.add(m.id) : _buyers.remove(m.id)),
+            ),
       ],
     );
   }
@@ -1316,7 +1475,7 @@ class _BazarPageState extends ConsumerState<_BazarPage>
                   ),
                   Expanded(
                     child: AppButton(
-                      label: l.moneySave,
+                      label: _request ? l.bazarReqSend : l.moneySave,
                       loading: saving,
                       onPressed: () => onSave(messId),
                     ),
@@ -2074,10 +2233,13 @@ String bazarShareText(BuildContext context, Bazar b, {String? buyer}) {
 }
 
 class _BazarDetail extends ConsumerWidget {
-  const _BazarDetail({required this.bazar, required this.onEdit});
+  const _BazarDetail({required this.bazar, this.onEdit, this.actions});
 
   final Bazar bazar;
-  final VoidCallback onEdit;
+  final VoidCallback? onEdit;
+
+  /// Replaces share / edit / report (a bazar request's review actions).
+  final Widget? actions;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -2143,44 +2305,242 @@ class _BazarDetail extends ConsumerWidget {
             child: ReceiptThumb(path: bazar.receiptPath!, size: 96),
           ),
         const SizedBox(height: AppSpace.sm),
-        Row(
-          spacing: AppSpace.sm,
-          children: [
-            Expanded(
-              child: AppButton(
-                label: l.bazarShare,
-                icon: Icons.share_outlined,
-                variant: AppButtonVariant.secondary,
-                onPressed: () => SharePlus.instance.share(
-                  ShareParams(
-                    text: bazarShareText(context, bazar, buyer: buyer),
+        if (actions case final actions?)
+          actions
+        else ...[
+          Row(
+            spacing: AppSpace.sm,
+            children: [
+              Expanded(
+                child: AppButton(
+                  label: l.bazarShare,
+                  icon: Icons.share_outlined,
+                  variant: AppButtonVariant.secondary,
+                  onPressed: () => SharePlus.instance.share(
+                    ShareParams(
+                      text: bazarShareText(context, bazar, buyer: buyer),
+                    ),
                   ),
                 ),
               ),
+              if (ref.watch(amIManagerProvider))
+                Expanded(
+                  child: AppButton(label: l.edit, onPressed: onEdit),
+                ),
+            ],
+          ),
+          if (!ref.watch(amIManagerProvider) && ref.featureOn('messages'))
+            ReportProblemButton(
+              popFirst: true,
+              draft: MessageDraft(
+                refType: 'bazar',
+                refId: bazar.id,
+                refLabel: entryLabel(
+                  context,
+                  l.bazarTitle,
+                  bazar.amount,
+                  bazar.date,
+                ),
+              ),
             ),
-            if (ref.watch(amIManagerProvider))
+        ],
+      ],
+    );
+  }
+}
+
+// ── Bazar requests (0026) ─────────────────────────────────────────────────
+
+/// A submitted bazar, read-only like a bazar, with its review actions: a
+/// manager accepts or returns it; the submitter withdraws it while pending.
+Future<void> showBazarRequestDetail(
+  BuildContext context,
+  BazarRequest r, {
+  required String submitter,
+}) async {
+  final l = AppLocalizations.of(context);
+  final done = await AppSheet.show<String>(
+    context,
+    title: l.bazarReqOf(submitter),
+    child: _BazarDetail(
+      bazar: r.asBazar(),
+      actions: _RequestActions(request: r),
+    ),
+  );
+  if (done != null && context.mounted) showSnack(context, done);
+}
+
+/// Status label for a request.
+String bazarRequestStatusLabel(AppLocalizations l, BazarRequestStatus s) =>
+    switch (s) {
+      BazarRequestStatus.pending => l.bazarReqPending,
+      BazarRequestStatus.approved => l.bazarReqApproved,
+      BazarRequestStatus.rejected => l.bazarReqRejected,
+      BazarRequestStatus.cancelled => l.bazarReqCancelled,
+    };
+
+class _RequestActions extends ConsumerStatefulWidget {
+  const _RequestActions({required this.request});
+
+  final BazarRequest request;
+
+  @override
+  ConsumerState<_RequestActions> createState() => _RequestActionsState();
+}
+
+class _RequestActionsState extends ConsumerState<_RequestActions> {
+  bool? _busy; // the approve value in flight (false also = withdraw)
+  Object? _error;
+
+  Future<void> _do(
+    bool approve,
+    Future<void> Function() action,
+    String done,
+  ) async {
+    setState(() {
+      _busy = approve;
+      _error = null;
+    });
+    try {
+      await action();
+      if (mounted) Navigator.pop(context, done);
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _busy = null;
+          _error = e;
+        });
+      }
+    }
+  }
+
+  Future<void> _reject() async {
+    final l = AppLocalizations.of(context);
+    final reason = await _askReason(context);
+    if (reason == null || !mounted) return;
+    final ctrl = ref.read(bazarRequestControllerProvider);
+    await _do(
+      false,
+      () => ctrl.review(widget.request, approve: false, reason: reason),
+      l.bazarReqRejectDone,
+    );
+  }
+
+  Future<void> _withdraw() async {
+    final l = AppLocalizations.of(context);
+    final ok = await confirmDialog(
+      context,
+      title: l.bazarReqCancelTitle,
+      body: l.bazarReqCancelBody(money(context, widget.request.amount)),
+      action: l.bazarReqCancel,
+    );
+    if (!ok || !mounted) return;
+    final ctrl = ref.read(bazarRequestControllerProvider);
+    await _do(false, () => ctrl.cancel(widget.request), l.bazarReqCancelDone);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final p = context.palette;
+    final text = Theme.of(context).textTheme;
+    final r = widget.request;
+    final manager = ref.watch(amIManagerProvider);
+    final mine = ref.watch(currentMembershipProvider)?.member.id == r.memberId;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: AppSpace.md,
+      children: [
+        if (!r.pending)
+          Row(
+            spacing: AppSpace.sm,
+            children: [
+              StatusTag(bazarRequestStatusLabel(l, r.status)),
+              if (r.rejectReason case final why?)
+                Expanded(
+                  child: Text(
+                    l.bazarReqReason(why),
+                    style: text.bodyMedium?.copyWith(color: p.inkSecondary),
+                  ),
+                ),
+            ],
+          ),
+        if (_error case final e?)
+          Text(
+            failureText(context, e),
+            style: text.bodyMedium?.copyWith(color: p.due),
+          ),
+        if (r.pending && manager)
+          Row(
+            spacing: AppSpace.sm,
+            children: [
               Expanded(
-                child: AppButton(label: l.edit, onPressed: onEdit),
+                child: AppButton(
+                  label: l.bazarReqReject,
+                  variant: AppButtonVariant.secondary,
+                  loading: _busy == false,
+                  onPressed: _busy == null ? _reject : null,
+                ),
               ),
-          ],
-        ),
-        if (!ref.watch(amIManagerProvider) && ref.featureOn('messages'))
-          ReportProblemButton(
-            popFirst: true,
-            draft: MessageDraft(
-              refType: 'bazar',
-              refId: bazar.id,
-              refLabel: entryLabel(
-                context,
-                l.bazarTitle,
-                bazar.amount,
-                bazar.date,
+              Expanded(
+                child: AppButton(
+                  label: l.bazarReqApprove,
+                  icon: Icons.check,
+                  loading: _busy == true,
+                  onPressed: _busy == null
+                      ? () => _do(
+                          true,
+                          () => ref
+                              .read(bazarRequestControllerProvider)
+                              .review(r, approve: true),
+                          l.bazarReqApproveDone,
+                        )
+                      : null,
+                ),
               ),
-            ),
+            ],
+          )
+        else if (r.pending && mine)
+          AppButton(
+            label: l.bazarReqCancel,
+            variant: AppButtonVariant.secondary,
+            loading: _busy == false,
+            onPressed: _busy == null ? _withdraw : null,
           ),
       ],
     );
   }
+}
+
+/// "ফেরত দিন" with an optional reason; null when dismissed.
+Future<String?> _askReason(BuildContext context) {
+  final l = AppLocalizations.of(context);
+  final reason = TextEditingController();
+  return showDialog<String>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(l.bazarReqRejectTitle),
+      content: TextField(
+        key: const Key('reject-reason'),
+        controller: reason,
+        autofocus: true,
+        maxLength: 200,
+        minLines: 1,
+        maxLines: 3,
+        decoration: InputDecoration(labelText: l.bazarReqRejectReason),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(l.cancel),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(context, reason.text.trim()),
+          child: Text(l.bazarReqReject),
+        ),
+      ],
+    ),
+  );
 }
 
 /// "বাজার ৳1,250 · ৮ অক্টোবর": what a report is about.

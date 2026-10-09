@@ -16,7 +16,9 @@ import '../../messages/domain/message_draft.dart';
 import '../../month/application/month_providers.dart';
 import '../../month/domain/month.dart';
 import '../../report/presentation/report_actions.dart';
+import '../application/bazar_request_providers.dart';
 import '../application/money_providers.dart';
+import '../domain/bazar_request.dart';
 import '../domain/money.dart';
 import 'money_sheets.dart';
 
@@ -171,19 +173,30 @@ class BazarScreen extends ConsumerWidget {
     final total = ref
         .watch(spendingByCategoryProvider(messId))
         .whenData((c) => c.where((x) => x.isBazar).firstOrNull?.total ?? 0);
+    final manager = ref.watch(amIManagerProvider);
+    final me = ref.watch(currentMembershipProvider)?.member.id;
+    final submit = !manager && me != null && ref.featureOn('member_bazar');
     return Scaffold(
       appBar: AppBar(title: Text(l.navBazar)),
-      floatingActionButton: ref.watch(amIManagerProvider)
+      floatingActionButton: manager
           ? FloatingActionButton.extended(
               icon: const Icon(Icons.add),
               label: Text(l.bazarAdd),
               onPressed: () => showAddBazarSheet(context),
+            )
+          : submit
+          ? FloatingActionButton.extended(
+              icon: const Icon(Icons.add),
+              label: Text(l.bazarReqFab),
+              onPressed: () => showBazarRequestForm(context),
             )
           : null,
       body: RefreshIndicator(
         onRefresh: () {
           ref.invalidate(currentPeriodProvider(messId));
           ref.invalidate(bazarsProvider(messId));
+          if (manager) ref.invalidate(pendingBazarRequestsProvider(messId));
+          if (me != null) ref.invalidate(myBazarRequestsProvider((messId, me)));
           return ref.refresh(spendingByCategoryProvider(messId).future);
         },
         child: CustomScrollView(
@@ -231,6 +244,18 @@ class BazarScreen extends ConsumerWidget {
                 ),
               ),
             ),
+            if (manager)
+              _BazarRequests(
+                messId: messId,
+                title: l.bazarReqReview,
+                provider: pendingBazarRequestsProvider(messId),
+              )
+            else if (me != null)
+              _BazarRequests(
+                messId: messId,
+                title: l.bazarReqMine,
+                provider: myBazarRequestsProvider((messId, me)),
+              ),
             _BazarList(messId: messId),
             const SliverToBoxAdapter(child: SizedBox(height: _fabClearance)),
           ],
@@ -954,6 +979,108 @@ class _BazarList extends ConsumerWidget {
                   },
                 ),
           onTap: () => showBazarDetail(context, b),
+        ),
+      ),
+    );
+  }
+}
+
+/// Bazar requests above the bazar list: a manager's pending ones to review,
+/// or a member's own with their status. Nothing while loading or empty.
+class _BazarRequests extends ConsumerWidget {
+  const _BazarRequests({
+    required this.messId,
+    required this.title,
+    required this.provider,
+  });
+
+  final String messId;
+  final String title;
+  final FutureProvider<List<BazarRequest>> provider;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final bn = banglaDigits(context);
+    final p = context.palette;
+    final names = _names(ref, messId);
+    final value = ref.watch(provider);
+    if (value.hasError && !value.hasValue) {
+      return SliverToBoxAdapter(
+        child: ErrorView(
+          message: failureText(context, value.error!),
+          onRetry: () => ref.invalidate(provider),
+        ),
+      );
+    }
+    final list = value.value ?? const <BazarRequest>[];
+    if (list.isEmpty) return const SliverToBoxAdapter();
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpace.gutter,
+          0,
+          AppSpace.gutter,
+          AppSpace.xl,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: AppSpace.md,
+          children: [
+            Text(title, style: Theme.of(context).textTheme.titleMedium),
+            RaisedGroup(
+              children: [
+                for (final r in list)
+                  _row(
+                    context,
+                    leading: _DateBlock(r.date),
+                    titleLead: BuyerAvatars([
+                      for (final id in r.buyerIds) ?names[id],
+                    ]),
+                    title: names[r.memberId] ?? l.bazarTitle,
+                    subtitle: [
+                      if (r.items.isNotEmpty)
+                        l.bazarItemCount(
+                          Fmt.digits('${r.items.length}', bangla: bn),
+                        ),
+                      if (r.buyerIds.length > 1)
+                        l.bazarReqWithNames(
+                          [
+                            for (final id in r.buyerIds.skip(1)) ?names[id],
+                          ].join(', '),
+                        ),
+                      r.ownPocket ? l.bazarReqOwnPocket : l.bazarReqMessFund,
+                      if (r.rejectReason case final why?) l.bazarReqReason(why),
+                    ].join(' · '),
+                    trailing: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      spacing: AppSpace.xs,
+                      children: [
+                        Money(
+                          r.amount,
+                          banglaDigits: bn,
+                          style: Theme.of(context).textTheme.titleSmall,
+                        ),
+                        StatusTag(
+                          bazarRequestStatusLabel(l, r.status),
+                          color: switch (r.status) {
+                            BazarRequestStatus.approved => p.advance,
+                            BazarRequestStatus.rejected => p.due,
+                            _ => null,
+                          },
+                        ),
+                      ],
+                    ),
+                    onTap: () => showBazarRequestDetail(
+                      context,
+                      r,
+                      submitter: names[r.memberId] ?? '',
+                    ),
+                  ),
+              ],
+            ),
+          ],
         ),
       ),
     );

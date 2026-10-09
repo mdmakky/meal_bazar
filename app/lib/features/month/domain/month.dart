@@ -121,6 +121,7 @@ typedef Attention = ({
   int pendingMembers,
   int mealsMissing,
   int pendingRecurring,
+  int pendingBazarRequests,
 });
 
 Attention attentionFromJson(Map<String, dynamic> j) => (
@@ -128,6 +129,8 @@ Attention attentionFromJson(Map<String, dynamic> j) => (
   pendingMembers: j['pending_members'] as int,
   mealsMissing: j['meals_missing'] as int,
   pendingRecurring: j['pending_recurring'] as int,
+  // Older servers (before 0026) have no such column.
+  pendingBazarRequests: j['pending_bazar_requests'] as int? ?? 0,
 );
 
 /// The mess fund for a period (`mess_cash`): verified deposits − fund-paid.

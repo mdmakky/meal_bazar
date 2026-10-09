@@ -193,6 +193,12 @@ class AttentionCard extends ConsumerWidget {
           l.attnDeposits(_count(a.pendingDeposits, bn)),
           () => context.go('/money?tab=${MoneyTab.deposit.name}'),
         ),
+      if (a != null && a.pendingBazarRequests > 0)
+        (
+          Icons.shopping_basket_outlined,
+          l.bazarReqAttn(_count(a.pendingBazarRequests, bn)),
+          () => context.go('/bazar'),
+        ),
       if (a != null && a.pendingMembers > 0)
         (
           Icons.person_add_alt_outlined,

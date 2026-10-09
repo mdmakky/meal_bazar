@@ -2100,6 +2100,14 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String get dutyDayAfterMine => 'পরশু আপনার বাজারের পালা';
+
+  @override
+  String dutyDayAfterOther(String name) {
+    return 'পরশু বাজার করবেন $name';
+  }
+
+  @override
   String get dutyNextMonth => 'পরের মাস';
 
   @override
@@ -2952,6 +2960,117 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get bazarBuyers => 'কে কে বাজারে গেছে';
+
+  @override
+  String get bazarReqTitle => 'বাজারের হিসাব দিন';
+
+  @override
+  String get bazarReqHelp => 'ম্যানেজার গ্রহণ করলে মেসের হিসাবে যোগ হবে';
+
+  @override
+  String get bazarReqWith => 'কে কে বাজারে গেছে';
+
+  @override
+  String get bazarReqOwnPocket => 'নিজের টাকায়';
+
+  @override
+  String get bazarReqMessFund => 'মেসের টাকা থেকে';
+
+  @override
+  String get bazarReqSend => 'জমা দিন';
+
+  @override
+  String get bazarReqSent => 'জমা হয়েছে, ম্যানেজারের যাচাইয়ের অপেক্ষায়';
+
+  @override
+  String get bazarReqFab => 'বাজার জমা দিন';
+
+  @override
+  String get bazarReqMine => 'আমার জমা';
+
+  @override
+  String get bazarReqPending => 'অপেক্ষায়';
+
+  @override
+  String get bazarReqApproved => 'গৃহীত';
+
+  @override
+  String get bazarReqRejected => 'ফেরত';
+
+  @override
+  String get bazarReqCancelled => 'তুলে নেওয়া';
+
+  @override
+  String bazarReqReason(String reason) {
+    return 'কারণ: $reason';
+  }
+
+  @override
+  String get bazarReqCancel => 'তুলে নিন';
+
+  @override
+  String get bazarReqCancelTitle => 'জমা তুলে নেবেন?';
+
+  @override
+  String bazarReqCancelBody(String amount) {
+    return '$amount এর বাজারটি ম্যানেজারের কাছে আর যাবে না।';
+  }
+
+  @override
+  String get bazarReqCancelDone => 'জমা তুলে নেওয়া হয়েছে';
+
+  @override
+  String get bazarReqReview => 'যাচাইয়ের অপেক্ষায়';
+
+  @override
+  String bazarReqWithNames(String names) {
+    return 'সঙ্গে $names';
+  }
+
+  @override
+  String bazarReqOf(String name) {
+    return '$name এর বাজার';
+  }
+
+  @override
+  String bazarReqPaidOwn(String name) {
+    return '$name নিজের টাকায় দিয়েছেন';
+  }
+
+  @override
+  String get bazarReqPaidFund => 'মেসের টাকা থেকে দেওয়া';
+
+  @override
+  String get bazarReqApprove => 'গ্রহণ করুন';
+
+  @override
+  String get bazarReqReject => 'ফেরত দিন';
+
+  @override
+  String get bazarReqRejectTitle => 'বাজার ফেরত দেবেন?';
+
+  @override
+  String get bazarReqRejectReason => 'কারণ (ঐচ্ছিক)';
+
+  @override
+  String get bazarReqApproveDone => 'বাজার যোগ হয়েছে';
+
+  @override
+  String get bazarReqRejectDone => 'ফেরত পাঠানো হয়েছে';
+
+  @override
+  String bazarReqAttn(String count) {
+    return '$countটি বাজার যাচাই বাকি';
+  }
+
+  @override
+  String get bazarReqFailFutureDate => 'সামনের তারিখে বাজার দেওয়া যায় না';
+
+  @override
+  String get bazarReqFailNotPending => 'এই বাজারটি আর অপেক্ষায় নেই';
+
+  @override
+  String get bazarReqFailItemsInvalid => 'জিনিসের তালিকা ঠিক নেই';
 
   @override
   String get bazarPickBuyer => 'অন্তত একজন বাছুন';
