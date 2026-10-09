@@ -1549,5 +1549,6 @@
   "adminGatewayMissing": "এআই গেটওয়ে সেট করা নেই। env.json-এ AI_GATEWAY_URL দিয়ে প্যানেল আবার বিল্ড করুন, আর গেটওয়ের CORS-এ এই সাইটের ঠিকানা যোগ করুন।",
   "adminPaidWarningTitle": "পেইড মডেল সেভ করবেন?",
   "adminPaidWarningBody": "\"পেইড মডেল চলতে দিন\" বন্ধ, তাই গেটওয়ে এই মডেলগুলো বাদ দেবে:",
-  "adminSaveAnyway": "তবুও সেভ করুন"
+  "adminSaveAnyway": "তবুও সেভ করুন",
+  "stampPaid": "পরিশোধিত"
 }

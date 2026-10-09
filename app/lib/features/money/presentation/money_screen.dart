@@ -109,24 +109,14 @@ class _MoneyScreenState extends ConsumerState<MoneyScreen> {
                   AppSpace.gutter,
                   AppSpace.md,
                 ),
-                child: SegmentedButton<MoneyTab>(
-                  showSelectedIcon: false,
+                child: InkSegmented<MoneyTab>(
                   segments: [
-                    ButtonSegment(
-                      value: MoneyTab.members,
-                      label: Text(l.moneyTabMembers),
-                    ),
-                    ButtonSegment(
-                      value: MoneyTab.expense,
-                      label: Text(l.moneyTabExpense),
-                    ),
-                    ButtonSegment(
-                      value: MoneyTab.deposit,
-                      label: Text(l.moneyTabDeposit),
-                    ),
+                    (MoneyTab.members, l.moneyTabMembers),
+                    (MoneyTab.expense, l.moneyTabExpense),
+                    (MoneyTab.deposit, l.moneyTabDeposit),
                   ],
-                  selected: {_tab},
-                  onSelectionChanged: (s) => setState(() => _tab = s.first),
+                  selected: _tab,
+                  onChanged: (t) => setState(() => _tab = t),
                 ),
               ),
             ),
@@ -162,6 +152,8 @@ class BazarScreen extends ConsumerWidget {
         body: EmptyView(message: l.moneyNoMess),
       );
     }
+    final bn = banglaDigits(context);
+    final text = Theme.of(context).textTheme;
     final total = ref
         .watch(spendingByCategoryProvider(messId))
         .whenData((c) => c.where((x) => x.isBazar).firstOrNull?.total ?? 0);
@@ -188,13 +180,40 @@ class BazarScreen extends ConsumerWidget {
                   AppSpace.gutter,
                   AppSpace.sm,
                   AppSpace.gutter,
-                  AppSpace.lg,
+                  AppSpace.xl,
                 ),
-                child: Figure(
-                  label: l.bazarTabTotal,
-                  value: total.value == null
-                      ? '…'
-                      : money(context, total.value!),
+                child: AppCard.raised(
+                  padding: const EdgeInsets.all(AppSpace.xl),
+                  child: Row(
+                    spacing: AppSpace.lg,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          spacing: AppSpace.xs,
+                          children: [
+                            Text(
+                              l.bazarTabTotal,
+                              style: AppType.overline(context),
+                            ),
+                            _Fit(
+                              total.value == null
+                                  ? Text('…', style: text.displaySmall)
+                                  : RollingNumber.money(
+                                      total.value!,
+                                      banglaDigits: bn,
+                                      style: AppType.figure(
+                                        text.displaySmall!,
+                                        banglaDigits: bn,
+                                      ),
+                                    ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const IconTile(Icons.shopping_basket_outlined),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -209,6 +228,20 @@ class BazarScreen extends ConsumerWidget {
   }
 }
 
+/// Scales a figure down instead of clipping it on narrow / large-text screens.
+class _Fit extends StatelessWidget {
+  const _Fit(this.child);
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => FittedBox(
+    fit: BoxFit.scaleDown,
+    alignment: AlignmentDirectional.centerStart,
+    child: child,
+  );
+}
+
 // ── Month figures ─────────────────────────────────────────────────────────
 
 class _Figures extends ConsumerWidget {
@@ -220,6 +253,7 @@ class _Figures extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final bn = banglaDigits(context);
+    final text = Theme.of(context).textTheme;
     return ref
         .watch(monthTotalsProvider(messId))
         .when(
@@ -230,63 +264,151 @@ class _Figures extends ConsumerWidget {
             onRetry: () => ref.invalidate(monthTotalsProvider(messId)),
           ),
           data: (t) => Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpace.gutter,
+              AppSpace.sm,
+              AppSpace.gutter,
+              0,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: AppSpace.sm,
+              spacing: AppSpace.md,
               children: [
-                _pair(
-                  Figure(
-                    label: l.moneyFoodTotal,
-                    value: money(context, t.foodTotal),
-                    proof: l.moneyFoodProof,
-                  ),
-                  Figure(
-                    label: l.moneyMealRate,
-                    value: money(context, t.mealRate),
-                    proof: t.fixedRate
-                        ? l.rateFixed
-                        : l.moneyMealRateProof(
-                            money(context, t.foodTotal),
-                            Fmt.meals(t.totalMeals, banglaDigits: bn),
+                // The statement: the month's rate and the sum that proves it.
+                AppCard.ink(
+                  child: Builder(
+                    builder: (context) {
+                      final text = Theme.of(context).textTheme;
+                      final p = context.palette;
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            l.moneyMealRate,
+                            style: AppType.overline(context),
                           ),
+                          const SizedBox(height: AppSpace.xs),
+                          _Fit(
+                            RollingNumber.money(
+                              t.mealRate,
+                              banglaDigits: bn,
+                              style: AppType.figure(
+                                text.displayLarge!,
+                                banglaDigits: bn,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: AppSpace.xs),
+                          Text(
+                            t.fixedRate
+                                ? l.rateFixed
+                                : l.moneyMealRateProof(
+                                    money(context, t.foodTotal),
+                                    Fmt.meals(t.totalMeals, banglaDigits: bn),
+                                  ),
+                            style: text.bodyMedium?.copyWith(
+                              color: p.inkSecondary,
+                            ),
+                          ),
+                          const SizedBox(height: AppSpace.lg),
+                          const Divider(),
+                          const SizedBox(height: AppSpace.md),
+                          Text(
+                            l.moneyFoodTotal,
+                            style: AppType.overline(context),
+                          ),
+                          _Fit(
+                            RollingNumber.money(
+                              t.foodTotal,
+                              banglaDigits: bn,
+                              style: text.titleLarge,
+                            ),
+                          ),
+                          Text(
+                            l.moneyFoodProof,
+                            style: text.bodySmall?.copyWith(
+                              color: p.inkSecondary,
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ),
-                _pair(
-                  Figure(
-                    label: l.moneyExtraTotal,
-                    value: money(context, t.extraTotal),
-                    proof: l.moneyExtraProof,
-                  ),
-                  Figure(
-                    label: l.moneyDepositTotal,
-                    value: money(context, t.creditTotal),
-                    proof: l.moneyDepositProof,
-                  ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: AppSpace.md,
+                  children: [
+                    Expanded(
+                      child: _Stat(
+                        label: l.moneyExtraTotal,
+                        value: t.extraTotal,
+                        proof: l.moneyExtraProof,
+                      ),
+                    ),
+                    Expanded(
+                      child: _Stat(
+                        label: l.moneyDepositTotal,
+                        value: t.creditTotal,
+                        proof: l.moneyDepositProof,
+                      ),
+                    ),
+                  ],
                 ),
                 if (t.unallocatedFood)
                   Text(
                     l.moneyNoMealsWarning,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    style: text.bodyMedium?.copyWith(
                       color: context.palette.warning,
                     ),
                   ),
                 if (rateGapText(l, t, (v) => money(context, v)) case final gap?)
-                  Text(gap, style: Theme.of(context).textTheme.bodyMedium),
+                  Text(gap, style: text.bodyMedium),
               ],
             ),
           ),
         );
   }
+}
 
-  Widget _pair(Widget a, Widget b) => Row(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    spacing: AppSpace.lg,
-    children: [
-      Expanded(child: a),
-      Expanded(child: b),
-    ],
-  );
+/// A secondary month figure on a raised card; its proof line under it.
+class _Stat extends StatelessWidget {
+  const _Stat({required this.label, required this.value, required this.proof});
+
+  final String label;
+  final double value;
+  final String proof;
+
+  @override
+  Widget build(BuildContext context) {
+    final bn = banglaDigits(context);
+    final text = Theme.of(context).textTheme;
+    return AppCard.raised(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: AppSpace.xs,
+        children: [
+          Text(
+            label,
+            style: AppType.overline(context),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          _Fit(
+            RollingNumber.money(
+              value,
+              banglaDigits: bn,
+              style: text.titleLarge,
+            ),
+          ),
+          Text(
+            proof,
+            style: text.bodySmall?.copyWith(color: context.palette.inkTertiary),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 // ── Shared list plumbing ──────────────────────────────────────────────────
@@ -305,7 +427,8 @@ Widget _asyncSliver<T>(
   data: data,
 );
 
-/// Rows with hairlines, then a "load more" button while there is more.
+/// Rows on one raised card (staggered in on first show), then a
+/// "load more" button while there is more.
 class _PagedSliver<T> extends StatefulWidget {
   const _PagedSliver({
     required this.page,
@@ -343,65 +466,150 @@ class _PagedSliverState<T> extends State<_PagedSliver<T>> {
     if (items.isEmpty) {
       return SliverToBoxAdapter(child: EmptyView(message: widget.empty));
     }
-    return SliverList.list(
-      children: [
-        const Divider(),
-        for (final i in items) ...[widget.row(i), const Divider()],
-        if (widget.page.hasMore)
-          Padding(
-            padding: const EdgeInsets.all(AppSpace.gutter),
-            child: AppButton(
-              label: AppLocalizations.of(context).moneyLoadMore,
-              variant: AppButtonVariant.secondary,
-              loading: _loading,
-              onPressed: _more,
-            ),
+    // ponytail: the card builds every loaded row; a DecoratedSliver if pages
+    // ever hold hundreds of rows.
+    return SliverToBoxAdapter(
+      child: StaggeredList(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: AppSpace.md,
+            children: [
+              RaisedGroup(
+                children: StaggeredList.wrap([
+                  for (final i in items) widget.row(i),
+                ]),
+              ),
+              if (widget.page.hasMore)
+                AppButton(
+                  label: AppLocalizations.of(context).moneyLoadMore,
+                  variant: AppButtonVariant.secondary,
+                  loading: _loading,
+                  onPressed: _more,
+                ),
+            ],
           ),
-      ],
+        ),
+      ),
     );
   }
 }
 
-/// A non-interactive tag (split, method, status).
-class _Tag extends StatelessWidget {
-  const _Tag(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(
-      horizontal: AppSpace.sm,
-      vertical: AppSpace.xs / 2,
-    ),
-    decoration: BoxDecoration(
-      border: Border.all(color: context.palette.border),
-      borderRadius: BorderRadius.circular(AppRadius.sm),
-    ),
-    child: Text(text, style: Theme.of(context).textTheme.labelSmall),
-  );
-}
-
+/// A list row: leading anchor, title, subtitle (+ sync status), trailing.
 Widget _row(
   BuildContext context, {
+  required Widget leading,
   required String title,
   required String subtitle,
   required Widget trailing,
   VoidCallback? onTap,
   Widget? status,
-}) => ListTile(
-  minTileHeight: AppSize.touch + AppSpace.md,
-  contentPadding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
-  title: Text(title, style: Theme.of(context).textTheme.titleSmall),
-  subtitle: status == null
-      ? Text(subtitle)
-      : Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [Text(subtitle), status],
+}) {
+  final text = Theme.of(context).textTheme;
+  final p = context.palette;
+  return InkWell(
+    onTap: onTap,
+    child: ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: AppSize.touch + AppSpace.lg),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpace.lg,
+          vertical: AppSpace.md,
         ),
-  trailing: trailing,
-  onTap: onTap,
-);
+        child: Row(
+          spacing: AppSpace.md,
+          children: [
+            leading,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 2,
+                children: [
+                  Text(
+                    title,
+                    style: text.titleSmall,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    subtitle,
+                    style: text.bodySmall?.copyWith(color: p.inkSecondary),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  ?status,
+                ],
+              ),
+            ),
+            trailing,
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+/// A day-of-month block ("০২" over "অক্টোবর") leading a dated row.
+class _DateBlock extends StatelessWidget {
+  const _DateBlock(this.date);
+
+  final DateTime date;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final text = Theme.of(context).textTheme;
+    final bn = banglaDigits(context);
+    final day = shortDate(context, date);
+    final month = day.substring(day.indexOf(' ') + 1);
+    return ExcludeSemantics(
+      child: Container(
+        width: 44,
+        height: 48,
+        decoration: BoxDecoration(
+          color: p.surfaceMuted,
+          borderRadius: BorderRadius.circular(AppRadius.md),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 2),
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                Fmt.digits(date.day.toString().padLeft(2, '0'), bangla: bn),
+                style: text.titleMedium?.copyWith(height: 1.1),
+              ),
+              Text(
+                month,
+                style: text.labelSmall?.copyWith(color: p.inkSecondary),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Amount on top, a small tag under it.
+Widget _amountTrailing(BuildContext context, num amount, {String? tag}) {
+  final bn = banglaDigits(context);
+  return Column(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.end,
+    spacing: AppSpace.xs,
+    children: [
+      Money(
+        amount,
+        banglaDigits: bn,
+        style: Theme.of(context).textTheme.titleSmall,
+      ),
+      if (tag != null) StatusTag(tag),
+    ],
+  );
+}
 
 Map<String, String> _names(WidgetRef ref, String messId) => {
   for (final m in ref.watch(membersProvider(messId)).value ?? const [])
@@ -422,6 +630,7 @@ class _Balances extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     final bn = banglaDigits(context);
+    final text = Theme.of(context).textTheme;
     final isManager = ref.watch(amIManagerProvider);
     return _asyncSliver(
       context,
@@ -429,47 +638,54 @@ class _Balances extends ConsumerWidget {
       onRetry: () => ref.invalidate(memberBalancesProvider(messId)),
       data: (list) => list.isEmpty
           ? SliverToBoxAdapter(child: EmptyView(message: l.balanceEmpty))
-          : SliverList.list(
-              children: [
-                if (isManager && ref.featureOn('share_bills'))
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSpace.gutter,
-                      0,
-                      AppSpace.gutter,
-                      AppSpace.md,
-                    ),
-                    child: ShareMessSummaryButton(messId: messId),
+          : SliverToBoxAdapter(
+              child: StaggeredList(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpace.gutter,
                   ),
-                const Divider(),
-                for (final b in list) ...[
-                  _row(
-                    context,
-                    title: b.displayName,
-                    subtitle: l.balanceMeals(
-                      Fmt.meals(b.meals, banglaDigits: bn),
-                    ),
-                    trailing: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Money(
-                          b.closingBalance,
-                          signed: true,
-                          banglaDigits: bn,
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ),
-                        Text(
-                          balanceWord(l, b.closingBalance),
-                          style: Theme.of(context).textTheme.labelSmall,
-                        ),
-                      ],
-                    ),
-                    onTap: () => showBillSheet(context, messId, b),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    spacing: AppSpace.md,
+                    children: [
+                      if (isManager && ref.featureOn('share_bills'))
+                        ShareMessSummaryButton(messId: messId),
+                      RaisedGroup(
+                        children: StaggeredList.wrap([
+                          for (final b in list)
+                            _row(
+                              context,
+                              leading: InitialsAvatar(b.displayName),
+                              title: b.displayName,
+                              subtitle: l.balanceMeals(
+                                Fmt.meals(b.meals, banglaDigits: bn),
+                              ),
+                              trailing: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  RollingNumber.money(
+                                    b.closingBalance,
+                                    signed: true,
+                                    banglaDigits: bn,
+                                    style: text.titleSmall,
+                                  ),
+                                  Text(
+                                    balanceWord(l, b.closingBalance),
+                                    style: text.labelSmall?.copyWith(
+                                      color: context.palette.inkSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              onTap: () => showBillSheet(context, messId, b),
+                            ),
+                        ]),
+                      ),
+                    ],
                   ),
-                  const Divider(),
-                ],
-              ],
+                ),
+              ),
             ),
     );
   }
@@ -495,6 +711,8 @@ Future<void> showBillSheet(
   );
 }
 
+/// The bill as a receipt: line items, a dashed rule, the bold total, and
+/// the stamp — পরিশোধিত when settled or ahead, বাকি when due.
 class BillBreakdown extends ConsumerWidget {
   const BillBreakdown({super.key, required this.messId, required this.balance});
 
@@ -506,9 +724,11 @@ class BillBreakdown extends ConsumerWidget {
     final l = AppLocalizations.of(context);
     final bn = banglaDigits(context);
     final text = Theme.of(context).textTheme;
+    final p = context.palette;
     final t = ref.watch(monthTotalsProvider(messId)).value;
     final rate = t == null ? '…' : money(context, t.mealRate);
     final meals = Fmt.meals(balance.meals, banglaDigits: bn);
+    final due = balance.closingBalance < 0;
     String label(BillPart p) => switch (p) {
       BillPart.opening => l.balanceOpening,
       BillPart.credit => l.balanceCredit,
@@ -522,44 +742,109 @@ class BillBreakdown extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(vertical: AppSpace.sm),
       child: Row(
         spacing: AppSpace.md,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(child: Text(name, style: style)),
           value,
         ],
       ),
     );
+    final receipt = Container(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpace.lg,
+        AppSpace.md,
+        AppSpace.lg,
+        AppSpace.lg,
+      ),
+      decoration: BoxDecoration(
+        color: p.surfaceRaised,
+        border: Border.all(color: p.border),
+        borderRadius: BorderRadius.circular(AppRadius.md),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (final b in billLines(balance))
+            line(
+              label(b.part),
+              Text(
+                '${b.amount < 0 ? '−' : '+'} '
+                '${money(context, b.amount.abs())}',
+                style: text.bodyLarge?.copyWith(
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+              style: text.bodyMedium?.copyWith(color: p.inkSecondary),
+            ),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: AppSpace.sm),
+            child: _DashedRule(),
+          ),
+          line(
+            '${l.balanceClosing} · ${balanceWord(l, balance.closingBalance)}',
+            Money(
+              balance.closingBalance,
+              signed: true,
+              banglaDigits: bn,
+              style: text.titleLarge,
+            ),
+            style: text.titleSmall,
+          ),
+          const SizedBox(height: AppSpace.xl),
+        ],
+      ),
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        for (final b in billLines(balance))
-          line(
-            label(b.part),
-            Text(
-              '${b.amount < 0 ? '−' : '+'} '
-              '${money(context, b.amount.abs())}',
-              style: text.bodyLarge?.copyWith(
-                fontFeatures: const [FontFeature.tabularFigures()],
-              ),
+        Stack(
+          clipBehavior: Clip.none,
+          children: [
+            receipt,
+            PositionedDirectional(
+              end: AppSpace.lg,
+              bottom: -AppSpace.sm,
+              child: StampMark(due ? l.balanceDue : l.stampPaid, accent: due),
             ),
-          ),
-        const Divider(),
-        line(
-          '${l.balanceClosing} · ${balanceWord(l, balance.closingBalance)}',
-          Money(
-            balance.closingBalance,
-            signed: true,
-            banglaDigits: bn,
-            style: text.titleMedium,
-          ),
-          style: text.titleSmall,
+          ],
         ),
         if (ref.watch(amIManagerProvider) && ref.featureOn('share_bills')) ...[
-          const SizedBox(height: AppSpace.md),
+          const SizedBox(height: AppSpace.xl),
           MemberShareActions(balance: balance),
         ],
       ],
     );
   }
+}
+
+/// A receipt's tear line: short hairline dashes.
+class _DashedRule extends StatelessWidget {
+  const _DashedRule();
+
+  @override
+  Widget build(BuildContext context) => CustomPaint(
+    size: const Size.fromHeight(AppSize.hairline),
+    painter: _Dashes(context.palette.borderStrong),
+  );
+}
+
+class _Dashes extends CustomPainter {
+  const _Dashes(this.color);
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = AppSize.hairline;
+    for (var x = 0.0; x < size.width; x += 8) {
+      canvas.drawLine(Offset(x, 0), Offset(x + 4, 0), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_Dashes old) => old.color != color;
 }
 
 // ── Bazar / expenses / deposits ───────────────────────────────────────────
@@ -588,14 +873,14 @@ class _BazarList extends ConsumerWidget {
         loadMore: ref.read(bazarsProvider(messId).notifier).loadMore,
         row: (b) => _row(
           context,
+          leading: _DateBlock(b.date),
           title: names[b.buyerMemberId] ?? l.bazarTitle,
           subtitle: [
-            shortDate(context, b.date),
             if (b.items.isNotEmpty)
               l.bazarItemCount(Fmt.digits('${b.items.length}', bangla: bn)),
             _paidFrom(l, names, b.paidByMemberId),
           ].join(' · '),
-          trailing: Money(b.amount, banglaDigits: bn),
+          trailing: _amountTrailing(context, b.amount),
           status: SyncBadge(
             state: opState(ops[b.id]),
             onRetry: () => ref.read(syncServiceProvider).retryFailed(),
@@ -619,7 +904,6 @@ class _ExpenseList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
-    final bn = banglaDigits(context);
     final names = _names(ref, messId);
     final cats = {
       for (final c
@@ -637,18 +921,13 @@ class _ExpenseList extends ConsumerWidget {
         loadMore: ref.read(expensesProvider(messId).notifier).loadMore,
         row: (e) => _row(
           context,
+          leading: _DateBlock(e.date),
           title: cats[e.categoryId] ?? l.moneyTabExpense,
-          subtitle: [
-            shortDate(context, e.date),
-            _paidFrom(l, names, e.paidByMemberId),
-          ].join(' · '),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            spacing: AppSpace.sm,
-            children: [
-              _Tag(e.shares.isEmpty ? splitLabel(l, e.split) : l.splitSelected),
-              Money(e.amount, banglaDigits: bn),
-            ],
+          subtitle: _paidFrom(l, names, e.paidByMemberId),
+          trailing: _amountTrailing(
+            context,
+            e.amount,
+            tag: e.shares.isEmpty ? splitLabel(l, e.split) : l.splitSelected,
           ),
           onTap: isManager
               ? () => showExpenseForm(context, existing: e)
@@ -669,7 +948,6 @@ class _DepositList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
-    final bn = banglaDigits(context);
     final names = _names(ref, messId);
     final isManager = ref.watch(amIManagerProvider);
     return _asyncSliver(
@@ -689,8 +967,9 @@ class _DepositList extends ConsumerWidget {
         empty: l.depositEmpty,
         loadMore: ref.read(depositsProvider(messId).notifier).loadMore,
         row: (d) => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _depositRow(context, ref, l, bn, names, isManager, d),
+            _depositRow(context, ref, l, names, isManager, d),
             if (isManager &&
                 d.status == DepositStatus.pending &&
                 ref.featureOn('deposit_verification'))
@@ -705,33 +984,33 @@ class _DepositList extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     AppLocalizations l,
-    bool bn,
     Map<String, String> names,
     bool isManager,
     Deposit d,
-  ) => _row(
-    context,
-    title: names[d.memberId] ?? l.moneyTabDeposit,
-    subtitle: [
-      shortDate(context, d.date),
-      if (d.trxId != null) 'TrxID ${d.trxId}',
-      if (d.status == DepositStatus.pending) l.depositPending,
-      if (d.status == DepositStatus.rejected) l.depositRejected,
-    ].join(' · '),
-    trailing: Row(
-      mainAxisSize: MainAxisSize.min,
-      spacing: AppSpace.sm,
-      children: [
-        _Tag(methodLabel(l, d.method, ref.watch(platformConfigProvider))),
-        Money(d.amount, banglaDigits: bn),
-      ],
-    ),
-    onTap: isManager
-        ? () => showDepositForm(context, existing: d)
-        : d.screenshotPath == null
-        ? null
-        : () => showReceipt(context, d.screenshotPath!),
-  );
+  ) {
+    final name = names[d.memberId] ?? l.moneyTabDeposit;
+    return _row(
+      context,
+      leading: InitialsAvatar(name),
+      title: name,
+      subtitle: [
+        shortDate(context, d.date),
+        if (d.trxId != null) 'TrxID ${d.trxId}',
+        if (d.status == DepositStatus.pending) l.depositPending,
+        if (d.status == DepositStatus.rejected) l.depositRejected,
+      ].join(' · '),
+      trailing: _amountTrailing(
+        context,
+        d.amount,
+        tag: methodLabel(l, d.method, ref.watch(platformConfigProvider)),
+      ),
+      onTap: isManager
+          ? () => showDepositForm(context, existing: d)
+          : d.screenshotPath == null
+          ? null
+          : () => showReceipt(context, d.screenshotPath!),
+    );
+  }
 }
 
 /// Verify / reject a member's pending deposit, each behind a confirmation.

@@ -2724,4 +2724,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get adminSaveAnyway => 'তবুও সেভ করুন';
+
+  @override
+  String get stampPaid => 'পরিশোধিত';
 }

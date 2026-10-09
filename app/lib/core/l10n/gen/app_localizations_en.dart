@@ -2733,4 +2733,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adminSaveAnyway => 'Save anyway';
+
+  @override
+  String get stampPaid => 'Paid';
 }

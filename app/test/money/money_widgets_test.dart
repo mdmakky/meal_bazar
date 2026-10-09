@@ -700,6 +700,7 @@ void main() {
     expect(find.text('− ৳২৫০'), findsOneWidget);
     expect(find.text(l.balanceFood('১২', '৳৬৮.৭৮')), findsOneWidget);
     expect(find.text('৳৪২৪.৬৩'), findsWidgets);
+    expect(find.text(l.stampPaid), findsOneWidget); // in advance: stamped
     expect(find.text(l.shareBillShare), findsOneWidget);
   });
 
@@ -724,6 +725,8 @@ void main() {
     expect(find.text(l.moneyMealRateProof('৳১,৪১০', '২০½')), findsNothing);
     expect(find.text(l.rateDeficit('৳১৮০')), findsOneWidget);
 
+    await tester.ensureVisible(find.text('Rahim'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Rahim'));
     await tester.pumpAndSettle();
     expect(find.text(l.rateBalanceFood('১২', '৳৬০')), findsOneWidget);

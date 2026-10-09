@@ -5059,6 +5059,12 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'তবুও সেভ করুন'**
   String get adminSaveAnyway;
+
+  /// No description provided for @stampPaid.
+  ///
+  /// In bn, this message translates to:
+  /// **'পরিশোধিত'**
+  String get stampPaid;
 }
 
 class _AppLocalizationsDelegate

@@ -1363,5 +1363,6 @@
   "adminGatewayMissing": "The AI gateway is not configured. Set AI_GATEWAY_URL in env.json, rebuild the panel, and allow this site's origin in the gateway's CORS.",
   "adminPaidWarningTitle": "Save paid models?",
   "adminPaidWarningBody": "\"Allow paid models\" is off, so the gateway will skip these models:",
-  "adminSaveAnyway": "Save anyway"
+  "adminSaveAnyway": "Save anyway",
+  "stampPaid": "Paid"
 }
