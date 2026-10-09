@@ -135,13 +135,6 @@ class MoreScreen extends ConsumerWidget {
         sub: l.inboxMoreSub,
         badge: ref.watch(inboxUnreadCountProvider).value ?? 0,
       ),
-      if (on('push'))
-        tile(
-          Icons.notifications_active_outlined,
-          l.pushTitle,
-          () => context.push('/more/notifications'),
-          sub: l.pushOpenSub,
-        ),
       if (on('reminders'))
         tile(
           Icons.notifications_outlined,

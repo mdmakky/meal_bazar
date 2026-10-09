@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/dates.dart';
 import '../../../core/failure_text.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
+import '../../../core/platform/platform_config.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../meals/presentation/meal_grid.dart' show clockText;
 import '../../mess/presentation/common.dart';
@@ -87,6 +88,14 @@ class InboxScreen extends ConsumerWidget {
                   )
                 : const SizedBox.shrink(),
           ),
+          // Which notifications reach the phone (the one settings entry).
+          if (ref.featureOn('push'))
+            IconButton(
+              key: const Key('inboxSettings'),
+              tooltip: l.pushTitle,
+              icon: const Icon(Icons.settings_outlined),
+              onPressed: () => context.push('/more/notifications'),
+            ),
           const SizedBox(width: AppSpace.sm),
         ],
       ),
