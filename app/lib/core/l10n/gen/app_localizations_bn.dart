@@ -3602,4 +3602,22 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get inboxPushDutyTodaySub =>
       'যেদিন আমার বাজার, সেদিন সকালে মনে করিয়ে দেবে';
+
+  @override
+  String syncStripOffline(String n) {
+    return 'অফলাইন · $nটি পরিবর্তন ফোনে সেভ আছে, নেট এলে নিজেই পাঠানো হবে';
+  }
+
+  @override
+  String syncStripSending(String n) {
+    return '$nটি পরিবর্তন পাঠানো হচ্ছে…';
+  }
+
+  @override
+  String syncStripFailed(String n) {
+    return '$nটি পরিবর্তন পাঠানো যায়নি';
+  }
+
+  @override
+  String get syncStripRetry => 'আবার চেষ্টা';
 }

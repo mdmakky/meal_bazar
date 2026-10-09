@@ -1146,7 +1146,7 @@ class _ExpenseList extends ConsumerWidget {
                     ),
                   ),
                 )
-              : e.receiptPath == null
+              : e.receiptPath == null || !ref.featureOn('receipts')
               ? null
               : () => showReceipt(context, e.receiptPath!),
         ),
@@ -1261,7 +1261,7 @@ class _DepositList extends ConsumerWidget {
                 ),
               ),
             )
-          : d.screenshotPath == null
+          : d.screenshotPath == null || !ref.featureOn('receipts')
           ? null
           : () => showReceipt(context, d.screenshotPath!),
     );

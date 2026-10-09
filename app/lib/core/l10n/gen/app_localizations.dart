@@ -6607,6 +6607,30 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'যেদিন আমার বাজার, সেদিন সকালে মনে করিয়ে দেবে'**
   String get inboxPushDutyTodaySub;
+
+  /// No description provided for @syncStripOffline.
+  ///
+  /// In bn, this message translates to:
+  /// **'অফলাইন · {n}টি পরিবর্তন ফোনে সেভ আছে, নেট এলে নিজেই পাঠানো হবে'**
+  String syncStripOffline(String n);
+
+  /// No description provided for @syncStripSending.
+  ///
+  /// In bn, this message translates to:
+  /// **'{n}টি পরিবর্তন পাঠানো হচ্ছে…'**
+  String syncStripSending(String n);
+
+  /// No description provided for @syncStripFailed.
+  ///
+  /// In bn, this message translates to:
+  /// **'{n}টি পরিবর্তন পাঠানো যায়নি'**
+  String syncStripFailed(String n);
+
+  /// No description provided for @syncStripRetry.
+  ///
+  /// In bn, this message translates to:
+  /// **'আবার চেষ্টা'**
+  String get syncStripRetry;
 }
 
 class _AppLocalizationsDelegate

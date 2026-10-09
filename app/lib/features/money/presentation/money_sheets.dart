@@ -621,8 +621,9 @@ mixin _Photo<W extends ConsumerStatefulWidget> on ConsumerState<W> {
     final l = AppLocalizations.of(context);
     final bytes = photo;
     final path = photoPath;
+    // Photos off platform-wide: no picker and no attached photo either.
+    if (!ref.featureOn('receipts')) return const SizedBox.shrink();
     if (bytes == null && path == null) {
-      if (!ref.featureOn('receipts')) return const SizedBox.shrink();
       return Align(
         alignment: AlignmentDirectional.centerStart,
         child: TextButton.icon(
@@ -679,6 +680,7 @@ class ReceiptThumb extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (!ref.featureOn('receipts')) return const SizedBox.shrink();
     final l = AppLocalizations.of(context);
     final box = ref
         .watch(receiptUrlProvider(path))

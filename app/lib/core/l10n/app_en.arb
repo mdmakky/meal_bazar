@@ -1767,5 +1767,9 @@
   "inboxPushBazarReviewed": "My bazar reviewed",
   "inboxPushBazarReviewedSub": "When the manager approves or returns your bazar",
   "inboxPushDutyToday": "My bazar duty today",
-  "inboxPushDutyTodaySub": "A morning reminder on the day I do the bazar"
+  "inboxPushDutyTodaySub": "A morning reminder on the day I do the bazar",
+  "syncStripOffline": "Offline · {n} changes saved on this phone, sent when you are back online",
+  "syncStripSending": "Sending {n} changes…",
+  "syncStripFailed": "{n} changes could not be sent",
+  "syncStripRetry": "Retry"
 }

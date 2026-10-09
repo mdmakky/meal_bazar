@@ -2108,5 +2108,12 @@
   "inboxPushBazarReviewed": "আমার বাজারের সিদ্ধান্ত",
   "inboxPushBazarReviewedSub": "ম্যানেজার আপনার বাজার মেনে নিলে বা ফিরিয়ে দিলে",
   "inboxPushDutyToday": "আজ আমার বাজারের পালা",
-  "inboxPushDutyTodaySub": "যেদিন আমার বাজার, সেদিন সকালে মনে করিয়ে দেবে"
+  "inboxPushDutyTodaySub": "যেদিন আমার বাজার, সেদিন সকালে মনে করিয়ে দেবে",
+  "syncStripOffline": "অফলাইন · {n}টি পরিবর্তন ফোনে সেভ আছে, নেট এলে নিজেই পাঠানো হবে",
+  "@syncStripOffline": {"placeholders": {"n": {"type": "String"}}},
+  "syncStripSending": "{n}টি পরিবর্তন পাঠানো হচ্ছে…",
+  "@syncStripSending": {"placeholders": {"n": {"type": "String"}}},
+  "syncStripFailed": "{n}টি পরিবর্তন পাঠানো যায়নি",
+  "@syncStripFailed": {"placeholders": {"n": {"type": "String"}}},
+  "syncStripRetry": "আবার চেষ্টা"
 }

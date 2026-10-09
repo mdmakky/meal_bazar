@@ -3613,4 +3613,22 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get inboxPushDutyTodaySub =>
       'A morning reminder on the day I do the bazar';
+
+  @override
+  String syncStripOffline(String n) {
+    return 'Offline · $n changes saved on this phone, sent when you are back online';
+  }
+
+  @override
+  String syncStripSending(String n) {
+    return 'Sending $n changes…';
+  }
+
+  @override
+  String syncStripFailed(String n) {
+    return '$n changes could not be sent';
+  }
+
+  @override
+  String get syncStripRetry => 'Retry';
 }
