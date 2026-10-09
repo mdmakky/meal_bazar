@@ -5935,6 +5935,90 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'বার্তা পাঠানোর সুবিধা শিগগিরই আসছে। ততক্ষণ ম্যানেজারকে সরাসরি জানান।'**
   String get messagesComingSoon;
+
+  /// No description provided for @msgGroupShort.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেস গ্রুপ'**
+  String get msgGroupShort;
+
+  /// No description provided for @msgGroupTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'{mess} গ্রুপ'**
+  String msgGroupTitle(String mess);
+
+  /// No description provided for @msgGroupMembers.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count} জন সদস্য'**
+  String msgGroupMembers(String count);
+
+  /// No description provided for @msgGroupEmpty.
+  ///
+  /// In bn, this message translates to:
+  /// **'এখনো কোনো বার্তা নেই। মেসের সবাইকে কিছু জানাতে নিচে লিখুন।'**
+  String get msgGroupEmpty;
+
+  /// No description provided for @msgHidden.
+  ///
+  /// In bn, this message translates to:
+  /// **'বার্তাটি মুছে ফেলা হয়েছে'**
+  String get msgHidden;
+
+  /// No description provided for @msgHide.
+  ///
+  /// In bn, this message translates to:
+  /// **'বার্তাটি মুছুন'**
+  String get msgHide;
+
+  /// No description provided for @msgHideBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'বার্তাটি সবার কাছ থেকে সরে যাবে। এটা ফেরানো যাবে না।'**
+  String get msgHideBody;
+
+  /// No description provided for @msgHideAction.
+  ///
+  /// In bn, this message translates to:
+  /// **'মুছুন'**
+  String get msgHideAction;
+
+  /// No description provided for @msgDayToday.
+  ///
+  /// In bn, this message translates to:
+  /// **'আজ'**
+  String get msgDayToday;
+
+  /// No description provided for @msgDayYesterday.
+  ///
+  /// In bn, this message translates to:
+  /// **'গতকাল'**
+  String get msgDayYesterday;
+
+  /// No description provided for @homeMsgManager.
+  ///
+  /// In bn, this message translates to:
+  /// **'ম্যানেজারকে বার্তা'**
+  String get homeMsgManager;
+
+  /// No description provided for @homeUnreadCount.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count}টি অপঠিত'**
+  String homeUnreadCount(String count);
+
+  /// No description provided for @pushGroup.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেস গ্রুপ'**
+  String get pushGroup;
+
+  /// No description provided for @pushGroupSub.
+  ///
+  /// In bn, this message translates to:
+  /// **'গ্রুপে নতুন বার্তা এলে। বন্ধ করলে গ্রুপ মিউট থাকবে'**
+  String get pushGroupSub;
 }
 
 class _AppLocalizationsDelegate

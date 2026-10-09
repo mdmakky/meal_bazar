@@ -10,6 +10,7 @@ import 'package:meal_bazar/core/theme/app_theme.dart';
 import 'package:meal_bazar/features/mess/application/mess_providers.dart';
 import 'package:meal_bazar/features/mess/domain/member.dart';
 import 'package:meal_bazar/features/mess/domain/mess.dart';
+import 'package:meal_bazar/features/mess/presentation/common.dart';
 import 'package:meal_bazar/features/messages/data/message_repository.dart';
 import 'package:meal_bazar/features/messages/domain/message.dart';
 import 'package:meal_bazar/features/messages/domain/message_draft.dart';
@@ -347,6 +348,164 @@ void main() {
       await tester.tap(find.byKey(const Key('msgSendButton')));
       await tester.pumpAndSettle();
       expect(find.text(l.msgMemberRequired), findsOneWidget);
+    });
+  });
+
+  group('mess group', () {
+    MessageThread groupThread({bool unread = false, bool hidden = false}) =>
+        MessageThread(
+          id: 'g',
+          messId: 'mess1',
+          subject: 'Mess group',
+          isGroup: true,
+          isUnread: unread,
+          lastBody: hidden ? '' : 'আজ রাতে মাছ',
+          lastSenderId: 'u2',
+          lastHidden: hidden,
+          lastMessageAt: DateTime(2026, 10, 8, 20),
+        );
+
+    ChatMessage gm(
+      String id,
+      String sender,
+      String body,
+      DateTime at, {
+      bool hidden = false,
+    }) => ChatMessage(
+      id: id,
+      threadId: 'g',
+      senderId: sender,
+      body: body,
+      createdAt: at,
+      hidden: hidden,
+    );
+
+    testWidgets('pinned above the inbox: mess name, members, last line', (
+      tester,
+    ) async {
+      when(
+        () => repo.threads('mess1'),
+      ).thenAnswer((_) async => [thread('a'), groupThread(unread: true)]);
+      await pump(tester, '/more/messages', manager: true);
+      await tester.pumpAndSettle();
+
+      final tile = find.byKey(const Key('msgGroupTile'));
+      expect(tile, findsOneWidget);
+      expect(find.text(l.msgGroupTitle('Mirpur Mess')), findsOneWidget);
+      expect(find.text(l.msgGroupMembers('২')), findsOneWidget);
+      expect(find.text('Rahim: আজ রাতে মাছ'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: tile,
+          matching: find.byKey(const Key('msgUnreadDot')),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        tester.getTopLeft(tile).dy,
+        lessThan(tester.getTopLeft(find.text('Rahim')).dy),
+      );
+      // Stays pinned on the resolved filter too.
+      await tester.tap(find.text(l.msgResolved));
+      await tester.pumpAndSettle();
+      expect(tile, findsOneWidget);
+    });
+
+    testWidgets('member: group plus the direct empty state; hidden preview', (
+      tester,
+    ) async {
+      when(
+        () => repo.threads('mess1'),
+      ).thenAnswer((_) async => [groupThread(hidden: true)]);
+      await pump(tester, '/more/messages');
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('msgGroupTile')), findsOneWidget);
+      expect(find.text(l.msgHidden), findsOneWidget);
+      expect(find.text(l.msgEmpty), findsOneWidget);
+    });
+
+    testWidgets('created on first inbox load when missing', (tester) async {
+      var created = false;
+      when(
+        () => repo.threads('mess1'),
+      ).thenAnswer((_) async => created ? [groupThread()] : <MessageThread>[]);
+      when(() => repo.groupId('mess1')).thenAnswer((_) async {
+        created = true;
+        return 'g';
+      });
+      await pump(tester, '/more/messages');
+      await tester.pumpAndSettle();
+      verify(() => repo.groupId('mess1')).called(1);
+      expect(find.byKey(const Key('msgGroupTile')), findsOneWidget);
+    });
+
+    group('thread', () {
+      setUp(() {
+        when(() => repo.thread('g')).thenAnswer((_) async => groupThread());
+        when(() => repo.messages('g')).thenAnswer(
+          (_) async => [
+            gm('x1', 'u2', 'কাল বাজার কে যাবে?', DateTime(2026, 10, 7, 9)),
+            gm('x2', 'u2', 'আমি যাব', DateTime(2026, 10, 8, 9)),
+            gm('x3', 'u1', 'ঠিক আছে', DateTime(2026, 10, 8, 10)),
+            gm('x4', 'u2', '', DateTime(2026, 10, 8, 11), hidden: true),
+          ],
+        );
+        when(() => repo.hide(any())).thenAnswer((_) async {});
+      });
+
+      Finder separators() => find.byWidgetPredicate(
+        (w) => w.runtimeType.toString() == '_DaySeparator',
+      );
+
+      testWidgets('names and avatars on incoming, day separators, no status', (
+        tester,
+      ) async {
+        await pump(tester, '/more/messages/g');
+        await tester.pumpAndSettle();
+        expect(find.text(l.msgGroupTitle('Mirpur Mess')), findsOneWidget);
+        expect(find.text('Rahim'), findsNWidgets(3));
+        expect(find.byType(InitialsAvatar), findsNWidgets(3));
+        expect(separators(), findsNWidgets(2));
+        expect(find.text(l.msgHidden), findsOneWidget);
+        expect(find.byKey(const Key('msgStatusButton')), findsNothing);
+        expect(find.text(l.msgFilterOpen), findsNothing);
+      });
+
+      testWidgets('member: can remove own message, not others', (tester) async {
+        await pump(tester, '/more/messages/g');
+        await tester.pumpAndSettle();
+        await tester.longPress(find.byKey(const Key('msgBubble-x2')));
+        await tester.pumpAndSettle();
+        expect(find.text(l.platformCopy), findsOneWidget);
+        expect(find.byKey(const Key('msgHide')), findsNothing);
+        await tester.tapAt(const Offset(10, 10));
+        await tester.pumpAndSettle();
+
+        await tester.longPress(find.byKey(const Key('msgBubble-x3')));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key('msgHide')));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(l.msgHideAction));
+        await tester.pumpAndSettle();
+        verify(() => repo.hide('x3')).called(1);
+        expect(
+          find.byKey(const Key('msgBubble-x4')),
+          findsNothing,
+          reason: 'a removed message has no actions',
+        );
+      });
+
+      testWidgets('manager can remove anyone\'s message', (tester) async {
+        await pump(tester, '/more/messages/g', manager: true);
+        await tester.pumpAndSettle();
+        await tester.longPress(find.byKey(const Key('msgBubble-x1')));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key('msgHide')));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(l.msgHideAction));
+        await tester.pumpAndSettle();
+        verify(() => repo.hide('x1')).called(1);
+      });
     });
   });
 }

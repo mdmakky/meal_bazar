@@ -1603,5 +1603,19 @@
   "activityTitle": "Entries about me",
   "activityEmpty": "When the manager records your meals, deposits or bazar, it shows here",
   "reportProblem": "Report a problem",
-  "messagesComingSoon": "Messages are coming soon. Until then, tell the manager directly."
+  "messagesComingSoon": "Messages are coming soon. Until then, tell the manager directly.",
+  "msgGroupShort": "Mess group",
+  "msgGroupTitle": "{mess} group",
+  "msgGroupMembers": "{count} members",
+  "msgGroupEmpty": "No messages yet. Write below to tell the whole mess.",
+  "msgHidden": "This message was removed",
+  "msgHide": "Remove message",
+  "msgHideBody": "The message will be removed for everyone. This can't be undone.",
+  "msgHideAction": "Remove",
+  "msgDayToday": "Today",
+  "msgDayYesterday": "Yesterday",
+  "homeMsgManager": "Message manager",
+  "homeUnreadCount": "{count} unread",
+  "pushGroup": "Mess group",
+  "pushGroupSub": "New messages in the mess group. Off mutes the group"
 }

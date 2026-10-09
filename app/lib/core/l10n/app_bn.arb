@@ -1817,5 +1817,40 @@
   "activityTitle": "আমার বিষয়ে এন্ট্রি",
   "activityEmpty": "ম্যানেজার আপনার মিল, জমা বা বাজার নিয়ে কিছু লিখলে এখানে দেখাবে",
   "reportProblem": "সমস্যা জানান",
-  "messagesComingSoon": "বার্তা পাঠানোর সুবিধা শিগগিরই আসছে। ততক্ষণ ম্যানেজারকে সরাসরি জানান।"
+  "messagesComingSoon": "বার্তা পাঠানোর সুবিধা শিগগিরই আসছে। ততক্ষণ ম্যানেজারকে সরাসরি জানান।",
+  "msgGroupShort": "মেস গ্রুপ",
+  "msgGroupTitle": "{mess} গ্রুপ",
+  "@msgGroupTitle": {
+    "placeholders": {
+      "mess": {
+        "type": "String"
+      }
+    }
+  },
+  "msgGroupMembers": "{count} জন সদস্য",
+  "@msgGroupMembers": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "msgGroupEmpty": "এখনো কোনো বার্তা নেই। মেসের সবাইকে কিছু জানাতে নিচে লিখুন।",
+  "msgHidden": "বার্তাটি মুছে ফেলা হয়েছে",
+  "msgHide": "বার্তাটি মুছুন",
+  "msgHideBody": "বার্তাটি সবার কাছ থেকে সরে যাবে। এটা ফেরানো যাবে না।",
+  "msgHideAction": "মুছুন",
+  "msgDayToday": "আজ",
+  "msgDayYesterday": "গতকাল",
+  "homeMsgManager": "ম্যানেজারকে বার্তা",
+  "homeUnreadCount": "{count}টি অপঠিত",
+  "@homeUnreadCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "pushGroup": "মেস গ্রুপ",
+  "pushGroupSub": "গ্রুপে নতুন বার্তা এলে। বন্ধ করলে গ্রুপ মিউট থাকবে"
 }

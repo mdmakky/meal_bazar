@@ -49,7 +49,7 @@ class MessageRepository {
       'messages:$threadId',
       () => _client
           .from('messages')
-          .select('id, thread_id, sender_id, body, created_at')
+          .select('id, thread_id, sender_id, body, created_at, hidden_at')
           .eq('thread_id', threadId)
           .order('created_at'),
     );
@@ -105,6 +105,28 @@ class MessageRepository {
     () => _client.rpc<void>('mark_thread_read', params: {'p_thread': threadId}),
   );
 
+  /// The mess group's thread id, created on first use. Offline, the cached
+  /// inbox still knows it.
+  Future<String> groupId(String messId) => guard(() async {
+    try {
+      final id = await _client.rpc(
+        'ensure_mess_group',
+        params: {'p_mess': messId},
+      );
+      return id as String;
+    } catch (_) {
+      final cached = (await threads(messId)).where((t) => t.isGroup);
+      if (cached.isEmpty) rethrow;
+      return cached.first.id;
+    }
+  });
+
+  /// Removes a group message for everyone (managers: any; members: own).
+  Future<void> hide(String messageId) => guard(
+    () => _client.rpc<void>('hide_message', params: {'p_id': messageId}),
+  );
+
+  /// Direct threads with an unread message (group chatter is not counted).
   Future<int> unreadCount(String messId) => guard(() async {
     final n = await _client.rpc(
       'unread_thread_count',

@@ -58,6 +58,11 @@ class NotificationSettingsScreen extends ConsumerWidget {
     ),
     PushType.dueReminder => (Icons.payments_outlined, l.pushDue, l.pushDueSub),
     PushType.message => (Icons.forum_outlined, l.pushMessage, l.pushMessageSub),
+    PushType.groupMessage => (
+      Icons.groups_outlined,
+      l.pushGroup,
+      l.pushGroupSub,
+    ),
   };
 
   @override
@@ -139,7 +144,10 @@ class NotificationSettingsScreen extends ConsumerWidget {
                 children: [
                   for (final t in PushType.values)
                     if ((isManager || !t.managerOnly) &&
-                        (t != PushType.message || ref.featureOn('messages')))
+                        (t != PushType.message || ref.featureOn('messages')) &&
+                        (t != PushType.groupMessage ||
+                            (ref.featureOn('messages') &&
+                                ref.featureOn('mess_group'))))
                       _toggle(
                         context,
                         _copy(l, t),
