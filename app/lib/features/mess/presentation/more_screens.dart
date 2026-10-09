@@ -30,29 +30,22 @@ class MoreScreen extends ConsumerWidget {
 
     final unread = ref.watch(unreadNoticeCountProvider);
     final on = ref.featureOn;
-    final bn = AppLocalizations.of(context).localeName == 'bn';
 
-    Widget tile(
+    NavRow tile(
       IconData icon,
       String title,
       VoidCallback onTap, {
       String? sub,
       int badge = 0,
-    }) => ListTile(
-      minTileHeight: AppSize.touch + AppSpace.md,
-      contentPadding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
-      leading: Badge(
-        isLabelVisible: badge > 0,
-        label: Text(Fmt.digits('$badge', bangla: bn)),
-        child: Icon(icon),
-      ),
-      title: Text(title, style: text.titleSmall),
-      subtitle: sub == null ? null : Text(sub),
-      trailing: const Icon(Icons.chevron_right),
+    }) => NavRow(
+      icon: icon,
+      title: title,
+      subtitle: sub,
+      badge: badge,
       onTap: onTap,
     );
 
-    final tiles = [
+    final mess = [
       tile(
         Icons.group_outlined,
         l.moreMembers,
@@ -87,6 +80,8 @@ class MoreScreen extends ConsumerWidget {
             () => context.push('/more/recurring'),
           ),
       ],
+    ];
+    final tools = [
       if (on('notices'))
         tile(
           Icons.campaign_outlined,
@@ -114,6 +109,8 @@ class MoreScreen extends ConsumerWidget {
           l.remindTitle,
           () => context.push('/more/reminders'),
         ),
+    ];
+    final account = [
       tile(
         Icons.person_outline,
         l.accountTitle,
@@ -130,46 +127,73 @@ class MoreScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text(l.moreTitle)),
-      body: ListView(
-        children: [
-          if (membership?.mess != null)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpace.gutter,
-                AppSpace.sm,
-                AppSpace.gutter,
-                AppSpace.lg,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: AppSpace.xs,
-                children: [
-                  Text(membership!.mess!.name, style: text.headlineSmall),
-                  Text(
-                    '${membership.member.displayName} · '
-                    '${isManager ? l.moreRoleManager : l.moreRoleMember}',
-                    style: text.bodyMedium?.copyWith(
-                      color: context.palette.inkSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          const Divider(),
-          for (final t in tiles) ...[t, const Divider()],
-          const SizedBox(height: AppSpace.xl),
-          const Divider(),
-          ListTile(
-            minTileHeight: AppSize.touch + AppSpace.md,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: AppSpace.gutter,
-            ),
-            leading: const Icon(Icons.logout),
-            title: Text(l.moreSignOut, style: text.titleSmall),
-            onTap: () => confirmSignOut(context, ref),
+      body: StaggeredList(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpace.gutter,
+            AppSpace.sm,
+            AppSpace.gutter,
+            AppSpace.xxxl,
           ),
-          const Divider(),
-        ],
+          children: StaggeredList.wrap([
+            if (membership?.mess != null)
+              AppCard.raised(
+                padding: const EdgeInsets.all(AppSpace.lg),
+                child: Row(
+                  spacing: AppSpace.md,
+                  children: [
+                    InitialsAvatar(membership!.mess!.name, size: 52),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: AppSpace.xs,
+                        children: [
+                          Text(
+                            membership.mess!.name,
+                            style: text.titleLarge,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Wrap(
+                            spacing: AppSpace.sm,
+                            runSpacing: AppSpace.xs,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              Text(
+                                membership.member.displayName,
+                                style: text.bodyMedium?.copyWith(
+                                  color: context.palette.inkSecondary,
+                                ),
+                              ),
+                              StatusTag(
+                                isManager
+                                    ? l.moreRoleManager
+                                    : l.moreRoleMember,
+                                strong: isManager,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            for (final group in [mess, tools, account])
+              if (group.isNotEmpty) RaisedGroup(children: group),
+            RaisedGroup(
+              children: [
+                NavRow(
+                  icon: Icons.logout,
+                  title: l.moreSignOut,
+                  color: context.palette.due,
+                  chevron: false,
+                  onTap: () => confirmSignOut(context, ref),
+                ),
+              ],
+            ),
+          ]).expand((w) => [w, const SizedBox(height: AppSpace.lg)]).toList(),
+        ),
       ),
     );
   }
@@ -492,7 +516,7 @@ class _MessSettingsScreenState extends ConsumerState<MessSettingsScreen> {
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 minTileHeight: AppSize.touch,
-                leading: const Icon(Icons.schedule),
+                leading: const IconTile(Icons.schedule),
                 title: Text(l.settingsCutoff),
                 subtitle: Text(l.settingsCutoffHelp),
                 trailing: Text(
@@ -511,14 +535,10 @@ class _MessSettingsScreenState extends ConsumerState<MessSettingsScreen> {
                 const SizedBox(height: AppSpace.xs),
                 Text(l.rateHelp, style: Theme.of(context).textTheme.bodySmall),
                 const SizedBox(height: AppSpace.sm),
-                SegmentedButton<bool>(
-                  segments: [
-                    ButtonSegment(value: false, label: Text(l.rateCalculated)),
-                    ButtonSegment(value: true, label: Text(l.rateFixed)),
-                  ],
-                  selected: {_fixedRate},
-                  onSelectionChanged: (v) =>
-                      setState(() => _fixedRate = v.first),
+                InkSegmented<bool>(
+                  segments: [(false, l.rateCalculated), (true, l.rateFixed)],
+                  selected: _fixedRate,
+                  onChanged: (v) => setState(() => _fixedRate = v),
                 ),
                 if (_fixedRate) ...[
                   const SizedBox(height: AppSpace.md),
