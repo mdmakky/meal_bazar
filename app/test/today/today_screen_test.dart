@@ -163,14 +163,13 @@ void main() {
       find.text(Fmt.dateLong(day, locale: 'bn', banglaDigits: true)),
       findsOneWidget,
     );
-    expect(find.text('৩½'), findsOneWidget);
+    // The statement card: the day total (once), per meal type, guests.
+    expect(find.text(l.todayHeadcountLabel), findsOneWidget);
+    expect(find.text('৩.৫'), findsOneWidget);
     expect(find.text('দুপুর ১½ · রাত ২ · অতিথি ১'), findsOneWidget);
     // The header's rate (the dashboard below repeats it).
     expect(find.text('৳৬৮.৭৮').first, findsOneWidget);
-    // আজকের মিল: per meal type and the day total, no grid here.
-    expect(find.text(l.mealGridToday), findsOneWidget);
-    expect(find.text('দুপুর ১.৫ · রাত ২'), findsOneWidget);
-    expect(find.text('৩.৫'), findsOneWidget);
+    expect(find.text(l.mealGridGoToMeals), findsOneWidget);
     expect(find.bySemanticsLabel(RegExp('^Karim দুপুর')), findsNothing);
     expect(find.text(l.todayActionBazar), findsOneWidget);
     expect(find.text(l.todayAiEntry), findsOneWidget);

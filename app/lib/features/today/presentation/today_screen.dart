@@ -115,7 +115,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
           const SliverToBoxAdapter(child: LatestNoticeBanner()),
           const SliverToBoxAdapter(child: RecurringPromptCard()),
           SliverToBoxAdapter(
-            child: _Header(
+            child: _TodayHero(
               day: _day,
               dayKey: key,
               types: types,
@@ -146,9 +146,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
             if (manager &&
                 ref.watch(platformConfigProvider.select((c) => c.aiMealDraft)))
               SliverToBoxAdapter(child: _AiEntry(day: _day)),
-            SliverToBoxAdapter(
-              child: _DayMeals(dayKey: key, types: types),
-            ),
             const SliverToBoxAdapter(child: TodayDutyCard()),
             if (myId != null &&
                 mess != null &&
@@ -178,9 +175,11 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
   }
 }
 
-/// Date switcher, then the two headline figures.
-class _Header extends ConsumerWidget {
-  const _Header({
+/// The statement card: the day (with its switcher and sync state), the day's
+/// headcount with its proof, the month's meal rate with its proof, and the
+/// way into the মিল tab. Figures roll when they change.
+class _TodayHero extends ConsumerWidget {
+  const _TodayHero({
     required this.day,
     required this.dayKey,
     required this.types,
@@ -197,13 +196,10 @@ class _Header extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
-    final text = Theme.of(context).textTheme;
-    final p = context.palette;
-    final bn = bnDigits(context);
     final now = today();
     final isToday = day == now;
     final mess = ref.watch(currentMessProvider);
-
+    final bn = bnDigits(context);
     final date = Fmt.dateLong(
       day,
       locale: Localizations.localeOf(context).languageCode,
@@ -212,101 +208,169 @@ class _Header extends ConsumerWidget {
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
-        AppSpace.xs,
-        AppSpace.sm,
-        AppSpace.xs,
+        AppSpace.gutter,
+        AppSpace.md,
+        AppSpace.gutter,
         AppSpace.lg,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              IconButton(
-                tooltip: l.todayPrevDay,
-                onPressed: () => onShift(-1),
-                icon: const Icon(Icons.chevron_left),
-              ),
-              Expanded(
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(AppRadius.sm),
-                  onTap: isToday ? null : onToday,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: AppSpace.xs),
-                    child: Column(
-                      children: [
-                        Text(
-                          date,
-                          style: text.headlineSmall,
-                          textAlign: TextAlign.center,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          spacing: AppSpace.sm,
-                          children: [
-                            if (isToday)
-                              Container(
-                                width: AppSize.dot,
-                                height: AppSize.dot,
-                                decoration: BoxDecoration(
-                                  color: p.accent,
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                            Flexible(
-                              child: Text(
-                                [
-                                  isToday ? l.todayIsToday : l.todayBackToToday,
-                                  ?mess?.name,
-                                ].join(' · '),
-                                overflow: TextOverflow.ellipsis,
-                                style: text.labelSmall,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              IconButton(
-                tooltip: l.todayNextDay,
-                // Planning ahead: tomorrow at most.
-                onPressed: day.isBefore(now) || isToday
-                    ? () => onShift(1)
-                    : null,
-                icon: const Icon(Icons.chevron_right),
-              ),
-            ],
-          ),
-          SyncLine(messId: dayKey.messId),
-          const SizedBox(height: AppSpace.lg),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpace.md),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: AppSpace.lg,
+      child: AppCard.ink(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpace.xl,
+          AppSpace.md,
+          AppSpace.sm,
+          AppSpace.xl,
+        ),
+        child: Builder(
+          // Inside the card: the statement theme's text and palette.
+          builder: (context) {
+            final text = Theme.of(context).textTheme;
+            final p = context.palette;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Expanded(
-                  child: _HeadcountFigure(
-                    dayKey: dayKey,
-                    types: types,
-                    isToday: isToday,
+                Row(
+                  children: [
+                    Expanded(
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(AppRadius.sm),
+                        onTap: isToday ? null : onToday,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: AppSpace.xs,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(date, style: text.titleMedium),
+                              Row(
+                                spacing: AppSpace.sm,
+                                children: [
+                                  if (isToday)
+                                    Container(
+                                      width: AppSize.dot,
+                                      height: AppSize.dot,
+                                      decoration: BoxDecoration(
+                                        color: p.accent,
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                  Flexible(
+                                    child: Text(
+                                      [
+                                        isToday
+                                            ? l.todayIsToday
+                                            : l.todayBackToToday,
+                                        ?mess?.name,
+                                      ].join(' · '),
+                                      overflow: TextOverflow.ellipsis,
+                                      style: text.labelSmall?.copyWith(
+                                        color: isToday ? p.accent : null,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: l.todayPrevDay,
+                      onPressed: () => onShift(-1),
+                      icon: const Icon(Icons.chevron_left),
+                    ),
+                    IconButton(
+                      tooltip: l.todayNextDay,
+                      // Planning ahead: tomorrow at most.
+                      onPressed: day.isBefore(now) || isToday
+                          ? () => onShift(1)
+                          : null,
+                      icon: const Icon(Icons.chevron_right),
+                    ),
+                  ],
+                ),
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: SyncLine(messId: dayKey.messId),
+                ),
+                const SizedBox(height: AppSpace.lg),
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(end: AppSpace.lg),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _Headcount(
+                        dayKey: dayKey,
+                        types: types,
+                        isToday: isToday,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AppSpace.lg,
+                        ),
+                        child: Divider(height: 1, color: p.surfaceInkBorder),
+                      ),
+                      _Rate(messId: dayKey.messId),
+                      const SizedBox(height: AppSpace.xl),
+                      AppButton(
+                        label: l.mealGridGoToMeals,
+                        icon: Icons.restaurant_outlined,
+                        expand: true,
+                        onPressed: () => context.go('/meals'),
+                      ),
+                    ],
                   ),
                 ),
-                Expanded(child: _RateFigure(messId: dayKey.messId)),
               ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+/// Overline, rolling figure, proof: one block of the statement card.
+class _HeroFigure extends StatelessWidget {
+  const _HeroFigure({required this.label, this.figure, this.proof});
+
+  final String label;
+  final Widget? figure;
+  final Widget? proof;
+
+  @override
+  Widget build(BuildContext context) {
+    final figure = this.figure;
+    return MergeSemantics(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: AppSpace.xs,
+        children: [
+          Text(label, style: AppType.overline(context)),
+          if (figure != null)
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: AlignmentDirectional.centerStart,
+              child: figure,
             ),
-          ),
+          ?proof,
         ],
       ),
     );
   }
 }
 
-class _HeadcountFigure extends ConsumerWidget {
-  const _HeadcountFigure({
+Widget _proof(BuildContext context, String s, {Color? color}) => Text(
+  s,
+  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+    color: color ?? context.palette.inkSecondary,
+    fontFeatures: const [FontFeature.tabularFigures()],
+  ),
+);
+
+class _Headcount extends ConsumerWidget {
+  const _Headcount({
     required this.dayKey,
     required this.types,
     required this.isToday,
@@ -323,62 +387,62 @@ class _HeadcountFigure extends ConsumerWidget {
     final entries =
         ref.watch(dayGridProvider(dayKey)).value?.values ?? const [];
     // Display-only headcount of the day; billing comes from SQL.
-    double people(String typeId) => entries
-        .where((e) => e.mealTypeId == typeId)
-        .fold(0.0, (s, e) => s + e.people);
-    final total = types.fold(0.0, (s, t) => s + people(t.id));
     final guests = entries
         .where((e) => types.any((t) => t.id == e.mealTypeId))
         .fold(0, (s, e) => s + e.guestCount);
     final proof = [
       for (final t in types)
-        '${t.name} ${Fmt.meals(people(t.id), banglaDigits: bn)}',
+        '${t.name} ${Fmt.meals(dayPeople(entries, [t]), banglaDigits: bn)}',
       if (guests > 0) l.todayGuestsProof(Fmt.digits('$guests', bangla: bn)),
     ].join(' · ');
-    return Figure(
+    return _HeroFigure(
       label: isToday ? l.todayHeadcountLabel : l.todayDayHeadcountLabel,
-      value: Fmt.meals(total, banglaDigits: bn),
-      proof: types.isEmpty ? null : proof,
-      initiallyExpanded: true,
+      figure: RollingNumber(
+        dayPeople(entries, types),
+        banglaDigits: bn,
+        style: Theme.of(context).textTheme.displayLarge,
+      ),
+      proof: types.isEmpty ? null : _proof(context, proof),
     );
   }
 }
 
-class _RateFigure extends ConsumerWidget {
-  const _RateFigure({required this.messId});
+class _Rate extends ConsumerWidget {
+  const _Rate({required this.messId});
 
   final String messId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
-    final p = context.palette;
     final bn = bnDigits(context);
     // Secondary figure: while loading or failed, the grid still works.
     final t = ref.watch(monthTotalsProvider(messId)).value;
     if (t == null) return const SizedBox.shrink();
     final food = Fmt.money(t.foodTotal, banglaDigits: bn);
     if (t.unallocatedFood) {
-      final text = Theme.of(context).textTheme;
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: AppSpace.xs,
-        children: [
-          Text(l.todayRateLabel, style: text.bodyMedium),
-          Text(
-            l.todayRateUnallocated(food),
-            style: text.bodyMedium?.copyWith(color: p.warning),
-          ),
-        ],
+      return _HeroFigure(
+        label: l.todayRateLabel,
+        proof: _proof(
+          context,
+          l.todayRateUnallocated(food),
+          color: context.palette.warning,
+        ),
       );
     }
-    return Figure(
+    return _HeroFigure(
       label: l.todayRateLabel,
-      value: Fmt.money(t.mealRate, banglaDigits: bn),
-      proof: t.fixedRate
-          ? l.rateFixed
-          : l.todayRateProof(food, decimal(t.totalMeals, bangla: bn)),
-      initiallyExpanded: true,
+      figure: RollingNumber.money(
+        t.mealRate,
+        banglaDigits: bn,
+        style: Theme.of(context).textTheme.displaySmall,
+      ),
+      proof: _proof(
+        context,
+        t.fixedRate
+            ? l.rateFixed
+            : l.todayRateProof(food, decimal(t.totalMeals, bangla: bn)),
+      ),
     );
   }
 }
@@ -399,104 +463,29 @@ class _AiEntry extends StatelessWidget {
         AppSpace.gutter,
         AppSpace.lg,
       ),
-      child: Material(
-        color: p.surface,
-        shape: RoundedRectangleBorder(
-          side: BorderSide(color: p.border),
-          borderRadius: BorderRadius.circular(AppRadius.sm),
-        ),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(AppRadius.sm),
+      child: PressableScale(
+        scale: 0.98,
+        child: AppCard.raised(
           onTap: () => showMealDraftSheet(context, day: day),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: AppSize.touch),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpace.md),
-              child: Row(
-                spacing: AppSpace.sm,
-                children: [
-                  Container(
-                    width: AppSize.dot,
-                    height: AppSize.dot,
-                    decoration: BoxDecoration(
-                      color: p.accent,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  Expanded(
-                    child: Text(
-                      AppLocalizations.of(context).todayAiEntry,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodyMedium?.copyWith(color: p.inkTertiary),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpace.lg,
+            vertical: AppSpace.md,
           ),
-        ),
-      ),
-    );
-  }
-}
-
-/// "আজকের মিল": per meal type headcount and the day total, and the way
-/// into the মিল tab where meals are entered.
-class _DayMeals extends ConsumerWidget {
-  const _DayMeals({required this.dayKey, required this.types});
-
-  final MessDay dayKey;
-  final List<MealType> types;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = AppLocalizations.of(context);
-    final text = Theme.of(context).textTheme;
-    final p = context.palette;
-    final bn = bnDigits(context);
-    final entries =
-        ref.watch(dayGridProvider(dayKey)).value?.values ?? const [];
-    final isToday = dayKey.day == today();
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
-      child: AppCard(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: AppSpace.md,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    isToday ? l.mealGridToday : l.mealGridDayTotal,
-                    style: text.titleSmall,
-                  ),
+          child: Row(
+            spacing: AppSpace.md,
+            children: [
+              Icon(Icons.auto_awesome_outlined, color: p.accent),
+              Expanded(
+                child: Text(
+                  AppLocalizations.of(context).todayAiEntry,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: p.inkSecondary),
                 ),
-                Text(
-                  decimal(dayPeople(entries, types), bangla: bn),
-                  style: text.headlineSmall?.copyWith(
-                    fontFeatures: const [FontFeature.tabularFigures()],
-                  ),
-                ),
-              ],
-            ),
-            Text(
-              [
-                for (final t in types)
-                  '${t.name} ${decimal(dayPeople(entries, [t]), bangla: bn)}',
-              ].join(' · '),
-              style: text.bodyMedium?.copyWith(color: p.inkSecondary),
-            ),
-            AppButton(
-              label: l.mealGridGoToMeals,
-              icon: Icons.restaurant_outlined,
-              variant: AppButtonVariant.secondary,
-              onPressed: () => context.go('/meals'),
-            ),
-          ],
+              ),
+              Icon(Icons.chevron_right, color: p.inkTertiary),
+            ],
+          ),
         ),
       ),
     );
@@ -517,53 +506,89 @@ class _QuickActions extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
-    Widget action(String label, IconData icon, VoidCallback onTap) => AppButton(
-      label: label,
-      icon: icon,
-      variant: AppButtonVariant.secondary,
-      onPressed: onTap,
-    );
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: context.palette.bg,
-        border: Border(top: BorderSide(color: context.palette.border)),
-      ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpace.gutter,
-          vertical: AppSpace.md,
+    return ColoredBox(
+      color: context.palette.bg,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpace.gutter,
+          AppSpace.sm,
+          AppSpace.gutter,
+          AppSpace.md,
         ),
-        child: Row(
-          spacing: AppSpace.sm,
-          children: [
-            action(
-              l.todayActionBazar,
-              Icons.shopping_basket_outlined,
-              () => showAddBazarSheet(context),
-            ),
-            action(
-              l.todayActionExpense,
-              Icons.receipt_long_outlined,
-              () => showAddExpenseSheet(context),
-            ),
-            action(
-              l.todayActionDeposit,
-              Icons.savings_outlined,
-              () => showAddDepositSheet(context),
-            ),
-            if (ref.featureOn('guest_meals'))
-              action(
-                l.todayActionGuest,
-                Icons.person_add_alt,
-                () => addGuest(context, ref, dayKey, members, types),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: AppSpace.sm,
+            children: [
+              _ActionTile(
+                l.todayActionBazar,
+                Icons.shopping_basket_outlined,
+                () => showAddBazarSheet(context),
               ),
-            action(
-              l.todayActionMealOff,
-              Icons.no_meals_outlined,
-              () => markMealOff(context, ref, dayKey, members, types),
-            ),
-          ],
+              _ActionTile(
+                l.todayActionExpense,
+                Icons.receipt_long_outlined,
+                () => showAddExpenseSheet(context),
+              ),
+              _ActionTile(
+                l.todayActionDeposit,
+                Icons.savings_outlined,
+                () => showAddDepositSheet(context),
+              ),
+              if (ref.featureOn('guest_meals'))
+                _ActionTile(
+                  l.todayActionGuest,
+                  Icons.person_add_alt,
+                  () => addGuest(context, ref, dayKey, members, types),
+                ),
+              _ActionTile(
+                l.todayActionMealOff,
+                Icons.no_meals_outlined,
+                () => markMealOff(context, ref, dayKey, members, types),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A raised, pressable icon + label tile; labels wrap rather than truncate.
+class _ActionTile extends StatelessWidget {
+  const _ActionTile(this.label, this.icon, this.onTap);
+
+  final String label;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    return Expanded(
+      child: PressableScale(
+        haptic: true,
+        child: AppCard.raised(
+          onTap: onTap,
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpace.xs,
+            vertical: AppSpace.md,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            spacing: AppSpace.xs,
+            children: [
+              Icon(icon, color: p.ink, size: 22),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: p.ink,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
