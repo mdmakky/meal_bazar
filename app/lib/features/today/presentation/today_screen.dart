@@ -731,6 +731,7 @@ class _MyMealRow extends ConsumerWidget {
             spacing: AppSpace.sm,
             children: [
               Expanded(
+                flex: 3,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
@@ -744,7 +745,8 @@ class _MyMealRow extends ConsumerWidget {
                   ],
                 ),
               ),
-              Flexible(
+              Expanded(
+                flex: 2,
                 child: Text(
                   e.isOff
                       ? l.myMealOff
