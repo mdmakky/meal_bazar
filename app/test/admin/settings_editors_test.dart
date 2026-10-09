@@ -23,7 +23,7 @@ void main() {
     );
     expect(find.text('Meals'), findsOneWidget);
     expect(find.text('Account and login'), findsOneWidget);
-    expect(find.byType(SwitchListTile), findsNWidgets(31));
+    expect(find.byType(SwitchListTile), findsNWidgets(32));
 
     await t.tap(find.widgetWithText(SwitchListTile, 'Guest meals'));
     await t.tap(find.widgetWithText(SwitchListTile, 'All AI features'));

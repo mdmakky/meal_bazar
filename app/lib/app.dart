@@ -29,7 +29,8 @@ class MealBazarApp extends ConsumerWidget {
       theme: AppTheme.light(accent: accentLight),
       darkTheme: AppTheme.dark(accent: accentDark),
       builder: (_, child) => PlatformGate(child: child ?? const SizedBox()),
-      themeMode: ThemeMode.system,
+      // Light only for now; dark mode returns with ThemeMode.system.
+      themeMode: ThemeMode.light,
       locale: Locale(locale ?? 'bn'),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,

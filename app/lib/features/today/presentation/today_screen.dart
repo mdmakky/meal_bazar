@@ -63,6 +63,9 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
       }
     });
     final manager = ref.watch(amIManagerProvider);
+    // A day inside a closed month is view-only: no "+".
+    final firstOpen = ref.watch(firstOpenDateProvider(messId)).value;
+    final closedDay = firstOpen != null && _day.isBefore(firstOpen);
     final myId = plainMemberId(ref);
     final membersAsync = ref.watch(membersProvider(messId));
     final typesAsync = ref.watch(mealTypesProvider(messId));
@@ -187,7 +190,8 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
         bottom: false,
         child: RefreshIndicator(onRefresh: refresh, child: body),
       ),
-      floatingActionButton: manager && rows.isNotEmpty && types.isNotEmpty
+      floatingActionButton:
+          manager && !closedDay && rows.isNotEmpty && types.isNotEmpty
           ? PressableScale(
               haptic: true,
               child: FloatingActionButton(

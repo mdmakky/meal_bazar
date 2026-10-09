@@ -67,6 +67,11 @@ const featureGroups = <FlagGroup>[
         en: 'Bazar item picker',
       ),
       (key: 'duty', bn: 'বাজার ডিউটি রোস্টার', en: 'Bazar duty roster'),
+      (
+        key: 'member_bazar',
+        bn: 'সদস্য নিজে বাজার জমা দেয়',
+        en: 'Members submit their own bazar',
+      ),
     ],
   ),
   (

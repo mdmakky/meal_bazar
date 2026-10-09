@@ -19,6 +19,7 @@ class AdminApp extends ConsumerWidget {
     onGenerateTitle: (c) => AppLocalizations.of(c).adminTitle,
     theme: AppTheme.light(),
     darkTheme: AppTheme.dark(),
+    themeMode: ThemeMode.light,
     locale: ref.watch(adminLocaleProvider),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,

@@ -26,10 +26,10 @@ ModelInfo model(
 
 void main() {
   test(
-    'feature list has all 31 flags (v2 + push + messages + mess_group), each once',
+    'feature list has all 32 flags (v2 + push + messages + mess_group + member_bazar), each once',
     () {
-      expect(allFlags.length, 31);
-      expect(allFlags.toSet().length, 31);
+      expect(allFlags.length, 32);
+      expect(allFlags.toSet().length, 32);
       for (final f in [
         'ai',
         'push',
