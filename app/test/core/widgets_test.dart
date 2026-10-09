@@ -74,10 +74,11 @@ void main() {
     expect(find.text('৳১,৪১০ ÷ ২০.৫ মিল'), findsNothing);
   });
 
-  testWidgets('SyncBadge states', (tester) async {
+  testWidgets('SyncBadge states; synced says nothing', (tester) async {
     var retried = false;
     await pumpApp(tester, const SyncBadge(state: SyncState.synced));
-    expect(find.text('সেভ হয়েছে'), findsOneWidget);
+    expect(find.byType(Text), findsNothing);
+    expect(find.text('সেভ হয়েছে'), findsNothing);
 
     await pumpApp(tester, const SyncBadge(state: SyncState.offline));
     expect(find.text('অফলাইনে সেভ হয়েছে'), findsOneWidget);
@@ -93,6 +94,32 @@ void main() {
     expect(find.text('সিঙ্ক হয়নি'), findsOneWidget);
     await tester.tap(find.text('আবার চেষ্টা করুন'));
     expect(retried, isTrue);
+  });
+
+  testWidgets('CountBadge: a Bangla digit sits whole inside a round badge', (
+    tester,
+  ) async {
+    await pumpApp(
+      tester,
+      const MediaQuery(
+        data: MediaQueryData(textScaler: TextScaler.linear(1.3)),
+        child: CountBadge(1, key: Key('b')),
+      ),
+    );
+    final box = tester.getRect(find.byKey(const Key('b')));
+    final digit = tester.getRect(find.text('১'));
+    expect(box.width, greaterThanOrEqualTo(CountBadge.size));
+    expect(box.height, greaterThanOrEqualTo(CountBadge.size));
+    expect(
+      box.contains(digit.topLeft) &&
+          box.contains(digit.bottomRight - const Offset(0.1, 0.1)),
+      isTrue,
+    );
+    expect((box.center - digit.center).distance, lessThan(1));
+    expect(find.bySemanticsLabel('১টি অপঠিত'), findsOneWidget);
+
+    await pumpApp(tester, const CountBadge(0));
+    expect(find.byType(Text), findsNothing);
   });
 
   testWidgets('ErrorView retry calls back', (tester) async {

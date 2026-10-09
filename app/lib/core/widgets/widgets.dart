@@ -7,6 +7,7 @@ export 'app_card.dart';
 export 'app_nav_bar.dart';
 export 'app_sheet.dart';
 export 'app_snack.dart';
+export 'count_badge.dart';
 export 'empty_view.dart';
 export 'error_view.dart';
 export 'figure.dart';

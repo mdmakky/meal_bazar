@@ -57,9 +57,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navMore => 'More';
 
   @override
-  String get syncSynced => 'Saved';
-
-  @override
   String get syncSyncing => 'Syncing';
 
   @override
@@ -3196,6 +3193,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportProblem => 'Report a problem';
+
+  @override
+  String get youTag => 'You';
+
+  @override
+  String get activitySeeAll => 'See all';
+
+  @override
+  String get auditMealMine => 'your meals';
+
+  @override
+  String get auditDepositMine => 'your deposit';
 
   @override
   String get messagesComingSoon =>

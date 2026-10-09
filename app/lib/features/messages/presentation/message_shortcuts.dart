@@ -28,12 +28,13 @@ class MessageShortcuts extends ConsumerWidget {
     // Quiet while loading or offline: the shortcuts work without counts.
     final unread = ref.watch(unreadSplitProvider(messId)).value;
     final direct = unread?.direct ?? 0;
+    // Home's card rhythm: each block owns the 16 dp below it.
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppSpace.gutter,
-        AppSpace.md,
-        AppSpace.gutter,
         0,
+        AppSpace.gutter,
+        AppSpace.lg,
       ),
       child: IntrinsicHeight(
         child: Row(
@@ -113,34 +114,13 @@ class _Shortcut extends StatelessWidget {
           spacing: AppSpace.xs + 2,
           children: [
             SizedBox(
-              height: 24,
+              height: CountBadge.size,
               child: Row(
                 children: [
                   Icon(icon, size: 22, color: p.ink),
                   const Spacer(),
                   if (count > 0)
-                    Container(
-                      key: const Key('homeUnreadCount'),
-                      constraints: const BoxConstraints(minWidth: 22),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpace.xs + 2,
-                      ),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: p.accent,
-                        borderRadius: BorderRadius.circular(AppRadius.lg),
-                      ),
-                      child: Text(
-                        n,
-                        textScaler: TextScaler.noScaling,
-                        style: text.labelMedium?.copyWith(
-                          // Dark ink on turmeric reads in both themes.
-                          color: AppPalette.light.ink,
-                          fontWeight: FontWeight.w700,
-                          height: 1.2,
-                        ),
-                      ),
-                    )
+                    CountBadge(count, key: const Key('homeUnreadCount'))
                   else if (dot)
                     Container(
                       key: const Key('homeUnreadDot'),

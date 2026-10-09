@@ -14,6 +14,7 @@ import '../../month/domain/month.dart';
 import '../../ai/presentation/ai_entry.dart';
 import '../../export/presentation/export_actions.dart';
 import '../../mess/domain/member.dart';
+import '../../mess/presentation/common.dart' show SectionTitle;
 import '../../money/presentation/money_sheets.dart';
 import '../../recurring/application/recurring_providers.dart';
 import '../../recurring/domain/recurring.dart';
@@ -850,7 +851,7 @@ class _DayTotal extends ConsumerWidget {
     final total = dayPeople(entries, types);
     final proof = [
       for (final t in types)
-        '${t.name} ${decimal(dayPeople(entries, [t]), bangla: bn)}',
+        '${t.name} ${Fmt.meals(dayPeople(entries, [t]), banglaDigits: bn)}',
     ].join('  ·  ');
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -870,7 +871,7 @@ class _DayTotal extends ConsumerWidget {
               spacing: AppSpace.xs,
               children: [
                 Text(l.mealGridDayTotal, style: AppType.overline(context)),
-                RollingNumber(
+                RollingNumber.meals(
                   total,
                   key: const Key('day-total'),
                   banglaDigits: bn,
@@ -908,15 +909,7 @@ class _MonthSummary extends ConsumerWidget {
     final p = context.palette;
     final current = ref.watch(currentPeriodProvider(messId)).value;
     final summary = ref.watch(periodSummaryProvider(key));
-    final title = Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpace.gutter,
-        AppSpace.xxl,
-        AppSpace.gutter,
-        AppSpace.md,
-      ),
-      child: Text(l.mealsByMember, style: text.titleLarge),
-    );
+    final title = SectionTitle(l.mealsByMember);
     if (summary.hasError && !summary.hasValue) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -960,7 +953,7 @@ class _MonthSummary extends ConsumerWidget {
               Expanded(
                 child: Figure(
                   label: l.mealsTotalLabel,
-                  value: decimal(t.totalMeals, bangla: bn),
+                  value: Fmt.meals(t.totalMeals, banglaDigits: bn),
                   proof: l.mealsPeriod(
                     date(period.start),
                     // The period end is exclusive.
@@ -984,7 +977,7 @@ class _MonthSummary extends ConsumerWidget {
                             ? l.rateFixed
                             : l.todayRateProof(
                                 Fmt.money(t.foodTotal, banglaDigits: bn),
-                                decimal(t.totalMeals, bangla: bn),
+                                Fmt.meals(t.totalMeals, banglaDigits: bn),
                               ),
                         initiallyExpanded: true,
                       ),
@@ -1022,7 +1015,10 @@ class _MonthSummary extends ConsumerWidget {
                             subtitle: (guests[b.memberId] ?? 0) > 0
                                 ? Text(
                                     l.mealsGuestNote(
-                                      decimal(guests[b.memberId]!, bangla: bn),
+                                      Fmt.meals(
+                                        guests[b.memberId]!,
+                                        banglaDigits: bn,
+                                      ),
                                     ),
                                   )
                                 : null,
@@ -1031,7 +1027,7 @@ class _MonthSummary extends ConsumerWidget {
                               spacing: AppSpace.xs,
                               children: [
                                 Text(
-                                  decimal(b.meals, bangla: bn),
+                                  Fmt.meals(b.meals, banglaDigits: bn),
                                   style: text.titleMedium?.copyWith(
                                     fontWeight: FontWeight.w600,
                                     fontFeatures: const [
@@ -1193,7 +1189,9 @@ class _DayList extends StatelessWidget {
                         InitialsAvatar(name, size: 40),
                         Expanded(
                           child: Text(
-                            l.mealsMemberTotal(decimal(meals, bangla: bn)),
+                            l.mealsMemberTotal(
+                              Fmt.meals(meals, banglaDigits: bn),
+                            ),
                             style: text.titleMedium,
                           ),
                         ),

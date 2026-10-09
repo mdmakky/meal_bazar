@@ -25,7 +25,8 @@ class RollingNumber extends StatefulWidget {
     this.style,
     this.color,
   }) : signed = false,
-       _money = false;
+       _money = false,
+       _meals = false;
 
   /// ৳ with South Asian grouping via `Fmt.money` (-৳1,23,456.50).
   /// [signed] colours < 0 `due` and > 0 `advance`.
@@ -38,7 +39,21 @@ class RollingNumber extends StatefulWidget {
     this.color,
   }) : decimals = 2,
        prefix = '',
-       _money = true;
+       _money = true,
+       _meals = false;
+
+  /// A meal count via `Fmt.meals` (১৬¼, ১৯½): the one meal format.
+  const RollingNumber.meals(
+    this.value, {
+    super.key,
+    this.banglaDigits = false,
+    this.style,
+    this.color,
+  }) : decimals = 2,
+       prefix = '',
+       signed = false,
+       _money = false,
+       _meals = true;
 
   final num value;
   final int decimals;
@@ -50,9 +65,11 @@ class RollingNumber extends StatefulWidget {
   /// Overrides the sign colour. Animates when it changes.
   final Color? color;
   final bool _money;
+  final bool _meals;
 
   String get text {
     if (_money) return Fmt.money(value, banglaDigits: banglaDigits);
+    if (_meals) return Fmt.meals(value, banglaDigits: banglaDigits);
     var s = value.toStringAsFixed(decimals);
     if (s.contains('.')) s = s.replaceFirst(RegExp(r'\.?0+$'), '');
     if (s == '-0') s = '0';

@@ -166,7 +166,7 @@ void main() {
     );
     // The statement card: the day total (once), per meal type, guests.
     expect(find.text(l.todayHeadcountLabel), findsOneWidget);
-    expect(find.text('৩.৫'), findsOneWidget);
+    expect(find.text('৩½'), findsOneWidget);
     expect(find.text('দুপুর ১½ · রাত ২ · অতিথি ১'), findsOneWidget);
     // The header's rate (the dashboard below repeats it).
     expect(find.text('৳৬৮.৭৮').first, findsOneWidget);
@@ -254,7 +254,9 @@ void main() {
     expect(find.text(l.todayHeadcountLabel), findsNothing);
     expect(find.text(l.mineBalance), findsOneWidget);
     expect(find.text('-৳৩৫৯.৭৫'), findsOneWidget);
-    expect(find.text('১২.৫'), findsOneWidget);
+    expect(find.text('১২½'), findsOneWidget);
+    // Synced is the normal state: the hero says nothing about it.
+    expect(find.text('সেভ হয়েছে'), findsNothing);
     expect(find.text(l.myTodayTitle), findsOneWidget);
     // Today, then tomorrow under its own header; my count reads "১ মিল".
     expect(find.text(l.myTomorrow), findsOneWidget);
@@ -467,7 +469,7 @@ void main() {
         mealRepositoryProvider.overrideWithValue(repo),
       ],
     );
-    expect(find.text(l.syncSynced), findsOneWidget);
+    expect(find.text(l.syncFailed), findsNothing);
 
     await failed('mine', 'mess1');
     await tester.pumpAndSettle();
@@ -476,7 +478,7 @@ void main() {
 
     await tester.tap(find.text(l.syncDiscard));
     await tester.pumpAndSettle();
-    expect(find.text(l.syncSynced), findsOneWidget);
+    expect(find.text(l.syncFailed), findsNothing);
     final left = await db.select(db.syncQueue).get();
     expect(left.map((o) => o.id), ['other']);
 

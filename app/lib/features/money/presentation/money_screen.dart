@@ -22,6 +22,10 @@ import 'money_sheets.dart';
 
 enum MoneyTab { members, expense, deposit }
 
+/// Room under the last row so it scrolls clear of the extended FAB, which
+/// grows with large text.
+const _fabClearance = AppSpace.xxxl * 2 + AppSpace.xxl;
+
 /// হিসাব: this month's figures, then members / expenses / deposits.
 /// Bazar has its own tab ([BazarScreen]).
 class MoneyScreen extends ConsumerStatefulWidget {
@@ -137,9 +141,7 @@ class _MoneyScreenState extends ConsumerState<MoneyScreen> {
               MoneyTab.expense => _ExpenseList(messId: messId),
               MoneyTab.deposit => _DepositList(messId: messId),
             },
-            const SliverToBoxAdapter(
-              child: SizedBox(height: AppSpace.xxxl * 2),
-            ),
+            const SliverToBoxAdapter(child: SizedBox(height: _fabClearance)),
           ],
         ),
       ),
@@ -230,9 +232,7 @@ class BazarScreen extends ConsumerWidget {
               ),
             ),
             _BazarList(messId: messId),
-            const SliverToBoxAdapter(
-              child: SizedBox(height: AppSpace.xxxl * 2),
-            ),
+            const SliverToBoxAdapter(child: SizedBox(height: _fabClearance)),
           ],
         ),
       ),
@@ -518,53 +518,62 @@ Widget _row(
   VoidCallback? onTap,
   Widget? status,
   Widget? titleLead,
+  Widget? titleTag,
+  bool highlight = false,
 }) {
   final text = Theme.of(context).textTheme;
   final p = context.palette;
-  return InkWell(
-    onTap: onTap,
-    child: ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: AppSize.touch + AppSpace.lg),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpace.lg,
-          vertical: AppSpace.md,
+  return Material(
+    // My own row, marked on a quiet wash.
+    color: highlight ? p.surfaceMuted : Colors.transparent,
+    child: InkWell(
+      onTap: onTap,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          minHeight: AppSize.touch + AppSpace.lg,
         ),
-        child: Row(
-          spacing: AppSpace.md,
-          children: [
-            leading,
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 2,
-                children: [
-                  Row(
-                    spacing: AppSpace.sm,
-                    children: [
-                      ?titleLead,
-                      Flexible(
-                        child: Text(
-                          title,
-                          style: text.titleSmall,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpace.lg,
+            vertical: AppSpace.md,
+          ),
+          child: Row(
+            spacing: AppSpace.md,
+            children: [
+              leading,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 2,
+                  children: [
+                    Row(
+                      spacing: AppSpace.sm,
+                      children: [
+                        ?titleLead,
+                        Flexible(
+                          child: Text(
+                            title,
+                            style: text.titleSmall,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  Text(
-                    subtitle,
-                    style: text.bodySmall?.copyWith(color: p.inkSecondary),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  ?status,
-                ],
+                        if (titleTag != null) Flexible(child: titleTag),
+                      ],
+                    ),
+                    Text(
+                      subtitle,
+                      style: text.bodySmall?.copyWith(color: p.inkSecondary),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    ?status,
+                  ],
+                ),
               ),
-            ),
-            trailing,
-          ],
+              trailing,
+            ],
+          ),
         ),
       ),
     ),
@@ -653,9 +662,26 @@ class _Balances extends ConsumerWidget {
     final bn = banglaDigits(context);
     final text = Theme.of(context).textTheme;
     final isManager = ref.watch(amIManagerProvider);
+    final left = ref.watch(leftMemberIdsProvider(messId));
+    final me = ref.watch(currentMembershipProvider)?.member.id;
+    // A member who left shows only while the month has something of theirs.
+    List<MemberBalance> shown(List<MemberBalance> all) => [
+      for (final b in all)
+        if (shownInPeriod(
+          left: left.contains(b.memberId),
+          figures: [
+            b.meals,
+            b.credit,
+            b.extraCost,
+            b.openingBalance,
+            b.closingBalance,
+          ],
+        ))
+          b,
+    ]..sort((a, b) => duesFirst(a.closingBalance, b.closingBalance));
     return _asyncSliver(
       context,
-      ref.watch(memberBalancesProvider(messId)),
+      ref.watch(memberBalancesProvider(messId)).whenData(shown),
       onRetry: () => ref.invalidate(memberBalancesProvider(messId)),
       data: (list) => list.isEmpty
           ? SliverToBoxAdapter(child: EmptyView(message: l.balanceEmpty))
@@ -676,8 +702,17 @@ class _Balances extends ConsumerWidget {
                           for (final b in list)
                             _row(
                               context,
-                              leading: InitialsAvatar(b.displayName),
+                              highlight: b.memberId == me,
+                              leading: InitialsAvatar(
+                                b.displayName,
+                                strong: b.memberId == me,
+                              ),
                               title: b.displayName,
+                              titleTag: b.memberId == me
+                                  ? StatusTag(l.youTag, strong: true)
+                                  : left.contains(b.memberId)
+                                  ? StatusTag(l.membersLeft)
+                                  : null,
                               subtitle: l.balanceMeals(
                                 Fmt.meals(b.meals, banglaDigits: bn),
                               ),
@@ -907,14 +942,17 @@ class _BazarList extends ConsumerWidget {
             _paidFrom(l, names, b.paidByMemberId),
           ].join(' · '),
           trailing: _amountTrailing(context, b.amount),
-          status: SyncBadge(
-            state: opState(ops[b.id]),
-            onRetry: () => ref.read(syncServiceProvider).retryFailed(),
-            onDiscard: () async {
-              await ref.read(appDbProvider).discard([?ops[b.id]?.id]);
-              ref.invalidate(bazarsProvider(messId));
-            },
-          ),
+          // Only a pending or failed write says anything.
+          status: ops[b.id] == null
+              ? null
+              : SyncBadge(
+                  state: opState(ops[b.id]),
+                  onRetry: () => ref.read(syncServiceProvider).retryFailed(),
+                  onDiscard: () async {
+                    await ref.read(appDbProvider).discard([?ops[b.id]?.id]);
+                    ref.invalidate(bazarsProvider(messId));
+                  },
+                ),
           onTap: () => showBazarDetail(context, b),
         ),
       ),

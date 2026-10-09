@@ -77,6 +77,14 @@ final membersProvider = FutureProvider.family<List<Member>, String>(
   (ref, messId) => ref.watch(messRepositoryProvider).members(messId),
 );
 
+/// Ids of members who left the mess (empty while the members load).
+final leftMemberIdsProvider = Provider.family<Set<String>, String>(
+  (ref, messId) => {
+    for (final m in ref.watch(membersProvider(messId)).value ?? const [])
+      if (m.status == MemberStatus.left) m.id,
+  },
+);
+
 /// Mutations. Each throws `AppFailure` and refreshes what it changed.
 final messControllerProvider = Provider<MessController>(MessController.new);
 

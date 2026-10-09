@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../features/account/presentation/account_screen.dart';
 import '../features/audit/presentation/audit_screen.dart';
+import '../features/audit/presentation/my_activity_screen.dart';
 import '../features/auth/application/auth_providers.dart';
 import '../features/auth/presentation/profile_setup_screen.dart';
 import '../features/auth/presentation/set_new_password_screen.dart';
@@ -214,6 +215,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'audit',
                     builder: (_, _) => const AuditScreen(),
+                  ),
+                  GoRoute(
+                    path: 'activity',
+                    builder: (_, _) => const MyActivityScreen(),
                   ),
                   GoRoute(path: 'duty', builder: (_, _) => const DutyScreen()),
                   GoRoute(

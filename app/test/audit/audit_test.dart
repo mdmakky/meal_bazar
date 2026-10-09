@@ -266,6 +266,102 @@ void main() {
     });
   });
 
+  group('my activity', () {
+    Map<String, dynamic> meal(num count) => {
+      'member_id': 'm-karim',
+      'date': '2026-10-08',
+      'count': count,
+      'is_off': false,
+      'guest_count': 0,
+    };
+    var nextId = 100;
+    AuditEntry edit(num from, num to, int minute, {String actor = 'u-rahim'}) =>
+        AuditEntry(
+          id: nextId--,
+          action: 'update',
+          entity: 'meal_entries',
+          entityId: 'e1',
+          actorId: actor,
+          at: DateTime(2026, 10, 8, 12, minute),
+          oldRow: meal(from),
+          newRow: meal(to),
+        );
+
+    test('"আপনার" for me; the same-day date is dropped', () {
+      final e = edit(0.5, 1, 0);
+      expect(
+        describeAudit(bn, e, names, selfId: 'm-karim', omitSameDay: true),
+        'রহিম আপনার মিল বদলেছেন ½ → ১',
+      );
+      // Another day's meal keeps its date; someone else's keeps the name.
+      final other = AuditEntry(
+        id: 1,
+        action: 'update',
+        entity: 'meal_entries',
+        actorId: 'u-rahim',
+        at: DateTime(2026, 10, 9, 9),
+        oldRow: meal(1),
+        newRow: meal(0.5),
+      );
+      expect(
+        describeAudit(bn, other, names, selfId: 'm-karim', omitSameDay: true),
+        'রহিম আপনার মিল বদলেছেন ৮ অক্টোবর ২০২৬ · ১ → ½',
+      );
+      expect(
+        describeAudit(bn, e, names, selfId: 'm-other'),
+        'রহিম করিম-এর মিল বদলেছেন ৮ অক্টোবর ২০২৬ · ½ → ১',
+      );
+      final deposit = AuditEntry(
+        id: 2,
+        action: 'update',
+        entity: 'deposits',
+        actorId: 'u-rahim',
+        at: DateTime(2026, 10, 8),
+        oldRow: const {
+          'member_id': 'm-karim',
+          'amount': 2000,
+          'status': 'pending',
+        },
+        newRow: const {
+          'member_id': 'm-karim',
+          'amount': 2000,
+          'status': 'verified',
+        },
+      );
+      expect(
+        describeAudit(bn, deposit, names, selfId: 'm-karim'),
+        'রহিম আপনার জমা যাচাই করেছেন ৳২,০০০',
+      );
+    });
+
+    test('a burst on one entry folds to its net change', () {
+      // Newest first: ½→১→½→১ over three minutes.
+      final burst = [edit(0.5, 1, 3), edit(1, 0.5, 2), edit(0.5, 1, 1)];
+      final out = collapseActivity(burst);
+      expect(out, hasLength(1));
+      expect(out.single.id, burst.first.id);
+      expect(
+        describeAudit(bn, out.single, names, selfId: 'm-karim'),
+        'রহিম আপনার মিল বদলেছেন ৮ অক্টোবর ২০২৬ · ½ → ১',
+      );
+    });
+
+    test('a burst back to where it started is dropped', () {
+      expect(collapseActivity([edit(1, 0.5, 2), edit(0.5, 1, 1)]), isEmpty);
+    });
+
+    test('other actors, other entries and old edits stay apart', () {
+      expect(
+        collapseActivity([edit(1, 0.5, 2), edit(0.5, 1, 1, actor: 'u-x')]),
+        hasLength(2),
+      );
+      expect(
+        collapseActivity([edit(1, 0.5, 40), edit(0.5, 1, 1)]),
+        hasLength(2),
+      );
+    });
+  });
+
   testWidgets('audit screen renders entries with AI chip and reason', (
     tester,
   ) async {

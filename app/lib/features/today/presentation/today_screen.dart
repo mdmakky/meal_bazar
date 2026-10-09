@@ -413,7 +413,7 @@ class _Headcount extends ConsumerWidget {
     ].join(' · ');
     return _HeroFigure(
       label: isToday ? l.todayHeadcountLabel : l.todayDayHeadcountLabel,
-      figure: RollingNumber(
+      figure: RollingNumber.meals(
         dayPeople(entries, types),
         banglaDigits: bn,
         style: Theme.of(context).textTheme.displayLarge,
@@ -457,7 +457,7 @@ class _Rate extends ConsumerWidget {
         context,
         t.fixedRate
             ? l.rateFixed
-            : l.todayRateProof(food, decimal(t.totalMeals, bangla: bn)),
+            : l.todayRateProof(food, Fmt.meals(t.totalMeals, banglaDigits: bn)),
       ),
     );
   }
@@ -577,9 +577,8 @@ class _MemberHero extends ConsumerWidget {
                         label: l.dashMyMeals,
                         figure: me == null
                             ? pending(text.displaySmall)
-                            : RollingNumber(
+                            : RollingNumber.meals(
                                 me.meals,
-                                decimals: 1,
                                 banglaDigits: bn,
                                 style: text.displaySmall,
                               ),

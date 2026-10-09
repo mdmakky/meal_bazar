@@ -75,10 +75,12 @@ Headings use sentence case. There are no eyebrows or kickers above headings.
 | `AppSheet.show()` | A modal bottom sheet with a drag handle, a title, a scrollable body and a sticky action row. It respects the keyboard (IME) inset. |
 | `Figure` | A large tabular number with a label and an optional **proof line**. Tapping expands the proof. Colored only for due/advance. |
 | `Money` | Formats ৳ in Bangla or Latin digits with tabular figures, and colors itself by sign when `signed: true`. |
-| Meal stepper grid | `− value +` per cell (28 dp circles in 40 × 56 dp hit areas). A tap on the value cycles 0 → 0.5 → 1 → 1.5 → 2 → 0; −/+ step 0.5 (0–5); long press opens Off / Guest / custom. Values are decimals (০.৫). Name column pinned; meal columns scroll sideways when they do not fit. |
-| `MealCell` (read-only views) | A tap cycles 1 → ½ → 0. A long press opens Off / Guest / custom. *Off* renders as a struck-through dash, and *Guest* adds a small `+n`. Today's column carries the accent wash. |
-| `SyncBadge` | A dot plus a label. Synced is quiet ink-tertiary with no dot. Syncing shows an accent dot that pulses. Offline shows a hollow dot ("অফলাইনে সেভ হয়েছে"), which is calm and never red. Failed shows a warning dot plus a Retry action. |
+| Meal stepper grid | `− value +` per cell (28 dp circles in 40 × 56 dp hit areas). A tap on the value cycles 0 → 0.5 → 1 → 1.5 → 2 → 0; −/+ step 0.5 (0–5); long press opens Off / Guest / custom. Values use the one meal format, `Fmt.meals` / `RollingNumber.meals` (১৬, ½, ১৯½, ১৬¼; finer values as decimals), everywhere a meal count appears. Zero and no row are both ০; off reads অফ. Name column pinned; meal columns scroll sideways when they do not fit. Read-only (member) columns carry no steppers and are narrow, so three meals fit a 360 dp phone at 1.3× text. |
+| `MealCell` (read-only views) | A tap cycles 1 → ½ → 0. A long press opens Off / Guest / custom. *Off* renders as a dimmed অফ (never a dash, which reads as zero), and *Guest* adds a small `+n`. Today's column carries the accent wash. |
+| `SyncBadge` | A dot plus a label, shown only when there is something to say: synced is the normal state and renders nothing (no "সেভ হয়েছে"). Syncing shows an accent dot that pulses. Offline shows a hollow dot ("অফলাইনে সেভ হয়েছে"), which is calm and never red. Failed shows a warning dot plus a Retry action. |
 | `LoadingView` / `EmptyView` / `ErrorView` | Every screen uses these three. Empty states name the next action ("+ আজকের মিল যোগ করুন"). Errors name the problem and the recovery, with a Retry button. Skeletons are hairline blocks, not shimmer. |
+| `CountBadge` | The one unread count: a turmeric pill with dark ink, ≥ 22 dp round, digit centred, ignores text scale so Bangla digits never clip. Home's message shortcut and the আরও rows use it. |
+| `SectionTitle` | The one section title (titleMedium, 24 above, 12 below, a heading for TalkBack), on Home and every list screen. |
 | Snackbar | M3 floating snackbar, ink background. Used for transient feedback such as an undo after a delete. |
 
 ## Navigation

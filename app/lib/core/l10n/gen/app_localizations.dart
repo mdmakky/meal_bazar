@@ -194,12 +194,6 @@ abstract class AppLocalizations {
   /// **'আরও'**
   String get navMore;
 
-  /// No description provided for @syncSynced.
-  ///
-  /// In bn, this message translates to:
-  /// **'সেভ হয়েছে'**
-  String get syncSynced;
-
   /// No description provided for @syncSyncing.
   ///
   /// In bn, this message translates to:
@@ -5899,6 +5893,30 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'সমস্যা জানান'**
   String get reportProblem;
+
+  /// No description provided for @youTag.
+  ///
+  /// In bn, this message translates to:
+  /// **'আপনি'**
+  String get youTag;
+
+  /// No description provided for @activitySeeAll.
+  ///
+  /// In bn, this message translates to:
+  /// **'সব দেখুন'**
+  String get activitySeeAll;
+
+  /// No description provided for @auditMealMine.
+  ///
+  /// In bn, this message translates to:
+  /// **'আপনার মিল'**
+  String get auditMealMine;
+
+  /// No description provided for @auditDepositMine.
+  ///
+  /// In bn, this message translates to:
+  /// **'আপনার জমা'**
+  String get auditDepositMine;
 
   /// No description provided for @messagesComingSoon.
   ///

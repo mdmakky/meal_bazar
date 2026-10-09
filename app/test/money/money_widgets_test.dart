@@ -838,6 +838,12 @@ void main() {
     expect(find.text(l.balanceAdvance), findsOneWidget);
     final due = tester.widget<Text>(find.text('-৳৮৩৪.৬৩'));
     expect(due.style?.color, AppPalette.light.due);
+    // My own row is marked; dues come first.
+    expect(find.text(l.youTag), findsOneWidget);
+    expect(
+      tester.getTopLeft(find.text('Karim')).dy,
+      lessThan(tester.getTopLeft(find.text('Rahim')).dy),
+    );
 
     await tester.tap(find.text('Rahim'));
     await tester.pumpAndSettle();
@@ -902,6 +908,23 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text(l.balanceExplainTitle('Rahim')), findsOneWidget);
     expect(find.text(l.shareBillShare), findsNothing);
+  });
+
+  testWidgets('members: the last row scrolls clear of the FAB at 1.3x', (
+    tester,
+  ) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await pump(tester, const MoneyScreen(), manager: false);
+    await tester.pumpAndSettle();
+    final fab = find.byType(FloatingActionButton);
+    expect(fab, findsOneWidget);
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, -3000));
+    await tester.pumpAndSettle();
+    expect(
+      tester.getBottomLeft(find.text('Rahim')).dy,
+      lessThan(tester.getTopLeft(fab).dy),
+    );
   });
 
   group('months', () {

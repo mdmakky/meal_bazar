@@ -50,18 +50,19 @@ class TodayDutyCard extends ConsumerWidget {
 
     final lines = [line(t), line(tomorrow)].where((s) => s.isNotEmpty);
 
+    // Home's card rhythm: each block owns the 16 dp below it.
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppSpace.gutter,
-        AppSpace.md,
-        AppSpace.gutter,
         0,
+        AppSpace.gutter,
+        AppSpace.lg,
       ),
       child: AppCard.raised(
         onTap: () => context.push('/more/duty'),
         padding: const EdgeInsets.all(AppSpace.md),
+        // Compact: the lines sit centred on the icon, no empty foot.
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
           spacing: AppSpace.md,
           children: [
             // Turmeric only when the duty is mine today (live).

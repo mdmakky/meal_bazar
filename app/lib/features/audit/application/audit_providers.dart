@@ -72,8 +72,10 @@ final auditNamesProvider = Provider.autoDispose
       };
     });
 
-/// Member Home "my activity": the latest entries others made about me.
+/// Member "my activity": the latest entries others made about me, edit
+/// bursts folded (Home shows the first few, the full list the rest).
 final myActivityProvider = FutureProvider.family<List<AuditEntry>, String>(
-  (ref, messId) =>
-      ref.watch(auditRepositoryProvider).myActivity(messId, limit: 8),
+  (ref, messId) async => collapseActivity(
+    await ref.watch(auditRepositoryProvider).myActivity(messId, limit: 100),
+  ),
 );
