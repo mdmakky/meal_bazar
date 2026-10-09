@@ -8,6 +8,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../../core/dates.dart';
 import '../../../core/failure_text.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
+import '../../../core/platform/platform_config.dart';
 import '../../meals/application/meal_providers.dart';
 import '../../meals/presentation/meal_widgets.dart' show bnDigits;
 import '../../mess/application/mess_providers.dart';
@@ -174,9 +175,11 @@ class _CookShareButtonState extends ConsumerState<CookShareButton> {
   }
 
   @override
-  Widget build(BuildContext context) => IconButton(
-    tooltip: AppLocalizations.of(context).cookShare,
-    icon: const Icon(Icons.soup_kitchen_outlined),
-    onPressed: _busy ? null : _share,
-  );
+  Widget build(BuildContext context) => !ref.featureOn('cook_share')
+      ? const SizedBox.shrink()
+      : IconButton(
+          tooltip: AppLocalizations.of(context).cookShare,
+          icon: const Icon(Icons.soup_kitchen_outlined),
+          onPressed: _busy ? null : _share,
+        );
 }

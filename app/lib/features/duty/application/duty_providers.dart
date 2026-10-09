@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/platform/platform_config.dart';
 import '../../mess/application/mess_providers.dart';
 import '../../reminders/application/reminder_service.dart';
 import '../data/duty_repository.dart';
@@ -14,7 +15,7 @@ final dutiesProvider = FutureProvider.autoDispose
           .watch(dutyRepositoryProvider)
           .duties(k.$1, k.$2, k.$3);
       final me = ref.read(currentMembershipProvider);
-      if (me != null) {
+      if (me != null && ref.read(platformConfigProvider).feature('reminders')) {
         final reminders = ref.read(reminderServiceProvider);
         for (final d in list) {
           if (d.memberId != me.member.id || d.done) continue;

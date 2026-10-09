@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/dates.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
+import '../../../core/platform/platform_config.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../mess/application/mess_providers.dart';
 import '../../mess/presentation/common.dart';
@@ -17,7 +18,9 @@ class TodayDutyCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final messId = ref.watch(currentMessIdProvider);
-    if (messId == null) return const SizedBox.shrink();
+    if (messId == null || !ref.featureOn('duty')) {
+      return const SizedBox.shrink();
+    }
     final t = today();
     final tomorrow = DateTime(t.year, t.month, t.day + 1);
     final duties = ref.watch(dutiesProvider((messId, t, tomorrow))).value;

@@ -7,6 +7,7 @@ import '../../../core/db/sync.dart';
 import '../../../core/errors.dart';
 import '../../../core/failure_text.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
+import '../../../core/platform/platform_config.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../mess/application/mess_providers.dart';
 import '../../mess/domain/member.dart';
@@ -58,7 +59,13 @@ String? plainMemberId(WidgetRef ref) {
 String? ownOffId(WidgetRef ref, DateTime day) {
   final myId = plainMemberId(ref);
   final mess = ref.watch(currentMessProvider);
-  if (myId == null || mess == null) return null;
+  if (myId == null ||
+      mess == null ||
+      !ref.watch(
+        platformConfigProvider.select((c) => c.feature('member_meal_off')),
+      )) {
+    return null;
+  }
   final open = ref
       .watch(nowProvider)()
       .isBefore(mealOffDeadline(day, mess.mealOffCutoff));

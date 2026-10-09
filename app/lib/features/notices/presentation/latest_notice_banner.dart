@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/l10n/gen/app_localizations.dart';
+import '../../../core/platform/platform_config.dart';
 import '../../../core/widgets/widgets.dart';
 import '../application/notice_providers.dart';
 
@@ -13,6 +14,7 @@ class LatestNoticeBanner extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (!ref.featureOn('notices')) return const SizedBox.shrink();
     final n = ref.watch(latestPinnedUnreadProvider);
     if (n == null) return const SizedBox.shrink();
     final text = Theme.of(context).textTheme;

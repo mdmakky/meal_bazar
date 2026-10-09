@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/dates.dart';
 import '../../../core/failure_text.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
+import '../../../core/platform/platform_config.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../mess/application/mess_providers.dart';
 import '../../month/application/month_providers.dart';
@@ -158,7 +159,7 @@ class _MealsScreenState extends ConsumerState<MealsScreen> {
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ),
-          if (myId != null && mess != null)
+          if (myId != null && mess != null && ref.featureOn('member_meal_off'))
             MealOffHint(cutoff: mess.mealOffCutoff),
         ],
       ];
@@ -217,11 +218,13 @@ class _MealsScreenState extends ConsumerState<MealsScreen> {
       context,
       title: l.mealGridAddTitle,
       options: [
-        (() => showMealDraftSheet(context, day: _day), l.mealGridAi),
+        if (ref.read(platformConfigProvider).aiMealDraft)
+          (() => showMealDraftSheet(context, day: _day), l.mealGridAi),
         (() => showAddBazarSheet(context), l.todayActionBazar),
         (() => showAddExpenseSheet(context), l.todayActionExpense),
         (() => showAddDepositSheet(context), l.todayActionDeposit),
-        (() => addGuest(context, ref, key, rows, types), l.todayActionGuest),
+        if (ref.read(platformConfigProvider).feature('guest_meals'))
+          (() => addGuest(context, ref, key, rows, types), l.todayActionGuest),
       ],
     );
     if (mounted) action?.call();

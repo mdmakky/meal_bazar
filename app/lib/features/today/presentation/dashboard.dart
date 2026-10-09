@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/dates.dart';
 import '../../../core/failure_text.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
+import '../../../core/platform/platform_config.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../meals/presentation/meal_grid.dart';
 import '../../meals/presentation/meal_widgets.dart';
@@ -21,7 +22,7 @@ import '../../month/domain/month.dart';
 
 /// "এই মাস": the month at a glance on হোম (Plan §16–17).
 /// Every money figure is a SQL figure; each section loads and fails alone.
-class MonthDashboard extends StatelessWidget {
+class MonthDashboard extends ConsumerWidget {
   const MonthDashboard({
     super.key,
     required this.messId,
@@ -32,7 +33,7 @@ class MonthDashboard extends StatelessWidget {
   final bool manager;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -44,12 +45,14 @@ class MonthDashboard extends StatelessWidget {
           _DuesList(messId: messId),
         ] else
           _MyAccount(messId: messId),
-        _Title(l.dashDailyTitle),
-        DailyMealsChart(messId: messId),
-        _Title(l.dashCategoryTitle),
-        CategoryBars(messId: messId),
-        _Title(l.dashMonthlyTitle),
-        MonthlyRateChart(messId: messId),
+        if (ref.featureOn('dashboard_charts')) ...[
+          _Title(l.dashDailyTitle),
+          DailyMealsChart(messId: messId),
+          _Title(l.dashCategoryTitle),
+          CategoryBars(messId: messId),
+          _Title(l.dashMonthlyTitle),
+          MonthlyRateChart(messId: messId),
+        ],
         if (!manager) ...[
           _Title(l.dashRecentBazar),
           _RecentBazar(messId: messId),
@@ -426,20 +429,22 @@ class _MyAccount extends ConsumerWidget {
           child: Row(
             spacing: AppSpace.sm,
             children: [
-              Expanded(
-                child: AppButton(
-                  label: l.mealOffTomorrow,
-                  variant: AppButtonVariant.secondary,
-                  onPressed: () => offTomorrow(context, ref),
+              if (ref.featureOn('member_meal_off'))
+                Expanded(
+                  child: AppButton(
+                    label: l.mealOffTomorrow,
+                    variant: AppButtonVariant.secondary,
+                    onPressed: () => offTomorrow(context, ref),
+                  ),
                 ),
-              ),
-              Expanded(
-                child: AppButton(
-                  label: l.depositVerifyMine,
-                  variant: AppButtonVariant.secondary,
-                  onPressed: () => showMyDepositSheet(context),
+              if (ref.featureOn('member_deposits'))
+                Expanded(
+                  child: AppButton(
+                    label: l.depositVerifyMine,
+                    variant: AppButtonVariant.secondary,
+                    onPressed: () => showMyDepositSheet(context),
+                  ),
                 ),
-              ),
             ],
           ),
         ),
