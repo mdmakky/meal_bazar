@@ -115,6 +115,15 @@ Admin RPCs (security definer; `NOT_PLATFORM_ADMIN` otherwise): `admin_stats()`, 
 
 `delete_my_account()` also deletes the caller's device tokens and queued pushes.
 
+### Home v2 (0021)
+All security invoker (members read the inputs under RLS; non-members get nothing).
+| Function | Purpose |
+|---|---|
+| `manager_attention(mess, date)` | `pending_deposits` (any date), `pending_members`, `meals_missing` (active members present on `date` with no meal row that day; an *off* row counts as entered), `pending_recurring`. |
+| `mess_cash(mess, from, to)` | `deposits_in` (verified) − `fund_spent` (bazar + expenses with `paid_by_member_id` null) = `cash`. Own-pocket payments never touch it; `pending_deposits` is reported, never counted. |
+| `member_transparency(mess, from, to)` | Per member: verified `deposits`, `own_pocket` (bazar + expenses they paid), `closing_balance` (from `member_balances`). Due first. |
+| `my_activity(mess, limit = 30)` | `audit_log` rows by others that concern the caller, newest first, limit 1–100: meal changes (updates/deletes, plus inserts with an off or a guest, so the daily fill is not noise), deposits, bazar paid/went (`bazar_buyers`), expenses paid/shared (`expense_shares`). Adds `ref_type` (meal/deposit/bazar/expense), `ref_id`, `actor_id`, `actor_name`. |
+
 ### Messages (0022)
 Member ↔ manager messages (not real-time chat) and "report a problem" about an entry. A thread is between one member and all of the mess's managers.
 | Object | Purpose |

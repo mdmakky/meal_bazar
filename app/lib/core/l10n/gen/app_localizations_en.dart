@@ -1706,7 +1706,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashCategoryTitle => 'Where the money went';
 
   @override
-  String get dashMonthlyTitle => 'Meal rate, last 6 months';
+  String get dashMonthlyTitle => 'Meal rate by month';
 
   @override
   String get dashChartEmpty => 'Nothing this month yet';
@@ -3126,4 +3126,94 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pushMessageSub => 'When a manager or member writes to you';
+
+  @override
+  String get auditVerified => 'verified';
+
+  @override
+  String get auditRejected => 'rejected';
+
+  @override
+  String get auditOff => 'off';
+
+  @override
+  String get attnTitle => 'Needs attention';
+
+  @override
+  String attnDeposits(String count) {
+    return '$count deposits to verify';
+  }
+
+  @override
+  String attnJoin(String count) {
+    return '$count join requests';
+  }
+
+  @override
+  String attnMessages(String count) {
+    return '$count unread messages';
+  }
+
+  @override
+  String attnMeals(String count) {
+    return 'Today\'s meals not entered for $count';
+  }
+
+  @override
+  String get cashTitle => 'Cash in hand (mess fund)';
+
+  @override
+  String cashProof(String deposits, String spent) {
+    return 'Deposits $deposits − spent from the fund $spent';
+  }
+
+  @override
+  String cashPending(String amount) {
+    return '$amount pending, not counted yet';
+  }
+
+  @override
+  String get dashSeeAll => 'See all';
+
+  @override
+  String get dashOthers => 'Others';
+
+  @override
+  String get dashAllSettled => 'Nobody owes anything';
+
+  @override
+  String get mineBalance => 'My balance';
+
+  @override
+  String get myTodayTitle => 'My meals today';
+
+  @override
+  String get transTitle => 'Everyone\'s account';
+
+  @override
+  String get transNote =>
+      'This month · deposits, paid from own pocket, balance';
+
+  @override
+  String get transDeposits => 'Deposits';
+
+  @override
+  String get transOwnPocket => 'Own pocket';
+
+  @override
+  String get transBalance => 'Balance';
+
+  @override
+  String get activityTitle => 'Entries about me';
+
+  @override
+  String get activityEmpty =>
+      'When the manager records your meals, deposits or bazar, it shows here';
+
+  @override
+  String get reportProblem => 'Report a problem';
+
+  @override
+  String get messagesComingSoon =>
+      'Messages are coming soon. Until then, tell the manager directly.';
 }

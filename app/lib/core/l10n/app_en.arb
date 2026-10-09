@@ -832,7 +832,7 @@
     }
   },
   "dashCategoryTitle": "Where the money went",
-  "dashMonthlyTitle": "Meal rate, last 6 months",
+  "dashMonthlyTitle": "Meal rate by month",
   "dashChartEmpty": "Nothing this month yet",
   "dashRecentBazar": "Recent bazar",
   "dashNobodyThatDay": "Nobody was in the mess on this day",
@@ -1533,5 +1533,75 @@
   "msgRefOther": "Other",
   "msgDeletedUser": "Former member",
   "pushMessage": "Messages",
-  "pushMessageSub": "When a manager or member writes to you"
+  "pushMessageSub": "When a manager or member writes to you",
+  "auditVerified": "verified",
+  "auditRejected": "rejected",
+  "auditOff": "off",
+  "attnTitle": "Needs attention",
+  "attnDeposits": "{count} deposits to verify",
+  "@attnDeposits": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "attnJoin": "{count} join requests",
+  "@attnJoin": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "attnMessages": "{count} unread messages",
+  "@attnMessages": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "attnMeals": "Today's meals not entered for {count}",
+  "@attnMeals": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "cashTitle": "Cash in hand (mess fund)",
+  "cashProof": "Deposits {deposits} − spent from the fund {spent}",
+  "@cashProof": {
+    "placeholders": {
+      "deposits": {
+        "type": "String"
+      },
+      "spent": {
+        "type": "String"
+      }
+    }
+  },
+  "cashPending": "{amount} pending, not counted yet",
+  "@cashPending": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "dashSeeAll": "See all",
+  "dashOthers": "Others",
+  "dashAllSettled": "Nobody owes anything",
+  "mineBalance": "My balance",
+  "myTodayTitle": "My meals today",
+  "transTitle": "Everyone's account",
+  "transNote": "This month · deposits, paid from own pocket, balance",
+  "transDeposits": "Deposits",
+  "transOwnPocket": "Own pocket",
+  "transBalance": "Balance",
+  "activityTitle": "Entries about me",
+  "activityEmpty": "When the manager records your meals, deposits or bazar, it shows here",
+  "reportProblem": "Report a problem",
+  "messagesComingSoon": "Messages are coming soon. Until then, tell the manager directly."
 }

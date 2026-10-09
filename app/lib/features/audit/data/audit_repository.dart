@@ -29,4 +29,18 @@ class AuditRepository {
         .range(offset, offset + limit - 1);
     return rows.map(AuditEntry.fromJson).toList();
   });
+
+  /// What others recorded that concerns me, newest first (`my_activity`).
+  Future<List<AuditEntry>> myActivity(String messId, {int limit = 30}) =>
+      guard(() async {
+        final rows =
+            await _client.rpc(
+                  'my_activity',
+                  params: {'p_mess': messId, 'p_limit': limit},
+                )
+                as List;
+        return [
+          for (final r in rows) AuditEntry.fromJson(r as Map<String, dynamic>),
+        ];
+      });
 }

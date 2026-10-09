@@ -1697,7 +1697,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get dashCategoryTitle => 'কোথায় খরচ হলো';
 
   @override
-  String get dashMonthlyTitle => 'মিল রেট, গত ৬ মাস';
+  String get dashMonthlyTitle => 'মাসে মাসে মিল রেট';
 
   @override
   String get dashChartEmpty => 'এই মাসে এখনো কিছু নেই';
@@ -3117,4 +3117,94 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get pushMessageSub => 'ম্যানেজার বা সদস্য আপনাকে লিখলে';
+
+  @override
+  String get auditVerified => 'যাচাই করেছেন';
+
+  @override
+  String get auditRejected => 'বাতিল করেছেন';
+
+  @override
+  String get auditOff => 'অফ';
+
+  @override
+  String get attnTitle => 'এখন যা দেখতে হবে';
+
+  @override
+  String attnDeposits(String count) {
+    return '$countটি জমা যাচাই বাকি';
+  }
+
+  @override
+  String attnJoin(String count) {
+    return '$countটি যোগদানের অনুরোধ';
+  }
+
+  @override
+  String attnMessages(String count) {
+    return '$countটি নতুন বার্তা';
+  }
+
+  @override
+  String attnMeals(String count) {
+    return 'আজ $count জনের মিল বসানো হয়নি';
+  }
+
+  @override
+  String get cashTitle => 'হাতে নগদ (মেস ফান্ড)';
+
+  @override
+  String cashProof(String deposits, String spent) {
+    return 'জমা $deposits − ফান্ড থেকে খরচ $spent';
+  }
+
+  @override
+  String cashPending(String amount) {
+    return 'যাচাই বাকি $amount, এখনো ধরা হয়নি';
+  }
+
+  @override
+  String get dashSeeAll => 'সবাই দেখুন';
+
+  @override
+  String get dashOthers => 'অন্যান্য';
+
+  @override
+  String get dashAllSettled => 'কারো বকেয়া নেই';
+
+  @override
+  String get mineBalance => 'আমার হিসাব';
+
+  @override
+  String get myTodayTitle => 'আজ আমার মিল';
+
+  @override
+  String get transTitle => 'সবার হিসাব';
+
+  @override
+  String get transNote =>
+      'এই মাস · জমা, নিজের পকেট থেকে দেওয়া টাকা আর ব্যালেন্স';
+
+  @override
+  String get transDeposits => 'জমা';
+
+  @override
+  String get transOwnPocket => 'নিজে দিয়েছেন';
+
+  @override
+  String get transBalance => 'ব্যালেন্স';
+
+  @override
+  String get activityTitle => 'আমার বিষয়ে এন্ট্রি';
+
+  @override
+  String get activityEmpty =>
+      'ম্যানেজার আপনার মিল, জমা বা বাজার নিয়ে কিছু লিখলে এখানে দেখাবে';
+
+  @override
+  String get reportProblem => 'সমস্যা জানান';
+
+  @override
+  String get messagesComingSoon =>
+      'বার্তা পাঠানোর সুবিধা শিগগিরই আসছে। ততক্ষণ ম্যানেজারকে সরাসরি জানান।';
 }

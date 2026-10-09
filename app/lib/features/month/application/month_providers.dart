@@ -29,15 +29,6 @@ final memberBalancesProvider =
       return ref.watch(monthRepositoryProvider).balances(messId, period);
     });
 
-/// Billable meals per day of the current period (dashboard trend).
-final dailyMealsProvider = FutureProvider.family<List<DayMeals>, String>((
-  ref,
-  messId,
-) async {
-  final period = await ref.watch(currentPeriodProvider(messId).future);
-  return ref.watch(monthRepositoryProvider).dailyMeals(messId, period);
-});
-
 /// This period's spending by category, bazar included.
 final spendingByCategoryProvider =
     FutureProvider.family<List<CategoryTotal>, String>((ref, messId) async {
@@ -45,10 +36,35 @@ final spendingByCategoryProvider =
       return ref.watch(monthRepositoryProvider).byCategory(messId, period);
     });
 
-/// The last 6 periods, oldest first.
+/// The last 6 periods, oldest first (Home shows those with data).
 final monthHistoryProvider = FutureProvider.family<List<MonthPoint>, String>(
   (ref, messId) => ref.watch(monthRepositoryProvider).history(messId),
 );
+
+/// Manager Home: what needs doing today (counts from SQL).
+final attentionProvider = FutureProvider.family<Attention?, String>(
+  (ref, messId) =>
+      ref.watch(monthRepositoryProvider).attention(messId, today()),
+);
+
+/// This period's mess fund: verified deposits − fund-paid bazar/expenses.
+final messCashProvider = FutureProvider.family<MessCash?, String>((
+  ref,
+  messId,
+) async {
+  final period = await ref.watch(currentPeriodProvider(messId).future);
+  return ref.watch(monthRepositoryProvider).cash(messId, period);
+});
+
+/// Every member's deposits, own-pocket payments and balance this period.
+final transparencyProvider =
+    FutureProvider.family<List<MemberTransparency>, String>((
+      ref,
+      messId,
+    ) async {
+      final period = await ref.watch(currentPeriodProvider(messId).future);
+      return ref.watch(monthRepositoryProvider).transparency(messId, period);
+    });
 
 /// Totals and per-member balances of the period that starts on `start`
 /// (any month, not just the current one). Key by the period start so
@@ -78,8 +94,10 @@ DateTime periodStartFor(DateTime day, int monthStartDay) =>
 List<ProviderOrFamily> monthProviders(String messId) => [
   monthTotalsProvider(messId),
   memberBalancesProvider(messId),
-  dailyMealsProvider(messId),
   spendingByCategoryProvider(messId),
   monthHistoryProvider(messId),
+  attentionProvider(messId),
+  messCashProvider(messId),
+  transparencyProvider(messId),
   periodSummaryProvider,
 ];

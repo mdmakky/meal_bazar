@@ -176,7 +176,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: '/money',
-                builder: (_, _) => const MoneyScreen(),
+                builder: (_, state) => MoneyScreen(
+                  tab: MoneyTab.values
+                      .asNameMap()[state.uri.queryParameters['tab']],
+                ),
                 routes: [
                   GoRoute(
                     path: 'months',

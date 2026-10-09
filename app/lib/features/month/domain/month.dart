@@ -115,5 +115,52 @@ MonthPoint monthPointFromJson(Map<String, dynamic> j) => (
   mealRate: _d(j['meal_rate']),
 );
 
+/// Manager Home "needs attention" (`manager_attention`).
+typedef Attention = ({
+  int pendingDeposits,
+  int pendingMembers,
+  int mealsMissing,
+  int pendingRecurring,
+});
+
+Attention attentionFromJson(Map<String, dynamic> j) => (
+  pendingDeposits: j['pending_deposits'] as int,
+  pendingMembers: j['pending_members'] as int,
+  mealsMissing: j['meals_missing'] as int,
+  pendingRecurring: j['pending_recurring'] as int,
+);
+
+/// The mess fund for a period (`mess_cash`): verified deposits − fund-paid.
+typedef MessCash = ({
+  double depositsIn,
+  double fundSpent,
+  double cash,
+  double pendingDeposits,
+});
+
+MessCash messCashFromJson(Map<String, dynamic> j) => (
+  depositsIn: _d(j['deposits_in']),
+  fundSpent: _d(j['fund_spent']),
+  cash: _d(j['cash']),
+  pendingDeposits: _d(j['pending_deposits']),
+);
+
+/// One member in the transparency table (`member_transparency`).
+typedef MemberTransparency = ({
+  String memberId,
+  String displayName,
+  double deposits,
+  double ownPocket,
+  double closingBalance,
+});
+
+MemberTransparency memberTransparencyFromJson(Map<String, dynamic> j) => (
+  memberId: j['member_id'] as String,
+  displayName: j['display_name'] as String,
+  deposits: _d(j['deposits']),
+  ownPocket: _d(j['own_pocket']),
+  closingBalance: _d(j['closing_balance']),
+);
+
 // PostgREST returns numeric as a JSON number, or a string for very long values.
 double _d(Object? v) => v is num ? v.toDouble() : double.parse(v as String);

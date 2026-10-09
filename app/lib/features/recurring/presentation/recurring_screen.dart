@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/failure_text.dart';
 import '../../../core/ids.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
-import '../../../core/platform/platform_config.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../mess/application/mess_providers.dart';
 import '../../mess/presentation/common.dart';
@@ -336,80 +335,6 @@ class _BillFormState extends ConsumerState<_BillForm> {
           ),
           AppButton(label: l.save, expand: true, onPressed: _submit),
         ],
-      ),
-    );
-  }
-}
-
-/// For Home: "N monthly bills not posted yet this month" with a post button.
-/// Shows nothing for members, while loading, on error, or when none pending.
-class RecurringPromptCard extends ConsumerStatefulWidget {
-  const RecurringPromptCard({super.key});
-
-  @override
-  ConsumerState<RecurringPromptCard> createState() =>
-      _RecurringPromptCardState();
-}
-
-class _RecurringPromptCardState extends ConsumerState<RecurringPromptCard> {
-  var _applying = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final messId = ref.watch(currentMessIdProvider);
-    if (messId == null ||
-        !ref.watch(amIManagerProvider) ||
-        !ref.featureOn('recurring')) {
-      return const SizedBox.shrink();
-    }
-    final n = ref.watch(pendingRecurringProvider(messId)).value ?? 0;
-    if (n == 0) return const SizedBox.shrink();
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpace.gutter,
-        AppSpace.md,
-        AppSpace.gutter,
-        0,
-      ),
-      child: AppCard.raised(
-        padding: const EdgeInsets.all(AppSpace.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: AppSpace.md,
-          children: [
-            Row(
-              spacing: AppSpace.md,
-              children: [
-                CircleAvatar(
-                  radius: 20,
-                  backgroundColor: context.palette.surfaceMuted,
-                  child: Icon(
-                    Icons.event_repeat,
-                    size: 20,
-                    color: context.palette.ink,
-                  ),
-                ),
-                Expanded(
-                  child: Text(
-                    l.recurringPending(Fmt.digits('$n', bangla: _bn(context))),
-                    style: Theme.of(context).textTheme.titleSmall,
-                  ),
-                ),
-              ],
-            ),
-            AppButton(
-              label: l.recurringApply,
-              variant: AppButtonVariant.secondary,
-              loading: _applying,
-              onPressed: () async {
-                setState(() => _applying = true);
-                await _apply(context, ref, messId);
-                if (mounted) setState(() => _applying = false);
-              },
-            ),
-          ],
-        ),
       ),
     );
   }

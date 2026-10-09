@@ -100,6 +100,74 @@ void main() {
       );
     });
 
+    test('deposit verification and meal changes say what changed', () {
+      expect(
+        describeAudit(
+          bn,
+          entry(
+            'deposits',
+            'update',
+            oldRow: {
+              'member_id': 'm-karim',
+              'amount': 500,
+              'status': 'pending',
+            },
+            newRow: {
+              'member_id': 'm-karim',
+              'amount': 500,
+              'status': 'verified',
+            },
+          ),
+          names,
+        ),
+        'রহিম করিম-এর জমা যাচাই করেছেন ৳৫০০',
+      );
+      expect(
+        describeAudit(
+          bn,
+          entry(
+            'deposits',
+            'update',
+            oldRow: {
+              'member_id': 'm-karim',
+              'amount': 500,
+              'status': 'pending',
+            },
+            newRow: {
+              'member_id': 'm-karim',
+              'amount': 500,
+              'status': 'rejected',
+            },
+          ),
+          names,
+        ),
+        'রহিম করিম-এর জমা বাতিল করেছেন ৳৫০০',
+      );
+      Map<String, dynamic> meal(num count, {bool off = false, int g = 0}) => {
+        'member_id': 'm-karim',
+        'date': '2026-10-08',
+        'count': count,
+        'is_off': off,
+        'guest_count': g,
+      };
+      expect(
+        describeAudit(
+          bn,
+          entry('meal_entries', 'update', oldRow: meal(1), newRow: meal(0.5)),
+          names,
+        ),
+        'রহিম করিম-এর মিল বদলেছেন ৮ অক্টোবর ২০২৬ · ১ → ½',
+      );
+      expect(
+        describeAudit(
+          bn,
+          entry('meal_entries', 'insert', newRow: meal(0, off: true, g: 2)),
+          names,
+        ),
+        'রহিম করিম-এর মিল যোগ করেছেন ৮ অক্টোবর ২০২৬ · অফ +২',
+      );
+    });
+
     test('members, meal types, messes', () {
       expect(
         describeAudit(

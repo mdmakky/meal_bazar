@@ -193,7 +193,7 @@ class _MealsScreenState extends ConsumerState<MealsScreen> {
               haptic: true,
               child: FloatingActionButton(
                 tooltip: l.mealGridAdd,
-                onPressed: () => _add(key, rows, types),
+                onPressed: () => showAddChooser(context, ref, key, rows, types),
                 child: const Icon(Icons.add),
               ),
             )
@@ -248,49 +248,58 @@ class _MealsScreenState extends ConsumerState<MealsScreen> {
       ),
     );
   }
+}
 
-  /// FAB chooser: AI, bazar, expense, deposit, guest.
-  Future<void> _add(
-    MessDay key,
-    List<Member> rows,
-    List<MealType> types,
-  ) async {
-    final l = AppLocalizations.of(context);
-    final action = await pickTile<VoidCallback>(
-      context,
-      title: l.mealGridAddTitle,
-      options: [
-        if (ref.read(platformConfigProvider).aiMealDraft)
-          (
-            () => showMealDraftSheet(context, day: _day),
-            l.mealGridAi,
-            Icons.auto_awesome_outlined,
-          ),
+/// The "+" chooser (মিল and হোম FABs): AI, bazar, expense, deposit, guest,
+/// meal off. Runs the picked action for [key]'s day.
+Future<void> showAddChooser(
+  BuildContext context,
+  WidgetRef ref,
+  MessDay key,
+  List<Member> rows,
+  List<MealType> types,
+) async {
+  final l = AppLocalizations.of(context);
+  final config = ref.read(platformConfigProvider);
+  final action = await pickTile<VoidCallback>(
+    context,
+    title: l.mealGridAddTitle,
+    options: [
+      if (config.aiMealDraft)
         (
-          () => showAddBazarSheet(context),
-          l.todayActionBazar,
-          Icons.shopping_basket_outlined,
+          () => showMealDraftSheet(context, day: key.day),
+          l.mealGridAi,
+          Icons.auto_awesome_outlined,
         ),
+      (
+        () => showAddBazarSheet(context),
+        l.todayActionBazar,
+        Icons.shopping_basket_outlined,
+      ),
+      (
+        () => showAddExpenseSheet(context),
+        l.todayActionExpense,
+        Icons.receipt_long_outlined,
+      ),
+      (
+        () => showAddDepositSheet(context),
+        l.todayActionDeposit,
+        Icons.savings_outlined,
+      ),
+      if (config.feature('guest_meals'))
         (
-          () => showAddExpenseSheet(context),
-          l.todayActionExpense,
-          Icons.receipt_long_outlined,
+          () => addGuest(context, ref, key, rows, types),
+          l.todayActionGuest,
+          Icons.person_add_alt_outlined,
         ),
-        (
-          () => showAddDepositSheet(context),
-          l.todayActionDeposit,
-          Icons.savings_outlined,
-        ),
-        if (ref.read(platformConfigProvider).feature('guest_meals'))
-          (
-            () => addGuest(context, ref, key, rows, types),
-            l.todayActionGuest,
-            Icons.person_add_alt_outlined,
-          ),
-      ],
-    );
-    if (mounted) action?.call();
-  }
+      (
+        () => markMealOff(context, ref, key, rows, types),
+        l.todayActionMealOff,
+        Icons.no_meals_outlined,
+      ),
+    ],
+  );
+  if (context.mounted) action?.call();
 }
 
 /// [text] that slides sideways when it changes (shared axis X): the new value

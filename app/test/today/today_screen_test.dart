@@ -22,7 +22,6 @@ import 'package:meal_bazar/features/month/application/month_providers.dart';
 import 'package:meal_bazar/features/month/domain/month.dart';
 import 'package:meal_bazar/features/notices/application/notice_providers.dart';
 import 'package:meal_bazar/features/notices/domain/notice.dart';
-import 'package:meal_bazar/features/recurring/application/recurring_providers.dart';
 import 'package:meal_bazar/features/today/application/day_grid.dart';
 import 'package:meal_bazar/features/today/presentation/today_screen.dart';
 import 'package:mocktail/mocktail.dart';
@@ -171,8 +170,22 @@ void main() {
     expect(find.text('৳৬৮.৭৮').first, findsOneWidget);
     expect(find.text(l.mealGridGoToMeals), findsOneWidget);
     expect(find.bySemanticsLabel(RegExp('^Karim দুপুর')), findsNothing);
-    expect(find.text(l.todayActionBazar), findsOneWidget);
-    expect(find.text(l.todayAiEntry), findsOneWidget);
+    // One "+" instead of a row of quick-action tiles.
+    expect(find.text(l.todayActionBazar), findsNothing);
+    expect(find.text(l.todayAiEntry), findsNothing);
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+    expect(find.text(l.mealGridAddTitle), findsOneWidget);
+    for (final a in [
+      l.mealGridAi,
+      l.todayActionBazar,
+      l.todayActionExpense,
+      l.todayActionDeposit,
+      l.todayActionGuest,
+      l.todayActionMealOff,
+    ]) {
+      expect(find.text(a), findsOneWidget, reason: a);
+    }
   });
 
   testWidgets('fits a 360 dp phone at 1.3x text without overflow', (
@@ -188,7 +201,7 @@ void main() {
       () => repo.entriesForDay(any(), any()),
     ).thenAnswer((_) async => [entry('rahim', 'lunch', 1)]);
     await pump(tester);
-    expect(find.text(l.todayActionMealOff), findsOneWidget);
+    expect(find.byType(FloatingActionButton), findsOneWidget);
     await tester.drag(find.byType(Scrollable).first, const Offset(0, -2000));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
@@ -204,18 +217,63 @@ void main() {
     expect(find.text('meals tab'), findsOneWidget);
   });
 
-  testWidgets('members: no quick actions or AI entry; meal-off hint', (
+  testWidgets('members: my balance card, my meals with switches, no "+"', (
     tester,
   ) async {
-    when(() => repo.entriesForDay(any(), any())).thenAnswer((_) async => []);
+    when(
+      () => repo.entriesForDay(any(), any()),
+    ).thenAnswer((_) async => [entry('rahim', 'lunch', 1)]);
+    when(
+      () => repo.setMyMealOff(any(), any(), any(), off: any(named: 'off')),
+    ).thenAnswer((_) async {});
     await pump(
       tester,
       manager: false,
       now: day.subtract(const Duration(days: 2)),
+      extra: [
+        memberBalancesProvider.overrideWith(
+          (ref, id) async => [
+            const MemberBalance(
+              memberId: 'rahim',
+              displayName: 'Rahim',
+              meals: 12.5,
+              foodCost: 859.75,
+              extraCost: 0,
+              credit: 500,
+              openingBalance: 0,
+              closingBalance: -359.75,
+            ),
+          ],
+        ),
+      ],
     );
-    expect(find.text(l.todayActionBazar), findsNothing);
+    expect(find.byType(FloatingActionButton), findsNothing);
     expect(find.text(l.todayAiEntry), findsNothing);
+    expect(find.text(l.todayHeadcountLabel), findsNothing);
+    expect(find.text(l.mineBalance), findsOneWidget);
+    expect(find.text('-৳৩৫৯.৭৫'), findsOneWidget);
+    expect(find.text('১২.৫'), findsOneWidget);
+    expect(find.text(l.myTodayTitle), findsOneWidget);
     expect(find.text(l.mealOffHint('১০')), findsOneWidget);
+    // Before the cutoff: lunch is on and can be switched off.
+    final lunch = find.byKey(const ValueKey('my-lunch'));
+    expect(tester.widget<SwitchListTile>(lunch).value, isTrue);
+    expect(tester.widget<SwitchListTile>(lunch).onChanged, isNotNull);
+    await tester.tap(lunch);
+    await tester.pumpAndSettle();
+    verify(() => repo.setMyMealOff('mess1', day, 'lunch', off: true)).called(1);
+  });
+
+  testWidgets('members: after the cutoff the switches are locked', (
+    tester,
+  ) async {
+    when(
+      () => repo.entriesForDay(any(), any()),
+    ).thenAnswer((_) async => [entry('rahim', 'lunch', 1)]);
+    await pump(tester, manager: false, now: day.add(const Duration(hours: 9)));
+    final lunch = find.byKey(const ValueKey('my-lunch'));
+    expect(tester.widget<SwitchListTile>(lunch).onChanged, isNull);
+    expect(find.text(l.mealOffCutoffPassed), findsOneWidget);
   });
 
   testWidgets('Home: notice banner, monthly bills prompt, duty card', (
@@ -232,7 +290,14 @@ void main() {
           pinned: true,
         ),
       ),
-      pendingRecurringProvider.overrideWith((ref, id) async => 2),
+      attentionProvider.overrideWith(
+        (ref, id) async => (
+          pendingDeposits: 0,
+          pendingMembers: 0,
+          mealsMissing: 0,
+          pendingRecurring: 2,
+        ),
+      ),
       dutiesProvider.overrideWith(
         (ref, k) async => [
           BazarDuty(id: 'd1', messId: 'mess1', date: day, memberId: 'karim'),
@@ -271,7 +336,14 @@ void main() {
             pinned: true,
           ),
         ),
-        pendingRecurringProvider.overrideWith((ref, id) async => 2),
+        attentionProvider.overrideWith(
+          (ref, id) async => (
+            pendingDeposits: 0,
+            pendingMembers: 0,
+            mealsMissing: 0,
+            pendingRecurring: 2,
+          ),
+        ),
         dutiesProvider.overrideWith(
           (ref, k) async => [
             BazarDuty(id: 'd1', messId: 'mess1', date: day, memberId: 'karim'),
@@ -279,8 +351,7 @@ void main() {
         ),
       ],
     );
-    expect(find.text(l.todayActionBazar), findsOneWidget);
-    expect(find.text(l.todayAiEntry), findsNothing);
+    expect(find.byType(FloatingActionButton), findsOneWidget);
     expect(find.text('Rent due Friday'), findsNothing);
     expect(find.text(l.recurringPending('২')), findsNothing);
     expect(find.text(l.dutyTodayOther('Karim')), findsNothing);
@@ -296,7 +367,10 @@ void main() {
         }),
       ],
     );
-    expect(find.text(l.todayAiEntry), findsNothing);
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+    expect(find.text(l.todayActionBazar), findsOneWidget);
+    expect(find.text(l.mealGridAi), findsNothing);
   });
 
   testWidgets('platform banner shows on Home', (tester) async {
