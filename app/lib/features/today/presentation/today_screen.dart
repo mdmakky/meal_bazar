@@ -9,26 +9,29 @@ import '../../../core/l10n/gen/app_localizations.dart';
 import '../../../core/platform/platform_config.dart';
 import '../../../core/platform/platform_widgets.dart';
 import '../../../core/widgets/widgets.dart';
-import '../../ai/presentation/ai_entry.dart';
+import '../../audit/application/audit_providers.dart';
 import '../../duty/presentation/today_duty_card.dart';
 import '../../meals/application/meal_providers.dart';
 import '../../meals/domain/meal.dart';
 import '../../meals/presentation/meal_grid.dart';
+import '../../meals/presentation/meals_screen.dart' show showAddChooser;
 import '../../meals/presentation/meal_widgets.dart';
 import '../../mess/application/mess_providers.dart';
 import '../../mess/domain/member.dart';
+import '../../messages/application/unread_provider.dart';
 import '../../money/application/money_providers.dart';
-import '../../money/presentation/money_sheets.dart';
+import '../../money/presentation/money_screen.dart'
+    show balanceWord, showBillSheet;
 import '../../month/application/month_providers.dart';
 import '../../notices/presentation/latest_notice_banner.dart';
-import '../../recurring/presentation/recurring_screen.dart';
 import '../application/day_grid.dart';
 import 'dashboard.dart';
 import 'setup_checklist.dart';
 
-/// হোম: (managers) the setup checklist, the date, the day's headcount with its
-/// proof, the month's meal rate with its proof, the day's meals in brief
-/// (entered on the মিল tab), quick actions; then the month dashboard.
+/// হোম, by role. Manager: the setup checklist, the day's statement card
+/// (headcount, meal rate), then what needs them, the fund, who owes; one "+"
+/// for adding anything. Member: my balance card, my meals today with the
+/// meal-off switches, then everyone's account and entries about me.
 class TodayScreen extends ConsumerStatefulWidget {
   const TodayScreen({super.key});
 
@@ -56,7 +59,6 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
       }
     });
     final manager = ref.watch(amIManagerProvider);
-    final mess = ref.watch(currentMessProvider);
     final myId = plainMemberId(ref);
     final membersAsync = ref.watch(membersProvider(messId));
     final typesAsync = ref.watch(mealTypesProvider(messId));
@@ -74,6 +76,8 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
       ref.invalidate(currentPeriodProvider(messId));
       ref.invalidate(bazarsProvider(messId));
       ref.invalidate(depositsProvider(messId));
+      ref.invalidate(myActivityProvider(messId));
+      ref.invalidate(unreadMessagesCountProvider(messId));
       // Each section shows its own error; the spinner only waits.
       await Future.wait([
         ref.read(membersProvider(messId).future),
@@ -113,15 +117,16 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
           if (manager && ref.featureOn('setup_checklist'))
             SliverToBoxAdapter(child: SetupChecklist(messId: messId)),
           const SliverToBoxAdapter(child: LatestNoticeBanner()),
-          const SliverToBoxAdapter(child: RecurringPromptCard()),
           SliverToBoxAdapter(
-            child: _TodayHero(
-              day: _day,
-              dayKey: key,
-              types: types,
-              onShift: _shift,
-              onToday: () => setState(() => _day = today()),
-            ),
+            child: manager
+                ? _TodayHero(
+                    day: _day,
+                    dayKey: key,
+                    types: types,
+                    onShift: _shift,
+                    onToday: () => setState(() => _day = today()),
+                  )
+                : _MemberHero(messId: messId),
           ),
           if (!hasMembers)
             SliverFillRemaining(
@@ -143,22 +148,18 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
               ),
             )
           else ...[
-            if (manager &&
-                ref.watch(platformConfigProvider.select((c) => c.aiMealDraft)))
-              SliverToBoxAdapter(child: _AiEntry(day: _day)),
-            const SliverToBoxAdapter(child: TodayDutyCard()),
-            if (myId != null &&
-                mess != null &&
-                ref.featureOn('member_meal_off'))
+            if (myId != null)
               SliverToBoxAdapter(
-                child: MealOffHint(cutoff: mess.mealOffCutoff),
+                child: _MyToday(dayKey: key, types: types),
               ),
+            const SliverToBoxAdapter(child: TodayDutyCard()),
           ],
           if (hasMembers)
             SliverToBoxAdapter(
               child: MonthDashboard(messId: messId, manager: manager),
             ),
-          const SliverToBoxAdapter(child: SizedBox(height: AppSpace.xl)),
+          // Room for the FAB over the last card.
+          const SliverToBoxAdapter(child: SizedBox(height: AppSpace.xxxl * 2)),
         ],
       );
     }
@@ -168,8 +169,15 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
         bottom: false,
         child: RefreshIndicator(onRefresh: refresh, child: body),
       ),
-      bottomNavigationBar: manager && rows.isNotEmpty && types.isNotEmpty
-          ? _QuickActions(dayKey: key, members: rows, types: types)
+      floatingActionButton: manager && rows.isNotEmpty && types.isNotEmpty
+          ? PressableScale(
+              haptic: true,
+              child: FloatingActionButton(
+                tooltip: l.mealGridAdd,
+                onPressed: () => showAddChooser(context, ref, key, rows, types),
+                child: const Icon(Icons.add),
+              ),
+            )
           : null,
     );
   }
@@ -447,15 +455,187 @@ class _Rate extends ConsumerWidget {
   }
 }
 
-/// Quiet way into AI meal drafts; the draft is reviewed before saving.
-class _AiEntry extends StatelessWidget {
-  const _AiEntry({required this.day});
+/// Member statement card: my balance this month (SQL), my meals, the rate,
+/// and the way into my bill.
+class _MemberHero extends ConsumerWidget {
+  const _MemberHero({required this.messId});
 
-  final DateTime day;
+  final String messId;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final bn = bnDigits(context);
+    final myId = ref.watch(currentMembershipProvider)?.member.id;
+    final mess = ref.watch(currentMessProvider);
+    final balances = ref.watch(memberBalancesProvider(messId));
+    final rate = ref.watch(monthTotalsProvider(messId)).value;
+    final me = balances.value?.where((b) => b.memberId == myId).firstOrNull;
+    final date = Fmt.dateLong(
+      today(),
+      locale: Localizations.localeOf(context).languageCode,
+      banglaDigits: bn,
+    );
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpace.gutter,
+        AppSpace.md,
+        AppSpace.gutter,
+        AppSpace.lg,
+      ),
+      child: AppCard.ink(
+        child: Builder(
+          // Inside the card: the statement theme's text and palette.
+          builder: (context) {
+            final text = Theme.of(context).textTheme;
+            final p = context.palette;
+            Widget pending(TextStyle? style) => Text('…', style: style);
+            final Widget balance;
+            if (balances.hasError && !balances.hasValue) {
+              balance = _HeroFigure(
+                label: l.mineBalance,
+                proof: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: TextButton(
+                    onPressed: () =>
+                        ref.invalidate(memberBalancesProvider(messId)),
+                    child: Text(l.retry),
+                  ),
+                ),
+              );
+            } else if (!balances.hasValue) {
+              balance = _HeroFigure(
+                label: l.mineBalance,
+                figure: pending(text.displayLarge),
+              );
+            } else if (me == null) {
+              balance = _HeroFigure(
+                label: l.mineBalance,
+                proof: _proof(context, l.dashNotInMonth),
+              );
+            } else {
+              final c = me.closingBalance;
+              balance = _HeroFigure(
+                label: l.mineBalance,
+                figure: RollingNumber.money(
+                  c,
+                  signed: true,
+                  banglaDigits: bn,
+                  style: text.displayLarge,
+                ),
+                proof: _proof(context, balanceWord(l, c)),
+              );
+            }
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(date, style: text.titleMedium),
+                Row(
+                  spacing: AppSpace.sm,
+                  children: [
+                    Container(
+                      width: AppSize.dot,
+                      height: AppSize.dot,
+                      decoration: BoxDecoration(
+                        color: p.accent,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    Flexible(
+                      child: Text(
+                        [l.todayIsToday, ?mess?.name].join(' · '),
+                        overflow: TextOverflow.ellipsis,
+                        style: text.labelSmall?.copyWith(color: p.accent),
+                      ),
+                    ),
+                  ],
+                ),
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: SyncLine(messId: messId),
+                ),
+                const SizedBox(height: AppSpace.lg),
+                balance,
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: AppSpace.lg),
+                  child: Divider(height: 1, color: p.surfaceInkBorder),
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: AppSpace.lg,
+                  children: [
+                    Expanded(
+                      child: _HeroFigure(
+                        label: l.dashMyMeals,
+                        figure: me == null
+                            ? pending(text.displaySmall)
+                            : RollingNumber(
+                                me.meals,
+                                decimals: 1,
+                                banglaDigits: bn,
+                                style: text.displaySmall,
+                              ),
+                      ),
+                    ),
+                    Expanded(
+                      child: _HeroFigure(
+                        label: l.dashRate,
+                        figure: rate == null
+                            ? pending(text.displaySmall)
+                            : RollingNumber.money(
+                                rate.mealRate,
+                                banglaDigits: bn,
+                                style: text.displaySmall,
+                              ),
+                      ),
+                    ),
+                  ],
+                ),
+                if (me != null) ...[
+                  const SizedBox(height: AppSpace.xl),
+                  AppButton(
+                    label: l.dashExplain,
+                    icon: Icons.receipt_long_outlined,
+                    expand: true,
+                    onPressed: () => showBillSheet(context, messId, me),
+                  ),
+                ],
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+/// Member: today's meals for me, each with its on/off switch while the
+/// meal-off cutoff allows; after it, the way to switch tomorrow off.
+class _MyToday extends ConsumerWidget {
+  const _MyToday({required this.dayKey, required this.types});
+
+  final MessDay dayKey;
+  final List<MealType> types;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final bn = bnDigits(context);
+    final text = Theme.of(context).textTheme;
     final p = context.palette;
+    final myId = plainMemberId(ref);
+    final mess = ref.watch(currentMessProvider);
+    final mealOff = ref.featureOn('member_meal_off');
+    final canSwitch = mealOff && ownOffId(ref, dayKey.day) != null;
+    final grid = ref.watch(dayGridProvider(dayKey)).value;
+    if (myId == null) return const SizedBox.shrink();
+    String value(MealEntry e) {
+      final own = e.isOff ? l.auditOff : Fmt.meals(e.count, banglaDigits: bn);
+      return e.guestCount > 0
+          ? '$own · ${l.todayGuestsProof(Fmt.digits('${e.guestCount}', bangla: bn))}'
+          : own;
+    }
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppSpace.gutter,
@@ -463,132 +643,68 @@ class _AiEntry extends StatelessWidget {
         AppSpace.gutter,
         AppSpace.lg,
       ),
-      child: PressableScale(
-        scale: 0.98,
-        child: AppCard.raised(
-          onTap: () => showMealDraftSheet(context, day: day),
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpace.lg,
-            vertical: AppSpace.md,
-          ),
-          child: Row(
-            spacing: AppSpace.md,
-            children: [
-              Icon(Icons.auto_awesome_outlined, color: p.accent),
-              Expanded(
-                child: Text(
-                  AppLocalizations.of(context).todayAiEntry,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodyMedium?.copyWith(color: p.inkSecondary),
-                ),
-              ),
-              Icon(Icons.chevron_right, color: p.inkTertiary),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _QuickActions extends ConsumerWidget {
-  const _QuickActions({
-    required this.dayKey,
-    required this.members,
-    required this.types,
-  });
-
-  final MessDay dayKey;
-  final List<Member> members;
-  final List<MealType> types;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l = AppLocalizations.of(context);
-    return ColoredBox(
-      color: context.palette.bg,
-      child: Padding(
+      child: AppCard.raised(
         padding: const EdgeInsets.fromLTRB(
-          AppSpace.gutter,
-          AppSpace.sm,
-          AppSpace.gutter,
+          AppSpace.lg,
           AppSpace.md,
+          AppSpace.sm,
+          AppSpace.lg,
         ),
-        child: IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: AppSpace.sm,
-            children: [
-              _ActionTile(
-                l.todayActionBazar,
-                Icons.shopping_basket_outlined,
-                () => showAddBazarSheet(context),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Semantics(
+              header: true,
+              child: Text(l.myTodayTitle, style: text.titleMedium),
+            ),
+            for (final t in types.where((t) => t.enabled))
+              Builder(
+                builder: (context) {
+                  final e = entryOrZero(grid, dayKey, myId, t.id);
+                  return SwitchListTile(
+                    key: ValueKey('my-${t.id}'),
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(t.name, style: text.bodyLarge),
+                    subtitle: Text(
+                      value(e),
+                      style: text.bodyMedium?.copyWith(
+                        color: e.isOff ? p.inkTertiary : p.inkSecondary,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                    value: !e.isOff,
+                    onChanged: canSwitch
+                        ? (_) => putEntry(
+                            context,
+                            ref,
+                            dayKey,
+                            toggleMealOff(e),
+                            own: true,
+                          )
+                        : null,
+                  );
+                },
               ),
-              _ActionTile(
-                l.todayActionExpense,
-                Icons.receipt_long_outlined,
-                () => showAddExpenseSheet(context),
-              ),
-              _ActionTile(
-                l.todayActionDeposit,
-                Icons.savings_outlined,
-                () => showAddDepositSheet(context),
-              ),
-              if (ref.featureOn('guest_meals'))
-                _ActionTile(
-                  l.todayActionGuest,
-                  Icons.person_add_alt,
-                  () => addGuest(context, ref, dayKey, members, types),
+            if (mealOff && mess != null) ...[
+              if (!canSwitch)
+                Text(
+                  l.mealOffCutoffPassed,
+                  style: text.bodySmall?.copyWith(color: p.inkTertiary),
                 ),
-              _ActionTile(
-                l.todayActionMealOff,
-                Icons.no_meals_outlined,
-                () => markMealOff(context, ref, dayKey, members, types),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// A raised, pressable icon + label tile; labels wrap rather than truncate.
-class _ActionTile extends StatelessWidget {
-  const _ActionTile(this.label, this.icon, this.onTap);
-
-  final String label;
-  final IconData icon;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final p = context.palette;
-    return Expanded(
-      child: PressableScale(
-        haptic: true,
-        child: AppCard.raised(
-          onTap: onTap,
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpace.xs,
-            vertical: AppSpace.md,
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            spacing: AppSpace.xs,
-            children: [
-              Icon(icon, color: p.ink, size: 22),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: p.ink,
-                  fontWeight: FontWeight.w600,
+              MealOffHint(cutoff: mess.mealOffCutoff, padded: false),
+              const SizedBox(height: AppSpace.md),
+              Padding(
+                padding: const EdgeInsetsDirectional.only(end: AppSpace.sm),
+                child: AppButton(
+                  label: l.mealOffTomorrow,
+                  icon: Icons.no_meals_outlined,
+                  variant: AppButtonVariant.secondary,
+                  expand: true,
+                  onPressed: () => offTomorrow(context, ref),
                 ),
               ),
             ],
-          ),
+          ],
         ),
       ),
     );

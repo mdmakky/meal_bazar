@@ -9,24 +9,25 @@ import 'package:meal_bazar/core/errors.dart';
 import 'package:meal_bazar/core/l10n/gen/app_localizations.dart';
 import 'package:meal_bazar/core/theme/app_theme.dart';
 import 'package:meal_bazar/core/widgets/widgets.dart';
+import 'package:meal_bazar/features/audit/application/audit_providers.dart';
+import 'package:meal_bazar/features/audit/domain/audit.dart';
 import 'package:meal_bazar/features/meals/application/meal_providers.dart';
 import 'package:meal_bazar/features/meals/data/meal_repository.dart';
 import 'package:meal_bazar/features/meals/domain/meal.dart';
+import 'package:meal_bazar/features/messages/application/unread_provider.dart';
+import 'package:meal_bazar/features/messages/domain/message_draft.dart';
 import 'package:meal_bazar/features/mess/application/mess_providers.dart';
 import 'package:meal_bazar/features/mess/domain/member.dart';
 import 'package:meal_bazar/features/mess/domain/mess.dart';
-import 'package:meal_bazar/features/money/application/money_providers.dart';
-import 'package:meal_bazar/features/money/data/money_repository.dart';
-import 'package:meal_bazar/features/money/domain/money.dart';
 import 'package:meal_bazar/features/month/application/month_providers.dart';
 import 'package:meal_bazar/features/month/domain/month.dart';
 import 'package:meal_bazar/features/today/presentation/dashboard.dart';
 import 'package:meal_bazar/features/today/presentation/today_screen.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockMealRepository extends Mock implements MealRepository {}
+import '../platform/fixed_config.dart';
 
-class MockMoneyRepository extends Mock implements MoneyRepository {}
+class MockMealRepository extends Mock implements MealRepository {}
 
 final l = lookupAppLocalizations(const Locale('bn'));
 
@@ -43,14 +44,14 @@ Member member(
   String name, {
   MemberStatus status = MemberStatus.active,
   MemberRole role = MemberRole.member,
-  DateTime? joined,
 }) => Member(
   id: id,
   messId: 'mess1',
   displayName: name,
   role: role,
   status: status,
-  joinedOn: joined ?? DateTime(2026, 1, 1),
+  joinedOn: DateTime(2026, 1, 1),
+  userId: 'u-$id',
 );
 
 MemberBalance balance(String id, String name, double closing) => MemberBalance(
@@ -78,32 +79,46 @@ final period = MonthPeriod(
   DateTime(now.year, now.month + 1),
 );
 
-List<DayMeals> days({bool empty = false}) => [
-  for (
-    var d = period.start;
-    d.isBefore(period.end);
-    d = d.add(const Duration(days: 1, hours: 2))
-  )
+const noAttention = (
+  pendingDeposits: 0,
+  pendingMembers: 0,
+  mealsMissing: 0,
+  pendingRecurring: 0,
+);
+
+/// Six periods, oldest first; the first [empty] have no spending at all.
+List<MonthPoint> history({int empty = 3}) => [
+  for (var i = 5; i >= 0; i--)
     (
-      date: dayOnly(d),
-      meals: empty || d.isAfter(now) ? 0.0 : (d.day % 3) + 4.0,
+      start: DateTime(2026, 10 - i),
+      foodTotal: 5 - i < empty ? 0.0 : 1000.0,
+      extraTotal: 0.0,
+      mealRate: 5 - i < empty ? 0.0 : 60.0 + i,
     ),
 ];
 
-Bazar bazar(int i) => Bazar(
-  id: 'b$i',
-  messId: 'mess1',
-  date: now,
-  amount: 100.0 + i,
-  buyers: ['karim'],
+AuditEntry depositVerified() => AuditEntry(
+  id: 7,
+  action: 'update',
+  entity: 'deposits',
+  at: DateTime(2026, 10, 5, 14, 30),
+  actorId: 'u-rahim',
+  entityId: 'd1',
+  refType: 'deposit',
+  refId: 'd1',
+  oldRow: const {'member_id': 'karim', 'amount': 500, 'status': 'pending'},
+  newRow: const {'member_id': 'karim', 'amount': 500, 'status': 'verified'},
 );
 
 List<Override> overrides({
   bool manager = true,
-  bool emptyCharts = false,
-  bool failDaily = false,
+  Attention attention = noAttention,
+  int unread = 0,
+  List<CategoryTotal>? categories,
+  List<MonthPoint>? months,
+  List<AuditEntry>? activity,
+  bool failCash = false,
   List<Member>? members,
-  MonthTotals t = totals,
 }) => [
   myMembershipsProvider.overrideWith(
     (ref) async => [
@@ -123,11 +138,10 @@ List<Override> overrides({
           member('rahim', 'Rahim', role: MemberRole.manager),
           member('karim', 'Karim'),
           member('selim', 'Selim'),
-          member('new', 'Nobin', status: MemberStatus.pending),
         ],
   ),
   currentPeriodProvider.overrideWith((ref, id) async => period),
-  monthTotalsProvider.overrideWith((ref, id) async => t),
+  monthTotalsProvider.overrideWith((ref, id) async => totals),
   memberBalancesProvider.overrideWith(
     (ref, id) async => [
       balance('rahim', 'Rahim', 424.63),
@@ -135,231 +149,348 @@ List<Override> overrides({
       balance('karim', 'Karim', -834.63),
     ],
   ),
-  spendingByCategoryProvider.overrideWith(
-    (ref, id) async => emptyCharts
-        ? const <CategoryTotal>[]
-        : const [
-            (category: 'বাজার', total: 1410.0, isBazar: true),
-            (category: 'ওয়াইফাই', total: 500.0, isBazar: false),
-          ],
-  ),
-  dailyMealsProvider.overrideWith(
-    (ref, id) async => failDaily
+  attentionProvider.overrideWith((ref, id) async => attention),
+  unreadMessagesCountProvider.overrideWith((ref, id) async => unread),
+  messCashProvider.overrideWith(
+    (ref, id) async => failCash
         ? throw const AppFailure(FailureKind.network)
-        : days(empty: emptyCharts),
+        : (
+            depositsIn: 3000.0,
+            fundSpent: 1200.0,
+            cash: 1800.0,
+            pendingDeposits: 700.0,
+          ),
   ),
-  monthHistoryProvider.overrideWith(
-    (ref, id) async => [
-      for (var i = 5; i >= 0; i--)
-        (
-          start: DateTime(now.year, now.month - i),
-          foodTotal: 1000.0,
-          extraTotal: 0.0,
-          mealRate: emptyCharts ? 0.0 : 60.0 + i,
-        ),
+  transparencyProvider.overrideWith(
+    (ref, id) async => const [
+      (
+        memberId: 'karim',
+        displayName: 'Karim',
+        deposits: 2000.0,
+        ownPocket: 300.0,
+        closingBalance: -834.63,
+      ),
+      (
+        memberId: 'rahim',
+        displayName: 'Rahim',
+        deposits: 1000.0,
+        ownPocket: 0.0,
+        closingBalance: 424.63,
+      ),
     ],
   ),
-  moneyRepositoryProvider.overrideWithValue(MockMoneyRepository()),
-  bazarsProvider.overrideWith2(
-    (messId) => PagedList<Bazar>(
-      messId,
-      (_, _, _, _) async => [for (var i = 1; i <= 6; i++) bazar(i)],
-    ),
+  myActivityProvider.overrideWith(
+    (ref, id) async => activity ?? [depositVerified()],
   ),
+  spendingByCategoryProvider.overrideWith(
+    (ref, id) async =>
+        categories ??
+        const [
+          (category: 'বাজার', total: 1410.0, isBazar: true),
+          (category: 'ওয়াইফাই', total: 500.0, isBazar: false),
+        ],
+  ),
+  monthHistoryProvider.overrideWith((ref, id) async => months ?? history()),
 ];
 
-Widget app(Widget child) => MaterialApp(
-  theme: AppTheme.light(),
-  locale: const Locale('bn'),
-  localizationsDelegates: AppLocalizations.localizationsDelegates,
-  supportedLocales: AppLocalizations.supportedLocales,
-  home: Scaffold(body: SingleChildScrollView(child: child)),
-);
+MessageDraft? draft;
 
 Future<void> pumpDashboard(
   WidgetTester tester, {
   bool manager = true,
-  bool emptyCharts = false,
-  bool failDaily = false,
-  MonthTotals t = totals,
+  Locale locale = const Locale('bn'),
+  List<Override> extra = const [],
+  Attention attention = noAttention,
+  int unread = 0,
+  List<CategoryTotal>? categories,
+  List<MonthPoint>? months,
+  List<AuditEntry>? activity,
+  bool failCash = false,
 }) async {
   tester.view.physicalSize = const Size(800, 4000);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
+  draft = null;
+  final router = GoRouter(
+    routes: [
+      GoRoute(
+        path: '/',
+        builder: (_, _) => Scaffold(
+          body: SingleChildScrollView(
+            child: MonthDashboard(messId: 'mess1', manager: manager),
+          ),
+        ),
+      ),
+      GoRoute(path: '/money', builder: (_, s) => Text('money ${s.uri}')),
+      GoRoute(path: '/meals', builder: (_, _) => const Text('meals tab')),
+      GoRoute(
+        path: '/more/messages/new',
+        builder: (_, s) {
+          draft = s.extra as MessageDraft?;
+          return const Text('new message');
+        },
+      ),
+    ],
+  );
   await tester.pumpWidget(
     ProviderScope(
       retry: (_, _) => null,
-      overrides: overrides(
-        manager: manager,
-        emptyCharts: emptyCharts,
-        failDaily: failDaily,
-        t: t,
+      overrides: [
+        ...overrides(
+          manager: manager,
+          attention: attention,
+          unread: unread,
+          categories: categories,
+          months: months,
+          activity: activity,
+          failCash: failCash,
+        ),
+        ...extra,
+      ],
+      child: MaterialApp.router(
+        theme: AppTheme.light(),
+        locale: locale,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        routerConfig: router,
       ),
-      child: app(MonthDashboard(messId: 'mess1', manager: manager)),
     ),
   );
   await tester.pumpAndSettle();
 }
 
-Finder inFigure(String text) =>
-    find.descendant(of: find.byType(StatTile), matching: find.text(text));
-
 void main() {
   group('manager', () {
-    testWidgets('stat block shows SQL figures with proofs', (tester) async {
-      await pumpDashboard(tester);
-      expect(find.text(l.dashTitle), findsOneWidget);
-      // 3 active, 1 pending.
-      expect(inFigure('৩'), findsOneWidget);
-      expect(find.text(l.dashMembersPending('১')), findsOneWidget);
-      expect(inFigure('৳৮৩.৪১'), findsOneWidget);
-      expect(find.text(l.moneyMealRateProof('৳১,৭১০', '২০.৫')), findsOneWidget);
-      // Bazar from the SQL bazar row, not food_total.
-      expect(inFigure('৳১,৪১০'), findsOneWidget);
-      expect(find.text(l.dashBazarProof('৳১,৭১০')), findsOneWidget);
-      expect(inFigure('৳৫০০'), findsOneWidget);
-      expect(find.text(l.dashExtraProof('৳২,২১০')), findsOneWidget);
-      expect(inFigure('৳৩,০০০'), findsOneWidget);
-      expect(inFigure('২০.৫'), findsOneWidget);
-      // Dues = Σ negative closings (red); advances = Σ positive (green).
-      expect(inFigure('৳৯৩৪.৬৩'), findsOneWidget);
-      expect(find.text(l.dashDuesProof('২')), findsOneWidget);
-      expect(inFigure('৳৪২৪.৬৩'), findsOneWidget);
-      expect(find.text(l.dashAdvancesProof('১')), findsOneWidget);
-      final p = AppPalette.light;
-      expect(tester.widget<Text>(inFigure('৳৯৩৪.৬৩')).style?.color, p.due);
-      expect(tester.widget<Text>(inFigure('৳৪২৪.৬৩')).style?.color, p.advance);
+    testWidgets('needs attention: only rows with a count, each opens its '
+        'screen', (tester) async {
+      await pumpDashboard(
+        tester,
+        attention: (
+          pendingDeposits: 2,
+          pendingMembers: 0,
+          mealsMissing: 3,
+          pendingRecurring: 0,
+        ),
+      );
+      expect(find.text(l.attnTitle), findsOneWidget);
+      expect(find.text(l.attnDeposits('২')), findsOneWidget);
+      expect(find.text(l.attnMeals('৩')), findsOneWidget);
+      expect(find.text(l.attnJoin('০')), findsNothing);
+      expect(find.text(l.attnMessages('০')), findsNothing);
+      expect(find.text(l.recurringPending('০')), findsNothing);
+
+      await tester.tap(find.text(l.attnDeposits('২')));
+      await tester.pumpAndSettle();
+      expect(find.text('money /money?tab=deposit'), findsOneWidget);
     });
 
-    testWidgets('fixed rate: proof says fixed and shows the gap', (
+    testWidgets('needs attention: join requests, messages, bills', (
       tester,
     ) async {
       await pumpDashboard(
         tester,
-        t: const MonthTotals(
-          foodTotal: 1000,
-          totalMeals: 20,
-          mealRate: 60,
-          extraTotal: 0,
-          creditTotal: 0,
-          fixedRate: true,
-          rateGap: -200,
+        unread: 4,
+        attention: (
+          pendingDeposits: 0,
+          pendingMembers: 1,
+          mealsMissing: 0,
+          pendingRecurring: 2,
         ),
       );
-      expect(inFigure('৳৬০'), findsOneWidget);
-      expect(
-        find.text('${l.rateFixed} · ${l.rateSurplus('৳২০০')}'),
-        findsOneWidget,
-      );
-      expect(
-        find.text('নির্দিষ্ট রেট · বাজার খরচের চেয়ে ৳২০০ বেশি উঠেছে'),
-        findsOneWidget,
-      );
+      expect(find.text(l.attnJoin('১')), findsOneWidget);
+      expect(find.text(l.attnMessages('৪')), findsOneWidget);
+      expect(find.text(l.recurringPending('২')), findsOneWidget);
+      expect(find.text(l.attnDeposits('০')), findsNothing);
     });
 
-    testWidgets('dues list: biggest due first; tap explains the bill', (
+    testWidgets('nothing to do: no attention card at all', (tester) async {
+      await pumpDashboard(tester);
+      expect(find.text(l.attnTitle), findsNothing);
+    });
+
+    testWidgets('flags hide deposit and bill rows', (tester) async {
+      await pumpDashboard(
+        tester,
+        extra: [
+          flagsOff(['member_deposits', 'recurring']),
+        ],
+        attention: (
+          pendingDeposits: 2,
+          pendingMembers: 0,
+          mealsMissing: 0,
+          pendingRecurring: 2,
+        ),
+      );
+      expect(find.text(l.attnTitle), findsNothing);
+    });
+
+    testWidgets('cash in hand: the SQL figure with its proof', (tester) async {
+      await pumpDashboard(tester);
+      expect(find.text(l.cashTitle), findsOneWidget);
+      expect(find.text('৳১,৮০০'), findsOneWidget);
+      expect(find.text(l.cashProof('৳৩,০০০', '৳১,২০০')), findsOneWidget);
+      expect(find.text(l.cashPending('৳৭০০')), findsOneWidget);
+    });
+
+    testWidgets('a failing section fails alone, with retry', (tester) async {
+      await pumpDashboard(tester, failCash: true);
+      expect(find.text(l.retry), findsOneWidget);
+      expect(find.text(l.dashWhoOwes), findsOneWidget);
+    });
+
+    testWidgets('who owes: biggest due first; tap explains; see all', (
       tester,
     ) async {
       await pumpDashboard(tester);
-      expect(find.text(l.dashWhoOwes), findsOneWidget);
       double y(String id) => tester.getTopLeft(find.byKey(ValueKey(id))).dy;
       expect(y('due-karim'), lessThan(y('due-selim')));
       expect(y('due-selim'), lessThan(y('due-rahim')));
+      expect(find.text(l.dueRemindButton), findsOneWidget);
 
       await tester.tap(find.byKey(const ValueKey('due-karim')));
       await tester.pumpAndSettle();
       expect(find.text(l.balanceExplainTitle('Karim')), findsOneWidget);
+      Navigator.of(
+        tester.element(find.text(l.balanceExplainTitle('Karim'))),
+      ).pop();
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text(l.dashSeeAll));
+      await tester.pumpAndSettle();
+      expect(find.text('money /money'), findsOneWidget);
+    });
+
+    testWidgets('no member sections, no old stat grid', (tester) async {
+      await pumpDashboard(tester);
+      expect(find.text(l.transTitle), findsNothing);
+      expect(find.text(l.activityTitle), findsNothing);
+      expect(find.text(l.dashMembers), findsNothing);
     });
   });
 
   group('member', () {
-    testWidgets('members get meal-off and my-deposit buttons; managers not', (
+    testWidgets('transparency: everyone\'s deposits, own pocket, balance', (
       tester,
     ) async {
       await pumpDashboard(tester, manager: false);
-      expect(find.widgetWithText(AppButton, l.mealOffTomorrow), findsOne);
-      expect(find.widgetWithText(AppButton, l.depositVerifyMine), findsOne);
-
-      await pumpDashboard(tester);
-      expect(find.widgetWithText(AppButton, l.mealOffTomorrow), findsNothing);
-      expect(find.widgetWithText(AppButton, l.depositVerifyMine), findsNothing);
+      expect(find.text(l.transTitle), findsOneWidget);
+      expect(find.byKey(const ValueKey('trans-karim')), findsOneWidget);
+      expect(find.byKey(const ValueKey('trans-rahim')), findsOneWidget);
+      expect(
+        find.text('${l.transDeposits} ৳২,০০০ · ${l.transOwnPocket} ৳৩০০'),
+        findsOneWidget,
+      );
+      // No own-pocket part when there is none.
+      expect(find.text('${l.transDeposits} ৳১,০০০'), findsOneWidget);
+      expect(find.text('-৳৮৩৪.৬৩'), findsOneWidget);
+      // Manager-only pieces stay out.
+      expect(find.text(l.cashTitle), findsNothing);
+      expect(find.text(l.dueRemindButton), findsNothing);
+      expect(find.text(l.attnTitle), findsNothing);
     });
 
-    testWidgets('my-deposit button opens the member deposit sheet', (
+    testWidgets('my activity: what changed, by whom; report a problem', (
       tester,
     ) async {
       await pumpDashboard(tester, manager: false);
-      await tester.tap(find.widgetWithText(AppButton, l.depositVerifyMine));
+      expect(find.text(l.activityTitle), findsOneWidget);
+      final sentence = 'Rahim Karim-এর জমা ${l.auditVerified} ৳৫০০';
+      expect(find.text(sentence), findsOneWidget);
+
+      await tester.tap(find.text(l.reportProblem));
       await tester.pumpAndSettle();
-      expect(find.text(l.depositVerifyHelp), findsOneWidget);
+      expect(find.text('new message'), findsOneWidget);
+      expect(draft?.refType, 'deposit');
+      expect(draft?.refId, 'd1');
+      expect(draft?.refLabel, sentence);
     });
 
-    testWidgets('আমার হিসাব: my figures, explain sheet, recent bazar', (
+    testWidgets('my activity: empty state names what will show', (
       tester,
     ) async {
-      await pumpDashboard(tester, manager: false);
-      expect(find.text(l.dashMine), findsOneWidget);
-      expect(find.text(l.dashWhoOwes), findsNothing);
-      final mine = inFigure('-৳৮৩৪.৬৩');
-      expect(mine, findsOneWidget);
-      expect(tester.widget<Text>(mine).style?.color, AppPalette.light.due);
-      expect(inFigure('১০'), findsOneWidget);
-      expect(inFigure('৳৬৮৭.৮০'), findsOneWidget);
-      expect(find.text(l.dashMyFoodProof('১০', '৳৮৩.৪১')), findsOneWidget);
-      expect(inFigure('৳২৫০'), findsOneWidget);
-      expect(inFigure('৳১,৫০০'), findsOneWidget);
-
-      // Recent bazar: the last five only.
-      expect(find.text(l.dashRecentBazar), findsOneWidget);
-      for (var i = 1; i <= 5; i++) {
-        expect(find.text(Fmt.money(100 + i, banglaDigits: true)), findsOne);
-      }
-      expect(find.text('৳১০৬'), findsNothing);
-
-      await tester.tap(find.text(l.dashExplain));
-      await tester.pumpAndSettle();
-      expect(find.text(l.balanceExplainTitle('Karim')), findsOneWidget);
+      await pumpDashboard(tester, manager: false, activity: const []);
+      expect(find.text(l.activityEmpty), findsOneWidget);
     });
   });
 
   group('charts', () {
-    testWidgets('render with data and an accessible summary', (tester) async {
+    testWidgets('spending: top four and the rest as others', (tester) async {
+      await pumpDashboard(
+        tester,
+        categories: const [
+          (category: 'বাজার', total: 1410.0, isBazar: true),
+          (category: 'ভাড়া', total: 900.0, isBazar: false),
+          (category: 'ওয়াইফাই', total: 500.0, isBazar: false),
+          (category: 'গ্যাস', total: 300.0, isBazar: false),
+          (category: 'বিদ্যুৎ', total: 200.0, isBazar: false),
+          (category: 'পানি', total: 50.0, isBazar: false),
+        ],
+      );
+      expect(find.text('গ্যাস'), findsOneWidget);
+      expect(find.text('বিদ্যুৎ'), findsNothing);
+      expect(find.text(l.dashOthers), findsOneWidget);
+      expect(find.text('৳২৫০'), findsOneWidget);
+    });
+
+    testWidgets('trend: starts at the first month with data', (tester) async {
       await pumpDashboard(tester);
-      expect(find.byType(BarChart), findsOneWidget);
       expect(find.byType(LineChart), findsOneWidget);
-      expect(find.text('ওয়াইফাই'), findsOneWidget);
-      expect(find.text(l.bazarTitle), findsWidgets);
-      expect(
-        find.bySemanticsLabel(RegExp('^${l.dashDailyTitle}: ')),
-        findsOneWidget,
-      );
-      expect(
-        find.bySemanticsLabel(RegExp('^${l.dashMonthlyTitle}: ')),
-        findsOneWidget,
-      );
-      expect(find.text(l.dashChartEmpty), findsNothing);
+      final summary = tester
+          .getSemantics(
+            find.bySemanticsLabel(RegExp('^${l.dashMonthlyTitle}: ')),
+          )
+          .label;
+      // May, June, July had nothing: they are not plotted as zeros.
+      expect(summary.split(', '), hasLength(3));
+      expect(summary, isNot(contains('৳০')));
     });
 
-    testWidgets('empty data says so instead of drawing', (tester) async {
-      await pumpDashboard(tester, emptyCharts: true);
-      expect(find.byType(BarChart), findsNothing);
+    testWidgets('trend: hidden with fewer than two months of data', (
+      tester,
+    ) async {
+      await pumpDashboard(tester, months: history(empty: 5));
       expect(find.byType(LineChart), findsNothing);
-      expect(find.text(l.dashChartEmpty), findsNWidgets(3));
+      expect(find.text(l.dashMonthlyTitle), findsNothing);
     });
 
-    testWidgets('a failing chart fails alone, with retry', (tester) async {
-      await pumpDashboard(tester, failDaily: true);
-      expect(find.text(l.retry), findsOneWidget);
-      expect(find.byType(LineChart), findsOneWidget);
-      expect(inFigure('৳৮৩.৪১'), findsOneWidget);
+    testWidgets('trend: short month labels, inside the chart', (tester) async {
+      tester.view.physicalSize = const Size(360, 4000);
+      await pumpDashboard(tester, locale: const Locale('en'));
+      final chart = tester.getRect(find.byType(LineChart));
+      for (final m in ['Aug', 'Sep', 'Oct']) {
+        final label = tester.getRect(find.text(m));
+        expect(label.left, greaterThanOrEqualTo(chart.left), reason: m);
+        expect(label.right, lessThanOrEqualTo(chart.right), reason: m);
+      }
+      expect(find.text('October'), findsNothing);
+    });
+
+    testWidgets('dashboard_charts off hides spending and trend', (
+      tester,
+    ) async {
+      await pumpDashboard(
+        tester,
+        extra: [
+          flagsOff(['dashboard_charts']),
+        ],
+      );
+      expect(find.text(l.dashCategoryTitle), findsNothing);
+      expect(find.byType(LineChart), findsNothing);
     });
   });
 
-  group('today empty states', () {
-    late MockMealRepository repo;
+  test('activeMonths drops only the leading empty months', () {
+    final pts = history(empty: 2);
+    expect(activeMonths(pts), hasLength(4));
+    expect(activeMonths(pts).first.start, DateTime(2026, 7));
+    expect(activeMonths(history(empty: 6)), isEmpty);
+    expect(shortMonth(DateTime(2026, 10), 'en'), 'Oct');
+    expect(shortMonth(DateTime(2026, 5), 'en'), 'May');
+  });
 
-    Future<void> pumpToday(WidgetTester tester, List<Member> members) async {
-      repo = MockMealRepository();
+  group('today empty states', () {
+    testWidgets('only a truly empty mess says "no members"', (tester) async {
+      final repo = MockMealRepository();
       when(() => repo.mealTypes(any())).thenAnswer(
         (_) async => [
           const MealType(
@@ -382,7 +513,9 @@ void main() {
         ProviderScope(
           overrides: [
             mealRepositoryProvider.overrideWithValue(repo),
-            ...overrides(members: members),
+            ...overrides(
+              members: [member('new', 'Nobin', status: MemberStatus.pending)],
+            ),
           ],
           child: MaterialApp.router(
             theme: AppTheme.light(),
@@ -394,15 +527,9 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-    }
-
-    testWidgets('only a truly empty mess says "no members"', (tester) async {
-      await pumpToday(tester, [
-        member('new', 'Nobin', status: MemberStatus.pending),
-      ]);
       expect(find.text(l.todayNoMembers), findsOneWidget);
-      expect(find.text(l.dashNobodyThatDay), findsNothing);
       expect(find.byType(MonthDashboard), findsNothing);
+      expect(find.byType(AppCard), findsWidgets);
     });
   });
 }

@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:meal_bazar/core/l10n/gen/app_localizations.dart';
 import 'package:meal_bazar/core/theme/app_theme.dart';
-import 'package:meal_bazar/core/widgets/app_card.dart';
 import 'package:meal_bazar/features/meals/application/meal_providers.dart';
 import 'package:meal_bazar/features/meals/domain/meal.dart';
 import 'package:meal_bazar/features/mess/application/mess_providers.dart';
@@ -220,30 +219,6 @@ void main() {
         findsOneWidget,
       );
       verifyNever(() => repo.bills(any()));
-    });
-  });
-
-  group('RecurringPromptCard', () {
-    testWidgets('shows pending count and posts', (tester) async {
-      when(() => repo.apply('mess1', any())).thenAnswer((_) async => 4);
-      await pump(tester, const RecurringPromptCard());
-      expect(find.text('এই মাসের ৪টি নিয়মিত বিল বসানো বাকি'), findsOneWidget);
-      when(() => repo.pendingCount(any(), any())).thenAnswer((_) async => 0);
-      await tester.tap(find.text('এই মাসের বিল বসান'));
-      await tester.pumpAndSettle();
-      verify(() => repo.apply('mess1', any())).called(1);
-      expect(find.text('৪টি বিল খরচে বসানো হলো'), findsOneWidget);
-      expect(find.textContaining('বাকি'), findsNothing);
-    });
-
-    testWidgets('hidden when nothing pending or not a manager', (tester) async {
-      when(() => repo.pendingCount(any(), any())).thenAnswer((_) async => 0);
-      await pump(tester, const RecurringPromptCard());
-      expect(find.byType(AppCard), findsNothing);
-
-      when(() => repo.pendingCount(any(), any())).thenAnswer((_) async => 3);
-      await pump(tester, const RecurringPromptCard(), manager: false);
-      expect(find.byType(AppCard), findsNothing);
     });
   });
 

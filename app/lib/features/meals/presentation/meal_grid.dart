@@ -306,10 +306,13 @@ class SyncLine extends ConsumerWidget {
 
 /// Members: when tomorrow's meals can still be switched off.
 class MealOffHint extends StatelessWidget {
-  const MealOffHint({super.key, required this.cutoff});
+  const MealOffHint({super.key, required this.cutoff, this.padded = true});
 
   /// Postgres `time`, e.g. '22:00:00'.
   final String cutoff;
+
+  /// Page gutters around it; off inside a card.
+  final bool padded;
 
   @override
   Widget build(BuildContext context) {
@@ -318,12 +321,14 @@ class MealOffHint extends StatelessWidget {
     final h = p[0] % 12 == 0 ? 12 : p[0] % 12;
     final time = p[1] == 0 ? '$h' : '$h:${p[1].toString().padLeft(2, '0')}';
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpace.gutter,
-        AppSpace.md,
-        AppSpace.gutter,
-        0,
-      ),
+      padding: padded
+          ? const EdgeInsets.fromLTRB(
+              AppSpace.gutter,
+              AppSpace.md,
+              AppSpace.gutter,
+              0,
+            )
+          : EdgeInsets.zero,
       child: Text(
         AppLocalizations.of(
           context,
