@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
 
-/// Modal bottom sheet: drag handle, title, scrollable body, sticky actions.
-/// Lifts above the keyboard.
+/// Modal bottom sheet: 24 dp top corners, drag handle, title, scrollable
+/// body, sticky actions. Enters on a long emphasized-decelerate (a spring
+/// without the bounce), leaves at 70%. Lifts above the keyboard.
 abstract final class AppSheet {
+  static const sheetIn = Duration(milliseconds: 400);
+
   static Future<T?> show<T>(
     BuildContext context, {
     required String title,
@@ -15,6 +18,14 @@ abstract final class AppSheet {
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
+      sheetAnimationStyle: AppMotion.reduced(context)
+          ? AnimationStyle.noAnimation
+          : AnimationStyle(
+              duration: sheetIn,
+              reverseDuration: AppMotion.exitOf(sheetIn),
+              curve: AppMotion.arrive,
+              reverseCurve: AppMotion.exit,
+            ),
       builder: (context) => Padding(
         padding: EdgeInsets.only(
           bottom: MediaQuery.viewInsetsOf(context).bottom,

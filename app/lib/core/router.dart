@@ -149,8 +149,9 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/pending',
         builder: (_, _) => const PendingApprovalScreen(),
       ),
-      StatefulShellRoute.indexedStack(
+      StatefulShellRoute(
         builder: (_, _, shell) => AppShell(shell: shell),
+        navigatorContainerBuilder: AppShell.branchContainer,
         branches: [
           StatefulShellBranch(
             routes: [

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../motion/transitions.dart';
 import 'tokens.dart';
 
 const _font = 'HindSiliguri';
@@ -12,23 +13,44 @@ abstract final class AppTheme {
   static ThemeData dark({Color? accent}) =>
       _build(AppPalette.dark.copyWith(accent: accent), Brightness.dark);
 
+  /// Theme for content on the statement card (`AppCard.ink`): text, icons,
+  /// buttons and `context.palette` all resolve against [AppPalette.statement].
+  static ThemeData statement(Brightness b) =>
+      b == Brightness.light ? _statementLight : _statementDark;
+  static final _statementLight = _build(
+    AppPalette.light.statement,
+    Brightness.dark,
+  );
+  static final _statementDark = _build(
+    AppPalette.dark.statement,
+    Brightness.dark,
+  );
+
   static TextTheme _textTheme(AppPalette p) {
-    TextStyle s(double size, double height, FontWeight w, {Color? color}) =>
-        TextStyle(
-          fontFamily: _font,
-          fontSize: size,
-          height: height,
-          fontWeight: w,
-          letterSpacing: 0,
-          color: color ?? p.ink,
-        );
+    // Tabular figures on every role: numbers line up wherever they appear.
+    TextStyle s(
+      double size,
+      double height,
+      FontWeight w, {
+      Color? color,
+      double tracking = 0,
+    }) => TextStyle(
+      fontFamily: _font,
+      fontSize: size,
+      height: height,
+      fontWeight: w,
+      letterSpacing: tracking,
+      color: color ?? p.ink,
+      fontFeatures: _tabular,
+    );
     return TextTheme(
-      displaySmall: s(
-        34,
-        1.15,
-        FontWeight.w600,
-      ).copyWith(fontFeatures: _tabular),
+      // Hero figures. Tight tracking is for Latin digits; RollingNumber and
+      // AppType.figure reset it to 0 for Bangla digits.
+      displayLarge: s(44, 1.05, FontWeight.w600, tracking: -0.5),
+      displaySmall: s(34, 1.15, FontWeight.w600, tracking: -0.25),
       headlineSmall: s(24, 1.25, FontWeight.w600),
+      // Section titles: one step up from v1, and a touch tighter.
+      titleLarge: s(20, 1.3, FontWeight.w600, tracking: -0.1),
       titleMedium: s(18, 1.35, FontWeight.w600),
       titleSmall: s(16, 1.4, FontWeight.w600),
       bodyLarge: s(16, 1.55, FontWeight.w400),
@@ -121,11 +143,12 @@ abstract final class AppTheme {
                 ? p.ink.withValues(alpha: 0.38)
                 : p.ink,
           ),
+          backgroundColor: WidgetStatePropertyAll(p.surfaceRaised),
           side: WidgetStateProperty.resolveWith(
             (s) => BorderSide(
               color: s.contains(WidgetState.disabled)
-                  ? p.borderStrong.withValues(alpha: 0.38)
-                  : p.borderStrong,
+                  ? p.border.withValues(alpha: 0.38)
+                  : p.border,
             ),
           ),
           minimumSize: const WidgetStatePropertyAll(buttonSize),
@@ -186,25 +209,10 @@ abstract final class AppTheme {
         shadowColor: p.ink.withValues(alpha: 0.10),
         showDragHandle: true,
         dragHandleColor: p.borderStrong,
+        dragHandleSize: const Size(36, 4),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
-            top: Radius.circular(AppRadius.lg),
-          ),
-        ),
-      ),
-      navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: p.surface,
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        indicatorColor: p.surfaceMuted,
-        labelTextStyle: WidgetStateProperty.resolveWith(
-          (s) => text.labelMedium?.copyWith(
-            color: s.contains(WidgetState.selected) ? p.ink : p.inkSecondary,
-          ),
-        ),
-        iconTheme: WidgetStateProperty.resolveWith(
-          (s) => IconThemeData(
-            color: s.contains(WidgetState.selected) ? p.ink : p.inkSecondary,
+            top: Radius.circular(AppRadius.xl),
           ),
         ),
       ),
@@ -212,24 +220,73 @@ abstract final class AppTheme {
         behavior: SnackBarBehavior.floating,
         backgroundColor: p.ink,
         contentTextStyle: text.bodyMedium?.copyWith(color: p.onInk),
-        actionTextColor: p.onInk,
-        elevation: 4,
-        shape: smShape,
+        actionTextColor: p.accent,
+        closeIconColor: p.onInk,
+        elevation: 6,
+        insetPadding: const EdgeInsets.fromLTRB(
+          AppSpace.gutter,
+          0,
+          AppSpace.gutter,
+          AppSpace.md,
+        ),
+        shape: const StadiumBorder(),
       ),
       dividerTheme: DividerThemeData(
         color: p.border,
         thickness: AppSize.hairline,
         space: AppSize.hairline,
       ),
+      // Selected = filled ink with a check that slides in (RawChip animates
+      // both, ~180 ms); unselected = raised white with a hairline.
       chipTheme: ChipThemeData(
         shape: smShape,
-        side: BorderSide(color: p.border),
-        backgroundColor: p.surface,
-        selectedColor: p.surfaceMuted,
-        labelStyle: text.labelMedium,
-        showCheckmark: false,
+        side: WidgetStateBorderSide.resolveWith(
+          (s) => BorderSide(
+            color: s.contains(WidgetState.selected) ? p.ink : p.border,
+          ),
+        ),
+        color: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.disabled)
+              ? p.surfaceMuted
+              : s.contains(WidgetState.selected)
+              ? p.ink
+              : p.surfaceRaised,
+        ),
+        labelStyle: text.labelMedium?.copyWith(
+          color: WidgetStateColor.resolveWith(
+            (s) => s.contains(WidgetState.selected) ? p.onInk : p.ink,
+          ),
+        ),
+        checkmarkColor: p.onInk,
+        showCheckmark: true,
       ),
       progressIndicatorTheme: ProgressIndicatorThemeData(color: p.ink),
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: SharedAxisPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+        },
+      ),
     );
   }
+}
+
+/// Type helpers that the M3 scale has no role for.
+abstract final class AppType {
+  /// Small label over a figure inside a card ("এই মাসের বাকি"): 12 sp w600,
+  /// tracked 0.6 for English, untracked for Bangla (tracking breaks
+  /// conjuncts). Not a kicker above a heading: headings carry themselves.
+  static TextStyle overline(BuildContext context) {
+    final bn = Localizations.localeOf(context).languageCode == 'bn';
+    return Theme.of(context).textTheme.labelSmall!.copyWith(
+      fontWeight: FontWeight.w600,
+      letterSpacing: bn ? 0 : 0.6,
+      color: context.palette.inkSecondary,
+    );
+  }
+
+  /// [style] for a figure: keeps tight tracking for Latin digits, resets it
+  /// for Bangla digits.
+  static TextStyle figure(TextStyle style, {required bool banglaDigits}) =>
+      banglaDigits ? style.copyWith(letterSpacing: 0) : style;
 }
