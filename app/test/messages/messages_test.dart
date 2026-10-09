@@ -471,6 +471,42 @@ void main() {
         expect(find.text(l.msgFilterOpen), findsNothing);
       });
 
+      testWidgets('a meal-off notice is a centred pill, worded per viewer', (
+        tester,
+      ) async {
+        final now = DateTime.now();
+        final today = DateTime(now.year, now.month, now.day);
+        String iso(DateTime d) => d.toIso8601String().substring(0, 10);
+        ChatMessage notice(String id, DateTime date, bool off) => ChatMessage(
+          id: id,
+          threadId: 'g',
+          senderId: 'u2',
+          body: 'stored',
+          createdAt: now,
+          meta: {
+            't': 'meal_off',
+            'name': 'তানভীর',
+            'date': iso(date),
+            'meal_name': 'রাত',
+            'off': off,
+          },
+        );
+        when(() => repo.messages('g')).thenAnswer(
+          (_) async => [
+            notice('s1', today, true),
+            notice('s2', today.add(const Duration(days: 1)), false),
+          ],
+        );
+        await pump(tester, '/more/messages/g');
+        await tester.pumpAndSettle();
+        expect(find.text('তানভীর আজ রাতের মিল বন্ধ করেছেন'), findsOneWidget);
+        expect(
+          find.text('তানভীর কাল রাতের মিল আবার চালু করেছেন'),
+          findsOneWidget,
+        );
+        expect(find.byType(InitialsAvatar), findsNothing);
+      });
+
       testWidgets('member: can remove own message, not others', (tester) async {
         await pump(tester, '/more/messages/g');
         await tester.pumpAndSettle();
