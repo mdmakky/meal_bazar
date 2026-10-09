@@ -139,48 +139,64 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
     final text = Theme.of(context).textTheme;
     final p = context.palette;
     final bn = _bn(context);
-    return ListView(
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpace.gutter,
-            AppSpace.sm,
-            AppSpace.gutter,
-            AppSpace.lg,
+    return StaggeredList(
+      child: ListView(
+        padding: const EdgeInsets.only(bottom: AppSpace.xl),
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(AppSpace.gutter),
+            child: Text(
+              l.recurringHelp,
+              style: text.bodyMedium?.copyWith(color: p.inkSecondary),
+            ),
           ),
-          child: Text(l.recurringHelp, style: text.bodyMedium),
-        ),
-        const Divider(),
-        for (final b in bills) ...[
-          ListTile(
-            minTileHeight: AppSize.touch + AppSpace.md,
-            contentPadding: const EdgeInsets.only(
-              left: AppSpace.gutter,
-              right: AppSpace.sm,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
+            child: RaisedGroup(
+              children: [
+                for (final (i, b) in bills.indexed)
+                  Stagger(
+                    index: i,
+                    child: ListTile(
+                      minTileHeight: AppSize.touch + AppSpace.md,
+                      contentPadding: const EdgeInsets.only(
+                        left: AppSpace.lg,
+                        right: AppSpace.sm,
+                      ),
+                      leading: IconTile(
+                        Icons.event_repeat,
+                        color: b.active ? null : p.inkTertiary,
+                      ),
+                      title: Text(
+                        cats[b.categoryId] ?? '—',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: text.titleSmall?.copyWith(
+                          color: b.active ? null : p.inkTertiary,
+                        ),
+                      ),
+                      subtitle: Text(
+                        '${Fmt.money(b.amount, banglaDigits: bn)} · '
+                        '${splitLabel(l, b.split)} · '
+                        '${l.recurringDayValue(Fmt.digits('${b.dayOfPeriod}', bangla: bn))}',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      trailing: Semantics(
+                        label: l.recurringActive(cats[b.categoryId] ?? ''),
+                        child: Switch(
+                          value: b.active,
+                          onChanged: (v) => _save(b.copyWith(active: v)),
+                        ),
+                      ),
+                      onTap: () => _edit(messId, b),
+                    ),
+                  ),
+              ],
             ),
-            title: Text(
-              cats[b.categoryId] ?? '—',
-              style: text.titleSmall?.copyWith(
-                color: b.active ? null : p.inkTertiary,
-              ),
-            ),
-            subtitle: Text(
-              '${Fmt.money(b.amount, banglaDigits: bn)} · '
-              '${splitLabel(l, b.split)} · '
-              '${l.recurringDayValue(Fmt.digits('${b.dayOfPeriod}', bangla: bn))}',
-            ),
-            trailing: Semantics(
-              label: l.recurringActive(cats[b.categoryId] ?? ''),
-              child: Switch(
-                value: b.active,
-                onChanged: (v) => _save(b.copyWith(active: v)),
-              ),
-            ),
-            onTap: () => _edit(messId, b),
           ),
-          const Divider(),
         ],
-      ],
+      ),
     );
   }
 }

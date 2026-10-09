@@ -5,6 +5,8 @@ import '../../../core/failure_text.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../mess/application/mess_providers.dart';
+import '../../mess/presentation/common.dart'
+    show InitialsAvatar, RaisedGroup, StatusTag;
 import '../application/audit_providers.dart';
 import '../domain/audit.dart';
 
@@ -55,7 +57,6 @@ class _AuditScreenState extends ConsumerState<AuditScreen> {
                     ],
                   ),
                 ),
-                const Divider(height: AppSize.hairline),
                 Expanded(
                   child: _Feed(messId: messId, filter: _filter),
                 ),
@@ -84,20 +85,37 @@ class _Feed extends ConsumerWidget {
       ),
       AsyncValue(:final value?) => RefreshIndicator(
         onRefresh: () => ref.refresh(auditFeedProvider(key).future),
-        child: ListView.separated(
-          itemCount: value.items.length + (value.hasMore ? 1 : 0),
-          separatorBuilder: (_, _) => const Divider(height: AppSize.hairline),
-          itemBuilder: (context, i) => i == value.items.length
-              ? Padding(
-                  padding: const EdgeInsets.all(AppSpace.gutter),
+        // ponytail: one Column per loaded page set; fine at audit page sizes.
+        child: StaggeredList(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpace.gutter,
+              AppSpace.sm,
+              AppSpace.gutter,
+              AppSpace.xl,
+            ),
+            children: [
+              RaisedGroup(
+                children: [
+                  for (final (i, e) in value.items.indexed)
+                    Stagger(
+                      index: i,
+                      child: AuditTile(entry: e, names: names),
+                    ),
+                ],
+              ),
+              if (value.hasMore)
+                Padding(
+                  padding: const EdgeInsets.only(top: AppSpace.md),
                   child: AppButton(
                     label: l.auditLoadMore,
                     variant: AppButtonVariant.text,
                     onPressed: () =>
                         ref.read(auditFeedProvider(key).notifier).loadMore(),
                   ),
-                )
-              : AuditTile(entry: value.items[i], names: names),
+                ),
+            ],
+          ),
         ),
       ),
       AsyncValue(:final error?) => ErrorView(
@@ -127,41 +145,45 @@ class AuditTile extends StatelessWidget {
         '${Fmt.digits(MaterialLocalizations.of(context).formatTimeOfDay(TimeOfDay.fromDateTime(at)), bangla: bn)}';
     final reason = entry.reason;
 
+    final actor = entry.actorId == null
+        ? l.auditSystem
+        : names[entry.actorId] ?? l.auditSomeone;
+
     return Padding(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpace.gutter,
+        horizontal: AppSpace.lg,
         vertical: AppSpace.md,
       ),
-      child: Column(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: AppSpace.xs,
+        spacing: AppSpace.md,
         children: [
-          Text(describeAudit(l, entry, names), style: text.bodyLarge),
-          if (reason != null && reason.isNotEmpty)
-            Text(
-              l.auditReason(reason),
-              style: text.bodyMedium?.copyWith(color: p.inkSecondary),
-            ),
-          Row(
-            spacing: AppSpace.sm,
-            children: [
-              Text(
-                when,
-                style: text.labelSmall?.copyWith(color: p.inkTertiary),
-              ),
-              if (entry.source == 'ai')
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpace.sm,
-                    vertical: AppSpace.xs / 2,
+          InitialsAvatar(actor),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: AppSpace.xs,
+              children: [
+                Text(describeAudit(l, entry, names), style: text.bodyLarge),
+                if (reason != null && reason.isNotEmpty)
+                  Text(
+                    l.auditReason(reason),
+                    style: text.bodyMedium?.copyWith(color: p.inkSecondary),
                   ),
-                  decoration: BoxDecoration(
-                    color: p.accentSoft,
-                    borderRadius: BorderRadius.circular(AppRadius.sm),
-                  ),
-                  child: Text(l.auditAi, style: text.labelSmall),
+                Wrap(
+                  spacing: AppSpace.sm,
+                  runSpacing: AppSpace.xs,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Text(
+                      when,
+                      style: text.labelSmall?.copyWith(color: p.inkTertiary),
+                    ),
+                    if (entry.source == 'ai') StatusTag(l.auditAi),
+                  ],
                 ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

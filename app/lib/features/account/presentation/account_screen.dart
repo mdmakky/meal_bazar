@@ -82,88 +82,148 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
           onRetry: () => ref.invalidate(myProfileProvider),
         ),
         _ when profile == null => const LoadingView(),
-        _ => ListView(
-          padding: const EdgeInsets.symmetric(vertical: AppSpace.lg),
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: AppSpace.md,
-                children: [
-                  TextField(
-                    controller: _name,
-                    maxLength: 80,
-                    textCapitalization: TextCapitalization.words,
-                    decoration: InputDecoration(labelText: l.accountName),
+        _ => StaggeredList(
+          child: ListView(
+            padding: const EdgeInsets.only(bottom: AppSpace.xxl),
+            children: StaggeredList.wrap([
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpace.gutter,
+                  AppSpace.lg,
+                  AppSpace.gutter,
+                  0,
+                ),
+                child: AppCard.raised(
+                  child: Row(
+                    spacing: AppSpace.lg,
+                    children: [
+                      InitialsAvatar(profile.fullName, size: 56),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          spacing: AppSpace.xs,
+                          children: [
+                            Text(
+                              profile.fullName,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: text.titleLarge,
+                            ),
+                            if (profile.phone case final phone?
+                                when phone.isNotEmpty)
+                              Text(
+                                phone,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: text.bodyMedium?.copyWith(
+                                  color: p.inkSecondary,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  AppButton(
-                    label: l.accountNameSave,
-                    variant: AppButtonVariant.secondary,
-                    loading: _saving,
-                    onPressed: () {
-                      final name = _name.text.trim();
-                      if (name.isNotEmpty) _save(fullName: name);
-                    },
+                ),
+              ),
+              SectionTitle(l.accountName),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpace.gutter,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  spacing: AppSpace.md,
+                  children: [
+                    TextField(
+                      controller: _name,
+                      maxLength: 80,
+                      textCapitalization: TextCapitalization.words,
+                      decoration: InputDecoration(labelText: l.accountName),
+                    ),
+                    AppButton(
+                      label: l.accountNameSave,
+                      variant: AppButtonVariant.secondary,
+                      loading: _saving,
+                      onPressed: () {
+                        final name = _name.text.trim();
+                        if (name.isNotEmpty) _save(fullName: name);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              SectionTitle(l.accountLanguage),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpace.gutter,
+                ),
+                child: InkSegmented<String>(
+                  segments: [('bn', l.accountLangBn), ('en', l.accountLangEn)],
+                  selected: profile.locale,
+                  onChanged: (v) {
+                    if (!_saving && v != profile.locale) _save(locale: v);
+                  },
+                ),
+              ),
+              const SupportSection(),
+              SectionTitle(l.platformAboutTitle),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpace.gutter,
+                ),
+                child: AppCard.raised(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    spacing: AppSpace.md,
+                    children: [
+                      const BrandHeader(),
+                      Text(
+                        l.platformVersion(appVersion),
+                        style: text.labelSmall?.copyWith(color: p.inkTertiary),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
-            SectionTitle(l.accountLanguage),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
-              child: SegmentedButton<String>(
-                segments: [
-                  ButtonSegment(value: 'bn', label: Text(l.accountLangBn)),
-                  ButtonSegment(value: 'en', label: Text(l.accountLangEn)),
-                ],
-                selected: {profile.locale},
-                onSelectionChanged: _saving
-                    ? null
-                    : (s) => _save(locale: s.first),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpace.gutter,
+                  AppSpace.xxl,
+                  AppSpace.gutter,
+                  0,
+                ),
+                child: RaisedGroup(
+                  children: [
+                    ListTile(
+                      key: const Key('deleteAccount'),
+                      minTileHeight: AppSize.touch + AppSpace.md,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: AppSpace.lg,
+                      ),
+                      leading: IconTile(
+                        Icons.delete_forever_outlined,
+                        color: p.due,
+                      ),
+                      title: Text(
+                        l.accountDelete,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: text.titleSmall?.copyWith(color: p.due),
+                      ),
+                      trailing: _deleting
+                          ? const SizedBox.square(
+                              dimension: AppSize.spinner,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : null,
+                      onTap: _deleting ? null : _delete,
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SupportSection(),
-            SectionTitle(l.platformAboutTitle),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: AppSpace.gutter),
-              child: BrandHeader(),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpace.gutter,
-                AppSpace.sm,
-                AppSpace.gutter,
-                0,
-              ),
-              child: Text(
-                l.platformVersion(appVersion),
-                style: text.labelSmall,
-              ),
-            ),
-            const SizedBox(height: AppSpace.xxl),
-            const Divider(),
-            ListTile(
-              key: const Key('deleteAccount'),
-              minTileHeight: AppSize.touch + AppSpace.md,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: AppSpace.gutter,
-              ),
-              leading: Icon(Icons.delete_forever_outlined, color: p.due),
-              title: Text(
-                l.accountDelete,
-                style: text.titleSmall?.copyWith(color: p.due),
-              ),
-              trailing: _deleting
-                  ? const SizedBox.square(
-                      dimension: AppSize.spinner,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : null,
-              onTap: _deleting ? null : _delete,
-            ),
-            const Divider(),
-          ],
+            ]),
+          ),
         ),
       },
     );
@@ -261,23 +321,38 @@ class SupportSection extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SectionTitle(l.platformSupportTitle),
-        for (final (icon, label, value) in rows)
-          ListTile(
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: AppSpace.gutter,
-            ),
-            leading: Icon(icon),
-            title: Text(label),
-            subtitle: SelectableText(value),
-            trailing: IconButton(
-              tooltip: l.platformCopy,
-              icon: const Icon(Icons.copy_outlined),
-              onPressed: () async {
-                await Clipboard.setData(ClipboardData(text: value));
-                if (context.mounted) showSnack(context, l.platformCopied);
-              },
-            ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
+          child: RaisedGroup(
+            children: [
+              for (final (icon, label, value) in rows)
+                ListTile(
+                  contentPadding: const EdgeInsets.only(
+                    left: AppSpace.lg,
+                    right: AppSpace.sm,
+                  ),
+                  leading: IconTile(icon),
+                  title: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                  subtitle: SelectableText(value, maxLines: 2),
+                  trailing: IconButton(
+                    tooltip: l.platformCopy,
+                    icon: const Icon(Icons.copy_outlined),
+                    onPressed: () async {
+                      await Clipboard.setData(ClipboardData(text: value));
+                      if (context.mounted) {
+                        showSnack(context, l.platformCopied);
+                      }
+                    },
+                  ),
+                ),
+            ],
           ),
+        ),
       ],
     );
   }
