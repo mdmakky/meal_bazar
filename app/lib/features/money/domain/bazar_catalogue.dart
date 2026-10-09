@@ -50,6 +50,19 @@ String? catalogueUnit(String name, [List<CatalogueGroup>? groups]) {
   return unit == null || unit.isEmpty ? null : unit;
 }
 
+/// Units offered by the item row's unit chooser (plus the catalogue's own).
+const bazarUnits = [
+  'কেজি',
+  'গ্রাম',
+  'লিটার',
+  'পিস',
+  'হালি',
+  'ডজন',
+  'আঁটি',
+  'প্যাকেট',
+  'টি',
+];
+
 /// The [n] most bought item names, most frequent first (ties by name).
 List<String> frequentItems(Iterable<String> names, {int n = 6}) {
   final counts = <String, int>{};

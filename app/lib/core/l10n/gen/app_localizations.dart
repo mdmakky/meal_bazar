@@ -5065,6 +5065,78 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'পরিশোধিত'**
   String get stampPaid;
+
+  /// No description provided for @bazarBuyers.
+  ///
+  /// In bn, this message translates to:
+  /// **'কে কে বাজারে গেছে'**
+  String get bazarBuyers;
+
+  /// No description provided for @bazarPickBuyer.
+  ///
+  /// In bn, this message translates to:
+  /// **'অন্তত একজন বাছুন'**
+  String get bazarPickBuyer;
+
+  /// No description provided for @bazarPayer.
+  ///
+  /// In bn, this message translates to:
+  /// **'কে টাকা দিয়েছে'**
+  String get bazarPayer;
+
+  /// No description provided for @bazarTotal.
+  ///
+  /// In bn, this message translates to:
+  /// **'মোট'**
+  String get bazarTotal;
+
+  /// No description provided for @bazarItemRemoved.
+  ///
+  /// In bn, this message translates to:
+  /// **'আইটেম বাদ দেওয়া হলো'**
+  String get bazarItemRemoved;
+
+  /// No description provided for @undo.
+  ///
+  /// In bn, this message translates to:
+  /// **'ফিরিয়ে আনুন'**
+  String get undo;
+
+  /// No description provided for @bazarPickerTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'তালিকা থেকে বাছুন'**
+  String get bazarPickerTitle;
+
+  /// No description provided for @bazarPickerSearch.
+  ///
+  /// In bn, this message translates to:
+  /// **'খুঁজুন বা নতুন নাম লিখুন'**
+  String get bazarPickerSearch;
+
+  /// No description provided for @bazarPickerAddNamed.
+  ///
+  /// In bn, this message translates to:
+  /// **'“{name}” যোগ করুন'**
+  String bazarPickerAddNamed(String name);
+
+  /// No description provided for @bazarUnitNone.
+  ///
+  /// In bn, this message translates to:
+  /// **'একক ছাড়া'**
+  String get bazarUnitNone;
+
+  /// No description provided for @bazarQtyLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'পরিমাণ {qty}, একক বদলাতে ট্যাপ করুন'**
+  String bazarQtyLabel(String qty);
+
+  /// No description provided for @bazarSwipeHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাদ দিতে বাঁয়ে সরান'**
+  String get bazarSwipeHint;
 }
 
 class _AppLocalizationsDelegate

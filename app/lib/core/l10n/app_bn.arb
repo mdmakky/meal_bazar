@@ -1550,5 +1550,31 @@
   "adminPaidWarningTitle": "পেইড মডেল সেভ করবেন?",
   "adminPaidWarningBody": "\"পেইড মডেল চলতে দিন\" বন্ধ, তাই গেটওয়ে এই মডেলগুলো বাদ দেবে:",
   "adminSaveAnyway": "তবুও সেভ করুন",
-  "stampPaid": "পরিশোধিত"
+  "stampPaid": "পরিশোধিত",
+  "bazarBuyers": "কে কে বাজারে গেছে",
+  "bazarPickBuyer": "অন্তত একজন বাছুন",
+  "bazarPayer": "কে টাকা দিয়েছে",
+  "bazarTotal": "মোট",
+  "bazarItemRemoved": "আইটেম বাদ দেওয়া হলো",
+  "undo": "ফিরিয়ে আনুন",
+  "bazarPickerTitle": "তালিকা থেকে বাছুন",
+  "bazarPickerSearch": "খুঁজুন বা নতুন নাম লিখুন",
+  "bazarPickerAddNamed": "“{name}” যোগ করুন",
+  "@bazarPickerAddNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "bazarUnitNone": "একক ছাড়া",
+  "bazarQtyLabel": "পরিমাণ {qty}, একক বদলাতে ট্যাপ করুন",
+  "@bazarQtyLabel": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      }
+    }
+  },
+  "bazarSwipeHint": "বাদ দিতে বাঁয়ে সরান"
 }

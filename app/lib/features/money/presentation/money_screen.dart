@@ -505,6 +505,7 @@ Widget _row(
   required Widget trailing,
   VoidCallback? onTap,
   Widget? status,
+  Widget? titleLead,
 }) {
   final text = Theme.of(context).textTheme;
   final p = context.palette;
@@ -526,11 +527,19 @@ Widget _row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 2,
                 children: [
-                  Text(
-                    title,
-                    style: text.titleSmall,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  Row(
+                    spacing: AppSpace.sm,
+                    children: [
+                      ?titleLead,
+                      Flexible(
+                        child: Text(
+                          title,
+                          style: text.titleSmall,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
                   ),
                   Text(
                     subtitle,
@@ -874,7 +883,8 @@ class _BazarList extends ConsumerWidget {
         row: (b) => _row(
           context,
           leading: _DateBlock(b.date),
-          title: names[b.buyerMemberId] ?? l.bazarTitle,
+          titleLead: BuyerAvatars([for (final id in b.buyers) ?names[id]]),
+          title: b.buyerNames(names) ?? l.bazarTitle,
           subtitle: [
             if (b.items.isNotEmpty)
               l.bazarItemCount(Fmt.digits('${b.items.length}', bangla: bn)),
