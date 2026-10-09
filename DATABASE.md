@@ -64,7 +64,7 @@ RPCs: `create_mess(name, month_start_day) → mess_id`, `join_mess(code) → mem
 | `guard_closed_month` trigger | On meal_entries, bazars, expenses and deposits: raises `MONTH_CLOSED` when the row's date falls inside a closed month |
 
 ### Later
-`ai_usage` (mess_id, day, feature, count), `ai_drafts` (status draft/confirmed/rejected), `notifications`, `meal_off_requests` (folded into `meal_entries.is_off` plus the cutoff check), `price_observations` (v1.2).
+`ai_usage` (mess_id, day, feature, count), `ai_drafts` (status draft/confirmed/rejected), `meal_off_requests` (folded into `meal_entries.is_off` plus the cutoff check), `price_observations` (v1.2).
 
 ### Bazar duty (0014)
 `bazar_duties (mess_id, date, member_id, note, done)`, unique on `(mess_id, date, member_id)`, hard-deleted. Members read, managers write. `mark_my_duty_done(id, done default true)` lets the assigned member tick their own row (`NOT_YOUR_DUTY` otherwise). `generate_duty_rotation(mess, from, days, member_ids[], every default 1)` (manager) assigns members round-robin on `from, from+every, …` within `days`, skipping dates that already have a duty (`INVALID_ROTATION` for bad input).
@@ -97,13 +97,26 @@ Contract: `docs/platform-admin.md`. **Bootstrap the first admin once** in the Su
 | `platform_audit` | Every admin write (`actor_id, action, target, old, new, reason, at`). Admins read. |
 | suspension | `messes.suspended_at/suspended_reason`, `profiles.suspended_at/suspended_reason`. A `*_suspension` trigger on every mess-scoped business table (plus `messes`, `profiles`) calls `assert_mess_writable(mess_id)`: `USER_SUSPENDED` / `MESS_SUSPENDED` on writes; reads still work. Admins and `delete_my_account()` are exempt. Only admins can change the suspension columns. |
 | new messes | `seed_mess_defaults`, `seed_expense_categories` and `create_mess` (month start when not passed, meal-off cutoff) read `defaults`. |
-| `platform_secrets` | Write-only credentials (`GEMINI_API_KEY`, `OPENROUTER_API_KEY`, `SMS_PROVIDER_KEY`, `SMTP_PASSWORD`). No grants to anon/authenticated; `get_platform_secrets() → jsonb` is service_role only. |
+| `platform_secrets` | Write-only credentials (`GEMINI_API_KEY`, `OPENROUTER_API_KEY`, `SMS_PROVIDER_KEY`, `SMTP_PASSWORD`, and from 0019 `PUSH_GATEWAY_URL`, `PUSH_DISPATCH_SECRET`). No grants to anon/authenticated; `get_platform_secrets() → jsonb` is service_role only. |
 | `branding` bucket | Public read, admin-only insert/update/delete. |
 
 Admin RPCs (security definer; `NOT_PLATFORM_ADMIN` otherwise): `admin_stats()`, `admin_list_messes(search, limit, offset)`, `admin_list_users(search, limit, offset)`, `admin_set_config(key, value)` (`UNKNOWN_CONFIG_KEY`, `INVALID_CONFIG`), `admin_set_mess_suspended(mess, bool, reason)`, `admin_set_user_suspended(user, bool, reason)` (`REASON_REQUIRED` when suspending, `NOT_FOUND`), `admin_set_admin(email, bool)` (`USER_NOT_FOUND`, `LAST_ADMIN`), `admin_ai_usage(days)`, `admin_deletion_queue()`, `admin_set_secret(name, value)` (null/'' deletes; `INVALID_SECRET_NAME`; value never logged), `admin_list_secrets()` (name, last4, updated_at, updated_by).
 
+### Push (0019)
+| Object | Purpose |
+|---|---|
+| `device_tokens` | `token` pk, `user_id` (auth user, cascade), `platform` android/ios/web, `updated_at`. RLS: a user reads/deletes only their own rows. Writes via `register_device_token(token, platform)` (upsert; a token registered to another account moves to the caller) and `unregister_device_token(token)` (own rows only). |
+| `profiles.notification_prefs` | jsonb object, `{type: false}` turns a type off; a missing key is on. The user edits their own (profiles RLS). |
+| `push_outbox` | `user_id, type, title, body` (already in the recipient's `profiles.locale`), `data {route, type}`, `created_at, claimed_at, sent_at, attempts, last_error`. No client access. |
+| triggers (AFTER, security definer) | `join_request` (pending membership → active managers), `deposit_pending` (pending deposit → managers), `deposit_verified` / `deposit_rejected` (→ the member), `notice` and `bazar_added` (→ active members except the author), `expense_added` (one push per INSERT statement per mess, so a recurring batch is one push), `month_closed` (→ all active members). Recipients must have a device, the type on and no `deleted_at`; the actor is never notified. The platform flag `features.push = false` stops all queueing. Rejected writes (RLS, closed month, suspension) never reach the AFTER triggers. |
+| `send_due_reminders(mess) → int` | Manager. Each other active app member whose `member_balances` closing balance for the current period (Dhaka date) is negative gets their own due amount. Returns how many were queued; audited as `send_due_reminders`; `TOO_SOON` within 10 minutes; `MESS_SUSPENDED` / `USER_SUSPENDED`. |
+| `push_kick()` | Once per transaction, `net.http_post` (pg_net, sent after commit) to `PUSH_GATEWAY_URL/api/push/dispatch` with header `x-push-secret: PUSH_DISPATCH_SECRET`. A no-op without pg_net or either secret; a failure is a warning, never a failed write. |
+| `push_claim(limit) → rows` | service_role. Claims up to `limit` unsent rows (under 5 attempts, under 3 days old; claims older than 2 minutes count as abandoned), increments `attempts`, returns them with the user's tokens. Deletes rows older than 30 days. |
+
+`delete_my_account()` also deletes the caller's device tokens and queued pushes.
+
 ## Error codes
-RPCs and triggers raise `errcode 'P0001'` with a short message key that the app maps to bn/en text: `MONTH_CLOSED`, `LAST_MANAGER`, `INVALID_INVITE`, `ALREADY_MEMBER`, `NOT_MANAGER`, `REASON_REQUIRED`, `MESS_SUSPENDED`, `USER_SUSPENDED`, `NOT_PLATFORM_ADMIN`, `LAST_ADMIN`, `INVALID_CONFIG`.
+RPCs and triggers raise `errcode 'P0001'` with a short message key that the app maps to bn/en text: `MONTH_CLOSED`, `LAST_MANAGER`, `INVALID_INVITE`, `ALREADY_MEMBER`, `NOT_MANAGER`, `REASON_REQUIRED`, `MESS_SUSPENDED`, `USER_SUSPENDED`, `NOT_PLATFORM_ADMIN`, `LAST_ADMIN`, `INVALID_CONFIG`, `TOO_SOON`.
 
 ## Storage
 The `receipts` bucket is private. Object paths are `{mess_id}/{uuid}.jpg`. Policies: read if `is_mess_member(split_part(name,'/',1)::uuid)`, write if the caller is a manager (v1.1: the uploading member as well).

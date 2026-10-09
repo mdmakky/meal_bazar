@@ -52,12 +52,13 @@ Seeded keys and their defaults:
 - The **launcher icon and the home-screen app name cannot change without a new release**, which is an Android limitation. The admin UI says so.
 
 ### Feature flags: the full list in `features` (all default true)
-`ai, ai_meal_draft, ai_bazar_scan, receipts, notices, duty, reminders, export, recurring, split, fixed_rate, google_login, email_login, member_meal_off, guest_meals, member_deposits, deposit_verification, dashboard_charts, pdf_report, share_bills, due_reminders, cook_share, bazar_picker, meal_defaults, audit_log, offline_mode, setup_checklist, invite_qr`.
+`ai, ai_meal_draft, ai_bazar_scan, receipts, notices, duty, reminders, export, recurring, split, fixed_rate, google_login, email_login, member_meal_off, guest_meals, member_deposits, deposit_verification, dashboard_charts, pdf_report, share_bills, due_reminders, cook_share, bazar_picker, meal_defaults, audit_log, offline_mode, setup_checklist, invite_qr, push`.
+`push` (0019) stops all push queueing in the DB and hides the push settings and the due-reminder button in the app.
 A flag that is false hides every entry point of that feature in the app. The data and code stay in place. Unknown keys are ignored, and a missing key counts as true.
 
 ### Platform credentials (write-only)
 - Table `platform_secrets (name text primary key, value text not null, updated_at timestamptz, updated_by uuid)`. RLS is enabled and **has no policies**, and all privileges are revoked from anon and authenticated, so only `service_role` can read it.
-- Allowed names: `GEMINI_API_KEY`, `OPENROUTER_API_KEY`, `SMS_PROVIDER_KEY`, `SMTP_PASSWORD`. The list is checked in the RPC.
+- Allowed names: `GEMINI_API_KEY`, `OPENROUTER_API_KEY`, `SMS_PROVIDER_KEY`, `SMTP_PASSWORD`, `PUSH_GATEWAY_URL` (the gateway base URL, e.g. `https://<project>.vercel.app`) and `PUSH_DISPATCH_SECRET` (a long random string; the gateway checks the header against it, with its `PUSH_DISPATCH_SECRET` env var as the fallback). The list is checked in the RPC. The DB reads the two push values itself to poke `/api/push/dispatch` (see DATABASE.md, Push).
 - `admin_set_secret(p_name text, p_value text)` is admin-only and security definer. Passing null or '' deletes the secret. It is audited, with the value never logged.
 - `admin_list_secrets()` is admin-only and returns name, `last4`, updated_at and updated_by. **It never returns values.**
 - `get_platform_secrets()` returns jsonb and is **granted to service_role only**. The AI gateway calls it with the service-role key and caches the result for 60 s. A key stored in the DB beats the env var, and the env var stays as the fallback.
