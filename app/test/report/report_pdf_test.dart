@@ -69,7 +69,7 @@ Bazar _bazar(int day, String buyer, int items, {String? pocket}) => Bazar(
   messId: 'x',
   date: DateTime(2026, 10, day),
   amount: 1000.0 + day,
-  buyerMemberId: buyer,
+  buyers: [buyer],
   paidByMemberId: pocket,
   items: [
     for (var i = 0; i < items; i++)

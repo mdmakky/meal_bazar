@@ -96,8 +96,7 @@ class ReportData {
   }
 
   /// Member ids of a bazar's buyers, in display order.
-  // TODO(bazar_buyers): return the bazar's `bazar_buyers` member ids here.
-  List<String> buyerIdsOf(Bazar b) => [?b.buyerMemberId];
+  List<String> buyerIdsOf(Bazar b) => b.buyers;
 
   /// SQL `is_present` (0004): not pending, joined_on <= d < left_on.
   /// Members missing from [members] count as present.
