@@ -7,6 +7,15 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// Firebase push: app/google-services.json (from the Firebase console, project
+// meal-bazar-bd869, app com.mealbazar.meal_bazar) is not committed. Without it the
+// build still works and the app runs with push off (see DEVELOPMENT.md).
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+} else {
+    logger.warn("android/app/google-services.json not found: push notifications are off in this build.")
+}
+
 // Release signing: android/key.properties (gitignored, see key.properties.example).
 val keystoreProperties = Properties().apply {
     val f = rootProject.file("key.properties")

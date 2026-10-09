@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Flutter templates only add INTERNET to debug/profile; release needs it for Supabase. -->
     <uses-permission android:name="android.permission.INTERNET"/>
-    <!-- Local reminders (flutter_local_notifications). Inexact alarms only: no SCHEDULE_EXACT_ALARM. -->
+    <!-- Local reminders (flutter_local_notifications) and FCM pushes. Inexact alarms only: no SCHEDULE_EXACT_ALARM. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <application
@@ -53,6 +53,10 @@
                 <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>
             </intent-filter>
         </receiver>
+        <!-- FCM pushes shown while the app is in the background use the app's channel (created in LocalNotifications.init). -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="mealbazar_default" />
         <!-- Ask Play Services to fetch the unbundled ML Kit barcode model at install time. -->
         <meta-data
             android:name="com.google.mlkit.vision.DEPENDENCIES"
