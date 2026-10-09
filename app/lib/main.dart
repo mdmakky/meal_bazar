@@ -17,7 +17,14 @@ Future<void> main() async {
     return;
   }
   await initSupabase();
-  runApp(const ProviderScope(child: MealBazarApp()));
+  runApp(
+    ProviderScope(
+      // No automatic retries: a failed load shows its error + retry button
+      // at once instead of a spinner for up to ~40 s of backoff.
+      retry: (_, _) => null,
+      child: const MealBazarApp(),
+    ),
+  );
 }
 
 /// Developer-facing: the build is missing its Supabase `--dart-define`s.
