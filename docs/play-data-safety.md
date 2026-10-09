@@ -7,10 +7,10 @@ Source of truth: REQUIREMENTS.md, AI.md, DATABASE.md, `supabase/migrations/0007_
 |---|---|
 | Does your app collect or share any of the required user data types? | **Yes** |
 | Is all user data collected by your app encrypted in transit? | **Yes** (HTTPS to Supabase and the Vercel gateway) |
-| Do you provide a way for users to request that their data is deleted? | **Yes** — in-app (আরও → অ্যাকাউন্ট → অ্যাকাউন্ট মুছে ফেলুন) and web: [ACCOUNT_DELETION_URL] |
+| Do you provide a way for users to request that their data is deleted? | **Yes** — in-app (আরও → অ্যাকাউন্ট → অ্যাকাউন্ট মুছে ফেলুন) and web: https://meal-bazar-admin.vercel.app/delete-account |
 | Account creation methods | Username/password (email) and OAuth (Google) |
-| Delete-account URL | [ACCOUNT_DELETION_URL] (publish `docs/account-deletion.md`) |
-| Privacy policy URL | [PRIVACY_POLICY_URL] (publish `docs/privacy-policy.md`) |
+| Delete-account URL | https://meal-bazar-admin.vercel.app/delete-account (publish `docs/account-deletion.md`) |
+| Privacy policy URL | https://meal-bazar-admin.vercel.app/privacy (publish `docs/privacy-policy.md`) |
 | Ads | **No** ads (answer "No" in the Ads declaration) |
 | Committed to Play Families policy / target audience includes children | **No** — target audience 18+ (users are students/young professionals) |
 

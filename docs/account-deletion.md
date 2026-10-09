@@ -1,7 +1,7 @@
 # Meal Bazar — অ্যাকাউন্ট মুছে ফেলা / Account deletion
 
-ডেভেলপার / Developer: [DEVELOPER_NAME_AS_ON_PLAY]
-এই পাতার ঠিকানা / This page: [ACCOUNT_DELETION_URL]
+ডেভেলপার / Developer: Md. Arafatuzzaman
+এই পাতার ঠিকানা / This page: https://meal-bazar-admin.vercel.app/delete-account
 
 ---
 
@@ -15,7 +15,7 @@
 আপনি কোনো মেসের একমাত্র ম্যানেজার হলে আগে অন্য কাউকে ম্যানেজার করুন, নইলে মোছা যাবে না।
 
 ### অ্যাপ ছাড়া (ইমেইলে)
-[CONTACT_EMAIL]-এ বিষয় "Delete my Meal Bazar account" লিখে ইমেইল করুন, আপনার অ্যাকাউন্টের ইমেইল ঠিকানা থেকে। আমরা মালিকানা যাচাই করে [EMAIL_REQUEST_RESPONSE_DAYS] দিনের মধ্যে মুছে দেব।
+makky.cse@gmail.com-এ বিষয় "Delete my Meal Bazar account" লিখে ইমেইল করুন, আপনার অ্যাকাউন্টের ইমেইল ঠিকানা থেকে। আমরা মালিকানা যাচাই করে 30 দিনের মধ্যে মুছে দেব।
 
 ### যা মুছে যায়
 - আপনার নাম (প্রোফাইলে "Former member" হয়ে যায়), ফোন নম্বর ও প্রোফাইল ছবি — সঙ্গে সঙ্গে।
@@ -39,7 +39,7 @@
 If you are the only manager of a mess, make someone else manager first; otherwise deletion is refused.
 
 ### Without the app (by email)
-Email [CONTACT_EMAIL] from your account's email address with the subject "Delete my Meal Bazar account". We will verify ownership and delete the account within [EMAIL_REQUEST_RESPONSE_DAYS] days.
+Email makky.cse@gmail.com from your account's email address with the subject "Delete my Meal Bazar account". We will verify ownership and delete the account within 30 days.
 
 ### What is deleted
 - Your name (the profile becomes "Former member"), phone number and profile photo — immediately.

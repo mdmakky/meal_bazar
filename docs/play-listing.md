@@ -106,4 +106,4 @@ Use realistic but fictional demo data (made-up mess and member names), no real p
 - Category: **Productivity** (alternative: Finance)
 - Suggested tags: Productivity, Finance / Budgeting, Personal finance, Household management
 - Keywords to work naturally into text (Play has no keyword field): mess manager, mess hisab, মেস, মিল, বাজার, meal rate, bKash, Nagad, bachelor mess
-- Contact email on listing: [CONTACT_EMAIL]; website: [WEBSITE_URL]; privacy policy: [PRIVACY_POLICY_URL]
+- Contact email on listing: makky.cse@gmail.com; website: https://github.com/mdmakky/meal_bazar; privacy policy: https://meal-bazar-admin.vercel.app/privacy
