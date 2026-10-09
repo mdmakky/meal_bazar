@@ -374,7 +374,7 @@ class _RotationFormState extends State<RotationForm> {
                 firstDate: DateTime(2020),
                 lastDate: today().add(const Duration(days: 366)),
               );
-              if (d != null) setState(() => _from = dayOnly(d));
+              if (d != null && mounted) setState(() => _from = dayOnly(d));
             },
           ),
           DropdownButtonFormField<int>(
@@ -485,7 +485,7 @@ class _EditDutyFormState extends ConsumerState<EditDutyForm> {
               firstDate: DateTime(2020),
               lastDate: today().add(const Duration(days: 366)),
             );
-            if (d != null) setState(() => _date = dayOnly(d));
+            if (d != null && mounted) setState(() => _date = dayOnly(d));
           },
         ),
         TextField(

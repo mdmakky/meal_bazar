@@ -431,7 +431,7 @@ class _MessSettingsScreenState extends ConsumerState<MessSettingsScreen> {
 
   Future<void> _pickCutoff() async {
     final t = await showTimePicker(context: context, initialTime: _cutoff);
-    if (t != null) setState(() => _cutoff = t);
+    if (t != null && mounted) setState(() => _cutoff = t);
   }
 
   Future<void> _save(String messId) async {

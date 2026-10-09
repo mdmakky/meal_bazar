@@ -544,7 +544,9 @@ class _BazarDraftBodyState extends ConsumerState<_BazarDraftBody> {
                 IconButton(
                   tooltip: l.aiRemove,
                   onPressed: () => setState(() {
-                    _items.removeAt(i).dispose();
+                    _items.removeAt(
+                      i,
+                    ); // not disposed: its field may still build this frame
                   }),
                   icon: const Icon(Icons.close),
                 ),

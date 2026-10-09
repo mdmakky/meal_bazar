@@ -340,7 +340,7 @@ class _NoticeFormState extends ConsumerState<NoticeForm> {
       firstDate: today,
       lastDate: today.add(const Duration(days: 365)),
     );
-    if (d != null) setState(() => _lastDay = d);
+    if (d != null && mounted) setState(() => _lastDay = d);
   }
 
   Future<void> _save() async {

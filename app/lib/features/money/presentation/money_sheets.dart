@@ -716,9 +716,7 @@ class _BazarFormState extends ConsumerState<_BazarForm>
     final draft = await scanBazarReceipt(context);
     if (draft == null || !mounted) return;
     setState(() {
-      for (final i in _items) {
-        i.dispose();
-      }
+      // Replaced rows are not disposed: their fields may still build this frame.
       _items
         ..clear()
         ..addAll([
@@ -768,8 +766,7 @@ class _BazarFormState extends ConsumerState<_BazarForm>
   void _toggle(String name) {
     final line = _line(name);
     if (line != null) {
-      _items.remove(line);
-      line.dispose();
+      _items.remove(line); // not disposed: its field may still build this frame
     } else {
       _items.add(
         _ItemCtrls(
@@ -1030,8 +1027,7 @@ class _BazarFormState extends ConsumerState<_BazarForm>
               tooltip: l.bazarRemoveItem,
               icon: const Icon(Icons.close),
               onPressed: () {
-                _items.remove(i);
-                i.dispose();
+                _items.remove(i); // not disposed: see _toggle
                 _itemsChanged();
               },
             ),
