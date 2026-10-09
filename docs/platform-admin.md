@@ -61,3 +61,34 @@ A flag that is false hides every entry point of that feature in the app. The dat
 - `admin_set_secret(p_name text, p_value text)` is admin-only and security definer. Passing null or '' deletes the secret. It is audited, with the value never logged.
 - `admin_list_secrets()` is admin-only and returns name, `last4`, updated_at and updated_by. **It never returns values.**
 - `get_platform_secrets()` returns jsonb and is **granted to service_role only**. The AI gateway calls it with the service-role key and caches the result for 60 s. A key stored in the DB beats the env var, and the env var stays as the fallback.
+
+### Dynamic AI settings (v3)
+The `ai` config key gets its final shape. Older flat fields are still read as a fallback:
+```json
+{
+  "enabled": true,
+  "text_chain":   [{"provider":"gemini","model":"gemini-flash-latest"},{"provider":"openrouter","model":"openrouter/free"}],
+  "vision_chain": [{"provider":"gemini","model":"gemini-flash-latest"},{"provider":"openrouter","model":"openrouter/free"}],
+  "quota_meal_draft": 30, "quota_bazar_draft": 10,
+  "timeout_ms": 20000, "temperature": 0.2,
+  "allow_paid": false
+}
+```
+- Each feature walks its chain in order: meal drafts use `text_chain` and receipt scans use `vision_chain`. Providers are `gemini` and `openrouter`, and a chain holds 1 to 5 entries.
+- When `allow_paid` is false, the gateway skips any OpenRouter model whose prompt or completion price is above 0, so paid models can't be used by accident.
+
+Gateway admin endpoints. Each needs a Supabase JWT whose user passes `is_platform_admin()`, otherwise it returns 403:
+- `GET /api/admin/models?provider=gemini|openrouter|all`: the model list, fetched live from the providers with the platform-stored or env keys and cached for 10 minutes. Each entry is normalised to `{provider, id, name, description, context_length, input_price_per_mtok, output_price_per_mtok, free: bool, vision: bool, text: bool}`.
+  - OpenRouter: `GET https://openrouter.ai/api/v1/models`. A model is free when both prices are 0, and vision means `image` is in its input modalities.
+  - Gemini: `GET https://generativelanguage.googleapis.com/v1beta/models?key=…`. Only models that support `generateContent` are kept. Free tier is assumed and the price is unknown (null). Vision is true for gemini 1.5 and later, flash and pro models.
+- `POST /api/admin/test-model {provider, model, kind: "text"|"vision"}` runs a tiny fixed prompt (a 1×1 image for vision) and returns `{ok, latency_ms, sample, error}`. It does not count against any mess quota.
+
+The admin panel's AI page has:
+- provider tabs or an All view
+- search
+- filters for free, paid, vision, minimum context and price
+- a sortable table
+- "add to text chain" and "add to vision chain" actions
+- drag to reorder each chain, and a Test button for every row and chain entry
+- allow_paid, quota, timeout and temperature fields
+- a warning before a paid model is saved while `allow_paid` is false
