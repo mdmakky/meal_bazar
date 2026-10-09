@@ -57,6 +57,12 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="mealbazar_default" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_stat_mealbazar" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/notification_accent" />
         <!-- Ask Play Services to fetch the unbundled ML Kit barcode model at install time. -->
         <meta-data
             android:name="com.google.mlkit.vision.DEPENDENCIES"

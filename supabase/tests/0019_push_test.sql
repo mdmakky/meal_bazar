@@ -71,7 +71,7 @@ select test.act_as(null);
 select test.check(test.ob(:U, 'bazar_added') = 1 and test.ob(:M, 'bazar_added') = 0, 'bazar: member yes, creator no');
 select test.check(test.ob(:V, 'bazar_added') = 0, 'no device, no row');
 select test.check(test.ob(:P, 'bazar_added') = 0, 'pending requester gets nothing');
-select test.check((select title = 'New bazar' and body = 'Push Mess: ৳1250.5 bazar added'
+select test.check((select title = 'New bazar' and body = 'Push Mess: ৳1,250.50 bazar added'
                    from push_outbox where user_id = :U and type = 'bazar_added'), 'en text for an en profile');
 select test.act_as(:U);
 select test.expect_error(format($$insert into bazars (mess_id, date, amount) values (%L, current_date, 80)$$, :'mess'),
@@ -99,7 +99,7 @@ insert into recurring_expenses (mess_id, category_id, amount, split) values (:'m
 select test.check(apply_recurring_expenses(:'mess', current_date) = 2, 'two bills posted');
 select test.act_as(null);
 select test.check(test.ob(:U, 'expense_added') = 1, 'recurring batch = one push');
-select test.check((select body = 'Push Mess: 2 expenses, ৳6900 total' from push_outbox where user_id = :U and type = 'expense_added'),
+select test.check((select body = 'Push Mess: 2 expenses, ৳6,900 total' from push_outbox where user_id = :U and type = 'expense_added'),
                   'batch text');
 select test.act_as(:M);
 insert into expenses (mess_id, date, category_id, amount, split) values (:'mess', current_date, :'wifi', 300, 'equal');
