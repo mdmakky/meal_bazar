@@ -1,3 +1,4 @@
+select set_config('meal_bazar.today', '2099-12-31', false);   -- months close only after they end (0032)
 -- Member bazar requests (submit, idempotent, approve → real bazar + items +
 -- buyers, reject, cancel, RLS), the notification inbox, the manager-recorded
 -- deposit push, close_month refusing pending items, my_last_month.
@@ -51,7 +52,7 @@ select test.check((select count(*) = 1 from push_outbox where user_id = :M and t
 
 -- ── close waits for it ───────────────────────────────────────────────────
 select test.act_as(:M);
-select test.expect_error(format($$select close_month(%L, %L)$$, :'mess', :'today'), 'PENDING_ITEMS');
+select test.expect_error(format($$select close_month(%L, %L, true)$$, :'mess', :'today'), 'PENDING_ITEMS');
 select test.check((select pending_bazar_requests = 1 and pending_deposits = 0
                    from month_pending_items(:'mess', :'today'::date - 40, :'today'::date + 40)), 'pending items listed');
 
@@ -114,18 +115,21 @@ select test.check((select count(*) = 1 from push_outbox where user_id = :R and t
                    and body = 'আপনার নামে ৳৫০০ জমা যোগ করা হয়েছে'), 'member told about the deposit');
 select test.check(not exists (select 1 from push_outbox where user_id = :M and type = 'deposit_added'), 'not the actor');
 
--- ── my_last_month ────────────────────────────────────────────────────────
+-- ── my_last_month (real clock again) ────────────────────────────────────────────────────────
 select test.act_as(:R);
+select set_config('meal_bazar.today', '', false);
 select test.check((select count(*) from my_last_month(:'mess')) = 0, 'nothing for a new mess');
 select test.act_as(:M);
 select start_date as prev_from from month_period(:'mess', (select start_date - 1 from month_period(:'mess', :'today'))) \gset
 insert into meal_entries (mess_id, member_id, meal_type_id, date, count)
 select :'mess', :'rahim', id, :'prev_from', 1 from meal_types where mess_id = :'mess' limit 1;
 select test.act_as(:R);
-select test.check((select status = 'open' and closing_balance is null and start_date = :'prev_from'
-                   from my_last_month(:'mess')), 'open last month, no snapshot yet');
+select test.check((select status = 'open' and provisional and closing_balance is not null and start_date = :'prev_from'
+                   from my_last_month(:'mess')), 'open last month: provisional figures, not final');
 select test.act_as(:M);
-select close_month(:'mess', :'prev_from');
+select set_config('meal_bazar.today', '2099-12-31', false);   -- close_month: the month must have ended (0032)
+select close_month(:'mess', :'prev_from', true);
+select set_config('meal_bazar.today', '', false);
 select test.act_as(:R);
 select test.act_as(:R);
 select test.check((select status = 'closed' and meals > 0 and closing_balance is not null

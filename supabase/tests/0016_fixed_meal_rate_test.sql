@@ -1,3 +1,4 @@
+select set_config('meal_bazar.today', '2099-12-31', false);   -- months close only after they end (0032)
 -- Fixed meal rate: worked example at ৳60, calculated mode unchanged, constraints,
 -- month override, snapshot at close, outsider.
 \set M '''16161616-0000-0000-0000-00000000000a'''
@@ -55,7 +56,7 @@ select test.expect_error(format($$select set_month_meal_rate(%L, '2026-10-15', -
 
 -- Close snapshots the mode at close time.
 update messes set meal_rate_mode = 'fixed' where id = :'mess';
-select close_month(:'mess', '2026-10-01') as oct \gset
+select close_month(:'mess', '2026-10-01', true) as oct \gset
 select test.check((select food_cost = 720 from month_member_summary where month_id = :'oct' and member_id = :'rahim'), 'snapshot uses fixed rate');
 update messes set meal_rate_mode = 'calculated' where id = :'mess';
 select test.check((select food_cost = 720 from month_member_summary where month_id = :'oct' and member_id = :'rahim'), 'snapshot survives mode change');

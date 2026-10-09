@@ -1,3 +1,4 @@
+select set_config('meal_bazar.today', '2099-12-31', false);   -- months close only after they end (0032)
 -- Bazar buyers: RPC replaces the set, first buyer mirrored, RLS, closed month, backfill.
 \set M '''18181818-0000-0000-0000-00000000000a'''
 \set U '''18181818-0000-0000-0000-00000000000b'''
@@ -53,7 +54,7 @@ select test.expect_error(format($$select set_bazar_buyers(%L, array[%L]::uuid[])
 -- Closed month: buyers are frozen with their bazar.
 select test.act_as(:M);
 update mess_members set joined_on = '2026-10-01' where mess_id = :'mess';
-select close_month(:'mess', '2026-10-02') as oct \gset
+select close_month(:'mess', '2026-10-02', true) as oct \gset
 select test.expect_error(format($$select set_bazar_buyers(%L, array[%L]::uuid[])$$, :'bz', :'a'), 'MONTH_CLOSED');
 select test.expect_error(format($$delete from bazar_buyers where bazar_id = %L$$, :'bz'), 'MONTH_CLOSED');
 

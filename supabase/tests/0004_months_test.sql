@@ -1,3 +1,4 @@
+select set_config('meal_bazar.today', '2099-12-31', false);   -- months close only after they end (0032)
 -- Calculation engine: PRODUCT_RULES §3 worked example, close/reopen, guard, carry-forward.
 \set M '''33333333-0000-0000-0000-00000000000a'''
 \set X '''33333333-0000-0000-0000-00000000000c'''
@@ -55,23 +56,23 @@ select test.check((select closing_balance = -584.63 from member_balances(:'mess'
 update mess_members set status = 'active', left_on = null where id = :'karim';
 
 -- Close October: snapshot, guard, ordering, carry-forward.
-select test.expect_error($$select close_month('33333333-0000-0000-0000-00000000dead', '2026-10-01')$$, 'NOT_MANAGER');
-select test.expect_error(format($$select close_month(%L, '2026-11-10')$$, :'mess'), 'PREVIOUS_MONTH_OPEN');
+select test.expect_error($$select close_month('33333333-0000-0000-0000-00000000dead', '2026-10-01', true)$$, 'NOT_MANAGER');
+select test.expect_error(format($$select close_month(%L, '2026-11-10', true)$$, :'mess'), 'PREVIOUS_MONTH_OPEN');
 -- A pending deposit must be decided first (0026).
-select test.expect_error(format($$select close_month(%L, '2026-10-20')$$, :'mess'), 'PENDING_ITEMS');
+select test.expect_error(format($$select close_month(%L, '2026-10-20', true)$$, :'mess'), 'PENDING_ITEMS');
 update deposits set status = 'rejected' where mess_id = :'mess' and status = 'pending';
-select close_month(:'mess', '2026-10-20') as oct \gset
+select close_month(:'mess', '2026-10-20', true) as oct \gset
 select test.check((select closing_balance = 424.63 from month_member_summary where month_id = :'oct' and member_id = :'rahim'), 'snapshot written');
 select test.expect_error(format($$update meal_entries set count = 0 where member_id = %L and date = '2026-10-02'$$, :'rahim'), 'MONTH_CLOSED');
 select test.expect_error(format($$insert into bazars (mess_id, date, amount) values (%L, '2026-10-31', 10)$$, :'mess'), 'MONTH_CLOSED');
 select test.expect_error(format($$update bazars set date = '2026-10-31' where id = %L$$, :'kb'), 'MONTH_CLOSED');
 select test.expect_error(format($$delete from deposits where member_id = %L$$, :'rahim'), 'MONTH_CLOSED');
-select test.expect_error(format($$select close_month(%L, '2026-10-01')$$, :'mess'), 'MONTH_CLOSED');
+select test.expect_error(format($$select close_month(%L, '2026-10-01', true)$$, :'mess'), 'MONTH_CLOSED');
 
 insert into deposits (mess_id, member_id, date, amount) values (:'mess', :'karim', '2026-11-02', 1000);
 select test.check((select opening_balance = -834.63 and closing_balance = 165.37
                    from member_balances(:'mess', '2026-11-01', '2026-12-01') where member_id = :'karim'), 'Nov opening carries Oct closing');
-select close_month(:'mess', '2026-11-01') as nov \gset
+select close_month(:'mess', '2026-11-01', true) as nov \gset
 
 -- Reopen: needs reason, must reopen later months first, audited.
 select test.expect_error(format($$select reopen_month(%L, 'oops')$$, :'oct'), 'REASON_REQUIRED');
@@ -80,7 +81,7 @@ select reopen_month(:'nov', 'Late deposit correction');
 select reopen_month(:'oct', 'Fix wrong bazar amount');
 update bazars set amount = 400 where mess_id = :'mess' and date = '2026-10-07';
 select test.check((select count(*) from audit_log where action = 'reopen_month' and reason is not null) = 2, 'reopen audited with reason');
-select close_month(:'mess', '2026-10-01') as oct2 \gset
+select close_month(:'mess', '2026-10-01', true) as oct2 \gset
 select test.check(:'oct2' = :'oct', 'reclose reuses month row');
 select test.check((select food_cost from month_member_summary where month_id = :'oct' and member_id = :'rahim') = round(12 * 1400 / 20.5, 2), 'snapshot refreshed on reclose');
 
@@ -88,6 +89,6 @@ select test.check((select food_cost from month_member_summary where month_id = :
 select test.act_as(:X);
 select test.check((select count(*) from member_balances(:'mess', '2026-10-01', '2026-11-01')) = 0, 'outsider sees no balances');
 select test.check((select count(*) from months) + (select count(*) from month_member_summary) = 0, 'outsider sees no months');
-select test.expect_error(format($$select close_month(%L, '2026-11-01')$$, :'mess'), 'NOT_MANAGER');
+select test.expect_error(format($$select close_month(%L, '2026-11-01', true)$$, :'mess'), 'NOT_MANAGER');
 select test.expect_error(format($$select reopen_month(%L, 'hack attempt')$$, :'oct'), 'NOT_MANAGER');
 select test.act_as(null);

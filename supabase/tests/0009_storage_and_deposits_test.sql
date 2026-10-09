@@ -1,3 +1,4 @@
+select set_config('meal_bazar.today', '2099-12-31', false);   -- months close only after they end (0032)
 -- Member-recorded deposits (pending → verified/rejected) and receipts storage policies.
 \set M '''99999999-0000-0000-0000-00000000000a'''
 \set B '''99999999-0000-0000-0000-00000000000b'''
@@ -60,9 +61,9 @@ select test.act_as(:B);
 select record_my_deposit(:'mess', '99999999-0000-0000-0000-0000000000d3', '2026-10-07', 200, 'nagad', null, null, null);
 select test.act_as(:M);
 -- A pending deposit blocks the close (0026), so it can never be stranded.
-select test.expect_error(format($$select close_month(%L, '2026-10-01')$$, :'mess'), 'PENDING_ITEMS');
+select test.expect_error(format($$select close_month(%L, '2026-10-01', true)$$, :'mess'), 'PENDING_ITEMS');
 select verify_deposit('99999999-0000-0000-0000-0000000000d3', true);
-select close_month(:'mess', '2026-10-01');
+select close_month(:'mess', '2026-10-01', true);
 select test.act_as(:B);
 select test.expect_error(format($$select record_my_deposit(%L, gen_random_uuid(), '2026-10-20', 10, 'cash', null, null, null)$$, :'mess'), 'MONTH_CLOSED');
 select test.act_as(null);

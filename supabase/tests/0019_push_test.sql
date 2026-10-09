@@ -1,3 +1,4 @@
+select set_config('meal_bazar.today', '2099-12-31', false);   -- months close only after they end (0032)
 -- Push: device token RPCs + RLS, prefs, outbox filled by AFTER triggers for the
 -- right recipients in their locale, platform flag, rejected writes enqueue
 -- nothing, due reminders, the pg_net kick (stubbed) and the dispatcher claim.
@@ -160,7 +161,7 @@ select test.check((select (new ->> 'notified')::int = 1 from audit_log where mes
 
 -- ── month close → every active member (closer too) ──────────────────────
 select test.act_as(:M);
-select close_month(:'mess', current_date);
+select close_month(:'mess', current_date, true);
 select test.act_as(null);
 select test.check(test.ob(:U, 'month_closed') = 1 and test.ob(:M, 'month_closed') = 1, 'month closed pushed to all');
 

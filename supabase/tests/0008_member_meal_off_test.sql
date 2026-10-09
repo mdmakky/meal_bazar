@@ -1,3 +1,4 @@
+select set_config('meal_bazar.today', '2099-12-31', false);   -- months close only after they end (0032)
 -- Member meal-off: own row only, before the cutoff, active members, closed-month guard, audit.
 \set M '''88888888-0000-0000-0000-00000000000a'''
 \set R '''88888888-0000-0000-0000-00000000000b'''
@@ -18,7 +19,7 @@ select join_mess(:'code', 'Pending') as pend \gset
 select test.act_as(:M);
 update mess_members set status = 'active' where id = :'rahim';
 -- Close a far-future month first (no earlier activity, so ordering allows it).
-select close_month(:'mess', '2099-01-15') as jan \gset
+select close_month(:'mess', '2099-01-15', true) as jan \gset
 -- Manager has an existing guest row for Rahim; turning off keeps guests.
 insert into meal_entries (mess_id, member_id, meal_type_id, date, count, guest_count)
 values (:'mess', :'rahim', :'lunch', '2099-03-02', 1, 2);

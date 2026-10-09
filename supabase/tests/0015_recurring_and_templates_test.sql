@@ -1,3 +1,4 @@
+select set_config('meal_bazar.today', '2099-12-31', false);   -- months close only after they end (0032)
 -- Recurring monthly bills (apply once per period, inactive skipped, closed
 -- month refused) and member default meals used by fill_meals_for_day.
 \set M '''15151515-0000-0000-0000-00000000000a'''
@@ -50,7 +51,7 @@ select test.check((select date from expenses where category_id = :'rent' and dat
 update messes set month_start_day = 1 where id = :'mess';
 
 -- Closed month: a newly added bill cannot be posted into it.
-select close_month(:'mess', '2026-10-01') as oct \gset
+select close_month(:'mess', '2026-10-01', true) as oct \gset
 update recurring_expenses set active = true where amount = 999;
 select test.expect_error(format($$select apply_recurring_expenses(%L, '2026-10-15')$$, :'mess'), 'MONTH_CLOSED');
 select test.check((select count(*) from recurring_applied where period_start = '2026-10-01') = 2, 'refused apply leaves no mark');

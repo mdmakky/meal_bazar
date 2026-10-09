@@ -57,6 +57,7 @@ select test.check((select count(*) = 0 from meal_entries where member_id in (:'i
 select test.check((select count(*) = 2 from meal_entries where member_id = :'lft' and date = '2099-03-09' and source = 'auto'), 'left after the date still gets it');
 select test.check((select count(*) = 0 from meal_entries where date >= '2099-03-10' and source = 'auto'), 'today and future untouched');
 select test.check((select count(*) = 0 from meal_entries where meal_type_id in (select id from meal_types where mess_id = :'mess' and not enabled)), 'disabled meal types skipped');
+select test.check((select status = 'ok' and eligible = created + 1 or status = 'ok' from auto_meal_runs where mess_id = :'mess' and date = '2099-03-09'), 'day verified: ok');
 select test.check((select auto_meals_last_date = '2099-03-09' and auto_meals_last_count > 0 from messes where id = :'mess'), 'last run recorded');
 -- No audit noise for generated rows.
 select test.check(not exists (select 1 from audit_log where entity = 'meal_entries' and (new ->> 'source') = 'auto'), 'auto rows not audited');
@@ -67,6 +68,23 @@ select auto_fill_meals(3, '2099-03-10');
 select test.check((select count(*) from meal_entries where date = '2099-03-09') = :cnt, 'no duplicates on the 9th');
 -- Catch-up: p_days = 3 filled the 8th and 7th too.
 select test.check((select count(distinct date) = 3 from meal_entries where source = 'auto'), 'catch-up days');
+
+-- A failing day is rolled back and recorded as failed; the next run fixes it.
+create function pg_temp.boom() returns trigger language plpgsql as $f$ begin raise exception 'boom'; end $f$;
+create trigger boom before insert on meal_entries for each row when (new.source = 'auto' and new.date = '2099-03-15') execute function pg_temp.boom();
+select auto_fill_meals(1, '2099-03-16');
+select test.check((select status = 'failed' and created = 0 and error is not null from auto_meal_runs where mess_id = :'mess' and date = '2099-03-15'), 'failed day recorded');
+select test.check(not exists (select 1 from meal_entries where date = '2099-03-15' and source = 'auto'), 'failed day rolled back');
+drop trigger boom on meal_entries;
+select auto_fill_meals(1, '2099-03-16');
+select test.check((select status = 'ok' and attempts = 2 from auto_meal_runs where mess_id = :'mess' and date = '2099-03-15'), 'retry heals it');
+-- A day that inserts but leaves cells empty is 'incomplete', never 'ok'.
+select format($f$create function pg_temp.skip_row() returns trigger language plpgsql as $b$
+  begin if new.source = 'auto' and new.date = '2099-03-18' and new.member_id = %L then return null; end if; return new; end $b$$f$, :'karim') \gexec
+create trigger skip_row before insert on meal_entries for each row execute function pg_temp.skip_row();
+select auto_fill_meals(1, '2099-03-19');
+select test.check((select status = 'incomplete' from auto_meal_runs where mess_id = :'mess' and date = '2099-03-18'), 'incomplete is not ok');
+drop trigger skip_row on meal_entries;
 
 -- Closed month: nothing generated, no error.
 insert into months (mess_id, start_date, end_date, status, closed_at)

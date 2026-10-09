@@ -1,3 +1,4 @@
+select set_config('meal_bazar.today', '2099-12-31', false);   -- months close only after they end (0032)
 -- Expense shares: split among selected members by weight, fallback, RLS, closed month.
 \set M '''12121212-0000-0000-0000-00000000000a'''
 \set X '''12121212-0000-0000-0000-00000000000c'''
@@ -54,7 +55,7 @@ select test.act_as(:M);
 select test.check((select count(*) from expense_shares where expense_id = :'e') = 1, 'outsider delete did nothing');
 
 -- Closed month: shares are frozen with their expense; snapshot used them.
-select close_month(:'mess', '2026-10-05') as oct \gset
+select close_month(:'mess', '2026-10-05', true) as oct \gset
 select test.check((select extra_cost from month_member_summary where month_id = :'oct' and member_id = :'a') = 900, 'snapshot uses shares');
 select test.expect_error(format($$select set_expense_shares(%L, '[]')$$, :'e'), 'MONTH_CLOSED');
 select test.expect_error(format($$update expense_shares set weight = 3 where expense_id = %L$$, :'e'), 'MONTH_CLOSED');
