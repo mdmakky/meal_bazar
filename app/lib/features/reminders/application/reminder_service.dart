@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/scheduler.dart' show SchedulerBinding;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -266,6 +267,9 @@ final reminderSyncProvider = Provider<void>((ref) {
   final service = ref.watch(reminderServiceProvider);
   unawaited(() async {
     try {
+      // Let the frame this change triggers (Home, on a cold start) render
+      // first: time zone parsing + plugin init hold the UI isolate ~0.5-1.5 s.
+      await SchedulerBinding.instance.endOfFrame;
       await n.init();
       await service.sync(ctx, settings);
     } catch (e) {
