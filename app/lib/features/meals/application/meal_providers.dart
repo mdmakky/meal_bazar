@@ -27,6 +27,21 @@ final dayEntriesProvider = FutureProvider.family<List<MealEntry>, MessDay>(
       ref.watch(mealRepositoryProvider).entriesForDay(key.messId, key.day),
 );
 
+/// Cells the midnight job filled on a day (`memberId|mealTypeId`); `putEntry`
+/// invalidates it so an edited cell loses its marker.
+final autoFilledProvider = FutureProvider.family<Set<String>, MessDay>((
+  ref,
+  key,
+) async {
+  try {
+    return await ref
+        .watch(mealRepositoryProvider)
+        .autoFilledOnDay(key.messId, key.day);
+  } catch (_) {
+    return const {}; // a marker, not data: offline or an error shows none
+  }
+});
+
 /// Meal-off deadlines on a day by meal type id (SQL `meal_off_deadlines`).
 final mealOffDeadlinesProvider =
     FutureProvider.family<Map<String, DateTime>, MessDay>(

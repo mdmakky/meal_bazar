@@ -2148,5 +2148,10 @@
   "dueRemSuggest3": "{name} ভাই, একটু মনে করিয়ে দিচ্ছি: আপনার বকেয়া {amount}। সম্ভব হলে আজকালের মধ্যে জমা দিন।",
   "@dueRemSuggest3": {"placeholders": {"name": {"type": "String"}, "amount": {"type": "String"}}},
   "dueRemAutoLabel": "স্বয়ংক্রিয় রিমাইন্ডার",
-  "dueRemPay": "জমা দিন"
+  "dueRemPay": "জমা দিন",
+  "autoMealsTitle": "স্বয়ংক্রিয় মিল",
+  "autoMealsBody": "রাত ১২টার পর আগের দিনের না-দেওয়া মিল নিচের ডিফল্ট অনুযায়ী বসবে (ডিফল্ট না থাকলে ১)। মিল বন্ধ করা বা আগে দেওয়া মিল বদলাবে না। বদলালে সেটা সাধারণ মিল হয়ে যায়।",
+  "autoMealsNever": "এখনো চলেনি",
+  "autoMealsLast": "সর্বশেষ: {day} · {n}টি মিল বসেছে",
+  "@autoMealsLast": {"placeholders": {"day": {"type": "String"}, "n": {"type": "String"}}}
 }

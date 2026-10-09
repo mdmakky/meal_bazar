@@ -3728,4 +3728,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dueRemPay => 'Deposit';
+
+  @override
+  String get autoMealsTitle => 'Automatic meals';
+
+  @override
+  String get autoMealsBody =>
+      'After midnight, meals nobody entered for the day before are filled from the defaults below (1 where none is set). Meal-off and meals already entered are never changed. Editing one makes it an ordinary entry.';
+
+  @override
+  String get autoMealsNever => 'Has not run yet';
+
+  @override
+  String autoMealsLast(String day, String n) {
+    return 'Last: $day · $n meals filled';
+  }
 }

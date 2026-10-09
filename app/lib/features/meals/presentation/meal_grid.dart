@@ -205,6 +205,7 @@ Future<bool> putEntry(
 }) async {
   try {
     await ref.read(dayGridProvider(dayKey).notifier).put(e, own: own);
+    ref.invalidate(autoFilledProvider(dayKey));
     return true;
   } catch (err) {
     if (context.mounted) snackFailure(context, err);
@@ -626,6 +627,9 @@ class _StepperCell extends ConsumerWidget {
         return (e?.count ?? 0.0, e?.guestCount ?? 0, e?.isOff ?? false);
       }),
     );
+    final auto = ref.watch(
+      autoFilledProvider(dayKey).select((a) => a.value?.contains(k) ?? false),
+    );
     final label = '${member.displayName} ${type.name}';
     final value = off ? l.mealCellOff : Fmt.meals(count, banglaDigits: bn);
     final guestText = '+${Fmt.digits('$guests', bangla: bn)}';
@@ -701,6 +705,21 @@ class _StepperCell extends ConsumerWidget {
                         ),
                 ),
               ),
+              // Filled by the midnight job, not entered by a person.
+              if (auto)
+                PositionedDirectional(
+                  top: 5,
+                  end: 5,
+                  child: Container(
+                    key: const Key('autoMealDot'),
+                    width: 6,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: p.accent,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
               Positioned(
                 left: -AppSpace.md,
                 right: -AppSpace.md,

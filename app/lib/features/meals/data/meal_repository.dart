@@ -46,6 +46,20 @@ class MealRepository {
     ];
   });
 
+  /// Cells on [day] filled by the midnight job and not edited since
+  /// (`source = 'auto'`, 0031), as `memberId|mealTypeId`. Online only.
+  Future<Set<String>> autoFilledOnDay(String messId, DateTime day) =>
+      guard(() async {
+        final rows = await _client
+            .from('meal_entries')
+            .select('member_id, meal_type_id')
+            .eq('mess_id', messId)
+            .eq('date', isoDate(day))
+            .eq('source', 'auto')
+            .retry(enabled: false);
+        return {for (final r in rows) '${r['member_id']}|${r['meal_type_id']}'};
+      });
+
   Future<List<MealEntry>> entriesForDay(String messId, DateTime day) =>
       entriesForRange(messId, day, DateTime(day.year, day.month, day.day + 1));
 

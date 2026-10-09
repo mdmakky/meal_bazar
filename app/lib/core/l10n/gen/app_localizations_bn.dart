@@ -3717,4 +3717,19 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get dueRemPay => 'জমা দিন';
+
+  @override
+  String get autoMealsTitle => 'স্বয়ংক্রিয় মিল';
+
+  @override
+  String get autoMealsBody =>
+      'রাত ১২টার পর আগের দিনের না-দেওয়া মিল নিচের ডিফল্ট অনুযায়ী বসবে (ডিফল্ট না থাকলে ১)। মিল বন্ধ করা বা আগে দেওয়া মিল বদলাবে না। বদলালে সেটা সাধারণ মিল হয়ে যায়।';
+
+  @override
+  String get autoMealsNever => 'এখনো চলেনি';
+
+  @override
+  String autoMealsLast(String day, String n) {
+    return 'সর্বশেষ: $day · $nটি মিল বসেছে';
+  }
 }

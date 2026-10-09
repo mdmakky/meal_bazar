@@ -6805,6 +6805,30 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'জমা দিন'**
   String get dueRemPay;
+
+  /// No description provided for @autoMealsTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'স্বয়ংক্রিয় মিল'**
+  String get autoMealsTitle;
+
+  /// No description provided for @autoMealsBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'রাত ১২টার পর আগের দিনের না-দেওয়া মিল নিচের ডিফল্ট অনুযায়ী বসবে (ডিফল্ট না থাকলে ১)। মিল বন্ধ করা বা আগে দেওয়া মিল বদলাবে না। বদলালে সেটা সাধারণ মিল হয়ে যায়।'**
+  String get autoMealsBody;
+
+  /// No description provided for @autoMealsNever.
+  ///
+  /// In bn, this message translates to:
+  /// **'এখনো চলেনি'**
+  String get autoMealsNever;
+
+  /// No description provided for @autoMealsLast.
+  ///
+  /// In bn, this message translates to:
+  /// **'সর্বশেষ: {day} · {n}টি মিল বসেছে'**
+  String autoMealsLast(String day, String n);
 }
 
 class _AppLocalizationsDelegate

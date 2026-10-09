@@ -1800,5 +1800,9 @@
   "dueRemSuggest2": "Hello {name}, you have {amount} due at the mess. Paying when you can keeps the bazar running. Thanks.",
   "dueRemSuggest3": "{name}, a gentle reminder: your due is {amount}. Please deposit it in the next day or two if you can.",
   "dueRemAutoLabel": "Automatic reminder",
-  "dueRemPay": "Deposit"
+  "dueRemPay": "Deposit",
+  "autoMealsTitle": "Automatic meals",
+  "autoMealsBody": "After midnight, meals nobody entered for the day before are filled from the defaults below (1 where none is set). Meal-off and meals already entered are never changed. Editing one makes it an ordinary entry.",
+  "autoMealsNever": "Has not run yet",
+  "autoMealsLast": "Last: {day} · {n} meals filled"
 }

@@ -175,6 +175,13 @@ One group conversation per mess on the 0022 tables (not separate ones: the feed,
 | `my_last_month(p_mess) → (start_date, end_date, status, closed_at, meals, food_cost, extra_cost, credit, opening_balance, closing_balance)` | The period before today's (Dhaka). Money columns are the caller's closed snapshot, null while open. No row when that period has no meals/bazar and no months row. |
 | `manager_attention` | Adds `pending_bazar_requests`. |
 
+### Auto meals (0031)
+| Object | Purpose |
+|---|---|
+| `messes.auto_meals` | boolean, default false; managers switch it in More → Default meals. `auto_meals_last_date` / `auto_meals_last_count` record the last run that created rows. |
+| `meal_entries.source = 'auto'` | Rows made by the job. Not audited on insert. Any app edit sends `source = 'app'`, so only untouched rows keep the tag (the grid shows a dot on them). |
+| `auto_fill_meals(p_days = 3, p_today = Dhaka today)` | Service role only (Vercel cron `/api/cron/midnight`, 18:00 UTC = 00:00 Dhaka). For each mess with `auto_meals`, not suspended, for each of the last `p_days` (max 7) days before `p_today`: skips closed months; inserts the missing (member × enabled meal type) rows `on conflict do nothing`, so an existing row (including meal-off) is never touched. Eligible: `joined_on <= day` and (`active`, or `left` with `left_on > day`); inactive and pending are skipped. Count = the member's `meal_defaults` row, else 1. A per-(mess, day) `pg_try_advisory_xact_lock` makes concurrent runs skip, and a repeat run creates nothing. Returns rows created. |
+
 ## Error codes
 RPCs and triggers raise `errcode 'P0001'` with a short message key that the app maps to bn/en text: `MONTH_CLOSED`, `LAST_MANAGER`, `INVALID_INVITE`, `ALREADY_MEMBER`, `NOT_MANAGER`, `REASON_REQUIRED`, `MESS_SUSPENDED`, `USER_SUSPENDED`, `NOT_PLATFORM_ADMIN`, `LAST_ADMIN`, `INVALID_CONFIG`, `TOO_SOON`, `CUTOFF_PASSED`, `FEATURE_OFF`, `PENDING_ITEMS`, `FUTURE_DATE`, `BAZAR_REQUEST_NOT_PENDING`, `ITEMS_INVALID`.
 

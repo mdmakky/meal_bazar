@@ -158,6 +158,11 @@ class MessRepository {
     return Mess.fromJson(requireRows(rows).first);
   });
 
+  /// Manager only (RLS). Switches the automatic missing-meal fill (0031).
+  Future<void> setAutoMeals(String messId, bool on) => guard(
+    () => _client.from('messes').update({'auto_meals': on}).eq('id', messId),
+  );
+
   /// [every] null switches automatic due reminders off.
   Future<Mess> setDueReminders(
     String messId, {

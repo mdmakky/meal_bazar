@@ -29,3 +29,5 @@ revoke execute on function public.send_duty_reminders() from public, anon, authe
 revoke execute on function public.prune_old_data() from public, anon, authenticated;
 -- 0030: automatic due reminders run from the cron (service role) only.
 revoke execute on function public.send_auto_due_reminders() from public, anon, authenticated;
+-- 0031: the automatic meal fill runs from the cron (service role) only.
+revoke execute on function public.auto_fill_meals(int, date) from public, anon, authenticated;

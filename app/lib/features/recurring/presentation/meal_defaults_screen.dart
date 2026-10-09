@@ -118,6 +118,7 @@ class _MealDefaultsScreenState extends ConsumerState<MealDefaultsScreen> {
       child: ListView(
         padding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
         children: [
+          _AutoMealsCard(messId: messId),
           Padding(
             padding: const EdgeInsets.only(top: AppSpace.sm),
             child: Text(
@@ -161,6 +162,72 @@ class _MealDefaultsScreenState extends ConsumerState<MealDefaultsScreen> {
           ]),
           const SizedBox(height: AppSpace.xl),
         ],
+      ),
+    );
+  }
+}
+
+/// Switch for the automatic fill after midnight, with what the last run did.
+/// The pattern it uses is the list below (default 1 where none is set).
+class _AutoMealsCard extends ConsumerWidget {
+  const _AutoMealsCard({required this.messId});
+
+  final String messId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final mess = ref.watch(currentMessProvider);
+    final text = Theme.of(context).textTheme;
+    final last = mess?.autoMealsLastDate;
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpace.md),
+      child: AppCard.raised(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpace.lg,
+          vertical: AppSpace.sm,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(l.autoMealsTitle, style: text.titleSmall),
+              subtitle: Text(l.autoMealsBody),
+              value: mess?.autoMeals ?? false,
+              onChanged: mess == null
+                  ? null
+                  : (on) async {
+                      try {
+                        await ref
+                            .read(messControllerProvider)
+                            .setAutoMeals(messId, on);
+                      } catch (e) {
+                        if (context.mounted) snackFailure(context, e);
+                      }
+                    },
+            ),
+            if (mess?.autoMeals ?? false)
+              Padding(
+                padding: const EdgeInsets.only(bottom: AppSpace.sm),
+                child: Text(
+                  last == null
+                      ? l.autoMealsNever
+                      : l.autoMealsLast(
+                          Fmt.digits(
+                            last.split('-').reversed.take(2).join('/'),
+                            bangla: bnDigits(context),
+                          ),
+                          Fmt.digits(
+                            '${mess?.autoMealsLastCount ?? 0}',
+                            bangla: bnDigits(context),
+                          ),
+                        ),
+                  style: text.bodySmall,
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

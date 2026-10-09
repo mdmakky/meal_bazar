@@ -192,6 +192,11 @@ class MessController {
     _ref.invalidate(myMembershipsProvider);
   }
 
+  Future<void> setAutoMeals(String messId, bool on) async {
+    await _repo.setAutoMeals(messId, on);
+    _ref.invalidate(myMembershipsProvider);
+  }
+
   Future<void> saveDueReminderText(String messId, DueReminderText t) async {
     try {
       await _repo.saveDueReminderText(messId, t);
