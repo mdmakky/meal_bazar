@@ -23,8 +23,14 @@ export const GET = handle(async (req) => {
   if (deleted || failed) console.log('account deletions', { deleted, failed }); // counts only, never ids
 
   // Reminders are a nicety: a failure never stops the rest of the run.
-  const duty = await sb.rpc('send_duty_reminders');
-  if (duty.error) console.log('duty reminders failed', duty.error.code);
+  let dutyReminders = 0;
+  try {
+    const { data, error } = await sb.rpc('send_duty_reminders');
+    if (error) console.log('duty reminders failed', error.code);
+    else dutyReminders = Number(data ?? 0);
+  } catch {
+    console.log('duty reminders failed');
+  }
 
   let push: DrainResult | { error: string } | null = null;
   if (serviceAccount()) {
@@ -34,7 +40,7 @@ export const GET = handle(async (req) => {
       push = { error: e instanceof HttpError ? e.code : 'internal' }; // never undoes the work above
     }
   }
-  return json({ kept_alive: true, deleted, failed, duty_reminders: duty.data ?? 0, push });
+  return json({ kept_alive: true, deleted, failed, duty_reminders: dutyReminders, push });
 });
 
 async function processDeletions(sb: SupabaseClient) {
