@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../format.dart';
 import '../l10n/gen/app_localizations.dart';
+import '../motion/effects.dart';
 import '../theme/tokens.dart';
 
 /// One member × meal type: 1, ½, 0 (dimmed), Off (struck dash), `+n` guests.
@@ -75,21 +76,32 @@ class MealCell extends StatelessWidget {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                AnimatedSwitcher(
-                  duration: MediaQuery.disableAnimationsOf(context)
-                      ? Duration.zero
-                      : AppMotion.valueFade,
-                  child: face,
+                PopOnChange(
+                  value: value,
+                  child: AnimatedSwitcher(
+                    duration: AppMotion.of(context, AppMotion.valueFade),
+                    child: face,
+                  ),
                 ),
                 if (guests > 0)
                   Positioned(
                     top: AppSpace.xs,
                     right: AppSpace.xs,
-                    child: Text(
-                      guestText,
-                      style: text.labelSmall?.copyWith(
-                        color: p.inkSecondary,
-                        fontFeatures: const [FontFeature.tabularFigures()],
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: p.accentSoft,
+                        borderRadius: BorderRadius.circular(AppRadius.sm),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 3),
+                        child: Text(
+                          guestText,
+                          style: text.labelSmall?.copyWith(
+                            color: p.ink,
+                            fontWeight: FontWeight.w600,
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                          ),
+                        ),
                       ),
                     ),
                   ),
