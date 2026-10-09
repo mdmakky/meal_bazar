@@ -1180,30 +1180,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportMeals => 'Meals';
 
   @override
-  String get reportFoodCost => 'Food cost';
+  String get reportFoodCost => 'Meal cost';
 
   @override
   String get reportExtra => 'Extra';
 
   @override
-  String get reportPaid => 'Paid';
+  String get reportPaid => 'Paid + pocket';
 
   @override
   String get reportBalance => 'Balance';
 
   @override
-  String get reportDue => 'due';
-
-  @override
-  String get reportAdvance => 'advance';
-
-  @override
   String get reportFormula => 'Meal rate = food total ÷ total meals';
-
-  @override
-  String reportFooter(String date) {
-    return 'Meal Bazar · generated $date';
-  }
 
   @override
   String get reportNoMembers => 'No members this month';
@@ -1213,6 +1202,158 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reportPrint => 'Print report';
+
+  @override
+  String reportFooter(String date) {
+    return 'Made with Meal Bazar · $date';
+  }
+
+  @override
+  String get reportPage => 'Page';
+
+  @override
+  String reportManager(String name) {
+    return 'Manager: $name';
+  }
+
+  @override
+  String get reportSectionMeals => 'Meals';
+
+  @override
+  String get reportSectionDaily => 'Daily meals (by member)';
+
+  @override
+  String get reportSectionBazar => 'Bazar';
+
+  @override
+  String get reportSectionMoney => 'Expenses, deposits & summary';
+
+  @override
+  String get reportMatrix => 'Meal matrix';
+
+  @override
+  String get reportMatrixHint =>
+      'Rows = members, columns = days; darker = more meals';
+
+  @override
+  String get reportMember => 'Member';
+
+  @override
+  String get reportTotal => 'Total';
+
+  @override
+  String get reportDayTotal => 'Day total';
+
+  @override
+  String get reportOffShort => 'x';
+
+  @override
+  String get reportOffLegend => 'x = off';
+
+  @override
+  String get reportAbsentLegend => '· = not in the mess then';
+
+  @override
+  String get reportTypeBreakdown => 'Meal types by member';
+
+  @override
+  String get reportGuests => 'Guests';
+
+  @override
+  String get reportOffDays => 'Off days';
+
+  @override
+  String get reportBazarTrips => 'Bazar trips';
+
+  @override
+  String reportTimes(String count) {
+    return '$count×';
+  }
+
+  @override
+  String get reportWeightedMeals => 'Weighted meals';
+
+  @override
+  String get reportDaily => 'Who ate how many meals, day by day';
+
+  @override
+  String reportDailyHint(String types) {
+    return 'Each member\'s $types, by day · ½ = half meal · +1 = guest · x = off';
+  }
+
+  @override
+  String reportMealsCount(String meals) {
+    return '$meals meals';
+  }
+
+  @override
+  String get reportHalfMeal => 'Half meal';
+
+  @override
+  String get reportDoubleMeal => 'Double meal';
+
+  @override
+  String get reportOff => 'Off';
+
+  @override
+  String get reportCountNote =>
+      'Total column counts without weights; weighted meals under the name';
+
+  @override
+  String get reportTimeline => 'Bazar timeline';
+
+  @override
+  String get reportMessFund => 'Mess fund';
+
+  @override
+  String reportOwnPocket(String name) {
+    return '$name\'s pocket';
+  }
+
+  @override
+  String get reportDate => 'Date';
+
+  @override
+  String get reportCategory => 'Category';
+
+  @override
+  String get reportSplit => 'Split';
+
+  @override
+  String get reportAmount => 'Amount';
+
+  @override
+  String reportEveryone(String count) {
+    return 'Everyone ($count)';
+  }
+
+  @override
+  String get reportExpenseTotal => 'Total other expenses';
+
+  @override
+  String get reportDepositsTitle => 'Deposits';
+
+  @override
+  String get reportMethod => 'Method';
+
+  @override
+  String get reportVerifiedTotal => 'Total deposits (verified)';
+
+  @override
+  String get reportSummary => 'Summary';
+
+  @override
+  String get reportOpening => 'Previous';
+
+  @override
+  String get reportNone => 'None';
+
+  @override
+  String get reportWeekdays =>
+      'Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday';
+
+  @override
+  String get reportWeekdaysShort => 'S,M,T,W,T,F,S';
 
   @override
   String get accountTitle => 'Account';

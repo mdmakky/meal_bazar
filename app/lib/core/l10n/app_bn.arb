@@ -631,14 +631,15 @@
   "reportDeposits": "মোট জমা",
   "reportName": "নাম",
   "reportMeals": "মিল",
-  "reportFoodCost": "খাবার খরচ",
+  "reportFoodCost": "মিল খরচ",
   "reportExtra": "অন্যান্য",
-  "reportPaid": "জমা",
+  "reportPaid": "জমা + পকেট",
   "reportBalance": "ব্যালেন্স",
-  "reportDue": "বাকি",
-  "reportAdvance": "অগ্রিম",
   "reportFormula": "মিল রেট = খাবারের মোট খরচ ÷ মোট মিল",
-  "reportFooter": "Meal Bazar · তৈরি {date}",
+  "reportNoMembers": "এই মাসে কোনো সদস্য নেই",
+  "reportShare": "রিপোর্ট শেয়ার করুন",
+  "reportPrint": "রিপোর্ট প্রিন্ট করুন",
+  "reportFooter": "মিল বাজার দিয়ে তৈরি · {date}",
   "@reportFooter": {
     "placeholders": {
       "date": {
@@ -646,9 +647,92 @@
       }
     }
   },
-  "reportNoMembers": "এই মাসে কোনো সদস্য নেই",
-  "reportShare": "রিপোর্ট শেয়ার করুন",
-  "reportPrint": "রিপোর্ট প্রিন্ট করুন",
+  "reportPage": "পৃষ্ঠা",
+  "reportManager": "ম্যানেজার: {name}",
+  "@reportManager": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "reportSectionMeals": "মিল",
+  "reportSectionDaily": "দৈনিক মিল (সদস্যভিত্তিক)",
+  "reportSectionBazar": "বাজার",
+  "reportSectionMoney": "খরচ, জমা ও সারসংক্ষেপ",
+  "reportMatrix": "মিল ম্যাট্রিক্স",
+  "reportMatrixHint": "সারি = সদস্য, কলাম = তারিখ; রং যত গাঢ় তত বেশি মিল",
+  "reportMember": "সদস্য",
+  "reportTotal": "মোট",
+  "reportDayTotal": "দিনের মোট",
+  "reportOffShort": "অ",
+  "reportOffLegend": "অ = অফ",
+  "reportAbsentLegend": "· = তখন মেসে ছিল না",
+  "reportTypeBreakdown": "সদস্যভিত্তিক মিলের ধরন",
+  "reportGuests": "গেস্ট",
+  "reportOffDays": "অফ দিন",
+  "reportBazarTrips": "বাজারে গেছে",
+  "reportTimes": "{count} বার",
+  "@reportTimes": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "reportWeightedMeals": "ওজনসহ মিল",
+  "reportDaily": "কে কবে কয়টা মিল খেয়েছে",
+  "reportDailyHint": "প্রতি সদস্যের {types}, দিন ধরে · ½ = হাফ মিল · +১ = গেস্ট · অ = অফ",
+  "@reportDailyHint": {
+    "placeholders": {
+      "types": {
+        "type": "String"
+      }
+    }
+  },
+  "reportMealsCount": "{meals} মিল",
+  "@reportMealsCount": {
+    "placeholders": {
+      "meals": {
+        "type": "String"
+      }
+    }
+  },
+  "reportHalfMeal": "হাফ মিল",
+  "reportDoubleMeal": "ডাবল মিল",
+  "reportOff": "অফ",
+  "reportCountNote": "মোট কলামে ওজন ছাড়া গোনা; ওজনসহ মিল নামের নিচে",
+  "reportTimeline": "বাজার টাইমলাইন",
+  "reportMessFund": "মেস ফান্ড",
+  "reportOwnPocket": "{name}-এর পকেট",
+  "@reportOwnPocket": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "reportDate": "তারিখ",
+  "reportCategory": "খাত",
+  "reportSplit": "ভাগ",
+  "reportAmount": "টাকা",
+  "reportEveryone": "সবাই ({count} জন)",
+  "@reportEveryone": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "reportExpenseTotal": "মোট অন্যান্য খরচ",
+  "reportDepositsTitle": "জমা",
+  "reportMethod": "মাধ্যম",
+  "reportVerifiedTotal": "মোট জমা (যাচাই করা)",
+  "reportSummary": "সারসংক্ষেপ",
+  "reportOpening": "আগের",
+  "reportNone": "কিছু নেই",
+  "reportWeekdays": "রবিবার,সোমবার,মঙ্গলবার,বুধবার,বৃহস্পতিবার,শুক্রবার,শনিবার",
+  "reportWeekdaysShort": "র,সো,ম,বু,বৃ,শু,শ",
   "accountTitle": "অ্যাকাউন্ট",
   "accountName": "আপনার নাম",
   "accountNameSave": "নাম সেভ করুন",

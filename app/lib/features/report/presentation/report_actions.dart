@@ -6,7 +6,11 @@ import 'package:printing/printing.dart';
 
 import '../../../core/dates.dart';
 import '../../../core/failure_text.dart';
+import '../../meals/application/meal_providers.dart';
 import '../../mess/application/mess_providers.dart';
+import '../../mess/domain/member.dart';
+import '../../money/application/money_providers.dart';
+import '../../money/data/money_repository.dart' show allPages;
 import '../../month/application/month_providers.dart';
 import '../application/report_pdf.dart';
 
@@ -36,11 +40,44 @@ Future<void> _run(
   final messenger = ScaffoldMessenger.maybeOf(context);
   try {
     final period = await ref.read(currentPeriodProvider(messId).future);
+    final money = ref.read(moneyRepositoryProvider);
+    final members = await ref.read(membersProvider(messId).future);
     final data = ReportData(
       messName: ref.read(currentMessProvider)?.name ?? '',
+      address: ref.read(currentMessProvider)?.address,
+      managerName: [
+        for (final m in members)
+          if (m.role == MemberRole.manager && m.status == MemberStatus.active)
+            m.displayName,
+      ].join(', '),
       period: period,
+      closed: (await ref.read(
+        monthsProvider(messId).future,
+      )).any((m) => m.closed && m.start == period.start),
       totals: await ref.read(monthTotalsProvider(messId).future),
       balances: await ref.read(memberBalancesProvider(messId).future),
+      members: members,
+      mealTypes: await ref.read(mealTypesProvider(messId).future),
+      entries: await ref
+          .read(mealRepositoryProvider)
+          .entriesForRange(messId, period.start, period.end),
+      dayTotals: await ref.read(dailyMealsProvider(messId).future),
+      bazars: await allPages(
+        (from) => money.bazars(messId, period, from: from),
+      ),
+      expenses: await allPages(
+        (from) => money.expenses(messId, period, from: from),
+      ),
+      deposits: await allPages(
+        (from) => money.deposits(messId, period, from: from),
+      ),
+      // ponytail: archived categories are not listed, so their cell is blank.
+      categories: {
+        for (final c in await ref.read(
+          expenseCategoriesProvider(messId).future,
+        ))
+          c.id: c.name,
+      },
       locale: locale,
       generatedOn: DateTime.now(),
     );

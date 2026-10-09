@@ -541,14 +541,15 @@
   "reportDeposits": "Deposits",
   "reportName": "Name",
   "reportMeals": "Meals",
-  "reportFoodCost": "Food cost",
+  "reportFoodCost": "Meal cost",
   "reportExtra": "Extra",
-  "reportPaid": "Paid",
+  "reportPaid": "Paid + pocket",
   "reportBalance": "Balance",
-  "reportDue": "due",
-  "reportAdvance": "advance",
   "reportFormula": "Meal rate = food total ÷ total meals",
-  "reportFooter": "Meal Bazar · generated {date}",
+  "reportNoMembers": "No members this month",
+  "reportShare": "Share report",
+  "reportPrint": "Print report",
+  "reportFooter": "Made with Meal Bazar · {date}",
   "@reportFooter": {
     "placeholders": {
       "date": {
@@ -556,9 +557,92 @@
       }
     }
   },
-  "reportNoMembers": "No members this month",
-  "reportShare": "Share report",
-  "reportPrint": "Print report",
+  "reportPage": "Page",
+  "reportManager": "Manager: {name}",
+  "@reportManager": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "reportSectionMeals": "Meals",
+  "reportSectionDaily": "Daily meals (by member)",
+  "reportSectionBazar": "Bazar",
+  "reportSectionMoney": "Expenses, deposits & summary",
+  "reportMatrix": "Meal matrix",
+  "reportMatrixHint": "Rows = members, columns = days; darker = more meals",
+  "reportMember": "Member",
+  "reportTotal": "Total",
+  "reportDayTotal": "Day total",
+  "reportOffShort": "x",
+  "reportOffLegend": "x = off",
+  "reportAbsentLegend": "· = not in the mess then",
+  "reportTypeBreakdown": "Meal types by member",
+  "reportGuests": "Guests",
+  "reportOffDays": "Off days",
+  "reportBazarTrips": "Bazar trips",
+  "reportTimes": "{count}×",
+  "@reportTimes": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "reportWeightedMeals": "Weighted meals",
+  "reportDaily": "Who ate how many meals, day by day",
+  "reportDailyHint": "Each member's {types}, by day · ½ = half meal · +1 = guest · x = off",
+  "@reportDailyHint": {
+    "placeholders": {
+      "types": {
+        "type": "String"
+      }
+    }
+  },
+  "reportMealsCount": "{meals} meals",
+  "@reportMealsCount": {
+    "placeholders": {
+      "meals": {
+        "type": "String"
+      }
+    }
+  },
+  "reportHalfMeal": "Half meal",
+  "reportDoubleMeal": "Double meal",
+  "reportOff": "Off",
+  "reportCountNote": "Total column counts without weights; weighted meals under the name",
+  "reportTimeline": "Bazar timeline",
+  "reportMessFund": "Mess fund",
+  "reportOwnPocket": "{name}'s pocket",
+  "@reportOwnPocket": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "reportDate": "Date",
+  "reportCategory": "Category",
+  "reportSplit": "Split",
+  "reportAmount": "Amount",
+  "reportEveryone": "Everyone ({count})",
+  "@reportEveryone": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "reportExpenseTotal": "Total other expenses",
+  "reportDepositsTitle": "Deposits",
+  "reportMethod": "Method",
+  "reportVerifiedTotal": "Total deposits (verified)",
+  "reportSummary": "Summary",
+  "reportOpening": "Previous",
+  "reportNone": "None",
+  "reportWeekdays": "Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday",
+  "reportWeekdaysShort": "S,M,T,W,T,F,S",
   "accountTitle": "Account",
   "accountName": "Your name",
   "accountNameSave": "Save name",

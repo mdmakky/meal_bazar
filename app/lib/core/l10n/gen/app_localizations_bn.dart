@@ -1171,30 +1171,19 @@ class AppLocalizationsBn extends AppLocalizations {
   String get reportMeals => 'মিল';
 
   @override
-  String get reportFoodCost => 'খাবার খরচ';
+  String get reportFoodCost => 'মিল খরচ';
 
   @override
   String get reportExtra => 'অন্যান্য';
 
   @override
-  String get reportPaid => 'জমা';
+  String get reportPaid => 'জমা + পকেট';
 
   @override
   String get reportBalance => 'ব্যালেন্স';
 
   @override
-  String get reportDue => 'বাকি';
-
-  @override
-  String get reportAdvance => 'অগ্রিম';
-
-  @override
   String get reportFormula => 'মিল রেট = খাবারের মোট খরচ ÷ মোট মিল';
-
-  @override
-  String reportFooter(String date) {
-    return 'Meal Bazar · তৈরি $date';
-  }
 
   @override
   String get reportNoMembers => 'এই মাসে কোনো সদস্য নেই';
@@ -1204,6 +1193,158 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get reportPrint => 'রিপোর্ট প্রিন্ট করুন';
+
+  @override
+  String reportFooter(String date) {
+    return 'মিল বাজার দিয়ে তৈরি · $date';
+  }
+
+  @override
+  String get reportPage => 'পৃষ্ঠা';
+
+  @override
+  String reportManager(String name) {
+    return 'ম্যানেজার: $name';
+  }
+
+  @override
+  String get reportSectionMeals => 'মিল';
+
+  @override
+  String get reportSectionDaily => 'দৈনিক মিল (সদস্যভিত্তিক)';
+
+  @override
+  String get reportSectionBazar => 'বাজার';
+
+  @override
+  String get reportSectionMoney => 'খরচ, জমা ও সারসংক্ষেপ';
+
+  @override
+  String get reportMatrix => 'মিল ম্যাট্রিক্স';
+
+  @override
+  String get reportMatrixHint =>
+      'সারি = সদস্য, কলাম = তারিখ; রং যত গাঢ় তত বেশি মিল';
+
+  @override
+  String get reportMember => 'সদস্য';
+
+  @override
+  String get reportTotal => 'মোট';
+
+  @override
+  String get reportDayTotal => 'দিনের মোট';
+
+  @override
+  String get reportOffShort => 'অ';
+
+  @override
+  String get reportOffLegend => 'অ = অফ';
+
+  @override
+  String get reportAbsentLegend => '· = তখন মেসে ছিল না';
+
+  @override
+  String get reportTypeBreakdown => 'সদস্যভিত্তিক মিলের ধরন';
+
+  @override
+  String get reportGuests => 'গেস্ট';
+
+  @override
+  String get reportOffDays => 'অফ দিন';
+
+  @override
+  String get reportBazarTrips => 'বাজারে গেছে';
+
+  @override
+  String reportTimes(String count) {
+    return '$count বার';
+  }
+
+  @override
+  String get reportWeightedMeals => 'ওজনসহ মিল';
+
+  @override
+  String get reportDaily => 'কে কবে কয়টা মিল খেয়েছে';
+
+  @override
+  String reportDailyHint(String types) {
+    return 'প্রতি সদস্যের $types, দিন ধরে · ½ = হাফ মিল · +১ = গেস্ট · অ = অফ';
+  }
+
+  @override
+  String reportMealsCount(String meals) {
+    return '$meals মিল';
+  }
+
+  @override
+  String get reportHalfMeal => 'হাফ মিল';
+
+  @override
+  String get reportDoubleMeal => 'ডাবল মিল';
+
+  @override
+  String get reportOff => 'অফ';
+
+  @override
+  String get reportCountNote =>
+      'মোট কলামে ওজন ছাড়া গোনা; ওজনসহ মিল নামের নিচে';
+
+  @override
+  String get reportTimeline => 'বাজার টাইমলাইন';
+
+  @override
+  String get reportMessFund => 'মেস ফান্ড';
+
+  @override
+  String reportOwnPocket(String name) {
+    return '$name-এর পকেট';
+  }
+
+  @override
+  String get reportDate => 'তারিখ';
+
+  @override
+  String get reportCategory => 'খাত';
+
+  @override
+  String get reportSplit => 'ভাগ';
+
+  @override
+  String get reportAmount => 'টাকা';
+
+  @override
+  String reportEveryone(String count) {
+    return 'সবাই ($count জন)';
+  }
+
+  @override
+  String get reportExpenseTotal => 'মোট অন্যান্য খরচ';
+
+  @override
+  String get reportDepositsTitle => 'জমা';
+
+  @override
+  String get reportMethod => 'মাধ্যম';
+
+  @override
+  String get reportVerifiedTotal => 'মোট জমা (যাচাই করা)';
+
+  @override
+  String get reportSummary => 'সারসংক্ষেপ';
+
+  @override
+  String get reportOpening => 'আগের';
+
+  @override
+  String get reportNone => 'কিছু নেই';
+
+  @override
+  String get reportWeekdays =>
+      'রবিবার,সোমবার,মঙ্গলবার,বুধবার,বৃহস্পতিবার,শুক্রবার,শনিবার';
+
+  @override
+  String get reportWeekdaysShort => 'র,সো,ম,বু,বৃ,শু,শ';
 
   @override
   String get accountTitle => 'অ্যাকাউন্ট';
