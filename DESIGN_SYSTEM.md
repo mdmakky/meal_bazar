@@ -7,6 +7,7 @@ STORY: The manager opens the app, reads today's state in one glance, taps meals,
 FIRST VIEWPORT (Today): a large Bangla date, the day's meal total as the headline figure with its proof line, the member × meal tally grid, and the quick actions in thumb reach.
 FORM: monochrome canon (user-chosen challenger over the assigned "mobile-money slip"); seed key 66828936.
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
+PREMIUM v2 (owner: "too generic, no animation or style, must feel premium"): KEEP the identity (monochrome ink #141413 on warm near-white, Hind Siliguri, turmeric only for live/today/AI) and RAISE it with depth (warm page, raised white cards, one ink statement card per screen), heavier display figures, and authored motion: the RollingNumber odometer is the signature, the StampMark is the brand moment. Still refused: decorative gradients, glass/blur, neon, a new palette, continuous animation (except the sync dot while syncing).
 -->
 
 Material 3 governs structure and components (Android platform). The brand lives in the theme: color roles, type and shape. All tokens live in `app/lib/core/theme/`, and nothing outside that folder may hard-code a color, size or font.
@@ -22,9 +23,13 @@ Strategy: **Restrained**. Neutrals plus one accent. The use scene is a bachelor 
 
 | Role | Light | Dark | Use |
 |---|---|---|---|
-| `bg` | `#FAFAF9` | `#0F0F0E` | Scaffold |
+| `bg` | `#F7F6F3` | `#0F0F0E` | Scaffold (v2: warmed so raised white cards lift) |
 | `surface` | `#FFFFFF` | `#181817` | Cards, sheets |
-| `surfaceMuted` | `#F3F3F1` | `#201F1E` | Grid header, disabled fields, segmented track |
+| `surfaceRaised` | `#FFFFFF` | `#1E1E1C` | Raised cards (with `AppElevation.raised`) |
+| `surfaceInk` | `#141413` | `#23221F` | The statement card. Dark mode is a raised surface, not an inversion |
+| `surfaceInkBorder` | `#2C2B29` | `#3A3936` | Hairline on/inside the statement card (drawn as its outline in dark) |
+| `shadow` | `#141413` @ 6% | `#000000` @ 32% | Tint for `AppElevation` shadows |
+| `surfaceMuted` | `#F0EFEC` | `#201F1E` | Grid header, disabled fields, segmented track |
 | `border` | `#E6E5E2` | `#2C2B29` | Hairlines (1 px) |
 | `borderStrong` | `#CFCECA` | `#3D3C39` | Input outline, focused cell |
 | `ink` | `#141413` | `#F2F1EE` | Primary text, filled primary button |
@@ -58,8 +63,8 @@ Headings use sentence case. There are no eyebrows or kickers above headings.
 
 ## Space, shape, depth
 - **Spacing** (4 dp base): `xs 4 · sm 8 · md 12 · lg 16 · xl 24 · xxl 32 · xxxl 48`. The screen gutter is 16. There is more space above a section title than below it (24 above, 12 below).
-- **Radius**: `sm 8` (inputs, chips, grid cells) · `md 12` (cards, buttons) · `lg 20` (bottom sheet top corners). The FAB is 16.
-- **Depth**: flat surfaces separated by hairline borders. A shadow appears only on floating layers (sheets, menus, snackbars), with a y-offset of 4 and a blur of 16 at 8–12% ink. Cards are never nested.
+- **Radius**: `sm 8` (inputs, chips, grid cells) · `md 12` (cards, buttons) · `lg 20` · `xl 24` (statement cards, bottom sheet top corners). The FAB is 16.
+- **Depth** (v1; v2 adds raised and statement cards, see Premium v2): flat surfaces separated by hairline borders. A shadow appears only on floating layers (sheets, menus, snackbars), with a y-offset of 4 and a blur of 16 at 8–12% ink. Cards are never nested.
 - **Touch**: at least 48 × 48 dp, with 8 dp between targets. Meal grid cells are 52 × 48.
 
 ## Components (single implementation each, in `app/lib/core/widgets/`)
@@ -80,9 +85,87 @@ Headings use sentence case. There are no eyebrows or kickers above headings.
 An M3 `NavigationBar` with 5 destinations: **হোম (Home, `/today`) · মিল (Meals) · বাজার (Bazar) · হিসাব (Money) · আরও (More)**. Meals are entered on মিল (member × meal stepper grid); হোম shows the day in brief with a "মিল বসান" link. Expenses and deposits live under হিসাব. Quick actions open on হোম and from the মিল FAB as sheets. The system Back gesture is honored everywhere, and the app runs edge-to-edge with insets.
 
 ## Motion
+- v1 below; **Premium v2** (end of this file) adds the RollingNumber signature, the StampMark, and the navigation motion.
 - One authored moment: the **proof reveal**. A figure's proof line rises 8 dp and fades in over 220 ms with an emphasized-decelerate curve.
 - Everything else uses M3 defaults: sheets slide up, pages use shared-axis transitions. Cell taps get only a 120 ms value crossfade.
 - When the system's *Remove animations* setting is on, all of this becomes an instant cut.
 
 ## Copy
 Bangla first, in plain spoken Bangla rather than official Sanskritised Bangla: "মিল", "বাজার", "জমা", "বাকি", "অগ্রিম". Controls name their action ("মিল সেভ করুন", not "ঠিক আছে").
+
+## Premium v2
+
+The identity is unchanged; the finish is raised. Everything below lives in `app/lib/core/theme/` (colour, type, elevation) and `app/lib/core/motion/` (motion), and is exported through `core/widgets/widgets.dart`.
+
+### Surfaces and depth
+Three surfaces, one rule: **one statement card per screen**, never nested cards.
+
+| Surface | Widget | Look | Use |
+|---|---|---|---|
+| Plain | `AppCard(...)` | `surface`, 1 px `border`, radius 12 | Lists, settings, secondary groups |
+| Raised | `AppCard.raised(...)` | `surfaceRaised`, no outline, `AppElevation.raised`, radius 12 | Primary content cards on the warm page |
+| Statement | `AppCard.ink(...)` | `surfaceInk`, radius **24**, padding 24, `AppElevation.raised`; dark adds a `surfaceInkBorder` hairline | The screen's headline figure (today's meals, my balance, the month's rate) |
+
+Inside `AppCard.ink` the whole subtree is re-themed with `AppTheme.statement(brightness)`, built from `AppPalette.statement` (the dark scheme's ink, accent and due/advance on the card's surface). Children use `Theme.of(context).textTheme` and `context.palette` as usual and get legible colours; never hard-code `onInk`. Turmeric on the card still means live/today only.
+
+**Elevation** is layered soft shadows, offsets and blur only (no spread, no zero-offset halos):
+- `AppElevation.raised(p)`: `0 1 2` + `0 8 24` at `shadow`.
+- `AppElevation.button(p)`: `0 1 2` + `0 4 12`. Light theme only (shadows are invisible on dark; dark relies on surface steps).
+
+**Radius**: `sm 8 · md 12 · lg 20 · xl 24 (statement cards, sheet tops) · fab 16`.
+
+### Type
+| Role | Size / line height | Weight | Tracking | Use |
+|---|---|---|---|---|
+| displayLarge | 44 / 1.05 | 600 | −0.5 (Latin digits), 0 (Bangla digits) | The statement figure |
+| displaySmall | 34 / 1.15 | 600 | −0.25 | Secondary hero figures |
+| titleLarge | 20 / 1.3 | 600 | −0.1 | Section titles (stronger than v1's titleMedium) |
+| `AppType.overline(context)` | 12 | 600 | 0.6 English, 0 Bangla | Labels over a figure inside a card. Not a kicker above a heading. |
+
+Every text role carries **tabular figures**. Tracking breaks Bengali conjuncts, so anything that tracks must reset to 0 for Bangla: `AppType.figure(style, banglaDigits: ...)` does it for figures, and `RollingNumber` does it automatically.
+
+### Motion tokens (`AppMotion`)
+| Token | Value | Use |
+|---|---|---|
+| `fast` | 120 ms | Press-in, value pop, loading cross-fade |
+| `base` | 220 ms | State changes, staggered row entrance, proof reveal |
+| `slow` | 360 ms | The number roll, the nav dot slide |
+| `page` / `tab` | 280 / 210 ms | Shared-axis push / fade-through tabs |
+| `chip` / `stamp` | 180 / 260 ms | Chip selection / stamp landing |
+| `arrive` | `Easing.emphasizedDecelerate` | Anything entering |
+| `state` | `Easing.standard` | Anything changing in place |
+| `exit` | `Easing.emphasizedAccelerate`, at `exitOf(d)` = 70% | Anything leaving |
+
+Rules: transform and opacity only (plus clip); `RepaintBoundary` around anything that animates often; no `BackdropFilter`, no `saveLayer`-heavy effects; **no continuous animation** except the sync dot while syncing (the skeleton pulse stops by itself after ~20 s). Every widget reads `AppMotion.of(context, d)` / `AppMotion.reduced(context)`, so the system *Remove animations* setting gives an instant cut everywhere.
+
+### The signature: `RollingNumber`
+Numbers you can trust *move* like a counter. When a figure changes, each changed digit rolls in its own clipped cell, odometer style: **up when the value grows, down when it shrinks**, the rightmost digit first and each step left 30 ms later (360 ms + stagger, emphasized decelerate). Signs, ৳, separators, decimals (০.৫) and Bangla digits roll with the rest. Colour (due/advance) cross-fades. At rest it is one plain `Text`; with *Remove animations* the value simply swaps.
+
+```dart
+RollingNumber.money(balance, signed: true, banglaDigits: bn, style: t.displayLarge)
+RollingNumber(totalMeals, decimals: 1, banglaDigits: bn, style: t.displayLarge)
+```
+Use it for every headline figure that can change while the screen is open (today's meals, balances, the meal rate). Static lists keep `Money` / `Text`.
+
+### The brand moment: `StampMark`
+When something is settled or closed, it gets stamped: `StampMark('পরিশোধিত')`, `StampMark('বন্ধ')`. An outlined ink (or `accent: true` turmeric) stamp, rotated −8°, lands from 1.4× with a slight overshoot in 260 ms and a medium haptic. It plays once on mount; pass `animate: false` when re-showing an already-settled state. Reserve it for these moments only.
+
+### Supporting motion
+| Widget | Behaviour |
+|---|---|
+| `PressableScale(child, haptic:)` | 0.96 while pressed (raw pointers, so the child keeps its tap), optional selection click. `AppButton` uses it. |
+| `PopOnChange(value:, child:)` | 1.0 → 1.12 → 1.0 in 120 ms when `value` changes: stepper values, counters. |
+| `StaggeredList(child:)` + `StaggeredList.wrap(rows)` / `Stagger(index:)` | First build only: up to 8 rows, 30 ms apart, fade + 8 dp rise. Rows mounted later appear as-is. |
+| `AnimatedSyncDot(color:, active:)` | The sync dot; breathes only while active. `SyncBadge` uses it. |
+| `SkeletonPulse` / `SkeletonBox` | Calm pulse (opacity .55 ↔ 1, 1200 ms) on muted blocks shaped like the content. `LoadingView` is the default shape. |
+
+### Navigation motion
+- **Pushed routes**: shared axis X (`SharedAxisPageTransitionsBuilder`, 280 ms): the new page slides 30 dp in and fades over the old one, which drifts 30 dp back. Installed for Android in `pageTransitionsTheme`; iOS keeps Cupertino for its edge swipe.
+- **Tabs**: fade-through (`FadeThroughBranches`, 210 ms): the old tab fades out in the first 35%, the new one fades in from 92% scale. Branch state is kept, inactive tickers are paused.
+- **`AppNavBar`**: M3 anatomy (5 destinations, pill over the icon, label below, 80 dp, ≥ 48 dp targets, selected semantics). The active pill fills with ink (180 ms) and **one turmeric dot slides under it** to the new tab (360 ms).
+
+### Components (v2 deltas)
+- `AppButton`: presses scale; loading cross-fades label → spinner at the same width; primary is filled ink with `AppElevation.button` on light; secondary is raised white with a hairline.
+- Chips (theme): unselected raised white + hairline; selected fills ink with an onInk check that slides in (~180 ms).
+- `AppSheet.show`: 24 dp top corners, drag handle 36 × 4, 400 ms emphasized-decelerate entrance (a spring without the bounce), 70% exit.
+- `AppSnack.show(context, msg, icon:, actionLabel:, onAction:)`: floating ink pill (stadium) with an icon; content rises 8 dp; action in turmeric.
