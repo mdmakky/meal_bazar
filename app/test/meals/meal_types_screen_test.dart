@@ -107,4 +107,26 @@ void main() {
     saving.complete();
     await tester.pumpAndSettle();
   });
+
+  testWidgets('adding a type closes the sheet cleanly', (tester) async {
+    when(
+      () => repo.createMealType(
+        any(),
+        name: any(named: 'name'),
+        sortOrder: any(named: 'sortOrder'),
+      ),
+    ).thenAnswer((_) async {});
+    await pump(tester);
+
+    await tester.tap(find.text('নতুন বেলা যোগ করুন'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextFormField), 'বিকেল');
+    await tester.tap(find.text('সেভ করুন'));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    verify(
+      () => repo.createMealType('mess1', name: 'বিকেল', sortOrder: 2),
+    ).called(1);
+  });
 }

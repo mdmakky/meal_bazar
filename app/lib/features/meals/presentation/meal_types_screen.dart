@@ -111,7 +111,9 @@ class _MealTypesScreenState extends ConsumerState<MealTypesScreen> {
           ),
         ),
       ),
-    ).whenComplete(controller.dispose);
+    );
+    // No dispose: the sheet's exit animation still builds the field after the
+    // future completes, and a listener-free controller is simply collected.
   }
 
   Future<void> _add(String messId, List<MealType> items) async {
