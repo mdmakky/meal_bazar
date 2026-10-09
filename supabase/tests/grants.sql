@@ -25,3 +25,5 @@ revoke execute on function public.post_meal_off_notice(uuid, uuid, date, uuid, b
   from public, anon, authenticated;
 -- 0028: the duty reminder is run by the cron (service role) only.
 revoke execute on function public.send_duty_reminders() from public, anon, authenticated;
+-- 0029: pruning is run by the cron (service role) only.
+revoke execute on function public.prune_old_data() from public, anon, authenticated;

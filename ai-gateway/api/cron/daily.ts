@@ -11,7 +11,8 @@ const PUSH_BATCH = 500;
 // 1. keep-alive: one trivial query so the free Supabase project is not paused;
 // 2. hard-delete auth users queued by delete_my_account() (DATABASE.md, 0007/0010);
 // 3. queue today's bazar-duty reminders (send_duty_reminders, 0028; 03:00 UTC = 09:00 Dhaka);
-// 4. send push_outbox leftovers (a missed pg_net kick); skipped without FIREBASE_SERVICE_ACCOUNT.
+// 4. prune messages and audit rows older than 2 months (prune_old_data, 0029);
+// 5. send push_outbox leftovers (a missed pg_net kick); skipped without FIREBASE_SERVICE_ACCOUNT.
 export const GET = handle(async (req) => {
   const secret = process.env.CRON_SECRET;
   if (!secret || req.headers.get('authorization') !== `Bearer ${secret}`) throw new HttpError(401, 'unauthorized');
@@ -32,6 +33,15 @@ export const GET = handle(async (req) => {
     console.log('duty reminders failed');
   }
 
+  let pruned: unknown = null;
+  try {
+    const { data, error } = await sb.rpc('prune_old_data');
+    if (error) console.log('prune failed', error.code);
+    else pruned = data;
+  } catch {
+    console.log('prune failed');
+  }
+
   let push: DrainResult | { error: string } | null = null;
   if (serviceAccount()) {
     try {
@@ -40,7 +50,7 @@ export const GET = handle(async (req) => {
       push = { error: e instanceof HttpError ? e.code : 'internal' }; // never undoes the work above
     }
   }
-  return json({ kept_alive: true, deleted, failed, duty_reminders: dutyReminders, push });
+  return json({ kept_alive: true, deleted, failed, duty_reminders: dutyReminders, pruned, push });
 });
 
 async function processDeletions(sb: SupabaseClient) {
