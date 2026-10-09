@@ -485,18 +485,29 @@ class _PaidFrom extends StatelessWidget {
           selected: pocket,
           onChanged: onPocket,
         ),
-        if (pocket) ...[
-          _Label(l.moneyPaidPocketHelp),
-          _Required(
-            ok: () => paidBy != null,
-            message: l.moneyPickMember,
-            child: _MemberChips(
-              messId: messId,
-              selected: paidBy,
-              onSelected: onPaidBy,
-            ),
-          ),
-        ],
+        AnimatedSize(
+          duration: AppMotion.of(context, AppMotion.base),
+          curve: AppMotion.state,
+          alignment: Alignment.topCenter,
+          child: !pocket
+              ? const SizedBox(width: double.infinity)
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  spacing: AppSpace.sm,
+                  children: [
+                    _Label(l.moneyPaidPocketHelp),
+                    _Required(
+                      ok: () => paidBy != null,
+                      message: l.moneyPickMember,
+                      child: _MemberChips(
+                        messId: messId,
+                        selected: paidBy,
+                        onSelected: onPaidBy,
+                      ),
+                    ),
+                  ],
+                ),
+        ),
       ],
     );
   }
@@ -2441,40 +2452,45 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm>
                 ),
               ),
               _Label(l.expenseSplit),
-              Wrap(
-                spacing: AppSpace.sm,
-                runSpacing: AppSpace.sm,
-                children: [
-                  for (final (s, label) in [
-                    (_Split.equal, l.splitEqualAll),
-                    (_Split.meal, l.splitByMeal),
-                    // Kept while editing a split that already uses it.
-                    if (ref.featureOn('split') || _split == _Split.selected)
-                      (_Split.selected, l.splitSelected),
-                  ])
-                    ChoiceChip(
-                      label: Text(label),
-                      selected: s == _split,
-                      onSelected: (_) => _pickSplit(s, messId),
-                    ),
+              InkSegmented<_Split>(
+                segments: [
+                  (_Split.equal, l.splitEqualAll),
+                  (_Split.meal, l.splitByMeal),
+                  // Kept while editing a split that already uses it.
+                  if (ref.featureOn('split') || _split == _Split.selected)
+                    (_Split.selected, l.splitSelected),
                 ],
+                selected: _split,
+                onChanged: (s) => _pickSplit(s, messId),
               ),
-              _Label(switch (_split) {
-                _Split.equal => l.expenseSplitEqualHelp,
-                _Split.meal => l.expenseSplitMealHelp,
-                _Split.selected => l.splitSelectedHelp,
-              }),
-              if (_split == _Split.selected)
-                _Required(
-                  ok: () => _weights.isNotEmpty,
-                  message: l.splitPickMember,
-                  child: _ShareList(
-                    messId: messId,
-                    amount: _amount,
-                    weights: _weights,
-                    onChanged: (w) => setState(() => _weights = w),
-                  ),
+              // Grows smoothly instead of jumping when the member list opens.
+              AnimatedSize(
+                duration: AppMotion.of(context, AppMotion.base),
+                curve: AppMotion.state,
+                alignment: Alignment.topCenter,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  spacing: AppSpace.lg,
+                  children: [
+                    _Label(switch (_split) {
+                      _Split.equal => l.expenseSplitEqualHelp,
+                      _Split.meal => l.expenseSplitMealHelp,
+                      _Split.selected => l.splitSelectedHelp,
+                    }),
+                    if (_split == _Split.selected)
+                      _Required(
+                        ok: () => _weights.isNotEmpty,
+                        message: l.splitPickMember,
+                        child: _ShareList(
+                          messId: messId,
+                          amount: _amount,
+                          weights: _weights,
+                          onChanged: (w) => setState(() => _weights = w),
+                        ),
+                      ),
+                  ],
                 ),
+              ),
               _PaidFrom(
                 messId: messId,
                 pocket: _pocket,

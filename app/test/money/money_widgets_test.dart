@@ -613,7 +613,7 @@ void main() {
       await openSheet(tester);
       await tester.enterText(find.byKey(const Key('amount')), '900');
       await tester.tap(find.widgetWithText(ChoiceChip, 'ওয়াইফাই'));
-      await tester.tap(find.widgetWithText(ChoiceChip, l.splitSelected));
+      await tester.tap(find.text(l.splitSelected));
       await tester.pumpAndSettle();
 
       // Everyone present starts checked with ভাগ ১: ৳৪৫০ each (preview only).
@@ -658,7 +658,7 @@ void main() {
       await openSheet(tester);
       await tester.enterText(find.byKey(const Key('amount')), '500');
       await tester.tap(find.widgetWithText(ChoiceChip, 'ওয়াইফাই'));
-      await tester.tap(find.widgetWithText(ChoiceChip, l.splitSelected));
+      await tester.tap(find.text(l.splitSelected));
       await tester.pumpAndSettle();
       for (final i in [0, 1]) {
         final box = find.byType(Checkbox).at(i);
@@ -672,7 +672,7 @@ void main() {
       expect(find.text(l.splitPickMember), findsOneWidget);
       verifyNever(() => repo.saveExpense(any()));
 
-      await tester.tap(find.widgetWithText(ChoiceChip, l.splitEqualAll));
+      await tester.tap(find.text(l.splitEqualAll));
       await tester.pumpAndSettle();
       await tapSave(tester);
       final e =
@@ -721,8 +721,8 @@ void main() {
         ],
       );
       await openSheet(tester);
-      expect(find.widgetWithText(ChoiceChip, l.splitByMeal), findsOneWidget);
-      expect(find.widgetWithText(ChoiceChip, l.splitSelected), findsNothing);
+      expect(find.text(l.splitByMeal), findsOneWidget);
+      expect(find.text(l.splitSelected), findsNothing);
     });
 
     testWidgets('platform: catalogue from config; scan and photo hidden', (

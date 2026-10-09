@@ -1739,13 +1739,13 @@ abstract class AppLocalizations {
   /// No description provided for @expenseSplitMealHelp.
   ///
   /// In bn, this message translates to:
-  /// **'মিল রেটে যোগ হবে, যে যত মিল খেয়েছে সে তত দেবে'**
+  /// **'মিল রেটে যোগ হবে, যে যত মিল খেয়েছে সে তত দেবে। যেমন: গ্যাস, রান্নার খরচ'**
   String get expenseSplitMealHelp;
 
   /// No description provided for @expenseSplitEqualHelp.
   ///
   /// In bn, this message translates to:
-  /// **'সেদিন মেসে থাকা সবার মধ্যে সমান ভাগ হবে'**
+  /// **'সেদিন মেসে থাকা সবার মধ্যে সমান ভাগ হবে। যেমন: ওয়াইফাই, বাসা ভাড়া'**
   String get expenseSplitEqualHelp;
 
   /// No description provided for @expenseEmpty.
@@ -3743,7 +3743,7 @@ abstract class AppLocalizations {
   /// No description provided for @splitEqualAll.
   ///
   /// In bn, this message translates to:
-  /// **'সমান (সবাই)'**
+  /// **'সবাই সমান'**
   String get splitEqualAll;
 
   /// No description provided for @splitByMeal.
@@ -3755,13 +3755,13 @@ abstract class AppLocalizations {
   /// No description provided for @splitSelected.
   ///
   /// In bn, this message translates to:
-  /// **'নির্দিষ্ট সদস্য'**
+  /// **'কয়েকজন'**
   String get splitSelected;
 
   /// No description provided for @splitSelectedHelp.
   ///
   /// In bn, this message translates to:
-  /// **'শুধু বাছাই করা সদস্যরা দেবেন, যার যত ভাগ সে তত দেবে'**
+  /// **'শুধু বাছাই করা সদস্যরা দেবেন, যার যত ভাগ সে তত দেবে। যেমন: এক রুমের ফ্যান মেরামত'**
   String get splitSelectedHelp;
 
   /// No description provided for @splitPickMember.

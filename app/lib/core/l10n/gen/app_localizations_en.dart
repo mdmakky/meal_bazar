@@ -913,11 +913,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get expenseSplitMealHelp =>
-      'Added to the meal rate; each pays by meals eaten';
+      'Added to the meal rate; each pays by meals eaten. E.g. gas, cooking';
 
   @override
   String get expenseSplitEqualHelp =>
-      'Split equally among members present that day';
+      'Split equally among members present that day. E.g. WiFi, rent';
 
   @override
   String get expenseEmpty => 'No expenses this month yet';
@@ -2031,17 +2031,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dutyNextMonth => 'Next month';
 
   @override
-  String get splitEqualAll => 'Equal (everyone)';
+  String get splitEqualAll => 'Everyone';
 
   @override
   String get splitByMeal => 'By meals';
 
   @override
-  String get splitSelected => 'Selected members';
+  String get splitSelected => 'Selected';
 
   @override
   String get splitSelectedHelp =>
-      'Only the selected members pay, each by their share';
+      'Only the selected members pay, each by their share. E.g. one room\'s fan repair';
 
   @override
   String get splitPickMember => 'Pick at least one member';

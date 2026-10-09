@@ -908,10 +908,11 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get expenseSplitMealHelp =>
-      'মিল রেটে যোগ হবে, যে যত মিল খেয়েছে সে তত দেবে';
+      'মিল রেটে যোগ হবে, যে যত মিল খেয়েছে সে তত দেবে। যেমন: গ্যাস, রান্নার খরচ';
 
   @override
-  String get expenseSplitEqualHelp => 'সেদিন মেসে থাকা সবার মধ্যে সমান ভাগ হবে';
+  String get expenseSplitEqualHelp =>
+      'সেদিন মেসে থাকা সবার মধ্যে সমান ভাগ হবে। যেমন: ওয়াইফাই, বাসা ভাড়া';
 
   @override
   String get expenseEmpty => 'এই মাসে এখনো কোনো খরচ নেই';
@@ -2022,17 +2023,17 @@ class AppLocalizationsBn extends AppLocalizations {
   String get dutyNextMonth => 'পরের মাস';
 
   @override
-  String get splitEqualAll => 'সমান (সবাই)';
+  String get splitEqualAll => 'সবাই সমান';
 
   @override
   String get splitByMeal => 'মিল অনুযায়ী';
 
   @override
-  String get splitSelected => 'নির্দিষ্ট সদস্য';
+  String get splitSelected => 'কয়েকজন';
 
   @override
   String get splitSelectedHelp =>
-      'শুধু বাছাই করা সদস্যরা দেবেন, যার যত ভাগ সে তত দেবে';
+      'শুধু বাছাই করা সদস্যরা দেবেন, যার যত ভাগ সে তত দেবে। যেমন: এক রুমের ফ্যান মেরামত';
 
   @override
   String get splitPickMember => 'অন্তত একজন সদস্য বাছুন';
