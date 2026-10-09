@@ -14,7 +14,7 @@ import '../../meals/presentation/meal_widgets.dart' show bnDigits, snackFailure;
 import '../../mess/application/mess_providers.dart';
 import '../../mess/presentation/common.dart' show showFailure;
 import '../../money/application/money_providers.dart';
-import '../../money/data/money_repository.dart' show moneyPageSize;
+import '../../money/data/money_repository.dart' show allPages;
 import '../../month/application/month_providers.dart';
 import '../../month/domain/month.dart';
 import '../application/export_text.dart';
@@ -52,18 +52,18 @@ Future<void> exportMonthCsv(
       ),
       'bazar': bazarsCsv(
         l,
-        await _all((from) => money.bazars(messId, period, from: from)),
+        await allPages((from) => money.bazars(messId, period, from: from)),
         names,
       ),
       'expenses': expensesCsv(
         l,
-        await _all((from) => money.expenses(messId, period, from: from)),
+        await allPages((from) => money.expenses(messId, period, from: from)),
         categories,
         names,
       ),
       'deposits': depositsCsv(
         l,
-        await _all((from) => money.deposits(messId, period, from: from)),
+        await allPages((from) => money.deposits(messId, period, from: from)),
         names,
       ),
     };
@@ -81,16 +81,6 @@ Future<void> exportMonthCsv(
     await SharePlus.instance.share(ShareParams(files: files, subject: tag));
   } catch (e) {
     if (context.mounted) showFailure(context, e);
-  }
-}
-
-/// Every page of a newest-first money list, returned oldest first.
-Future<List<T>> _all<T>(Future<List<T>> Function(int from) page) async {
-  final all = <T>[];
-  while (true) {
-    final rows = await page(all.length);
-    all.addAll(rows);
-    if (rows.length < moneyPageSize) return all.reversed.toList();
   }
 }
 

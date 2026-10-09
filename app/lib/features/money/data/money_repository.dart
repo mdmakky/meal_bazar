@@ -11,6 +11,16 @@ import '../domain/money.dart';
 
 const moneyPageSize = 50;
 
+/// Every page of a newest-first money list, returned oldest first.
+Future<List<T>> allPages<T>(Future<List<T>> Function(int from) page) async {
+  final all = <T>[];
+  while (true) {
+    final rows = await page(all.length);
+    all.addAll(rows);
+    if (rows.length < moneyPageSize) return all.reversed.toList();
+  }
+}
+
 /// Bazars are offline-first (Drift + sync queue, keyed on the client UUID);
 /// expenses, deposits and months stay online-only.
 class MoneyRepository {
