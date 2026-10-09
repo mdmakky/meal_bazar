@@ -5924,6 +5924,30 @@ abstract class AppLocalizations {
   /// **'সমস্যা জানান'**
   String get reportProblem;
 
+  /// No description provided for @youTag.
+  ///
+  /// In bn, this message translates to:
+  /// **'আপনি'**
+  String get youTag;
+
+  /// No description provided for @activitySeeAll.
+  ///
+  /// In bn, this message translates to:
+  /// **'সব দেখুন'**
+  String get activitySeeAll;
+
+  /// No description provided for @auditMealMine.
+  ///
+  /// In bn, this message translates to:
+  /// **'আপনার মিল'**
+  String get auditMealMine;
+
+  /// No description provided for @auditDepositMine.
+  ///
+  /// In bn, this message translates to:
+  /// **'আপনার জমা'**
+  String get auditDepositMine;
+
   /// No description provided for @messagesComingSoon.
   ///
   /// In bn, this message translates to:

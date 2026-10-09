@@ -12,6 +12,8 @@ import '../../../core/widgets/widgets.dart';
 import '../../audit/application/audit_providers.dart';
 import '../../audit/domain/audit.dart';
 import '../../meals/presentation/meal_widgets.dart';
+import '../../mess/application/mess_providers.dart';
+import '../../mess/presentation/common.dart' show StatusTag;
 import '../../messages/application/unread_provider.dart';
 import '../../messages/domain/message_draft.dart';
 import '../../money/presentation/money_screen.dart';
@@ -415,6 +417,8 @@ class _DuesList extends ConsumerWidget {
 // ── Member ────────────────────────────────────────────────────────────────
 
 /// Everyone's month, read-only: deposits, own-pocket payments, balance.
+/// Dues first, then advances; my row is marked; a member who left shows only
+/// while the month has something of theirs, tagged চলে গেছেন.
 class _Transparency extends ConsumerWidget {
   const _Transparency({required this.messId});
 
@@ -430,11 +434,21 @@ class _Transparency extends ConsumerWidget {
       color: p.inkSecondary,
       fontFeatures: const [FontFeature.tabularFigures()],
     );
+    final left = ref.watch(leftMemberIdsProvider(messId));
+    final me = ref.watch(currentMembershipProvider)?.member.id;
     return _section(
       context,
       ref.watch(transparencyProvider(messId)),
       onRetry: () => ref.invalidate(transparencyProvider(messId)),
-      data: (rows) {
+      data: (all) {
+        final rows = [
+          for (final r in all)
+            if (shownInPeriod(
+              left: left.contains(r.memberId),
+              figures: [r.deposits, r.ownPocket, r.closingBalance],
+            ))
+              r,
+        ]..sort((a, b) => duesFirst(a.closingBalance, b.closingBalance));
         if (rows.isEmpty) return _Quiet(l.balanceEmpty);
         String m(num v) => money(context, v);
         return _ListCard(
@@ -442,7 +456,8 @@ class _Transparency extends ConsumerWidget {
             for (final r in rows)
               MergeSemantics(
                 key: ValueKey('trans-${r.memberId}'),
-                child: Padding(
+                child: Container(
+                  color: r.memberId == me ? p.surfaceMuted : null,
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppSpace.lg,
                     vertical: AppSpace.md,
@@ -455,10 +470,21 @@ class _Transparency extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           spacing: 2,
                           children: [
-                            Text(
-                              r.displayName,
-                              style: text.titleSmall,
-                              overflow: TextOverflow.ellipsis,
+                            Row(
+                              spacing: AppSpace.sm,
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    r.displayName,
+                                    style: text.titleSmall,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                if (r.memberId == me)
+                                  StatusTag(l.youTag, strong: true)
+                                else if (left.contains(r.memberId))
+                                  StatusTag(l.membersLeft),
+                              ],
                             ),
                             Text(
                               [

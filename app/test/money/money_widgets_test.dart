@@ -838,6 +838,12 @@ void main() {
     expect(find.text(l.balanceAdvance), findsOneWidget);
     final due = tester.widget<Text>(find.text('-৳৮৩৪.৬৩'));
     expect(due.style?.color, AppPalette.light.due);
+    // My own row is marked; dues come first.
+    expect(find.text(l.youTag), findsOneWidget);
+    expect(
+      tester.getTopLeft(find.text('Karim')).dy,
+      lessThan(tester.getTopLeft(find.text('Rahim')).dy),
+    );
 
     await tester.tap(find.text('Rahim'));
     await tester.pumpAndSettle();

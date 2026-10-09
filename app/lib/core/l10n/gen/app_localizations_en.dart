@@ -3211,6 +3211,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reportProblem => 'Report a problem';
 
   @override
+  String get youTag => 'You';
+
+  @override
+  String get activitySeeAll => 'See all';
+
+  @override
+  String get auditMealMine => 'your meals';
+
+  @override
+  String get auditDepositMine => 'your deposit';
+
+  @override
   String get messagesComingSoon =>
       'Messages are coming soon. Until then, tell the manager directly.';
 

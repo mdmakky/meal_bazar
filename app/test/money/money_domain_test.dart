@@ -7,6 +7,14 @@ import 'package:meal_bazar/features/money/domain/money.dart';
 import 'package:meal_bazar/features/month/domain/month.dart';
 
 void main() {
+  test('member lists: left members only with activity; dues first', () {
+    expect(shownInPeriod(left: false, figures: [0, 0]), isTrue);
+    expect(shownInPeriod(left: true, figures: [0, 0]), isFalse);
+    expect(shownInPeriod(left: true, figures: [0, 500]), isTrue);
+    final balances = [424.63, 0.0, -100.0, 50.0, -834.63]..sort(duesFirst);
+    expect(balances, [-834.63, -100.0, 424.63, 50.0, 0.0]);
+  });
+
   test('parseAmount accepts ≥0 with at most 2 decimals, Bangla digits', () {
     expect(parseAmount('250'), 250);
     expect(parseAmount(' 250.5 '), 250.5);

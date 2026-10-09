@@ -518,53 +518,62 @@ Widget _row(
   VoidCallback? onTap,
   Widget? status,
   Widget? titleLead,
+  Widget? titleTag,
+  bool highlight = false,
 }) {
   final text = Theme.of(context).textTheme;
   final p = context.palette;
-  return InkWell(
-    onTap: onTap,
-    child: ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: AppSize.touch + AppSpace.lg),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpace.lg,
-          vertical: AppSpace.md,
+  return Material(
+    // My own row, marked on a quiet wash.
+    color: highlight ? p.surfaceMuted : Colors.transparent,
+    child: InkWell(
+      onTap: onTap,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          minHeight: AppSize.touch + AppSpace.lg,
         ),
-        child: Row(
-          spacing: AppSpace.md,
-          children: [
-            leading,
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 2,
-                children: [
-                  Row(
-                    spacing: AppSpace.sm,
-                    children: [
-                      ?titleLead,
-                      Flexible(
-                        child: Text(
-                          title,
-                          style: text.titleSmall,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpace.lg,
+            vertical: AppSpace.md,
+          ),
+          child: Row(
+            spacing: AppSpace.md,
+            children: [
+              leading,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 2,
+                  children: [
+                    Row(
+                      spacing: AppSpace.sm,
+                      children: [
+                        ?titleLead,
+                        Flexible(
+                          child: Text(
+                            title,
+                            style: text.titleSmall,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  Text(
-                    subtitle,
-                    style: text.bodySmall?.copyWith(color: p.inkSecondary),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  ?status,
-                ],
+                        ?titleTag,
+                      ],
+                    ),
+                    Text(
+                      subtitle,
+                      style: text.bodySmall?.copyWith(color: p.inkSecondary),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    ?status,
+                  ],
+                ),
               ),
-            ),
-            trailing,
-          ],
+              trailing,
+            ],
+          ),
         ),
       ),
     ),
@@ -653,9 +662,26 @@ class _Balances extends ConsumerWidget {
     final bn = banglaDigits(context);
     final text = Theme.of(context).textTheme;
     final isManager = ref.watch(amIManagerProvider);
+    final left = ref.watch(leftMemberIdsProvider(messId));
+    final me = ref.watch(currentMembershipProvider)?.member.id;
+    // A member who left shows only while the month has something of theirs.
+    List<MemberBalance> shown(List<MemberBalance> all) => [
+      for (final b in all)
+        if (shownInPeriod(
+          left: left.contains(b.memberId),
+          figures: [
+            b.meals,
+            b.credit,
+            b.extraCost,
+            b.openingBalance,
+            b.closingBalance,
+          ],
+        ))
+          b,
+    ]..sort((a, b) => duesFirst(a.closingBalance, b.closingBalance));
     return _asyncSliver(
       context,
-      ref.watch(memberBalancesProvider(messId)),
+      ref.watch(memberBalancesProvider(messId)).whenData(shown),
       onRetry: () => ref.invalidate(memberBalancesProvider(messId)),
       data: (list) => list.isEmpty
           ? SliverToBoxAdapter(child: EmptyView(message: l.balanceEmpty))
@@ -676,8 +702,14 @@ class _Balances extends ConsumerWidget {
                           for (final b in list)
                             _row(
                               context,
+                              highlight: b.memberId == me,
                               leading: InitialsAvatar(b.displayName),
                               title: b.displayName,
+                              titleTag: b.memberId == me
+                                  ? StatusTag(l.youTag, strong: true)
+                                  : left.contains(b.memberId)
+                                  ? StatusTag(l.membersLeft)
+                                  : null,
                               subtitle: l.balanceMeals(
                                 Fmt.meals(b.meals, banglaDigits: bn),
                               ),

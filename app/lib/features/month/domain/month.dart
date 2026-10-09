@@ -162,5 +162,18 @@ MemberTransparency memberTransparencyFromJson(Map<String, dynamic> j) => (
   closingBalance: _d(j['closing_balance']),
 );
 
+/// Member lists for a period: a member who left shows only while the period
+/// still has something of theirs ([figures] are its SQL numbers).
+bool shownInPeriod({required bool left, required Iterable<double> figures}) =>
+    !left || figures.any((v) => v != 0);
+
+/// Dues first (most owed first), then advances (largest first), settled last.
+int duesFirst(double a, double b) {
+  int rank(double v) => v < 0 ? 0 : (v > 0 ? 1 : 2);
+  final r = rank(a).compareTo(rank(b));
+  if (r != 0) return r;
+  return a < 0 ? a.compareTo(b) : b.compareTo(a);
+}
+
 // PostgREST returns numeric as a JSON number, or a string for very long values.
 double _d(Object? v) => v is num ? v.toDouble() : double.parse(v as String);

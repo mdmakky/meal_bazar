@@ -3203,6 +3203,18 @@ class AppLocalizationsBn extends AppLocalizations {
   String get reportProblem => 'সমস্যা জানান';
 
   @override
+  String get youTag => 'আপনি';
+
+  @override
+  String get activitySeeAll => 'সব দেখুন';
+
+  @override
+  String get auditMealMine => 'আপনার মিল';
+
+  @override
+  String get auditDepositMine => 'আপনার জমা';
+
+  @override
   String get messagesComingSoon =>
       'বার্তা পাঠানোর সুবিধা শিগগিরই আসছে। ততক্ষণ ম্যানেজারকে সরাসরি জানান।';
 

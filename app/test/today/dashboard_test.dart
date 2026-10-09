@@ -119,6 +119,7 @@ List<Override> overrides({
   List<AuditEntry>? activity,
   bool failCash = false,
   List<Member>? members,
+  List<MemberTransparency>? transparency,
 }) => [
   myMembershipsProvider.overrideWith(
     (ref) async => [
@@ -162,22 +163,24 @@ List<Override> overrides({
           ),
   ),
   transparencyProvider.overrideWith(
-    (ref, id) async => const [
-      (
-        memberId: 'karim',
-        displayName: 'Karim',
-        deposits: 2000.0,
-        ownPocket: 300.0,
-        closingBalance: -834.63,
-      ),
-      (
-        memberId: 'rahim',
-        displayName: 'Rahim',
-        deposits: 1000.0,
-        ownPocket: 0.0,
-        closingBalance: 424.63,
-      ),
-    ],
+    (ref, id) async =>
+        transparency ??
+        const [
+          (
+            memberId: 'karim',
+            displayName: 'Karim',
+            deposits: 2000.0,
+            ownPocket: 300.0,
+            closingBalance: -834.63,
+          ),
+          (
+            memberId: 'rahim',
+            displayName: 'Rahim',
+            deposits: 1000.0,
+            ownPocket: 0.0,
+            closingBalance: 424.63,
+          ),
+        ],
   ),
   myActivityProvider.overrideWith(
     (ref, id) async => activity ?? [depositVerified()],
@@ -206,6 +209,8 @@ Future<void> pumpDashboard(
   List<MonthPoint>? months,
   List<AuditEntry>? activity,
   bool failCash = false,
+  List<Member>? members,
+  List<MemberTransparency>? transparency,
 }) async {
   tester.view.physicalSize = const Size(800, 4000);
   tester.view.devicePixelRatio = 1;
@@ -244,6 +249,8 @@ Future<void> pumpDashboard(
           months: months,
           activity: activity,
           failCash: failCash,
+          members: members,
+          transparency: transparency,
         ),
         ...extra,
       ],
@@ -387,6 +394,71 @@ void main() {
       expect(find.text(l.cashTitle), findsNothing);
       expect(find.text(l.dueRemindButton), findsNothing);
       expect(find.text(l.attnTitle), findsNothing);
+    });
+
+    testWidgets('transparency: dues first, me marked, left members only '
+        'with activity', (tester) async {
+      await pumpDashboard(
+        tester,
+        manager: false,
+        members: [
+          member('rahim', 'Rahim', role: MemberRole.manager),
+          member('karim', 'Karim'),
+          member('selim', 'Selim'),
+          member('jubayer', 'Jubayer', status: MemberStatus.left),
+          member('sumon', 'Sumon', status: MemberStatus.left),
+        ],
+        transparency: const [
+          (
+            memberId: 'rahim',
+            displayName: 'Rahim',
+            deposits: 1000.0,
+            ownPocket: 0.0,
+            closingBalance: 424.63,
+          ),
+          (
+            memberId: 'jubayer',
+            displayName: 'Jubayer',
+            deposits: 0.0,
+            ownPocket: 0.0,
+            closingBalance: 0.0,
+          ),
+          (
+            memberId: 'sumon',
+            displayName: 'Sumon',
+            deposits: 500.0,
+            ownPocket: 0.0,
+            closingBalance: 0.0,
+          ),
+          (
+            memberId: 'selim',
+            displayName: 'Selim',
+            deposits: 0.0,
+            ownPocket: 0.0,
+            closingBalance: -100.0,
+          ),
+          (
+            memberId: 'karim',
+            displayName: 'Karim',
+            deposits: 2000.0,
+            ownPocket: 0.0,
+            closingBalance: -834.63,
+          ),
+        ],
+      );
+      expect(find.byKey(const ValueKey('trans-jubayer')), findsNothing);
+      double y(String id) =>
+          tester.getTopLeft(find.byKey(ValueKey('trans-$id'))).dy;
+      expect(y('karim'), lessThan(y('selim')));
+      expect(y('selim'), lessThan(y('rahim')));
+      expect(y('rahim'), lessThan(y('sumon')));
+      Finder tag(String id, String s) => find.descendant(
+        of: find.byKey(ValueKey('trans-$id')),
+        matching: find.text(s),
+      );
+      expect(tag('karim', l.youTag), findsOneWidget);
+      expect(tag('sumon', l.membersLeft), findsOneWidget);
+      expect(find.text(l.youTag), findsOneWidget);
     });
 
     testWidgets('my activity: what changed, by whom; report a problem', (
