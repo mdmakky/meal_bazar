@@ -28,12 +28,13 @@ class MessageShortcuts extends ConsumerWidget {
     // Quiet while loading or offline: the shortcuts work without counts.
     final unread = ref.watch(unreadSplitProvider(messId)).value;
     final direct = unread?.direct ?? 0;
+    // Home's card rhythm: each block owns the 16 dp below it.
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppSpace.gutter,
-        AppSpace.md,
-        AppSpace.gutter,
         0,
+        AppSpace.gutter,
+        AppSpace.lg,
       ),
       child: IntrinsicHeight(
         child: Row(

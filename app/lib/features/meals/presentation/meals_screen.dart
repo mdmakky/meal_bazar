@@ -14,6 +14,7 @@ import '../../month/domain/month.dart';
 import '../../ai/presentation/ai_entry.dart';
 import '../../export/presentation/export_actions.dart';
 import '../../mess/domain/member.dart';
+import '../../mess/presentation/common.dart' show SectionTitle;
 import '../../money/presentation/money_sheets.dart';
 import '../../recurring/application/recurring_providers.dart';
 import '../../recurring/domain/recurring.dart';
@@ -908,15 +909,7 @@ class _MonthSummary extends ConsumerWidget {
     final p = context.palette;
     final current = ref.watch(currentPeriodProvider(messId)).value;
     final summary = ref.watch(periodSummaryProvider(key));
-    final title = Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpace.gutter,
-        AppSpace.xxl,
-        AppSpace.gutter,
-        AppSpace.md,
-      ),
-      child: Text(l.mealsByMember, style: text.titleLarge),
-    );
+    final title = SectionTitle(l.mealsByMember);
     if (summary.hasError && !summary.hasValue) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

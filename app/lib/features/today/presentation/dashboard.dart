@@ -13,7 +13,7 @@ import '../../audit/application/audit_providers.dart';
 import '../../audit/presentation/my_activity_screen.dart';
 import '../../meals/presentation/meal_widgets.dart';
 import '../../mess/application/mess_providers.dart';
-import '../../mess/presentation/common.dart' show StatusTag;
+import '../../mess/presentation/common.dart' show SectionTitle, StatusTag;
 import '../../messages/application/unread_provider.dart';
 import '../../money/presentation/money_screen.dart';
 import '../../money/presentation/money_sheets.dart';
@@ -46,46 +46,22 @@ class MonthDashboard extends ConsumerWidget {
       children: [
         if (manager) ...[
           AttentionCard(messId: messId),
-          _Title(l.dashTitle, large: true),
+          SectionTitle(l.dashTitle),
           _CashCard(messId: messId),
-          _Title(l.dashWhoOwes),
+          SectionTitle(l.dashWhoOwes),
           _DuesList(messId: messId),
         ] else ...[
-          _Title(l.transTitle, large: true),
+          SectionTitle(l.transTitle),
           _Transparency(messId: messId),
-          _Title(l.activityTitle),
+          SectionTitle(l.activityTitle),
           _MyActivity(messId: messId),
         ],
         if (charts) ...[
-          _Title(l.dashCategoryTitle),
+          SectionTitle(l.dashCategoryTitle),
           CategoryBars(messId: messId),
           MonthlyRateChart(messId: messId),
         ],
       ],
-    );
-  }
-}
-
-class _Title extends StatelessWidget {
-  const _Title(this.text, {this.large = false});
-
-  final String text;
-  final bool large;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = Theme.of(context).textTheme;
-    return Padding(
-      padding: EdgeInsets.fromLTRB(
-        AppSpace.gutter,
-        large ? AppSpace.xxl : AppSpace.xl,
-        AppSpace.gutter,
-        AppSpace.md,
-      ),
-      child: Semantics(
-        header: true,
-        child: Text(text, style: large ? t.headlineSmall : t.titleLarge),
-      ),
     );
   }
 }
@@ -248,7 +224,7 @@ class AttentionCard extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _Title(l.attnTitle),
+        SectionTitle(l.attnTitle),
         _ListCard([
           for (final (icon, label, onTap) in rows)
             ListTile(
@@ -480,9 +456,11 @@ class _Transparency extends ConsumerWidget {
                                   ),
                                 ),
                                 if (r.memberId == me)
-                                  StatusTag(l.youTag, strong: true)
+                                  Flexible(
+                                    child: StatusTag(l.youTag, strong: true),
+                                  )
                                 else if (left.contains(r.memberId))
-                                  StatusTag(l.membersLeft),
+                                  Flexible(child: StatusTag(l.membersLeft)),
                               ],
                             ),
                             Text(
@@ -736,7 +714,7 @@ class MonthlyRateChart extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _Title(l.dashMonthlyTitle),
+        SectionTitle(l.dashMonthlyTitle),
         Semantics(
           container: true,
           label: summary,

@@ -254,6 +254,8 @@ void main() {
     expect(find.text(l.mineBalance), findsOneWidget);
     expect(find.text('-৳৩৫৯.৭৫'), findsOneWidget);
     expect(find.text('১২½'), findsOneWidget);
+    // Synced is the normal state: the hero says nothing about it.
+    expect(find.text('সেভ হয়েছে'), findsNothing);
     expect(find.text(l.myTodayTitle), findsOneWidget);
     expect(find.text(l.mealOffHint('১০')), findsOneWidget);
     // Before the cutoff: lunch is on and can be switched off.
