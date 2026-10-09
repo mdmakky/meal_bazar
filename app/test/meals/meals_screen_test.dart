@@ -514,6 +514,30 @@ void main() {
       expect(find.text(l.mealOffCutoffPassed), findsOneWidget);
     });
 
+    testWidgets(
+      'offline: a member\'s own off is not queued — it reverts and says so',
+      (tester) async {
+        // The off/on switch is an online RPC with a hard deadline, never a
+        // queued write: nothing can sync late and be applied (or refused) after
+        // the midnight fill has charged the meal.
+        when(
+          () => repo.setMyMealOff(any(), any(), any(), off: any(named: 'off')),
+        ).thenThrow(const AppFailure(FailureKind.network));
+        await pump(tester, manager: false, now: early);
+
+        await tester.tap(cell('Rahim দুপুর: ১, +১ জন অতিথি'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(l.mealOffConfirmAction));
+        await tester.pumpAndSettle();
+        // The cell is back on (the member sees it did NOT switch off) ...
+        expect(cell('Rahim দুপুর: ১, +১ জন অতিথি'), findsOneWidget);
+        // ... a failure is shown, and no write was queued for later.
+        expect(find.byType(SnackBar), findsOneWidget);
+        verifyNever(() => repo.save(any(), any()));
+        verifyNever(() => repo.saveAll(any(), any()));
+      },
+    );
+
     testWidgets('after the SQL deadline own row is read-only', (tester) async {
       when(
         () => repo.mealOffDeadlines(any(), any()),

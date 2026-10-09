@@ -35,6 +35,17 @@ export const GET = handle(async (req) => {
   }
 
   // Automatic due reminders (send_auto_due_reminders, 0030).
+  // Second chance for the midnight meal fill (auto_fill_meals, 0031): a wider
+  // catch-up than the midnight run's 3 days; a no-op when everything is done.
+  let autoMeals = 0;
+  try {
+    const { data, error } = await sb.rpc('auto_fill_meals', { p_days: 7 });
+    if (error) console.log('auto meals catch-up failed', error.code);
+    else autoMeals = Number(data ?? 0);
+  } catch {
+    console.log('auto meals catch-up failed');
+  }
+
   let dueReminders = 0;
   try {
     const { data, error } = await sb.rpc('send_auto_due_reminders');
@@ -61,7 +72,7 @@ export const GET = handle(async (req) => {
       push = { error: e instanceof HttpError ? e.code : 'internal' }; // never undoes the work above
     }
   }
-  return json({ kept_alive: true, deleted, failed, duty_reminders: dutyReminders, due_reminders: dueReminders, pruned, push });
+  return json({ kept_alive: true, deleted, failed, duty_reminders: dutyReminders, due_reminders: dueReminders, auto_meals: autoMeals, pruned, push });
 });
 
 async function processDeletions(sb: SupabaseClient) {

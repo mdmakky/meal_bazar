@@ -519,22 +519,24 @@ class _BalanceTable extends StatelessWidget {
           align: Alignment.centerLeft,
           style: head ? text.titleSmall : text.bodyMedium,
         ),
+        // The final balance is the figure that matters, so it sits next to
+        // the name and is always visible; the working scrolls sideways.
+        fin(fnl, bold: head),
         cell(Fmt.meals(meals, banglaDigits: bn)),
         cell(Fmt.money(cost, banglaDigits: bn)),
         cell(Fmt.money(paid, banglaDigits: bn)),
         cell(Fmt.money(opening, banglaDigits: bn)),
-        fin(fnl, bold: head),
       ],
     );
     final header = TableRow(
       children: [
         for (final (i, t) in [
           l.monthEndColMember,
+          l.monthEndColFinal,
           l.monthEndColMeals,
           l.monthEndColCost,
           l.monthEndColPaid,
           l.monthEndColOpening,
-          l.monthEndColFinal,
         ].indexed)
           cell(
             t,
