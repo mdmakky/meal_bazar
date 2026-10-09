@@ -695,5 +695,22 @@
   "rateDeficit": "{amount} less collected than the bazar cost",
   "@rateDeficit": {"placeholders": {"amount": {"type": "String"}}},
   "rateBalanceFood": "Food = {meals} meals × {rate} (fixed rate)",
-  "@rateBalanceFood": {"placeholders": {"meals": {"type": "String"}, "rate": {"type": "String"}}}
+  "@rateBalanceFood": {"placeholders": {"meals": {"type": "String"}, "rate": {"type": "String"}}},
+  "platformMaintenanceTitle": "We're doing some maintenance",
+  "platformMaintenanceBody": "The app is paused for a little while. Please open it again soon; your data is safe.",
+  "platformMaintenanceRetry": "Check again",
+  "platformSignOut": "Sign out",
+  "platformUpdateTitle": "A new version is out",
+  "platformUpdateBody": "Update the app from the Play Store to keep things working well.",
+  "platformUpdateLater": "Later",
+  "platformBannerDismiss": "Dismiss",
+  "platformSupportTitle": "Help",
+  "platformSupportEmail": "Email",
+  "platformSupportWhatsapp": "WhatsApp",
+  "platformPrivacy": "Privacy policy",
+  "platformCopy": "Copy",
+  "platformCopied": "Copied",
+  "platformAboutTitle": "About",
+  "platformVersion": "Version {version}",
+  "@platformVersion": {"placeholders": {"version": {"type": "String"}}}
 }

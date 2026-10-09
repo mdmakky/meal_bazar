@@ -3919,6 +3919,102 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'খাবার খরচ = {meals} মিল × {rate} (নির্দিষ্ট রেট)'**
   String rateBalanceFood(String meals, String rate);
+
+  /// No description provided for @platformMaintenanceTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'একটু কাজ চলছে'**
+  String get platformMaintenanceTitle;
+
+  /// No description provided for @platformMaintenanceBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'অ্যাপটি কিছুক্ষণের জন্য বন্ধ আছে। একটু পরে আবার খুলুন, আপনার হিসাব নিরাপদ আছে।'**
+  String get platformMaintenanceBody;
+
+  /// No description provided for @platformMaintenanceRetry.
+  ///
+  /// In bn, this message translates to:
+  /// **'আবার দেখুন'**
+  String get platformMaintenanceRetry;
+
+  /// No description provided for @platformSignOut.
+  ///
+  /// In bn, this message translates to:
+  /// **'সাইন আউট'**
+  String get platformSignOut;
+
+  /// No description provided for @platformUpdateTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'নতুন ভার্সন এসেছে'**
+  String get platformUpdateTitle;
+
+  /// No description provided for @platformUpdateBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'ঠিকঠাক চালাতে Play Store থেকে অ্যাপটি আপডেট করে নিন।'**
+  String get platformUpdateBody;
+
+  /// No description provided for @platformUpdateLater.
+  ///
+  /// In bn, this message translates to:
+  /// **'পরে করব'**
+  String get platformUpdateLater;
+
+  /// No description provided for @platformBannerDismiss.
+  ///
+  /// In bn, this message translates to:
+  /// **'বন্ধ করুন'**
+  String get platformBannerDismiss;
+
+  /// No description provided for @platformSupportTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'সাহায্য'**
+  String get platformSupportTitle;
+
+  /// No description provided for @platformSupportEmail.
+  ///
+  /// In bn, this message translates to:
+  /// **'ইমেইল'**
+  String get platformSupportEmail;
+
+  /// No description provided for @platformSupportWhatsapp.
+  ///
+  /// In bn, this message translates to:
+  /// **'WhatsApp'**
+  String get platformSupportWhatsapp;
+
+  /// No description provided for @platformPrivacy.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রাইভেসি পলিসি'**
+  String get platformPrivacy;
+
+  /// No description provided for @platformCopy.
+  ///
+  /// In bn, this message translates to:
+  /// **'কপি করুন'**
+  String get platformCopy;
+
+  /// No description provided for @platformCopied.
+  ///
+  /// In bn, this message translates to:
+  /// **'কপি হয়েছে'**
+  String get platformCopied;
+
+  /// No description provided for @platformAboutTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'অ্যাপ সম্পর্কে'**
+  String get platformAboutTitle;
+
+  /// No description provided for @platformVersion.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভার্সন {version}'**
+  String platformVersion(String version);
 }
 
 class _AppLocalizationsDelegate

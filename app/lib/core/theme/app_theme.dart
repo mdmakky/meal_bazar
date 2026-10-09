@@ -6,8 +6,11 @@ const _font = 'HindSiliguri';
 const _tabular = [FontFeature.tabularFigures()];
 
 abstract final class AppTheme {
-  static ThemeData light() => _build(AppPalette.light, Brightness.light);
-  static ThemeData dark() => _build(AppPalette.dark, Brightness.dark);
+  /// [accent] overrides the turmeric token (platform branding).
+  static ThemeData light({Color? accent}) =>
+      _build(AppPalette.light.copyWith(accent: accent), Brightness.light);
+  static ThemeData dark({Color? accent}) =>
+      _build(AppPalette.dark.copyWith(accent: accent), Brightness.dark);
 
   static TextTheme _textTheme(AppPalette p) {
     TextStyle s(double size, double height, FontWeight w, {Color? color}) =>

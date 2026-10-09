@@ -719,5 +719,22 @@
   "rateDeficit": "বাজার খরচের চেয়ে {amount} কম উঠেছে",
   "@rateDeficit": {"placeholders": {"amount": {"type": "String"}}},
   "rateBalanceFood": "খাবার খরচ = {meals} মিল × {rate} (নির্দিষ্ট রেট)",
-  "@rateBalanceFood": {"placeholders": {"meals": {"type": "String"}, "rate": {"type": "String"}}}
+  "@rateBalanceFood": {"placeholders": {"meals": {"type": "String"}, "rate": {"type": "String"}}},
+  "platformMaintenanceTitle": "একটু কাজ চলছে",
+  "platformMaintenanceBody": "অ্যাপটি কিছুক্ষণের জন্য বন্ধ আছে। একটু পরে আবার খুলুন, আপনার হিসাব নিরাপদ আছে।",
+  "platformMaintenanceRetry": "আবার দেখুন",
+  "platformSignOut": "সাইন আউট",
+  "platformUpdateTitle": "নতুন ভার্সন এসেছে",
+  "platformUpdateBody": "ঠিকঠাক চালাতে Play Store থেকে অ্যাপটি আপডেট করে নিন।",
+  "platformUpdateLater": "পরে করব",
+  "platformBannerDismiss": "বন্ধ করুন",
+  "platformSupportTitle": "সাহায্য",
+  "platformSupportEmail": "ইমেইল",
+  "platformSupportWhatsapp": "WhatsApp",
+  "platformPrivacy": "প্রাইভেসি পলিসি",
+  "platformCopy": "কপি করুন",
+  "platformCopied": "কপি হয়েছে",
+  "platformAboutTitle": "অ্যাপ সম্পর্কে",
+  "platformVersion": "ভার্সন {version}",
+  "@platformVersion": {"placeholders": {"version": {"type": "String"}}}
 }
