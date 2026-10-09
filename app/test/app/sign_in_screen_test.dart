@@ -53,6 +53,21 @@ void main() {
     when(() => repo.signInWithGoogle()).thenAnswer((_) async => false);
   });
 
+  testWidgets('fits a 360 dp phone at 1.3x text without overflow', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(360 * 3, 780 * 3)
+      ..devicePixelRatio = 3;
+    tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+    addTearDown(tester.view.reset);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await pump(tester);
+    await tester.pumpAndSettle();
+    expect(find.text(l.signInGoogle), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('invalid email and short password are blocked', (tester) async {
     await pump(tester);
     await fill(tester, 'not-an-email', 'short');

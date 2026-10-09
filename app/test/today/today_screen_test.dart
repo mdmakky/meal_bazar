@@ -175,6 +175,25 @@ void main() {
     expect(find.text(l.todayAiEntry), findsOneWidget);
   });
 
+  testWidgets('fits a 360 dp phone at 1.3x text without overflow', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(360 * 3, 780 * 3)
+      ..devicePixelRatio = 3;
+    tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+    addTearDown(tester.view.reset);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    when(
+      () => repo.entriesForDay(any(), any()),
+    ).thenAnswer((_) async => [entry('rahim', 'lunch', 1)]);
+    await pump(tester);
+    expect(find.text(l.todayActionMealOff), findsOneWidget);
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, -2000));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('মিল বসান goes to the মিল tab', (tester) async {
     when(() => repo.entriesForDay(any(), any())).thenAnswer((_) async => []);
     await pump(tester);
