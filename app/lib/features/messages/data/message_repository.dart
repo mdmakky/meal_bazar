@@ -53,7 +53,7 @@ class MessageRepository {
             'id, thread_id, sender_id, body, created_at, hidden_at, kind, meta',
           )
           .eq('thread_id', threadId)
-          .order('created_at'),
+          .order('created_at', ascending: true),
     );
     return rows.map(ChatMessage.fromJson).toList();
   });
