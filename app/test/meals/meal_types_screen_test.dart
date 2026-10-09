@@ -93,6 +93,17 @@ void main() {
     verify(() => repo.updateMealType('b', enabled: true)).called(1);
   });
 
+  testWidgets('each type shows its serving time, tap to change', (
+    tester,
+  ) async {
+    await pump(tester);
+    expect(find.text('খাবারের সময়'), findsWidgets);
+    expect(find.text('দুপুর ১টা'), findsWidgets);
+    await tester.tap(find.byKey(const ValueKey('serve-b')));
+    await tester.pumpAndSettle();
+    expect(find.byType(TimePickerDialog), findsOneWidget);
+  });
+
   testWidgets('weight steps by a quarter', (tester) async {
     final saving = Completer<void>();
     when(
