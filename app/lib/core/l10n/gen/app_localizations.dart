@@ -6313,6 +6313,78 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'হ্যাঁ, বন্ধ করুন'**
   String get mealOffConfirmAction;
+
+  /// No description provided for @homeNoticeAll.
+  ///
+  /// In bn, this message translates to:
+  /// **'সব নোটিশ'**
+  String get homeNoticeAll;
+
+  /// No description provided for @inboxTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'বিজ্ঞপ্তি'**
+  String get inboxTitle;
+
+  /// No description provided for @inboxMoreSub.
+  ///
+  /// In bn, this message translates to:
+  /// **'যা যা জানানো হয়েছে, এক জায়গায়'**
+  String get inboxMoreSub;
+
+  /// No description provided for @inboxMarkAllRead.
+  ///
+  /// In bn, this message translates to:
+  /// **'সব পড়া হয়েছে'**
+  String get inboxMarkAllRead;
+
+  /// No description provided for @inboxEmpty.
+  ///
+  /// In bn, this message translates to:
+  /// **'এখনো কোনো বিজ্ঞপ্তি নেই। জমা, বাজার বা নোটিশে কিছু হলে এখানে দেখবেন।'**
+  String get inboxEmpty;
+
+  /// No description provided for @inboxUnread.
+  ///
+  /// In bn, this message translates to:
+  /// **'অপঠিত'**
+  String get inboxUnread;
+
+  /// No description provided for @inboxPushDepositAdded.
+  ///
+  /// In bn, this message translates to:
+  /// **'আপনার নামে জমা'**
+  String get inboxPushDepositAdded;
+
+  /// No description provided for @inboxPushDepositAddedSub.
+  ///
+  /// In bn, this message translates to:
+  /// **'ম্যানেজার আপনার জমা লিখলে'**
+  String get inboxPushDepositAddedSub;
+
+  /// No description provided for @inboxPushBazarRequest.
+  ///
+  /// In bn, this message translates to:
+  /// **'সদস্যের বাজার'**
+  String get inboxPushBazarRequest;
+
+  /// No description provided for @inboxPushBazarRequestSub.
+  ///
+  /// In bn, this message translates to:
+  /// **'কোনো সদস্য নিজের বাজার অনুমোদনের জন্য পাঠালে'**
+  String get inboxPushBazarRequestSub;
+
+  /// No description provided for @inboxPushBazarReviewed.
+  ///
+  /// In bn, this message translates to:
+  /// **'আমার বাজারের সিদ্ধান্ত'**
+  String get inboxPushBazarReviewed;
+
+  /// No description provided for @inboxPushBazarReviewedSub.
+  ///
+  /// In bn, this message translates to:
+  /// **'ম্যানেজার আপনার বাজার মেনে নিলে বা ফিরিয়ে দিলে'**
+  String get inboxPushBazarReviewedSub;
 }
 
 class _AppLocalizationsDelegate

@@ -16,6 +16,7 @@ import '../../meals/presentation/meal_widgets.dart' show bnDigits;
 import '../../money/domain/money.dart' show parseAmount;
 import '../../messages/application/unread_provider.dart';
 import '../../notices/application/notice_providers.dart';
+import '../../push/application/inbox_providers.dart';
 import '../application/mess_providers.dart';
 import '../domain/member.dart';
 import 'common.dart';
@@ -127,6 +128,13 @@ class MoreScreen extends ConsumerWidget {
           l.exportTitle,
           () => context.push('/more/export'),
         ),
+      tile(
+        Icons.notifications_none_outlined,
+        l.inboxTitle,
+        () => context.push('/more/notifications/inbox'),
+        sub: l.inboxMoreSub,
+        badge: ref.watch(inboxUnreadCountProvider).value ?? 0,
+      ),
       if (on('push'))
         tile(
           Icons.notifications_active_outlined,

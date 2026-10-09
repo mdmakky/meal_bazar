@@ -26,6 +26,7 @@ import '../../money/presentation/money_screen.dart'
     show balanceWord, showBillSheet;
 import '../../month/application/month_providers.dart';
 import '../../notices/presentation/latest_notice_banner.dart';
+import '../../push/presentation/inbox_screen.dart' show InboxBell;
 import '../application/day_grid.dart';
 import 'dashboard.dart';
 import 'last_month_card.dart';
@@ -122,7 +123,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
           const SliverToBoxAdapter(child: PlatformBanner()),
           if (manager && ref.featureOn('setup_checklist'))
             SliverToBoxAdapter(child: SetupChecklist(messId: messId)),
-          const SliverToBoxAdapter(child: LatestNoticeBanner()),
+          const SliverToBoxAdapter(child: HomeNotices()),
           SliverToBoxAdapter(child: LastMonthCard(messId: messId)),
           SliverToBoxAdapter(
             child: manager
@@ -175,6 +176,13 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     }
 
     return Scaffold(
+      appBar: AppBar(
+        title: Text(ref.watch(currentMessProvider)?.name ?? l.navHome),
+        actions: const [
+          InboxBell(),
+          SizedBox(width: AppSpace.sm),
+        ],
+      ),
       body: SafeArea(
         bottom: false,
         child: RefreshIndicator(onRefresh: refresh, child: body),

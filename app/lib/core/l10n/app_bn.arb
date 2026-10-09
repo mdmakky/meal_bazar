@@ -2010,5 +2010,17 @@
   "myMealNotEntered": "এখনো দেওয়া হয়নি",
   "mealOffConfirmTitle": "{day} {meal} মিল বন্ধ করবেন?",
   "mealOffConfirmBody": "বন্ধ করলে মেস গ্রুপে আপনার পক্ষ থেকে সবাইকে জানানো হবে।",
-  "mealOffConfirmAction": "হ্যাঁ, বন্ধ করুন"
+  "mealOffConfirmAction": "হ্যাঁ, বন্ধ করুন",
+  "homeNoticeAll": "সব নোটিশ",
+  "inboxTitle": "বিজ্ঞপ্তি",
+  "inboxMoreSub": "যা যা জানানো হয়েছে, এক জায়গায়",
+  "inboxMarkAllRead": "সব পড়া হয়েছে",
+  "inboxEmpty": "এখনো কোনো বিজ্ঞপ্তি নেই। জমা, বাজার বা নোটিশে কিছু হলে এখানে দেখবেন।",
+  "inboxUnread": "অপঠিত",
+  "inboxPushDepositAdded": "আপনার নামে জমা",
+  "inboxPushDepositAddedSub": "ম্যানেজার আপনার জমা লিখলে",
+  "inboxPushBazarRequest": "সদস্যের বাজার",
+  "inboxPushBazarRequestSub": "কোনো সদস্য নিজের বাজার অনুমোদনের জন্য পাঠালে",
+  "inboxPushBazarReviewed": "আমার বাজারের সিদ্ধান্ত",
+  "inboxPushBazarReviewedSub": "ম্যানেজার আপনার বাজার মেনে নিলে বা ফিরিয়ে দিলে"
 }

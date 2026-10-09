@@ -3437,4 +3437,43 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get mealOffConfirmAction => 'হ্যাঁ, বন্ধ করুন';
+
+  @override
+  String get homeNoticeAll => 'সব নোটিশ';
+
+  @override
+  String get inboxTitle => 'বিজ্ঞপ্তি';
+
+  @override
+  String get inboxMoreSub => 'যা যা জানানো হয়েছে, এক জায়গায়';
+
+  @override
+  String get inboxMarkAllRead => 'সব পড়া হয়েছে';
+
+  @override
+  String get inboxEmpty =>
+      'এখনো কোনো বিজ্ঞপ্তি নেই। জমা, বাজার বা নোটিশে কিছু হলে এখানে দেখবেন।';
+
+  @override
+  String get inboxUnread => 'অপঠিত';
+
+  @override
+  String get inboxPushDepositAdded => 'আপনার নামে জমা';
+
+  @override
+  String get inboxPushDepositAddedSub => 'ম্যানেজার আপনার জমা লিখলে';
+
+  @override
+  String get inboxPushBazarRequest => 'সদস্যের বাজার';
+
+  @override
+  String get inboxPushBazarRequestSub =>
+      'কোনো সদস্য নিজের বাজার অনুমোদনের জন্য পাঠালে';
+
+  @override
+  String get inboxPushBazarReviewed => 'আমার বাজারের সিদ্ধান্ত';
+
+  @override
+  String get inboxPushBazarReviewedSub =>
+      'ম্যানেজার আপনার বাজার মেনে নিলে বা ফিরিয়ে দিলে';
 }

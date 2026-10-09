@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:meal_bazar/core/l10n/gen/app_localizations.dart';
 import 'package:meal_bazar/core/theme/app_theme.dart';
+import 'package:meal_bazar/core/widgets/widgets.dart';
 import 'package:meal_bazar/features/mess/application/mess_providers.dart';
 import 'package:meal_bazar/features/mess/domain/member.dart';
 import 'package:meal_bazar/features/mess/domain/mess.dart';
@@ -57,7 +58,7 @@ Future<void> pump(
       GoRoute(path: '/more', builder: (_, _) => const MoreScreen()),
       GoRoute(
         path: '/banner',
-        builder: (_, _) => const Scaffold(body: LatestNoticeBanner()),
+        builder: (_, _) => const Scaffold(body: HomeNotices()),
       ),
       GoRoute(
         path: '/more/notices',
@@ -241,23 +242,77 @@ void main() {
     verifyNever(() => repo.markRead(any(), any()));
   });
 
-  testWidgets('banner shows the newest unread pinned notice only', (
+  test('homeNotices: pinned or expiring stay when read, others until read', () {
+    final now = DateTime(2026, 10, 9, 12);
+    final list = homeNotices(
+      visibleNotices([
+        notice('readPlain', read: true, day: 8),
+        notice('unreadPlain', day: 7),
+        notice('readPinned', pinned: true, read: true, day: 2),
+        notice(
+          'readExpiring',
+          read: true,
+          day: 3,
+          expiresAt: DateTime(2026, 11, 6),
+        ),
+        notice(
+          'expired',
+          pinned: true,
+          day: 9,
+          expiresAt: DateTime(2026, 10, 9),
+        ),
+      ], now),
+    );
+    expect(list.map((n) => n.id), [
+      'readPinned',
+      'unreadPlain',
+      'readExpiring',
+    ]);
+  });
+
+  testWidgets('Home shows up to 3 notices, read ones dimmed, expiry, a link', (
     tester,
   ) async {
     await pump(
       tester,
       '/banner',
       notices: [
-        notice('read', pinned: true, read: true, day: 9),
-        notice('plain', day: 8),
-        notice('older', pinned: true, day: 2),
-        notice('newer', pinned: true, day: 4),
+        notice('p1', pinned: true, read: true, day: 9),
+        notice('e1', day: 8, read: true, expiresAt: DateTime(2099, 11, 6)),
+        notice('u1', day: 7),
+        notice('u2', day: 6),
+        notice('gone', day: 5, read: true),
       ],
     );
     await tester.pumpAndSettle();
-    expect(find.text('Notice newer'), findsOneWidget);
-    expect(find.text('Notice older'), findsNothing);
-    expect(find.text('Notice read'), findsNothing);
+    expect(find.text('Notice p1'), findsOneWidget);
+    expect(find.text('Notice e1'), findsOneWidget);
+    expect(find.text('Notice u1'), findsOneWidget);
+    expect(find.text('Notice u2'), findsNothing);
+    expect(find.text('Notice gone'), findsNothing);
+    expect(find.text(l.noticeUntil('৫ নভেম্বর')), findsOneWidget);
+    expect(find.text(l.homeNoticeAll), findsOneWidget);
+    // Only the unread one's dot is lit.
+    final dots = tester
+        .widgetList<AnimatedOpacity>(
+          find.ancestor(
+            of: find.byKey(const Key('homeNoticeUnreadDot')),
+            matching: find.byType(AnimatedOpacity),
+          ),
+        )
+        .map((o) => o.opacity);
+    expect(dots, [0, 0, 1]);
+
+    await tester.tap(find.text(l.homeNoticeAll));
+    await tester.pumpAndSettle();
+    expect(find.byType(NoticesScreen), findsOneWidget);
+  });
+
+  testWidgets('Home shows nothing without notices', (tester) async {
+    await pump(tester, '/banner', notices: [notice('r', read: true)]);
+    await tester.pumpAndSettle();
+    expect(find.text('Notice r'), findsNothing);
+    expect(find.byType(AppCard), findsNothing);
   });
 
   for (final manager in [true, false]) {

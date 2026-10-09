@@ -52,6 +52,27 @@ class PushRepository {
     return n as int;
   });
 
+  /// My inbox, newest first (RLS: own rows only; the server keeps 60 days).
+  Future<List<InboxItem>> inbox({int limit = 200}) => guard(() async {
+    final rows = await _client
+        .from('notifications')
+        .select('id, type, title, body, route, created_at, read_at')
+        .order('created_at', ascending: false)
+        .order('id', ascending: false)
+        .limit(limit);
+    return rows.map(InboxItem.fromJson).toList();
+  });
+
+  Future<int> unreadInboxCount() => guard(() async {
+    final n = await _client.rpc('unread_notification_count');
+    return (n as num?)?.toInt() ?? 0;
+  });
+
+  /// [ids] null marks every one read.
+  Future<void> markInboxRead([List<int>? ids]) => guard(
+    () => _client.rpc<void>('mark_notifications_read', params: {'p_ids': ids}),
+  );
+
   String _uid() =>
       _client.auth.currentUser?.id ??
       (throw const AppFailure(FailureKind.notAuthenticated));
