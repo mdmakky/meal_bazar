@@ -72,7 +72,7 @@ class SetupChecklist extends ConsumerWidget {
         AppSpace.gutter,
         0,
       ),
-      child: AppCard(
+      child: AppCard.raised(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: AppSpace.sm,
@@ -93,15 +93,7 @@ class SetupChecklist extends ConsumerWidget {
               ),
               style: text.bodyMedium?.copyWith(color: p.inkSecondary),
             ),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(AppRadius.sm),
-              child: LinearProgressIndicator(
-                value: done / steps.length,
-                minHeight: AppSpace.xs,
-                color: p.ink,
-                backgroundColor: p.surfaceMuted,
-              ),
-            ),
+            _Progress(value: done / steps.length),
             const SizedBox(height: AppSpace.xs),
             for (final (i, (label, ok, go)) in steps.indexed)
               _StepRow(
@@ -157,7 +149,7 @@ class _StepRow extends StatelessWidget {
                     ),
             ),
             child: done
-                ? Icon(Icons.check, size: AppSize.dot * 2, color: p.onInk)
+                ? _DrawnCheck(color: p.onInk)
                 : Text(number, style: text.labelMedium),
           ),
           Expanded(
@@ -179,4 +171,88 @@ class _StepRow extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Ink fill that grows to [value] from where it was.
+class _Progress extends StatelessWidget {
+  const _Progress({required this.value});
+
+  final double value;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(AppRadius.sm),
+      child: ColoredBox(
+        color: p.surfaceMuted,
+        child: SizedBox(
+          height: AppSpace.sm,
+          width: double.infinity,
+          child: TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0, end: value),
+            duration: AppMotion.of(context, AppMotion.slow * 2),
+            curve: AppMotion.arrive,
+            builder: (context, v, _) => FractionallySizedBox(
+              alignment: AlignmentDirectional.centerStart,
+              widthFactor: v,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: p.ink,
+                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A check that draws itself, short stroke then long, once on mount.
+class _DrawnCheck extends StatelessWidget {
+  const _DrawnCheck({required this.color});
+
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => TweenAnimationBuilder<double>(
+    tween: Tween(begin: 0, end: 1),
+    duration: AppMotion.of(context, AppMotion.slow),
+    curve: AppMotion.arrive,
+    builder: (context, t, _) => CustomPaint(
+      size: const Size.square(AppSize.dot * 2),
+      painter: _CheckPainter(t, color),
+    ),
+  );
+}
+
+class _CheckPainter extends CustomPainter {
+  _CheckPainter(this.t, this.color);
+
+  final double t;
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width;
+    final path = Path()
+      ..moveTo(w * 0.16, w * 0.54)
+      ..lineTo(w * 0.42, w * 0.78)
+      ..lineTo(w * 0.86, w * 0.26);
+    final metric = path.computeMetrics().first;
+    canvas.drawPath(
+      metric.extractPath(0, metric.length * t),
+      Paint()
+        ..color = color
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_CheckPainter old) => old.t != t || old.color != color;
 }

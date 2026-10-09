@@ -37,15 +37,18 @@ class _SetNewPasswordState extends ConsumerState<SetNewPasswordScreen> {
       _confirmError = _confirm.text == password ? null : l.resetMismatch;
     });
     if (_passwordError != null || _confirmError != null) return;
-    final messenger = ScaffoldMessenger.of(context);
     setState(() => _saving = true);
     try {
       await ref.read(authRepositoryProvider).updatePassword(password);
-      messenger.showSnackBar(SnackBar(content: Text(l.resetDone)));
+      if (mounted) AppSnack.show(context, l.resetDone);
       ref.read(passwordRecoveryProvider.notifier).clear();
     } catch (e) {
       if (!mounted) return;
-      messenger.showSnackBar(SnackBar(content: Text(failureText(context, e))));
+      AppSnack.show(
+        context,
+        failureText(context, e),
+        icon: Icons.error_outline,
+      );
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -55,6 +58,7 @@ class _SetNewPasswordState extends ConsumerState<SetNewPasswordScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
+    final p = context.palette;
     return Scaffold(
       body: SafeArea(
         child: AutofillGroup(
@@ -70,36 +74,54 @@ class _SetNewPasswordState extends ConsumerState<SetNewPasswordScreen> {
                     AppSpace.gutter,
                   ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text(l.resetTitle, style: text.headlineSmall),
-                      const SizedBox(height: AppSpace.sm),
-                      Text(l.resetHint, style: text.bodyMedium),
-                      const SizedBox(height: AppSpace.xl),
-                      TextField(
-                        key: const Key('newPassword'),
-                        controller: _password,
-                        autofocus: true,
-                        obscureText: true,
-                        autofillHints: const [AutofillHints.newPassword],
-                        textInputAction: TextInputAction.next,
-                        decoration: InputDecoration(
-                          labelText: l.resetNewPasswordLabel,
-                          errorText: _passwordError,
+                      Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: CircleAvatar(
+                          radius: 28,
+                          backgroundColor: p.accentSoft,
+                          child: Icon(Icons.lock_reset, color: p.ink),
                         ),
                       ),
-                      const SizedBox(height: AppSpace.md),
-                      TextField(
-                        key: const Key('confirmPassword'),
-                        controller: _confirm,
-                        obscureText: true,
-                        autofillHints: const [AutofillHints.newPassword],
-                        textInputAction: TextInputAction.done,
-                        decoration: InputDecoration(
-                          labelText: l.resetConfirmLabel,
-                          errorText: _confirmError,
+                      const SizedBox(height: AppSpace.xl),
+                      Text(l.resetTitle, style: text.displaySmall),
+                      const SizedBox(height: AppSpace.sm),
+                      Text(
+                        l.resetHint,
+                        style: text.bodyLarge?.copyWith(color: p.inkSecondary),
+                      ),
+                      const SizedBox(height: AppSpace.xl),
+                      AppCard.raised(
+                        child: Column(
+                          children: [
+                            TextField(
+                              key: const Key('newPassword'),
+                              controller: _password,
+                              autofocus: true,
+                              obscureText: true,
+                              autofillHints: const [AutofillHints.newPassword],
+                              textInputAction: TextInputAction.next,
+                              decoration: InputDecoration(
+                                labelText: l.resetNewPasswordLabel,
+                                errorText: _passwordError,
+                              ),
+                            ),
+                            const SizedBox(height: AppSpace.md),
+                            TextField(
+                              key: const Key('confirmPassword'),
+                              controller: _confirm,
+                              obscureText: true,
+                              autofillHints: const [AutofillHints.newPassword],
+                              textInputAction: TextInputAction.done,
+                              decoration: InputDecoration(
+                                labelText: l.resetConfirmLabel,
+                                errorText: _confirmError,
+                              ),
+                              onSubmitted: (_) => _save(),
+                            ),
+                          ],
                         ),
-                        onSubmitted: (_) => _save(),
                       ),
                     ],
                   ),

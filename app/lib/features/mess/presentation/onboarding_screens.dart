@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 import '../../../core/l10n/gen/app_localizations.dart';
+import '../../../core/platform/platform_widgets.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../auth/application/auth_providers.dart';
 import '../application/mess_providers.dart';
@@ -28,19 +29,32 @@ class MessOnboardingScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(AppSpace.gutter),
-        children: [
-          const SizedBox(height: AppSpace.xxl),
-          Text(l.messOnboardingTitle, style: text.displaySmall),
-          const SizedBox(height: AppSpace.md),
-          Text(
-            l.messOnboardingBody,
-            style: text.bodyLarge?.copyWith(
-              color: context.palette.inkSecondary,
+      body: StaggeredList(
+        child: ListView(
+          padding: const EdgeInsets.all(AppSpace.gutter),
+          children: StaggeredList.wrap([
+            const Padding(
+              padding: EdgeInsets.only(top: AppSpace.xl),
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: BrandMark(size: 64),
+              ),
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.only(top: AppSpace.xl),
+              child: Text(l.messOnboardingTitle, style: text.displaySmall),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: AppSpace.md),
+              child: Text(
+                l.messOnboardingBody,
+                style: text.bodyLarge?.copyWith(
+                  color: context.palette.inkSecondary,
+                ),
+              ),
+            ),
+          ]),
+        ),
       ),
       bottomNavigationBar: BottomAction(
         children: [
@@ -127,31 +141,38 @@ class _CreateMessScreenState extends ConsumerState<CreateMessScreen> {
         child: ListView(
           padding: const EdgeInsets.all(AppSpace.gutter),
           children: [
-            TextFormField(
-              controller: _name,
-              autofocus: true,
-              textInputAction: TextInputAction.next,
-              decoration: InputDecoration(
-                labelText: l.messNameLabel,
-                hintText: l.messNameHint,
+            AppCard.raised(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TextFormField(
+                    controller: _name,
+                    autofocus: true,
+                    textInputAction: TextInputAction.next,
+                    decoration: InputDecoration(
+                      labelText: l.messNameLabel,
+                      hintText: l.messNameHint,
+                    ),
+                    validator: required,
+                  ),
+                  const SizedBox(height: AppSpace.lg),
+                  TextFormField(
+                    controller: _myName,
+                    textInputAction: TextInputAction.done,
+                    decoration: InputDecoration(
+                      labelText: l.messYourNameLabel,
+                      helperText: l.messYourNameHelp,
+                    ),
+                    validator: required,
+                    onFieldSubmitted: (_) => _submit(),
+                  ),
+                  const SizedBox(height: AppSpace.lg),
+                  MonthStartDayField(
+                    value: _startDay,
+                    onChanged: (d) => setState(() => _startDay = d),
+                  ),
+                ],
               ),
-              validator: required,
-            ),
-            const SizedBox(height: AppSpace.lg),
-            TextFormField(
-              controller: _myName,
-              textInputAction: TextInputAction.done,
-              decoration: InputDecoration(
-                labelText: l.messYourNameLabel,
-                helperText: l.messYourNameHelp,
-              ),
-              validator: required,
-              onFieldSubmitted: (_) => _submit(),
-            ),
-            const SizedBox(height: AppSpace.lg),
-            MonthStartDayField(
-              value: _startDay,
-              onChanged: (d) => setState(() => _startDay = d),
             ),
           ],
         ),
@@ -236,48 +257,57 @@ class _JoinMessScreenState extends ConsumerState<JoinMessScreen> {
         child: ListView(
           padding: const EdgeInsets.all(AppSpace.gutter),
           children: [
-            TextFormField(
-              key: const Key('inviteCode'),
-              controller: _code,
-              autofocus: _code.text.isEmpty,
-              textCapitalization: TextCapitalization.characters,
-              autocorrect: false,
-              enableSuggestions: false,
-              inputFormatters: inviteCodeFormatters,
-              textInputAction: TextInputAction.next,
-              style: text.headlineSmall?.copyWith(
-                letterSpacing: AppSpace.sm,
-                fontFeatures: const [FontFeature.tabularFigures()],
+            AppCard.raised(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TextFormField(
+                    key: const Key('inviteCode'),
+                    controller: _code,
+                    autofocus: _code.text.isEmpty,
+                    textCapitalization: TextCapitalization.characters,
+                    autocorrect: false,
+                    enableSuggestions: false,
+                    inputFormatters: inviteCodeFormatters,
+                    textInputAction: TextInputAction.next,
+                    style: text.headlineSmall?.copyWith(
+                      letterSpacing: AppSpace.sm,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
+                    decoration: InputDecoration(
+                      labelText: l.messCodeLabel,
+                      helperText: l.messCodeHelp,
+                      hintText: 'ABC123',
+                    ),
+                    validator: (v) =>
+                        (v ?? '').length == 6 ? null : l.messCodeInvalid,
+                  ),
+                  const SizedBox(height: AppSpace.md),
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: AppButton(
+                      label: l.messScanQr,
+                      icon: Icons.qr_code_scanner,
+                      variant: AppButtonVariant.secondary,
+                      onPressed: _scan,
+                    ),
+                  ),
+                ],
               ),
-              decoration: InputDecoration(
-                labelText: l.messCodeLabel,
-                helperText: l.messCodeHelp,
-                hintText: 'ABC123',
-              ),
-              validator: (v) =>
-                  (v ?? '').length == 6 ? null : l.messCodeInvalid,
             ),
             const SizedBox(height: AppSpace.md),
-            Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: AppButton(
-                label: l.messScanQr,
-                icon: Icons.qr_code_scanner,
-                variant: AppButtonVariant.secondary,
-                onPressed: _scan,
+            AppCard.raised(
+              child: TextFormField(
+                controller: _myName,
+                textInputAction: TextInputAction.done,
+                decoration: InputDecoration(
+                  labelText: l.messYourNameLabel,
+                  helperText: l.messYourNameHelp,
+                ),
+                validator: (v) =>
+                    (v ?? '').trim().isEmpty ? l.messNameRequired : null,
+                onFieldSubmitted: (_) => _submit(),
               ),
-            ),
-            const SizedBox(height: AppSpace.xl),
-            TextFormField(
-              controller: _myName,
-              textInputAction: TextInputAction.done,
-              decoration: InputDecoration(
-                labelText: l.messYourNameLabel,
-                helperText: l.messYourNameHelp,
-              ),
-              validator: (v) =>
-                  (v ?? '').trim().isEmpty ? l.messNameRequired : null,
-              onFieldSubmitted: (_) => _submit(),
             ),
           ],
         ),
@@ -364,7 +394,7 @@ class _PendingApprovalScreenState extends ConsumerState<PendingApprovalScreen> {
       if (approved) {
         context.go('/today');
       } else {
-        showSnack(context, l.messPendingStill);
+        AppSnack.show(context, l.messPendingStill, icon: Icons.hourglass_top);
       }
     } catch (e) {
       if (mounted) showFailure(context, e);
@@ -377,6 +407,7 @@ class _PendingApprovalScreenState extends ConsumerState<PendingApprovalScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
+    final p = context.palette;
     final pending = (ref.watch(myMembershipsProvider).value ?? const []).where(
       (m) => m.member.status == MemberStatus.pending,
     );
@@ -400,20 +431,39 @@ class _PendingApprovalScreenState extends ConsumerState<PendingApprovalScreen> {
           padding: const EdgeInsets.all(AppSpace.gutter),
           children: [
             const SizedBox(height: AppSpace.xxl),
-            Icon(
-              Icons.hourglass_empty,
-              size: AppSize.emptyIcon,
-              color: context.palette.inkTertiary,
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: CircleAvatar(
+                radius: 28,
+                backgroundColor: p.accentSoft,
+                child: Icon(Icons.hourglass_top, color: p.ink),
+              ),
             ),
-            const SizedBox(height: AppSpace.lg),
-            Text(l.messPendingTitle, style: text.headlineSmall),
-            const SizedBox(height: AppSpace.md),
-            Text(
-              messName == null
-                  ? l.messPendingBodyNoName
-                  : l.messPendingBody(messName),
-              style: text.bodyLarge?.copyWith(
-                color: context.palette.inkSecondary,
+            const SizedBox(height: AppSpace.xl),
+            Text(l.messPendingTitle, style: text.displaySmall),
+            const SizedBox(height: AppSpace.xl),
+            // Calm "still waiting": the one breathing dot, nothing spinning.
+            AppCard.raised(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: AppSpace.md,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: AppSpace.sm),
+                    child: Transform.scale(
+                      scale: 1.5,
+                      child: AnimatedSyncDot(color: p.accent),
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      messName == null
+                          ? l.messPendingBodyNoName
+                          : l.messPendingBody(messName),
+                      style: text.bodyLarge?.copyWith(color: p.inkSecondary),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

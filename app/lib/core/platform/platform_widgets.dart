@@ -76,10 +76,11 @@ class MaintenancePage extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               spacing: AppSpace.md,
               children: [
-                const BrandMark(),
+                const BrandMark(size: 64),
+                const SizedBox(height: AppSpace.sm),
                 Text(
                   l.platformMaintenanceTitle,
-                  style: text.headlineSmall,
+                  style: text.displaySmall,
                   textAlign: TextAlign.center,
                 ),
                 Text(
@@ -127,44 +128,64 @@ class UpdatePrompt extends ConsumerWidget {
     );
     return Align(
       alignment: Alignment.bottomCenter,
-      child: Material(
-        color: p.surface,
-        elevation: 8,
-        shadowColor: p.ink.withValues(alpha: 0.1),
-        shape: RoundedRectangleBorder(
-          side: BorderSide(color: p.border),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: p.surfaceRaised,
           borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(AppRadius.lg),
+            top: Radius.circular(AppRadius.xl),
           ),
+          boxShadow: AppElevation.raised(p),
         ),
-        child: SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpace.gutter,
-              AppSpace.xl,
-              AppSpace.gutter,
-              AppSpace.md,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: AppSpace.sm,
-              children: [
-                Text(l.platformUpdateTitle, style: text.titleMedium),
-                Text(
-                  message.isEmpty ? l.platformUpdateBody : message,
-                  style: text.bodyMedium,
-                ),
-                Align(
-                  alignment: AlignmentDirectional.centerEnd,
-                  child: AppButton(
-                    label: l.platformUpdateLater,
-                    variant: AppButtonVariant.text,
-                    onPressed: onDismiss,
+        child: Material(
+          type: MaterialType.transparency,
+          child: SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpace.gutter,
+                AppSpace.xl,
+                AppSpace.gutter,
+                AppSpace.md,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: AppSpace.sm,
+                children: [
+                  Row(
+                    spacing: AppSpace.md,
+                    children: [
+                      CircleAvatar(
+                        radius: 20,
+                        backgroundColor: p.accentSoft,
+                        child: Icon(
+                          Icons.system_update_outlined,
+                          size: 20,
+                          color: p.ink,
+                        ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          l.platformUpdateTitle,
+                          style: text.titleMedium,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
+                  Text(
+                    message.isEmpty ? l.platformUpdateBody : message,
+                    style: text.bodyMedium,
+                  ),
+                  Align(
+                    alignment: AlignmentDirectional.centerEnd,
+                    child: AppButton(
+                      label: l.platformUpdateLater,
+                      variant: AppButtonVariant.text,
+                      onPressed: onDismiss,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -206,19 +227,16 @@ class PlatformBanner extends ConsumerWidget {
         AppSpace.gutter,
         0,
       ),
-      child: Container(
-        decoration: BoxDecoration(
-          color: p.surface,
-          border: Border.all(
-            color: config.bannerLevel == BannerLevel.info ? p.border : color,
-          ),
-          borderRadius: BorderRadius.circular(AppRadius.md),
-        ),
+      child: AppCard.raised(
         padding: const EdgeInsetsDirectional.only(start: AppSpace.md),
         child: Row(
-          spacing: AppSpace.sm,
+          spacing: AppSpace.md,
           children: [
-            Icon(icon, color: color),
+            CircleAvatar(
+              radius: 20,
+              backgroundColor: color.withValues(alpha: 0.12),
+              child: Icon(icon, size: 20, color: color),
+            ),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: AppSpace.md),

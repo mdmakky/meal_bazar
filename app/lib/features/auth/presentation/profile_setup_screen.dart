@@ -39,9 +39,11 @@ class _ProfileSetupState extends ConsumerState<ProfileSetupScreen> {
           .save(fullName: name, locale: _locale);
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
+      AppSnack.show(
         context,
-      ).showSnackBar(SnackBar(content: Text(failureText(context, e))));
+        failureText(context, e),
+        icon: Icons.error_outline,
+      );
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -51,6 +53,7 @@ class _ProfileSetupState extends ConsumerState<ProfileSetupScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
+    final p = context.palette;
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -65,38 +68,65 @@ class _ProfileSetupState extends ConsumerState<ProfileSetupScreen> {
                   AppSpace.gutter,
                 ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text(l.authProfileTitle, style: text.headlineSmall),
-                    const SizedBox(height: AppSpace.sm),
-                    Text(l.authProfileHint, style: text.bodyMedium),
-                    const SizedBox(height: AppSpace.xl),
-                    TextField(
-                      controller: _name,
-                      autofocus: true,
-                      textCapitalization: TextCapitalization.words,
-                      textInputAction: TextInputAction.done,
-                      autofillHints: const [AutofillHints.name],
-                      decoration: InputDecoration(
-                        labelText: l.authNameLabel,
-                        errorText: _nameMissing ? l.authNameRequired : null,
+                    Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: CircleAvatar(
+                        radius: 28,
+                        backgroundColor: p.accentSoft,
+                        child: Icon(Icons.person_outline, color: p.ink),
                       ),
-                      onSubmitted: (_) => _save(),
                     ),
                     const SizedBox(height: AppSpace.xl),
-                    Text(l.authLanguageLabel, style: text.titleSmall),
-                    const SizedBox(height: AppSpace.md),
-                    SizedBox(
-                      width: double.infinity,
-                      child: SegmentedButton<String>(
-                        segments: const [
-                          // Each language names itself.
-                          ButtonSegment(value: 'bn', label: Text('বাংলা')),
-                          ButtonSegment(value: 'en', label: Text('English')),
+                    Text(l.authProfileTitle, style: text.displaySmall),
+                    const SizedBox(height: AppSpace.sm),
+                    Text(
+                      l.authProfileHint,
+                      style: text.bodyLarge?.copyWith(color: p.inkSecondary),
+                    ),
+                    const SizedBox(height: AppSpace.xl),
+                    AppCard.raised(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          TextField(
+                            controller: _name,
+                            autofocus: true,
+                            textCapitalization: TextCapitalization.words,
+                            textInputAction: TextInputAction.done,
+                            autofillHints: const [AutofillHints.name],
+                            decoration: InputDecoration(
+                              labelText: l.authNameLabel,
+                              errorText: _nameMissing
+                                  ? l.authNameRequired
+                                  : null,
+                            ),
+                            onSubmitted: (_) => _save(),
+                          ),
+                          const SizedBox(height: AppSpace.xl),
+                          Text(l.authLanguageLabel, style: text.titleSmall),
+                          const SizedBox(height: AppSpace.md),
+                          SizedBox(
+                            width: double.infinity,
+                            child: SegmentedButton<String>(
+                              segments: const [
+                                // Each language names itself.
+                                ButtonSegment(
+                                  value: 'bn',
+                                  label: Text('বাংলা'),
+                                ),
+                                ButtonSegment(
+                                  value: 'en',
+                                  label: Text('English'),
+                                ),
+                              ],
+                              selected: {_locale},
+                              onSelectionChanged: (v) =>
+                                  setState(() => _locale = v.first),
+                            ),
+                          ),
                         ],
-                        selected: {_locale},
-                        onSelectionChanged: (v) =>
-                            setState(() => _locale = v.first),
                       ),
                     ),
                   ],

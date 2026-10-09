@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
 import '../../../core/platform/platform_config.dart';
 import '../../../core/widgets/widgets.dart';
-import '../../mess/presentation/common.dart' show IconTile;
 import '../application/notice_providers.dart';
 
 /// The newest unread pinned notice; nothing when there is none.
@@ -32,10 +31,15 @@ class LatestNoticeBanner extends ConsumerWidget {
         label: AppLocalizations.of(context).noticePinned,
         child: AppCard.raised(
           onTap: () => context.push('/more/notices/${n.id}'),
+          padding: const EdgeInsets.all(AppSpace.md),
           child: Row(
             spacing: AppSpace.md,
             children: [
-              const IconTile(Icons.push_pin_outlined),
+              CircleAvatar(
+                radius: 20,
+                backgroundColor: p.accentSoft,
+                child: Icon(Icons.push_pin_outlined, size: 20, color: p.ink),
+              ),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

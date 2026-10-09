@@ -202,7 +202,7 @@ Future<void> pumpDashboard(
 }
 
 Finder inFigure(String text) =>
-    find.descendant(of: find.byType(Figure), matching: find.text(text));
+    find.descendant(of: find.byType(StatTile), matching: find.text(text));
 
 void main() {
   group('manager', () {
@@ -220,7 +220,7 @@ void main() {
       expect(inFigure('৳৫০০'), findsOneWidget);
       expect(find.text(l.dashExtraProof('৳২,২১০')), findsOneWidget);
       expect(inFigure('৳৩,০০০'), findsOneWidget);
-      expect(inFigure('২০½'), findsOneWidget);
+      expect(inFigure('২০.৫'), findsOneWidget);
       // Dues = Σ negative closings (red); advances = Σ positive (green).
       expect(inFigure('৳৯৩৪.৬৩'), findsOneWidget);
       expect(find.text(l.dashDuesProof('২')), findsOneWidget);

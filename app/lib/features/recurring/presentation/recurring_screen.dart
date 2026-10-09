@@ -372,7 +372,8 @@ class _RecurringPromptCardState extends ConsumerState<RecurringPromptCard> {
         AppSpace.gutter,
         0,
       ),
-      child: AppCard(
+      child: AppCard.raised(
+        padding: const EdgeInsets.all(AppSpace.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: AppSpace.md,
@@ -380,7 +381,15 @@ class _RecurringPromptCardState extends ConsumerState<RecurringPromptCard> {
             Row(
               spacing: AppSpace.md,
               children: [
-                Icon(Icons.event_repeat, color: context.palette.inkSecondary),
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: context.palette.surfaceMuted,
+                  child: Icon(
+                    Icons.event_repeat,
+                    size: 20,
+                    color: context.palette.ink,
+                  ),
+                ),
                 Expanded(
                   child: Text(
                     l.recurringPending(Fmt.digits('$n', bangla: _bn(context))),

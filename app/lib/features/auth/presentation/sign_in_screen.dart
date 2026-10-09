@@ -93,10 +93,14 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   void _forgot() {
     if (!_validEmail()) return;
     final l = AppLocalizations.of(context);
-    final messenger = ScaffoldMessenger.of(context);
     _run(_Busy.reset, () async {
       await ref.read(authRepositoryProvider).sendPasswordReset(_email.text);
-      messenger.showSnackBar(SnackBar(content: Text(l.signInResetSent)));
+      if (!mounted) return;
+      AppSnack.show(
+        context,
+        l.signInResetSent,
+        icon: Icons.mark_email_read_outlined,
+      );
     });
   }
 
@@ -116,18 +120,39 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     final l = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
     final scheme = Theme.of(context).colorScheme;
+    final p = context.palette;
     final busy = _busy != null;
     final confirm = _confirmEmail;
     final google = widget.googleEnabled && ref.featureOn('google_login');
     final email = ref.featureOn('email_login');
 
+    final lang = Localizations.localeOf(context).languageCode;
+    final config = ref.watch(platformConfigProvider);
+
+    Widget failureLine() => Padding(
+      padding: const EdgeInsets.only(top: AppSpace.md),
+      child: Text(
+        failureText(context, _failure!),
+        style: text.bodyMedium?.copyWith(color: scheme.error),
+      ),
+    );
+
     final List<Widget> body;
     if (confirm != null) {
       body = [
-        Text(l.signInConfirmTitle, style: text.headlineSmall),
-        const SizedBox(height: AppSpace.sm),
-        Text(l.signInConfirmBody(confirm), style: text.bodyLarge),
-        const SizedBox(height: AppSpace.xl),
+        CircleAvatar(
+          radius: 28,
+          backgroundColor: p.accentSoft,
+          child: Icon(Icons.mark_email_unread_outlined, color: p.ink),
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: AppSpace.sm,
+          children: [
+            Text(l.signInConfirmTitle, style: text.headlineSmall),
+            Text(l.signInConfirmBody(confirm), style: text.bodyLarge),
+          ],
+        ),
         AppButton(
           expand: true,
           label: l.signInBackToLogin,
@@ -140,119 +165,133 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       ];
     } else {
       body = [
-        const BrandHeader(),
-        const SizedBox(height: AppSpace.xl),
-        Text(l.signInTitle, style: text.headlineSmall),
-        const SizedBox(height: AppSpace.sm),
-        Text(l.signInHint, style: text.bodyMedium),
-        const SizedBox(height: AppSpace.xl),
-        if (google) ...[
+        // The brand moment: the mark settles in, then the words follow.
+        Row(
+          spacing: AppSpace.md,
+          children: [
+            const _MarkEntrance(child: BrandMark(size: 64)),
+            Expanded(child: Text(config.appName(lang), style: text.titleLarge)),
+          ],
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: AppSpace.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: AppSpace.sm,
+            children: [
+              Text(l.signInTitle, style: text.displaySmall),
+              Text(
+                config.tagline(lang),
+                style: text.bodyLarge?.copyWith(color: p.inkSecondary),
+              ),
+            ],
+          ),
+        ),
+        if (google)
           AppButton(
             key: const Key('google'),
             expand: true,
             icon: Icons.login,
+            variant: AppButtonVariant.secondary,
             label: l.signInGoogle,
             loading: _busy == _Busy.google,
             onPressed: _tap(_Busy.google, _google),
           ),
-          if (email) ...[
-            const SizedBox(height: AppSpace.xl),
-            Row(
-              children: [
-                const Expanded(child: Divider()),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpace.md),
-                  child: Text(l.signInOrEmail, style: text.labelMedium),
-                ),
-                const Expanded(child: Divider()),
-              ],
-            ),
-            const SizedBox(height: AppSpace.xl),
-          ],
-        ],
-        if (email) ...[
-          SizedBox(
-            width: double.infinity,
-            child: SegmentedButton<bool>(
-              segments: [
-                ButtonSegment(value: false, label: Text(l.signInModeLogin)),
-                ButtonSegment(value: true, label: Text(l.signInModeSignUp)),
-              ],
-              selected: {_signUp},
-              onSelectionChanged: busy
-                  ? null
-                  : (v) => setState(() {
-                      _signUp = v.first;
-                      _failure = null;
-                    }),
-            ),
-          ),
-          const SizedBox(height: AppSpace.lg),
-          TextField(
-            key: const Key('email'),
-            controller: _email,
-            keyboardType: TextInputType.emailAddress,
-            autofillHints: const [AutofillHints.email],
-            textInputAction: TextInputAction.next,
-            decoration: InputDecoration(
-              labelText: l.signInEmailLabel,
-              errorText: _emailError,
-            ),
-          ),
-          const SizedBox(height: AppSpace.md),
-          TextField(
-            key: const Key('password'),
-            controller: _password,
-            obscureText: true,
-            autofillHints: [
-              _signUp ? AutofillHints.newPassword : AutofillHints.password,
-            ],
-            textInputAction: TextInputAction.done,
-            decoration: InputDecoration(
-              labelText: l.signInPasswordLabel,
-              errorText: _passwordError,
-            ),
-            onSubmitted: (_) => _submit(),
-          ),
-          if (_failure != null) ...[
-            const SizedBox(height: AppSpace.md),
-            Text(
-              failureText(context, _failure!),
-              style: text.bodyMedium?.copyWith(color: scheme.error),
-            ),
-          ],
-          const SizedBox(height: AppSpace.lg),
-          AppButton(
-            key: const Key('submit'),
-            expand: true,
-            // One primary action: the Google button when it is shown.
-            variant: google
-                ? AppButtonVariant.secondary
-                : AppButtonVariant.primary,
-            loading: _busy == _Busy.email,
-            label: _signUp ? l.signInSubmitSignUp : l.signInSubmitLogin,
-            onPressed: _tap(_Busy.email, _submit),
-          ),
-          if (!_signUp) ...[
-            const SizedBox(height: AppSpace.sm),
-            Align(
-              child: AppButton(
-                variant: AppButtonVariant.text,
-                loading: _busy == _Busy.reset,
-                label: l.signInForgot,
-                onPressed: _tap(_Busy.reset, _forgot),
+        if (google && email)
+          Row(
+            children: [
+              const Expanded(child: Divider()),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpace.md),
+                child: Text(l.signInOrEmail, style: text.labelMedium),
               ),
-            ),
-          ],
-        ],
-        // Google's error shows here when the email form is hidden.
-        if (!email && _failure != null) ...[
-          const SizedBox(height: AppSpace.md),
-          Text(
-            failureText(context, _failure!),
-            style: text.bodyMedium?.copyWith(color: scheme.error),
+              const Expanded(child: Divider()),
+            ],
           ),
-        ],
+        if (email)
+          AppCard.raised(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SizedBox(
+                  width: double.infinity,
+                  child: SegmentedButton<bool>(
+                    segments: [
+                      ButtonSegment(
+                        value: false,
+                        label: Text(l.signInModeLogin),
+                      ),
+                      ButtonSegment(
+                        value: true,
+                        label: Text(l.signInModeSignUp),
+                      ),
+                    ],
+                    selected: {_signUp},
+                    onSelectionChanged: busy
+                        ? null
+                        : (v) => setState(() {
+                            _signUp = v.first;
+                            _failure = null;
+                          }),
+                  ),
+                ),
+                const SizedBox(height: AppSpace.lg),
+                TextField(
+                  key: const Key('email'),
+                  controller: _email,
+                  keyboardType: TextInputType.emailAddress,
+                  autofillHints: const [AutofillHints.email],
+                  textInputAction: TextInputAction.next,
+                  decoration: InputDecoration(
+                    labelText: l.signInEmailLabel,
+                    errorText: _emailError,
+                    prefixIcon: const Icon(Icons.mail_outline),
+                  ),
+                ),
+                const SizedBox(height: AppSpace.md),
+                TextField(
+                  key: const Key('password'),
+                  controller: _password,
+                  obscureText: true,
+                  autofillHints: [
+                    _signUp
+                        ? AutofillHints.newPassword
+                        : AutofillHints.password,
+                  ],
+                  textInputAction: TextInputAction.done,
+                  decoration: InputDecoration(
+                    labelText: l.signInPasswordLabel,
+                    errorText: _passwordError,
+                    prefixIcon: const Icon(Icons.lock_outline),
+                  ),
+                  onSubmitted: (_) => _submit(),
+                ),
+                if (_failure != null) failureLine(),
+                const SizedBox(height: AppSpace.lg),
+                AppButton(
+                  key: const Key('submit'),
+                  expand: true,
+                  loading: _busy == _Busy.email,
+                  label: _signUp ? l.signInSubmitSignUp : l.signInSubmitLogin,
+                  onPressed: _tap(_Busy.email, _submit),
+                ),
+                if (!_signUp)
+                  Padding(
+                    padding: const EdgeInsets.only(top: AppSpace.sm),
+                    child: Align(
+                      child: AppButton(
+                        variant: AppButtonVariant.text,
+                        loading: _busy == _Busy.reset,
+                        label: l.signInForgot,
+                        onPressed: _tap(_Busy.reset, _forgot),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        // Google's error shows here when the email form is hidden.
+        if (!email && _failure != null) failureLine(),
       ];
     }
 
@@ -264,15 +303,41 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
               AppSpace.gutter,
               AppSpace.xxxl,
               AppSpace.gutter,
-              AppSpace.gutter,
+              AppSpace.xl,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: body,
+            child: StaggeredList(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: AppSpace.xl,
+                children: StaggeredList.wrap(body),
+              ),
             ),
           ),
         ),
       ),
     );
   }
+}
+
+/// The brand mark lands: fades in while settling from 85% with a soft
+/// overshoot. Plays once; instant with reduced motion.
+class _MarkEntrance extends StatelessWidget {
+  const _MarkEntrance({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => TweenAnimationBuilder<double>(
+    tween: Tween(begin: 0, end: 1),
+    duration: AppMotion.of(context, AppMotion.slow * 2),
+    curve: AppMotion.arrive,
+    child: child,
+    builder: (context, t, child) => Opacity(
+      opacity: t.clamp(0, 1),
+      child: Transform.scale(
+        scale: 0.85 + 0.15 * Curves.easeOutBack.transform(t),
+        child: child,
+      ),
+    ),
+  );
 }

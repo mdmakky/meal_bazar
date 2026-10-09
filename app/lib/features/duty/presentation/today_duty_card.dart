@@ -57,15 +57,22 @@ class TodayDutyCard extends ConsumerWidget {
         AppSpace.gutter,
         0,
       ),
-      child: AppCard(
+      child: AppCard.raised(
         onTap: () => context.push('/more/duty'),
+        padding: const EdgeInsets.all(AppSpace.md),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: AppSpace.md,
           children: [
-            Icon(
-              Icons.shopping_basket_outlined,
-              color: myToday != null ? p.accent : p.inkSecondary,
+            // Turmeric only when the duty is mine today (live).
+            CircleAvatar(
+              radius: 20,
+              backgroundColor: myToday != null ? p.accentSoft : p.surfaceMuted,
+              child: Icon(
+                Icons.shopping_basket_outlined,
+                size: 20,
+                color: myToday != null ? p.accent : p.inkSecondary,
+              ),
             ),
             Expanded(
               child: Column(

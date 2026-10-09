@@ -163,17 +163,35 @@ void main() {
       find.text(Fmt.dateLong(day, locale: 'bn', banglaDigits: true)),
       findsOneWidget,
     );
-    expect(find.text('৩½'), findsOneWidget);
+    // The statement card: the day total (once), per meal type, guests.
+    expect(find.text(l.todayHeadcountLabel), findsOneWidget);
+    expect(find.text('৩.৫'), findsOneWidget);
     expect(find.text('দুপুর ১½ · রাত ২ · অতিথি ১'), findsOneWidget);
     // The header's rate (the dashboard below repeats it).
     expect(find.text('৳৬৮.৭৮').first, findsOneWidget);
-    // আজকের মিল: per meal type and the day total, no grid here.
-    expect(find.text(l.mealGridToday), findsOneWidget);
-    expect(find.text('দুপুর ১.৫ · রাত ২'), findsOneWidget);
-    expect(find.text('৩.৫'), findsOneWidget);
+    expect(find.text(l.mealGridGoToMeals), findsOneWidget);
     expect(find.bySemanticsLabel(RegExp('^Karim দুপুর')), findsNothing);
     expect(find.text(l.todayActionBazar), findsOneWidget);
     expect(find.text(l.todayAiEntry), findsOneWidget);
+  });
+
+  testWidgets('fits a 360 dp phone at 1.3x text without overflow', (
+    tester,
+  ) async {
+    tester.view
+      ..physicalSize = const Size(360 * 3, 780 * 3)
+      ..devicePixelRatio = 3;
+    tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+    addTearDown(tester.view.reset);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    when(
+      () => repo.entriesForDay(any(), any()),
+    ).thenAnswer((_) async => [entry('rahim', 'lunch', 1)]);
+    await pump(tester);
+    expect(find.text(l.todayActionMealOff), findsOneWidget);
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, -2000));
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('মিল বসান goes to the মিল tab', (tester) async {
