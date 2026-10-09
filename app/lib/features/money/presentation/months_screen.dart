@@ -137,6 +137,8 @@ class _MonthsScreenState extends ConsumerState<MonthsScreen> {
           if (ref.featureOn('pdf_report'))
             PopupMenuButton<bool>(
               tooltip: l.reportTitle,
+              padding: EdgeInsets.zero,
+              style: IconButton.styleFrom(visualDensity: VisualDensity.compact),
               icon: const Icon(Icons.picture_as_pdf_outlined),
               onSelected: (print) => print
                   ? printMonthReport(context, messId: messId, day: m.start)
