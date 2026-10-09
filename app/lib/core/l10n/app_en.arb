@@ -113,7 +113,13 @@
   "moreSignOut": "Sign out",
   "moreSignOutConfirmTitle": "Sign out?",
   "moreSignOutUnsent": "{count} entries saved offline have not been sent yet — signing out will delete them",
-  "@moreSignOutUnsent": {"placeholders": {"count": {"type": "String"}}},
+  "@moreSignOutUnsent": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "moreSignOutConfirmBody": "You will need a code on your phone to sign back in. The mess accounts stay as they are.",
   "membersTitle": "Members",
   "membersPending": "Want to join",
@@ -167,7 +173,13 @@
   "settingsManagerOnly": "Only a manager can change settings",
   "mealCellOff": "Off",
   "mealCellGuests": "{count} guests",
-  "@mealCellGuests": {"placeholders": {"count": {"type": "String"}}},
+  "@mealCellGuests": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "mealCellOwn": "Own meals",
   "mealCellGuestsLabel": "Guests",
   "mealCellSave": "Save meal",
@@ -180,12 +192,33 @@
   "todayHeadcountLabel": "Meals today",
   "todayDayHeadcountLabel": "Meals this day",
   "todayGuestsProof": "Guests {count}",
-  "@todayGuestsProof": {"placeholders": {"count": {"type": "String"}}},
+  "@todayGuestsProof": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "todayRateLabel": "Meal rate this month",
   "todayRateProof": "{food} ÷ {meals} meals",
-  "@todayRateProof": {"placeholders": {"food": {"type": "String"}, "meals": {"type": "String"}}},
+  "@todayRateProof": {
+    "placeholders": {
+      "food": {
+        "type": "String"
+      },
+      "meals": {
+        "type": "String"
+      }
+    }
+  },
   "todayRateUnallocated": "{food} spent, but no meals yet. The rate appears once meals are in.",
-  "@todayRateUnallocated": {"placeholders": {"food": {"type": "String"}}},
+  "@todayRateUnallocated": {
+    "placeholders": {
+      "food": {
+        "type": "String"
+      }
+    }
+  },
   "todayNoEntries": "No meals entered for this day yet",
   "todayNoEntriesMember": "The manager hasn't entered meals for this day yet",
   "todayFillHelp": "Copies yesterday's meals for every member, else their default meals, else 1 each. Tap to adjust after.",
@@ -203,19 +236,55 @@
   "todayPickMember": "For whom?",
   "todayPickMealType": "Which meal?",
   "todayMealOffDone": "{meal} off for {name}",
-  "@todayMealOffDone": {"placeholders": {"name": {"type": "String"}, "meal": {"type": "String"}}},
+  "@todayMealOffDone": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "meal": {
+        "type": "String"
+      }
+    }
+  },
   "mealsTitle": "Meals",
   "mealsTotalLabel": "Total meals this month",
   "mealsPeriod": "{from} to {to}",
-  "@mealsPeriod": {"placeholders": {"from": {"type": "String"}, "to": {"type": "String"}}},
+  "@mealsPeriod": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
   "mealsByMember": "Meals by member",
   "mealsGuestNote": "incl. {count} guest meals",
-  "@mealsGuestNote": {"placeholders": {"count": {"type": "String"}}},
+  "@mealsGuestNote": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "mealsEmpty": "No meals this month yet",
   "mealsMemberEmpty": "No meals for {name} this month",
-  "@mealsMemberEmpty": {"placeholders": {"name": {"type": "String"}}},
+  "@mealsMemberEmpty": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "mealsMemberTotal": "{count} meals this month",
-  "@mealsMemberTotal": {"placeholders": {"count": {"type": "String"}}},
+  "@mealsMemberTotal": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "mealTypesTitle": "Meal types",
   "mealTypesHelp": "Weight is how many meals one serving counts as, e.g. breakfast ×0.5.",
   "mealTypesAdd": "Add a meal type",
@@ -225,14 +294,29 @@
   "mealTypesRename": "Rename",
   "mealTypesWeight": "Weight",
   "mealTypesEnabled": "{name} on",
-  "@mealTypesEnabled": {"placeholders": {"name": {"type": "String"}}},
+  "@mealTypesEnabled": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "mealTypesEmpty": "No meal types yet",
   "mealTypesManagerOnly": "Only the manager can change meal types",
   "moneyFoodTotal": "Food cost",
   "moneyFoodProof": "Bazar plus expenses split by meal",
   "moneyMealRate": "Meal rate",
   "moneyMealRateProof": "{food} ÷ {meals} meals",
-  "@moneyMealRateProof": {"placeholders": {"food": {"type": "String"}, "meals": {"type": "String"}}},
+  "@moneyMealRateProof": {
+    "placeholders": {
+      "food": {
+        "type": "String"
+      },
+      "meals": {
+        "type": "String"
+      }
+    }
+  },
   "moneyExtraTotal": "Other expenses",
   "moneyExtraProof": "Split equally among members",
   "moneyDepositTotal": "Deposits",
@@ -271,18 +355,48 @@
   "bazarItemPrice": "Price",
   "bazarItemInvalid": "Enter both name and price",
   "bazarItemsSum": "Items add up to {sum}",
-  "@bazarItemsSum": {"placeholders": {"sum": {"type": "String"}}},
+  "@bazarItemsSum": {
+    "placeholders": {
+      "sum": {
+        "type": "String"
+      }
+    }
+  },
   "bazarUseSum": "Use this",
   "bazarItemCount": "{count} items",
-  "@bazarItemCount": {"placeholders": {"count": {"type": "String"}}},
+  "@bazarItemCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "bazarEmpty": "No bazar this month yet",
   "bazarShare": "Share",
   "bazarShareHeader": "Bazar · {date}",
-  "@bazarShareHeader": {"placeholders": {"date": {"type": "String"}}},
+  "@bazarShareHeader": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "bazarShareBuyer": "Shopped by: {name}",
-  "@bazarShareBuyer": {"placeholders": {"name": {"type": "String"}}},
+  "@bazarShareBuyer": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "bazarShareTotal": "Total: {total}",
-  "@bazarShareTotal": {"placeholders": {"total": {"type": "String"}}},
+  "@bazarShareTotal": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
   "expenseAdd": "Add expense",
   "expenseEdit": "Edit expense",
   "expenseCategory": "Category",
@@ -311,14 +425,35 @@
   "balanceAdvance": "Advance",
   "balanceSettled": "Settled",
   "balanceMeals": "{meals} meals",
-  "@balanceMeals": {"placeholders": {"meals": {"type": "String"}}},
+  "@balanceMeals": {
+    "placeholders": {
+      "meals": {
+        "type": "String"
+      }
+    }
+  },
   "balanceEmpty": "No balances this month yet",
   "balanceExplainTitle": "{name}'s bill",
-  "@balanceExplainTitle": {"placeholders": {"name": {"type": "String"}}},
+  "@balanceExplainTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "balanceOpening": "From last month",
   "balanceCredit": "Deposits and own-pocket spending",
   "balanceFood": "Food ({meals} meals × {rate})",
-  "@balanceFood": {"placeholders": {"meals": {"type": "String"}, "rate": {"type": "String"}}},
+  "@balanceFood": {
+    "placeholders": {
+      "meals": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
   "balanceExtra": "Share of other expenses",
   "balanceClosing": "Balance now",
   "monthTitle": "Months",
@@ -327,7 +462,16 @@
   "monthThis": "This month",
   "monthPrevious": "Last month",
   "monthRange": "{from} – {to}",
-  "@monthRange": {"placeholders": {"from": {"type": "String"}, "to": {"type": "String"}}},
+  "@monthRange": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
   "monthTotalMeals": "Total meals",
   "monthClosedDone": "Month closed",
   "monthStatusOpen": "Open",
@@ -357,7 +501,13 @@
   "aiConfirmAll": "Confirm all",
   "aiNoMeals": "No meals found",
   "aiMealsSaved": "{count} meals saved",
-  "@aiMealsSaved": {"placeholders": {"count": {"type": "String"}}},
+  "@aiMealsSaved": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "aiScanTitle": "Scan bazar receipt",
   "aiCamera": "Take a photo",
   "aiGallery": "Choose from gallery",
@@ -367,9 +517,21 @@
   "aiNoItems": "No items could be read from the receipt",
   "aiTotalMismatch": "The receipt total and the item sum differ. Which one?",
   "aiReceiptTotal": "Receipt total {amount}",
-  "@aiReceiptTotal": {"placeholders": {"amount": {"type": "String"}}},
+  "@aiReceiptTotal": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "aiItemsSum": "Item sum {amount}",
-  "@aiItemsSum": {"placeholders": {"amount": {"type": "String"}}},
+  "@aiItemsSum": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "aiUseDraft": "Use in bazar",
   "reportTitle": "Monthly report",
   "reportFoodTotal": "Food total",
@@ -387,7 +549,13 @@
   "reportAdvance": "advance",
   "reportFormula": "Meal rate = food total ÷ total meals",
   "reportFooter": "Meal Bazar · generated {date}",
-  "@reportFooter": {"placeholders": {"date": {"type": "String"}}},
+  "@reportFooter": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "reportNoMembers": "No members this month",
   "reportShare": "Share report",
   "reportPrint": "Print report",
@@ -429,9 +597,21 @@
   "auditMember": "member {name}",
   "auditMessSettings": "mess settings",
   "auditDutyOf": "bazar duty for {name}",
-  "@auditDutyOf": {"placeholders": {"name": {"type": "String"}}},
+  "@auditDutyOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "auditNotice": "notice {title}",
-  "@auditNotice": {"placeholders": {"title": {"type": "String"}}},
+  "@auditNotice": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "auditRecurring": "a monthly bill",
   "auditMonthClosed": "{actor} closed the month",
   "auditMonthReopened": "{actor} reopened the month",
@@ -440,7 +620,13 @@
   "bazarScan": "Scan receipt or list",
   "mealOffCutoffPassed": "Too late — ask the manager",
   "mealOffHint": "To switch off tomorrow's meals, do it before {time} pm today",
-  "@mealOffHint": {"placeholders": {"time": {"type": "String"}}},
+  "@mealOffHint": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "mealOffTomorrow": "Tomorrow off",
   "mealOffTomorrowTitle": "Which meals are off tomorrow?",
   "mealOffSave": "Done",
@@ -471,36 +657,96 @@
   "dashMembers": "Members",
   "dashMembersProof": "Active members",
   "dashMembersPending": "{count} awaiting approval",
-  "@dashMembersPending": {"placeholders": {"count": {"type": "String"}}},
+  "@dashMembersPending": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "dashBazar": "Bazar total",
   "dashBazarProof": "Food cost with meal-split costs {food}",
-  "@dashBazarProof": {"placeholders": {"food": {"type": "String"}}},
+  "@dashBazarProof": {
+    "placeholders": {
+      "food": {
+        "type": "String"
+      }
+    }
+  },
   "dashExtra": "Other costs",
   "dashExtraProof": "Split equally · month's total cost {total}",
-  "@dashExtraProof": {"placeholders": {"total": {"type": "String"}}},
+  "@dashExtraProof": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
   "dashDeposits": "Deposits",
   "dashDues": "Total due",
   "dashDuesProof": "{count} members owe",
-  "@dashDuesProof": {"placeholders": {"count": {"type": "String"}}},
+  "@dashDuesProof": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "dashAdvances": "Total advance",
   "dashAdvancesProof": "{count} members in advance",
-  "@dashAdvancesProof": {"placeholders": {"count": {"type": "String"}}},
+  "@dashAdvancesProof": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "dashMeals": "Total meals",
   "dashPeriod": "{from} – {to}",
-  "@dashPeriod": {"placeholders": {"from": {"type": "String"}, "to": {"type": "String"}}},
+  "@dashPeriod": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
   "dashRate": "Meal rate",
   "dashWhoOwes": "Who owes what",
   "dashMine": "My account",
   "dashMyMeals": "My meals",
   "dashMyFood": "Food cost",
   "dashMyFoodProof": "{meals} meals × {rate}",
-  "@dashMyFoodProof": {"placeholders": {"meals": {"type": "String"}, "rate": {"type": "String"}}},
+  "@dashMyFoodProof": {
+    "placeholders": {
+      "meals": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
   "dashMyPaid": "Paid",
   "dashExplain": "Explain my bill",
   "dashNotInMonth": "You have nothing on this month's bill",
   "dashDailyTitle": "Daily meals",
   "dashDailySummary": "Daily meals: {total} in all, most {max} on {date}",
-  "@dashDailySummary": {"placeholders": {"total": {"type": "String"}, "max": {"type": "String"}, "date": {"type": "String"}}},
+  "@dashDailySummary": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "dashCategoryTitle": "Where the money went",
   "dashMonthlyTitle": "Meal rate, last 6 months",
   "dashChartEmpty": "Nothing this month yet",
@@ -508,7 +754,13 @@
   "dashNobodyThatDay": "Nobody was in the mess on this day",
   "navBazar": "Bazar",
   "mealGridManager": "Manager: {name}",
-  "@mealGridManager": {"placeholders": {"name": {"type": "String"}}},
+  "@mealGridManager": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "mealGridPrevMonth": "Previous month",
   "mealGridNextMonth": "Next month",
   "mealGridTotalRow": "Total meals",
@@ -532,7 +784,16 @@
   "bazarPickerHelp": "Tap to add an item, tap again to remove",
   "setupTitle": "Let's get started",
   "setupProgress": "{done}/{total} done",
-  "@setupProgress": {"placeholders": {"done": {"type": "String"}, "total": {"type": "String"}}},
+  "@setupProgress": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
   "setupLater": "Later",
   "setupStart": "Start",
   "setupMess": "Mess created",
@@ -541,11 +802,35 @@
   "setupDeposit": "Record opening deposits",
   "setupMeals": "Enter today's meals",
   "shareBillTitle": "*{mess}* · Monthly bill",
-  "@shareBillTitle": {"placeholders": {"mess": {"type": "String"}}},
+  "@shareBillTitle": {
+    "placeholders": {
+      "mess": {
+        "type": "String"
+      }
+    }
+  },
   "shareBillSummaryTitle": "*{mess}* · Month summary",
-  "@shareBillSummaryTitle": {"placeholders": {"mess": {"type": "String"}}},
+  "@shareBillSummaryTitle": {
+    "placeholders": {
+      "mess": {
+        "type": "String"
+      }
+    }
+  },
   "shareBillMeals": "Meals: {meals} × {rate} = {cost}",
-  "@shareBillMeals": {"placeholders": {"meals": {"type": "String"}, "rate": {"type": "String"}, "cost": {"type": "String"}}},
+  "@shareBillMeals": {
+    "placeholders": {
+      "meals": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      },
+      "cost": {
+        "type": "String"
+      }
+    }
+  },
   "shareBillPaid": "Paid",
   "shareBillFoodTotal": "Total food cost",
   "shareBillTotalMeals": "Total meals",
@@ -559,13 +844,46 @@
   "shareBillToneShort": "Short",
   "shareBillToneFirm": "Firm",
   "shareBillRemindPolite": "Hi {name}, your mess balance this month shows {amount} due. Please pay whenever convenient. Thank you!",
-  "@shareBillRemindPolite": {"placeholders": {"name": {"type": "String"}, "amount": {"type": "String"}}},
+  "@shareBillRemindPolite": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "shareBillRemindShort": "{name}, mess due: {amount}. Please pay.",
-  "@shareBillRemindShort": {"placeholders": {"name": {"type": "String"}, "amount": {"type": "String"}}},
+  "@shareBillRemindShort": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "shareBillRemindFirm": "{name}, your mess due of {amount} is still unpaid. Please pay within 3 days.",
-  "@shareBillRemindFirm": {"placeholders": {"name": {"type": "String"}, "amount": {"type": "String"}}},
+  "@shareBillRemindFirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "shareBillPayHint": "bKash/Nagad: {number}",
-  "@shareBillPayHint": {"placeholders": {"number": {"type": "String"}}},
+  "@shareBillPayHint": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
   "noticeTitle": "Notices",
   "noticeEmpty": "No notices yet",
   "noticeAdd": "Post a notice",
@@ -580,7 +898,13 @@
   "noticeNoExpiry": "No expiry",
   "noticeClearExpiry": "Remove expiry",
   "noticeUntil": "Until {date}",
-  "@noticeUntil": {"placeholders": {"date": {"type": "String"}}},
+  "@noticeUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "noticeSave": "Save notice",
   "noticeSaved": "Notice saved",
   "noticeDeleted": "Notice deleted",
@@ -599,11 +923,23 @@
   "dutyStart": "Start date",
   "dutyEveryLabel": "How often",
   "dutyEvery": "Every {n} days",
-  "@dutyEvery": {"placeholders": {"n": {"type": "String"}}},
+  "@dutyEvery": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
   "dutyDays": "For how many days",
   "dutyDaysInvalid": "Enter 1 to 366 days",
   "dutyCreated": "{count} duties created",
-  "@dutyCreated": {"placeholders": {"count": {"type": "String"}}},
+  "@dutyCreated": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "dutyEditTitle": "Change duty",
   "dutyMember": "Who does the bazar",
   "dutyNote": "Note",
@@ -611,9 +947,21 @@
   "dutyTodayMine": "Today is your bazar duty",
   "dutyTomorrowMine": "Tomorrow is your bazar duty",
   "dutyTodayOther": "{name} does the bazar today",
-  "@dutyTodayOther": {"placeholders": {"name": {"type": "String"}}},
+  "@dutyTodayOther": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "dutyTomorrowOther": "{name} does the bazar tomorrow",
-  "@dutyTomorrowOther": {"placeholders": {"name": {"type": "String"}}},
+  "@dutyTomorrowOther": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "dutyNextMonth": "Next month",
   "splitEqualAll": "Equal (everyone)",
   "splitByMeal": "By meals",
@@ -621,7 +969,13 @@
   "splitSelectedHelp": "Only the selected members pay, each by their share",
   "splitPickMember": "Pick at least one member",
   "splitWeight": "Share {weight}",
-  "@splitWeight": {"placeholders": {"weight": {"type": "String"}}},
+  "@splitWeight": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
   "splitWeightLess": "Smaller share",
   "splitWeightMore": "Bigger share",
   "splitPreview": "Preview: who pays how much (final figures come from the month)",
@@ -653,7 +1007,13 @@
   "remindNudgeBody": "Haven't entered today's meals? Do it now",
   "remindDutyTitle": "Your bazar tomorrow",
   "remindDutyBody": "{mess}: you're on bazar duty tomorrow",
-  "@remindDutyBody": {"placeholders": {"mess": {"type": "String"}}},
+  "@remindDutyBody": {
+    "placeholders": {
+      "mess": {
+        "type": "String"
+      }
+    }
+  },
   "remindCutoffToggle": "Before the meal-off cutoff",
   "remindCutoffToggleSub": "30 minutes before the cutoff",
   "remindNudgeToggle": "Evening meal entry",
@@ -670,15 +1030,39 @@
   "recurringEdit": "Edit monthly bill",
   "recurringDay": "Day of the month to post on",
   "recurringDayValue": "Day {day} of the month",
-  "@recurringDayValue": {"placeholders": {"day": {"type": "String"}}},
+  "@recurringDayValue": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
   "recurringActive": "{name} on",
-  "@recurringActive": {"placeholders": {"name": {"type": "String"}}},
+  "@recurringActive": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "recurringApply": "Post this month's bills",
   "recurringApplied": "{count} bills posted as expenses",
-  "@recurringApplied": {"placeholders": {"count": {"type": "String"}}},
+  "@recurringApplied": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "recurringNothingToApply": "This month's bills are already posted",
   "recurringPending": "{count} monthly bills not posted yet this month",
-  "@recurringPending": {"placeholders": {"count": {"type": "String"}}},
+  "@recurringPending": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "recurringManagerOnly": "Only a manager can change monthly bills",
   "mealDefaultTitle": "Default meals",
   "mealDefaultHelp": "When a member has no meal the day before, \"Fill today\" uses these.",
@@ -691,11 +1075,32 @@
   "rateAmountLabel": "Rate per meal (৳)",
   "rateAmountRequired": "Enter a rate above 0",
   "rateSurplus": "{amount} more collected than the bazar cost",
-  "@rateSurplus": {"placeholders": {"amount": {"type": "String"}}},
+  "@rateSurplus": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "rateDeficit": "{amount} less collected than the bazar cost",
-  "@rateDeficit": {"placeholders": {"amount": {"type": "String"}}},
+  "@rateDeficit": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "rateBalanceFood": "Food = {meals} meals × {rate} (fixed rate)",
-  "@rateBalanceFood": {"placeholders": {"meals": {"type": "String"}, "rate": {"type": "String"}}},
+  "@rateBalanceFood": {
+    "placeholders": {
+      "meals": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
   "platformMaintenanceTitle": "We're doing some maintenance",
   "platformMaintenanceBody": "The app is paused for a little while. Please open it again soon; your data is safe.",
   "platformMaintenanceRetry": "Check again",
@@ -712,5 +1117,251 @@
   "platformCopied": "Copied",
   "platformAboutTitle": "About",
   "platformVersion": "Version {version}",
-  "@platformVersion": {"placeholders": {"version": {"type": "String"}}}
+  "@platformVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "adminTitle": "Meal Bazar Admin",
+  "adminTitleShort": "Admin",
+  "adminSignIn": "Sign in",
+  "adminSignInGoogle": "Sign in with Google",
+  "adminSignInHint": "Only platform admins can use this panel.",
+  "adminSignOut": "Sign out",
+  "adminAccessDenied": "Access denied",
+  "adminAccessDeniedBody": "This account is not a platform admin. Sign in with another account.",
+  "adminNavDashboard": "Dashboard",
+  "adminNavMesses": "Messes",
+  "adminNavUsers": "Users",
+  "adminNavSettings": "Settings",
+  "adminNavAi": "AI",
+  "adminNavBranding": "Branding",
+  "adminNavCredentials": "Credentials",
+  "adminNavDeletion": "Deletion queue",
+  "adminStatUsersTotal": "Users",
+  "adminStatUsers7d": "New users (7 days)",
+  "adminStatMessesTotal": "Messes",
+  "adminStatMessesActive7d": "Active messes (7 days)",
+  "adminStatMeals7d": "Meals (7 days)",
+  "adminStatBazars7d": "Bazars (7 days)",
+  "adminStatAiCalls7d": "AI calls (7 days)",
+  "adminStatSuspendedMesses": "Suspended messes",
+  "adminStatDeletionPending": "Pending deletions",
+  "adminAiUsage30d": "AI usage, last 30 days",
+  "adminAiUsageEmpty": "No AI calls in this period",
+  "adminDeletionEmpty": "No deletion requests",
+  "adminUserId": "User ID",
+  "adminRequestedAt": "Requested",
+  "adminProcessedAt": "Processed",
+  "adminLastError": "Last error",
+  "adminSearchMesses": "Search by mess name, then press Enter",
+  "adminSearchUsers": "Search by email or name, then press Enter",
+  "adminNoResults": "No results",
+  "adminPage": "Page {page}",
+  "@adminPage": {
+    "placeholders": {
+      "page": {
+        "type": "String"
+      }
+    }
+  },
+  "adminName": "Name",
+  "adminMembers": "Members",
+  "adminManagers": "Managers",
+  "adminCreated": "Created",
+  "adminLastActivity": "Last activity",
+  "adminLastSignIn": "Last sign-in",
+  "adminMessCount": "Messes",
+  "adminStatus": "Status",
+  "adminRole": "Role",
+  "adminRoleAdmin": "Admin",
+  "adminActive": "Active",
+  "adminSuspended": "Suspended",
+  "adminSuspend": "Suspend",
+  "adminUnsuspend": "Unsuspend",
+  "adminSuspendMess": "Suspend the mess \"{name}\"?",
+  "@adminSuspendMess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "adminUnsuspendMess": "Unsuspend the mess \"{name}\"?",
+  "@adminUnsuspendMess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "adminSuspendUser": "Suspend {email}?",
+  "@adminSuspendUser": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "adminUnsuspendUser": "Unsuspend {email}?",
+  "@adminUnsuspendUser": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "adminReason": "Reason",
+  "adminMakeAdmin": "Make admin",
+  "adminRemoveAdmin": "Remove admin",
+  "adminSaved": "Saved",
+  "adminRawJson": "Advanced: raw JSON",
+  "adminAdd": "Add",
+  "adminMoveUp": "Move up",
+  "adminMoveDown": "Move down",
+  "adminErrRequired": "Required",
+  "adminErrNumber": "Enter a number",
+  "adminErrRange": "Out of range",
+  "adminErrVersion": "Use a version like 1.2.3",
+  "adminErrEmail": "Enter a valid email",
+  "adminErrUrl": "Enter a link starting with http(s)://",
+  "adminErrTime": "Use HH:MM",
+  "adminErrHex": "Use a #RRGGBB colour",
+  "adminErrMealTypes": "Keep at least one meal type",
+  "adminErrChain": "Each chain needs 1 to 5 models",
+  "adminFeatures": "Features",
+  "adminFeaturesHelp": "Turning a feature off hides every entry point in the app. Data stays in place.",
+  "adminAppSection": "App",
+  "adminMaintenance": "Maintenance mode",
+  "adminMaintenanceHelp": "Shows a full-screen notice in the app",
+  "adminMessageBn": "Message (Bangla)",
+  "adminMessageEn": "Message (English)",
+  "adminVersions": "Versions",
+  "adminMinVersion": "Minimum version",
+  "adminMinVersionHelp": "Older apps are asked to update",
+  "adminLatestVersion": "Latest version",
+  "adminUpdateMessageBn": "Update message (Bangla)",
+  "adminUpdateMessageEn": "Update message (English)",
+  "adminSupport": "Support",
+  "adminSupportEmail": "Support email",
+  "adminSupportWhatsapp": "Support WhatsApp",
+  "adminPrivacyUrl": "Privacy policy URL",
+  "adminBanner": "Banner",
+  "adminBannerActive": "Show the banner on Home",
+  "adminBannerLevel": "Level",
+  "adminDefaults": "New mess defaults",
+  "adminDefaultsHelp": "Applied only when a new mess is created",
+  "adminMonthStartDay": "Month start day (1–28)",
+  "adminCutoff": "Meal-off cutoff",
+  "adminMealTypes": "Meal types",
+  "adminWeight": "Weight",
+  "adminExpenseCategories": "Expense categories",
+  "adminSplit": "Split",
+  "adminSplitEqual": "Equal",
+  "adminSplitMeal": "By meals",
+  "adminCatalogue": "Bazar catalogue",
+  "adminCatalogueHelp": "Items offered in the bazar item picker",
+  "adminAddGroup": "Add group",
+  "adminAddItem": "Add item",
+  "adminGroupName": "Group name",
+  "adminUnit": "Unit",
+  "adminPaymentMethods": "Payment methods",
+  "adminPaymentMethodsHelp": "Keys are fixed; only labels and visibility change",
+  "adminLabelBn": "Label (Bangla)",
+  "adminLabelEn": "Label (English)",
+  "adminAppNameBn": "App name (Bangla)",
+  "adminAppNameEn": "App name (English)",
+  "adminTaglineBn": "Tagline (Bangla)",
+  "adminTaglineEn": "Tagline (English)",
+  "adminBrandingReleaseNote": "Name, tagline, logo and colours change on the sign-in and account screens. The launcher icon and the home-screen app name need a new release (an Android limitation).",
+  "adminLogo": "Logo",
+  "adminLogoUpload": "Upload logo",
+  "adminLogoReplace": "Replace logo",
+  "adminLogoRemove": "Remove logo",
+  "adminLogoDefault": "Without a logo the app shows its built-in ম mark",
+  "adminLogoSaveHint": "Press Save to publish the uploaded logo",
+  "adminAccent": "Accent colour",
+  "adminAccentLight": "Light theme",
+  "adminAccentDark": "Dark theme",
+  "adminContrast": "Contrast {ratio}:1",
+  "@adminContrast": {
+    "placeholders": {
+      "ratio": {
+        "type": "String"
+      }
+    }
+  },
+  "adminContrastOk": "Contrast passes (3:1 or more)",
+  "adminContrastLow": "Low contrast (under 3:1): marks will be hard to see",
+  "adminSecretsHelp": "Keys are write-only. Stored values are never shown, only their last 4 characters.",
+  "adminSecretNotSet": "Not set (the env variable is used)",
+  "adminSecretSet": "Set",
+  "adminSecretReplace": "Replace",
+  "adminSecretValue": "New value",
+  "adminSecretValueHelp": "Replaces the stored value",
+  "adminSecretDeleteTitle": "Delete {name}?",
+  "@adminSecretDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "adminSecretDeleteBody": "The gateway falls back to its env variable.",
+  "adminUpdatedAt": "Updated {date}",
+  "@adminUpdatedAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "adminAiSettings": "AI settings",
+  "adminAiEnabled": "AI enabled",
+  "adminAllowPaid": "Allow paid models",
+  "adminAllowPaidHelp": "When off, the gateway skips OpenRouter models that cost money",
+  "adminQuotaMeal": "Daily meal draft quota (per mess)",
+  "adminQuotaBazar": "Daily bazar scan quota (per mess)",
+  "adminTimeoutMs": "Timeout (ms)",
+  "adminTemperature": "Temperature",
+  "adminTextChain": "Text chain (meal drafts)",
+  "adminVisionChain": "Vision chain (receipt scans)",
+  "adminChains": "Chains",
+  "adminChainEmpty": "No models. Add one from the catalogue.",
+  "adminAddManually": "Add model manually",
+  "adminProvider": "Provider",
+  "adminModelId": "Model ID",
+  "adminModel": "Model",
+  "adminModelCatalogue": "Model catalogue",
+  "adminAll": "All",
+  "adminSearchModels": "Search models",
+  "adminFree": "Free",
+  "adminPaid": "Paid",
+  "adminVision": "Vision",
+  "adminText": "Text",
+  "adminMinContext": "Min context",
+  "adminMaxPrice": "Max price $/1M",
+  "adminContext": "Context",
+  "adminInputPrice": "Input $/1M",
+  "adminOutputPrice": "Output $/1M",
+  "adminAddToText": "Add to text chain",
+  "adminAddToVision": "Add to vision chain",
+  "adminTest": "Test",
+  "adminTestOk": "OK · {ms} ms · {sample}",
+  "@adminTestOk": {
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      },
+      "sample": {
+        "type": "String"
+      }
+    }
+  },
+  "adminGatewayMissing": "The AI gateway is not configured. Set AI_GATEWAY_URL in env.json, rebuild the panel, and allow this site's origin in the gateway's CORS.",
+  "adminPaidWarningTitle": "Save paid models?",
+  "adminPaidWarningBody": "\"Allow paid models\" is off, so the gateway will skip these models:",
+  "adminSaveAnyway": "Save anyway"
 }

@@ -4015,6 +4015,1050 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'ভার্সন {version}'**
   String platformVersion(String version);
+
+  /// No description provided for @adminTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'মিল বাজার অ্যাডমিন'**
+  String get adminTitle;
+
+  /// No description provided for @adminTitleShort.
+  ///
+  /// In bn, this message translates to:
+  /// **'অ্যাডমিন'**
+  String get adminTitleShort;
+
+  /// No description provided for @adminSignIn.
+  ///
+  /// In bn, this message translates to:
+  /// **'লগইন করুন'**
+  String get adminSignIn;
+
+  /// No description provided for @adminSignInGoogle.
+  ///
+  /// In bn, this message translates to:
+  /// **'গুগল দিয়ে লগইন'**
+  String get adminSignInGoogle;
+
+  /// No description provided for @adminSignInHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'শুধু প্ল্যাটফর্ম অ্যাডমিনরা এখানে ঢুকতে পারেন।'**
+  String get adminSignInHint;
+
+  /// No description provided for @adminSignOut.
+  ///
+  /// In bn, this message translates to:
+  /// **'লগআউট'**
+  String get adminSignOut;
+
+  /// No description provided for @adminAccessDenied.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রবেশাধিকার নেই'**
+  String get adminAccessDenied;
+
+  /// No description provided for @adminAccessDeniedBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই অ্যাকাউন্ট প্ল্যাটফর্ম অ্যাডমিন নয়। অন্য অ্যাকাউন্টে লগইন করুন।'**
+  String get adminAccessDeniedBody;
+
+  /// No description provided for @adminNavDashboard.
+  ///
+  /// In bn, this message translates to:
+  /// **'ড্যাশবোর্ড'**
+  String get adminNavDashboard;
+
+  /// No description provided for @adminNavMesses.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেস'**
+  String get adminNavMesses;
+
+  /// No description provided for @adminNavUsers.
+  ///
+  /// In bn, this message translates to:
+  /// **'ইউজার'**
+  String get adminNavUsers;
+
+  /// No description provided for @adminNavSettings.
+  ///
+  /// In bn, this message translates to:
+  /// **'সেটিংস'**
+  String get adminNavSettings;
+
+  /// No description provided for @adminNavAi.
+  ///
+  /// In bn, this message translates to:
+  /// **'এআই'**
+  String get adminNavAi;
+
+  /// No description provided for @adminNavBranding.
+  ///
+  /// In bn, this message translates to:
+  /// **'ব্র্যান্ডিং'**
+  String get adminNavBranding;
+
+  /// No description provided for @adminNavCredentials.
+  ///
+  /// In bn, this message translates to:
+  /// **'ক্রেডেনশিয়াল'**
+  String get adminNavCredentials;
+
+  /// No description provided for @adminNavDeletion.
+  ///
+  /// In bn, this message translates to:
+  /// **'মুছে ফেলার সারি'**
+  String get adminNavDeletion;
+
+  /// No description provided for @adminStatUsersTotal.
+  ///
+  /// In bn, this message translates to:
+  /// **'মোট ইউজার'**
+  String get adminStatUsersTotal;
+
+  /// No description provided for @adminStatUsers7d.
+  ///
+  /// In bn, this message translates to:
+  /// **'নতুন ইউজার (৭ দিন)'**
+  String get adminStatUsers7d;
+
+  /// No description provided for @adminStatMessesTotal.
+  ///
+  /// In bn, this message translates to:
+  /// **'মোট মেস'**
+  String get adminStatMessesTotal;
+
+  /// No description provided for @adminStatMessesActive7d.
+  ///
+  /// In bn, this message translates to:
+  /// **'সক্রিয় মেস (৭ দিন)'**
+  String get adminStatMessesActive7d;
+
+  /// No description provided for @adminStatMeals7d.
+  ///
+  /// In bn, this message translates to:
+  /// **'মিল (৭ দিন)'**
+  String get adminStatMeals7d;
+
+  /// No description provided for @adminStatBazars7d.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাজার (৭ দিন)'**
+  String get adminStatBazars7d;
+
+  /// No description provided for @adminStatAiCalls7d.
+  ///
+  /// In bn, this message translates to:
+  /// **'এআই কল (৭ দিন)'**
+  String get adminStatAiCalls7d;
+
+  /// No description provided for @adminStatSuspendedMesses.
+  ///
+  /// In bn, this message translates to:
+  /// **'স্থগিত মেস'**
+  String get adminStatSuspendedMesses;
+
+  /// No description provided for @adminStatDeletionPending.
+  ///
+  /// In bn, this message translates to:
+  /// **'মুছে ফেলার অপেক্ষায়'**
+  String get adminStatDeletionPending;
+
+  /// No description provided for @adminAiUsage30d.
+  ///
+  /// In bn, this message translates to:
+  /// **'এআই ব্যবহার, শেষ ৩০ দিন'**
+  String get adminAiUsage30d;
+
+  /// No description provided for @adminAiUsageEmpty.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই সময়ে কোনো এআই কল হয়নি'**
+  String get adminAiUsageEmpty;
+
+  /// No description provided for @adminDeletionEmpty.
+  ///
+  /// In bn, this message translates to:
+  /// **'মুছে ফেলার কোনো অনুরোধ নেই'**
+  String get adminDeletionEmpty;
+
+  /// No description provided for @adminUserId.
+  ///
+  /// In bn, this message translates to:
+  /// **'ইউজার আইডি'**
+  String get adminUserId;
+
+  /// No description provided for @adminRequestedAt.
+  ///
+  /// In bn, this message translates to:
+  /// **'অনুরোধের সময়'**
+  String get adminRequestedAt;
+
+  /// No description provided for @adminProcessedAt.
+  ///
+  /// In bn, this message translates to:
+  /// **'সম্পন্ন'**
+  String get adminProcessedAt;
+
+  /// No description provided for @adminLastError.
+  ///
+  /// In bn, this message translates to:
+  /// **'শেষ ত্রুটি'**
+  String get adminLastError;
+
+  /// No description provided for @adminSearchMesses.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেসের নাম দিয়ে খুঁজুন, তারপর Enter'**
+  String get adminSearchMesses;
+
+  /// No description provided for @adminSearchUsers.
+  ///
+  /// In bn, this message translates to:
+  /// **'ইমেইল বা নাম দিয়ে খুঁজুন, তারপর Enter'**
+  String get adminSearchUsers;
+
+  /// No description provided for @adminNoResults.
+  ///
+  /// In bn, this message translates to:
+  /// **'কিছু পাওয়া যায়নি'**
+  String get adminNoResults;
+
+  /// No description provided for @adminPage.
+  ///
+  /// In bn, this message translates to:
+  /// **'পৃষ্ঠা {page}'**
+  String adminPage(String page);
+
+  /// No description provided for @adminName.
+  ///
+  /// In bn, this message translates to:
+  /// **'নাম'**
+  String get adminName;
+
+  /// No description provided for @adminMembers.
+  ///
+  /// In bn, this message translates to:
+  /// **'সদস্য'**
+  String get adminMembers;
+
+  /// No description provided for @adminManagers.
+  ///
+  /// In bn, this message translates to:
+  /// **'ম্যানেজার'**
+  String get adminManagers;
+
+  /// No description provided for @adminCreated.
+  ///
+  /// In bn, this message translates to:
+  /// **'তৈরি'**
+  String get adminCreated;
+
+  /// No description provided for @adminLastActivity.
+  ///
+  /// In bn, this message translates to:
+  /// **'শেষ কাজ'**
+  String get adminLastActivity;
+
+  /// No description provided for @adminLastSignIn.
+  ///
+  /// In bn, this message translates to:
+  /// **'শেষ লগইন'**
+  String get adminLastSignIn;
+
+  /// No description provided for @adminMessCount.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেস'**
+  String get adminMessCount;
+
+  /// No description provided for @adminStatus.
+  ///
+  /// In bn, this message translates to:
+  /// **'অবস্থা'**
+  String get adminStatus;
+
+  /// No description provided for @adminRole.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভূমিকা'**
+  String get adminRole;
+
+  /// No description provided for @adminRoleAdmin.
+  ///
+  /// In bn, this message translates to:
+  /// **'অ্যাডমিন'**
+  String get adminRoleAdmin;
+
+  /// No description provided for @adminActive.
+  ///
+  /// In bn, this message translates to:
+  /// **'চালু'**
+  String get adminActive;
+
+  /// No description provided for @adminSuspended.
+  ///
+  /// In bn, this message translates to:
+  /// **'স্থগিত'**
+  String get adminSuspended;
+
+  /// No description provided for @adminSuspend.
+  ///
+  /// In bn, this message translates to:
+  /// **'স্থগিত করুন'**
+  String get adminSuspend;
+
+  /// No description provided for @adminUnsuspend.
+  ///
+  /// In bn, this message translates to:
+  /// **'আবার চালু করুন'**
+  String get adminUnsuspend;
+
+  /// No description provided for @adminSuspendMess.
+  ///
+  /// In bn, this message translates to:
+  /// **'\"{name}\" মেস স্থগিত করবেন?'**
+  String adminSuspendMess(String name);
+
+  /// No description provided for @adminUnsuspendMess.
+  ///
+  /// In bn, this message translates to:
+  /// **'\"{name}\" মেস আবার চালু করবেন?'**
+  String adminUnsuspendMess(String name);
+
+  /// No description provided for @adminSuspendUser.
+  ///
+  /// In bn, this message translates to:
+  /// **'{email} স্থগিত করবেন?'**
+  String adminSuspendUser(String email);
+
+  /// No description provided for @adminUnsuspendUser.
+  ///
+  /// In bn, this message translates to:
+  /// **'{email} আবার চালু করবেন?'**
+  String adminUnsuspendUser(String email);
+
+  /// No description provided for @adminReason.
+  ///
+  /// In bn, this message translates to:
+  /// **'কারণ'**
+  String get adminReason;
+
+  /// No description provided for @adminMakeAdmin.
+  ///
+  /// In bn, this message translates to:
+  /// **'অ্যাডমিন বানান'**
+  String get adminMakeAdmin;
+
+  /// No description provided for @adminRemoveAdmin.
+  ///
+  /// In bn, this message translates to:
+  /// **'অ্যাডমিন থেকে সরান'**
+  String get adminRemoveAdmin;
+
+  /// No description provided for @adminSaved.
+  ///
+  /// In bn, this message translates to:
+  /// **'সেভ হয়েছে'**
+  String get adminSaved;
+
+  /// No description provided for @adminRawJson.
+  ///
+  /// In bn, this message translates to:
+  /// **'অ্যাডভান্সড: কাঁচা JSON'**
+  String get adminRawJson;
+
+  /// No description provided for @adminAdd.
+  ///
+  /// In bn, this message translates to:
+  /// **'যোগ করুন'**
+  String get adminAdd;
+
+  /// No description provided for @adminMoveUp.
+  ///
+  /// In bn, this message translates to:
+  /// **'ওপরে নিন'**
+  String get adminMoveUp;
+
+  /// No description provided for @adminMoveDown.
+  ///
+  /// In bn, this message translates to:
+  /// **'নিচে নিন'**
+  String get adminMoveDown;
+
+  /// No description provided for @adminErrRequired.
+  ///
+  /// In bn, this message translates to:
+  /// **'এটা দিতে হবে'**
+  String get adminErrRequired;
+
+  /// No description provided for @adminErrNumber.
+  ///
+  /// In bn, this message translates to:
+  /// **'একটা সংখ্যা দিন'**
+  String get adminErrNumber;
+
+  /// No description provided for @adminErrRange.
+  ///
+  /// In bn, this message translates to:
+  /// **'সীমার বাইরে'**
+  String get adminErrRange;
+
+  /// No description provided for @adminErrVersion.
+  ///
+  /// In bn, this message translates to:
+  /// **'১.২.৩ ধরনের ভার্সন দিন'**
+  String get adminErrVersion;
+
+  /// No description provided for @adminErrEmail.
+  ///
+  /// In bn, this message translates to:
+  /// **'সঠিক ইমেইল দিন'**
+  String get adminErrEmail;
+
+  /// No description provided for @adminErrUrl.
+  ///
+  /// In bn, this message translates to:
+  /// **'http(s):// দিয়ে শুরু হওয়া লিংক দিন'**
+  String get adminErrUrl;
+
+  /// No description provided for @adminErrTime.
+  ///
+  /// In bn, this message translates to:
+  /// **'HH:MM ধরনে সময় দিন'**
+  String get adminErrTime;
+
+  /// No description provided for @adminErrHex.
+  ///
+  /// In bn, this message translates to:
+  /// **'#RRGGBB ধরনে রং দিন'**
+  String get adminErrHex;
+
+  /// No description provided for @adminErrMealTypes.
+  ///
+  /// In bn, this message translates to:
+  /// **'অন্তত একটা বেলা রাখুন'**
+  String get adminErrMealTypes;
+
+  /// No description provided for @adminErrChain.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রতিটি চেইনে ১ থেকে ৫টি মডেল রাখুন'**
+  String get adminErrChain;
+
+  /// No description provided for @adminFeatures.
+  ///
+  /// In bn, this message translates to:
+  /// **'ফিচার'**
+  String get adminFeatures;
+
+  /// No description provided for @adminFeaturesHelp.
+  ///
+  /// In bn, this message translates to:
+  /// **'বন্ধ করলে অ্যাপে ওই ফিচারের সব পথ লুকিয়ে যায়। ডেটা থেকে যায়।'**
+  String get adminFeaturesHelp;
+
+  /// No description provided for @adminAppSection.
+  ///
+  /// In bn, this message translates to:
+  /// **'অ্যাপ'**
+  String get adminAppSection;
+
+  /// No description provided for @adminMaintenance.
+  ///
+  /// In bn, this message translates to:
+  /// **'রক্ষণাবেক্ষণ মোড'**
+  String get adminMaintenance;
+
+  /// No description provided for @adminMaintenanceHelp.
+  ///
+  /// In bn, this message translates to:
+  /// **'চালু থাকলে অ্যাপে পুরো পর্দার নোটিশ দেখায়'**
+  String get adminMaintenanceHelp;
+
+  /// No description provided for @adminMessageBn.
+  ///
+  /// In bn, this message translates to:
+  /// **'বার্তা (বাংলা)'**
+  String get adminMessageBn;
+
+  /// No description provided for @adminMessageEn.
+  ///
+  /// In bn, this message translates to:
+  /// **'বার্তা (ইংরেজি)'**
+  String get adminMessageEn;
+
+  /// No description provided for @adminVersions.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভার্সন'**
+  String get adminVersions;
+
+  /// No description provided for @adminMinVersion.
+  ///
+  /// In bn, this message translates to:
+  /// **'ন্যূনতম ভার্সন'**
+  String get adminMinVersion;
+
+  /// No description provided for @adminMinVersionHelp.
+  ///
+  /// In bn, this message translates to:
+  /// **'এর নিচে থাকলে আপডেট করতে বলা হয়'**
+  String get adminMinVersionHelp;
+
+  /// No description provided for @adminLatestVersion.
+  ///
+  /// In bn, this message translates to:
+  /// **'সর্বশেষ ভার্সন'**
+  String get adminLatestVersion;
+
+  /// No description provided for @adminUpdateMessageBn.
+  ///
+  /// In bn, this message translates to:
+  /// **'আপডেট বার্তা (বাংলা)'**
+  String get adminUpdateMessageBn;
+
+  /// No description provided for @adminUpdateMessageEn.
+  ///
+  /// In bn, this message translates to:
+  /// **'আপডেট বার্তা (ইংরেজি)'**
+  String get adminUpdateMessageEn;
+
+  /// No description provided for @adminSupport.
+  ///
+  /// In bn, this message translates to:
+  /// **'সহায়তা'**
+  String get adminSupport;
+
+  /// No description provided for @adminSupportEmail.
+  ///
+  /// In bn, this message translates to:
+  /// **'সহায়তার ইমেইল'**
+  String get adminSupportEmail;
+
+  /// No description provided for @adminSupportWhatsapp.
+  ///
+  /// In bn, this message translates to:
+  /// **'সহায়তার হোয়াটসঅ্যাপ'**
+  String get adminSupportWhatsapp;
+
+  /// No description provided for @adminPrivacyUrl.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রাইভেসি পলিসির লিংক'**
+  String get adminPrivacyUrl;
+
+  /// No description provided for @adminBanner.
+  ///
+  /// In bn, this message translates to:
+  /// **'ব্যানার'**
+  String get adminBanner;
+
+  /// No description provided for @adminBannerActive.
+  ///
+  /// In bn, this message translates to:
+  /// **'হোমে ব্যানার দেখান'**
+  String get adminBannerActive;
+
+  /// No description provided for @adminBannerLevel.
+  ///
+  /// In bn, this message translates to:
+  /// **'ধরন'**
+  String get adminBannerLevel;
+
+  /// No description provided for @adminDefaults.
+  ///
+  /// In bn, this message translates to:
+  /// **'নতুন মেসের ডিফল্ট'**
+  String get adminDefaults;
+
+  /// No description provided for @adminDefaultsHelp.
+  ///
+  /// In bn, this message translates to:
+  /// **'শুধু নতুন মেস তৈরির সময় কাজে লাগে'**
+  String get adminDefaultsHelp;
+
+  /// No description provided for @adminMonthStartDay.
+  ///
+  /// In bn, this message translates to:
+  /// **'মাস শুরুর দিন (১–২৮)'**
+  String get adminMonthStartDay;
+
+  /// No description provided for @adminCutoff.
+  ///
+  /// In bn, this message translates to:
+  /// **'মিল বন্ধের শেষ সময়'**
+  String get adminCutoff;
+
+  /// No description provided for @adminMealTypes.
+  ///
+  /// In bn, this message translates to:
+  /// **'বেলা'**
+  String get adminMealTypes;
+
+  /// No description provided for @adminWeight.
+  ///
+  /// In bn, this message translates to:
+  /// **'ওজন'**
+  String get adminWeight;
+
+  /// No description provided for @adminExpenseCategories.
+  ///
+  /// In bn, this message translates to:
+  /// **'খরচের ধরন'**
+  String get adminExpenseCategories;
+
+  /// No description provided for @adminSplit.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভাগ'**
+  String get adminSplit;
+
+  /// No description provided for @adminSplitEqual.
+  ///
+  /// In bn, this message translates to:
+  /// **'সমান ভাগ'**
+  String get adminSplitEqual;
+
+  /// No description provided for @adminSplitMeal.
+  ///
+  /// In bn, this message translates to:
+  /// **'মিল অনুযায়ী'**
+  String get adminSplitMeal;
+
+  /// No description provided for @adminCatalogue.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাজারের তালিকা'**
+  String get adminCatalogue;
+
+  /// No description provided for @adminCatalogueHelp.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাজার যোগ করার সময় যে জিনিসগুলো বাছাই করা যায়'**
+  String get adminCatalogueHelp;
+
+  /// No description provided for @adminAddGroup.
+  ///
+  /// In bn, this message translates to:
+  /// **'গ্রুপ যোগ করুন'**
+  String get adminAddGroup;
+
+  /// No description provided for @adminAddItem.
+  ///
+  /// In bn, this message translates to:
+  /// **'জিনিস যোগ করুন'**
+  String get adminAddItem;
+
+  /// No description provided for @adminGroupName.
+  ///
+  /// In bn, this message translates to:
+  /// **'গ্রুপের নাম'**
+  String get adminGroupName;
+
+  /// No description provided for @adminUnit.
+  ///
+  /// In bn, this message translates to:
+  /// **'একক'**
+  String get adminUnit;
+
+  /// No description provided for @adminPaymentMethods.
+  ///
+  /// In bn, this message translates to:
+  /// **'পেমেন্টের মাধ্যম'**
+  String get adminPaymentMethods;
+
+  /// No description provided for @adminPaymentMethodsHelp.
+  ///
+  /// In bn, this message translates to:
+  /// **'কী বদলানো যায় না, শুধু নাম আর দেখানো/লুকানো'**
+  String get adminPaymentMethodsHelp;
+
+  /// No description provided for @adminLabelBn.
+  ///
+  /// In bn, this message translates to:
+  /// **'নাম (বাংলা)'**
+  String get adminLabelBn;
+
+  /// No description provided for @adminLabelEn.
+  ///
+  /// In bn, this message translates to:
+  /// **'নাম (ইংরেজি)'**
+  String get adminLabelEn;
+
+  /// No description provided for @adminAppNameBn.
+  ///
+  /// In bn, this message translates to:
+  /// **'অ্যাপের নাম (বাংলা)'**
+  String get adminAppNameBn;
+
+  /// No description provided for @adminAppNameEn.
+  ///
+  /// In bn, this message translates to:
+  /// **'অ্যাপের নাম (ইংরেজি)'**
+  String get adminAppNameEn;
+
+  /// No description provided for @adminTaglineBn.
+  ///
+  /// In bn, this message translates to:
+  /// **'ট্যাগলাইন (বাংলা)'**
+  String get adminTaglineBn;
+
+  /// No description provided for @adminTaglineEn.
+  ///
+  /// In bn, this message translates to:
+  /// **'ট্যাগলাইন (ইংরেজি)'**
+  String get adminTaglineEn;
+
+  /// No description provided for @adminBrandingReleaseNote.
+  ///
+  /// In bn, this message translates to:
+  /// **'লগইন ও অ্যাকাউন্ট পর্দায় নাম, ট্যাগলাইন, লোগো আর রং বদলায়। লঞ্চার আইকন আর হোম স্ক্রিনের নাম বদলাতে নতুন রিলিজ লাগবে (অ্যান্ড্রয়েডের সীমাবদ্ধতা)।'**
+  String get adminBrandingReleaseNote;
+
+  /// No description provided for @adminLogo.
+  ///
+  /// In bn, this message translates to:
+  /// **'লোগো'**
+  String get adminLogo;
+
+  /// No description provided for @adminLogoUpload.
+  ///
+  /// In bn, this message translates to:
+  /// **'লোগো আপলোড'**
+  String get adminLogoUpload;
+
+  /// No description provided for @adminLogoReplace.
+  ///
+  /// In bn, this message translates to:
+  /// **'লোগো বদলান'**
+  String get adminLogoReplace;
+
+  /// No description provided for @adminLogoRemove.
+  ///
+  /// In bn, this message translates to:
+  /// **'লোগো সরান'**
+  String get adminLogoRemove;
+
+  /// No description provided for @adminLogoDefault.
+  ///
+  /// In bn, this message translates to:
+  /// **'লোগো না থাকলে অ্যাপ নিজের \"ম\" চিহ্ন দেখায়'**
+  String get adminLogoDefault;
+
+  /// No description provided for @adminLogoSaveHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'আপলোডের পর সেভ চাপলে অ্যাপে দেখাবে'**
+  String get adminLogoSaveHint;
+
+  /// No description provided for @adminAccent.
+  ///
+  /// In bn, this message translates to:
+  /// **'অ্যাকসেন্ট রং'**
+  String get adminAccent;
+
+  /// No description provided for @adminAccentLight.
+  ///
+  /// In bn, this message translates to:
+  /// **'লাইট থিম'**
+  String get adminAccentLight;
+
+  /// No description provided for @adminAccentDark.
+  ///
+  /// In bn, this message translates to:
+  /// **'ডার্ক থিম'**
+  String get adminAccentDark;
+
+  /// No description provided for @adminContrast.
+  ///
+  /// In bn, this message translates to:
+  /// **'কনট্রাস্ট {ratio}:১'**
+  String adminContrast(String ratio);
+
+  /// No description provided for @adminContrastOk.
+  ///
+  /// In bn, this message translates to:
+  /// **'কনট্রাস্ট ঠিক আছে (৩:১ বা বেশি)'**
+  String get adminContrastOk;
+
+  /// No description provided for @adminContrastLow.
+  ///
+  /// In bn, this message translates to:
+  /// **'কনট্রাস্ট কম (৩:১ এর নিচে): চিহ্ন ঝাপসা দেখাবে'**
+  String get adminContrastLow;
+
+  /// No description provided for @adminSecretsHelp.
+  ///
+  /// In bn, this message translates to:
+  /// **'কী শুধু লেখা যায়, পড়া যায় না। সেভ করা মান কখনো দেখানো হয় না, শুধু শেষ ৪ অক্ষর।'**
+  String get adminSecretsHelp;
+
+  /// No description provided for @adminSecretNotSet.
+  ///
+  /// In bn, this message translates to:
+  /// **'সেট করা নেই (এনভ ভ্যারিয়েবল ব্যবহার হবে)'**
+  String get adminSecretNotSet;
+
+  /// No description provided for @adminSecretSet.
+  ///
+  /// In bn, this message translates to:
+  /// **'সেট করুন'**
+  String get adminSecretSet;
+
+  /// No description provided for @adminSecretReplace.
+  ///
+  /// In bn, this message translates to:
+  /// **'বদলান'**
+  String get adminSecretReplace;
+
+  /// No description provided for @adminSecretValue.
+  ///
+  /// In bn, this message translates to:
+  /// **'নতুন মান'**
+  String get adminSecretValue;
+
+  /// No description provided for @adminSecretValueHelp.
+  ///
+  /// In bn, this message translates to:
+  /// **'আগের মান মুছে এটা বসবে'**
+  String get adminSecretValueHelp;
+
+  /// No description provided for @adminSecretDeleteTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name} মুছবেন?'**
+  String adminSecretDeleteTitle(String name);
+
+  /// No description provided for @adminSecretDeleteBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'মুছলে গেটওয়ে আবার এনভ ভ্যারিয়েবল ব্যবহার করবে।'**
+  String get adminSecretDeleteBody;
+
+  /// No description provided for @adminUpdatedAt.
+  ///
+  /// In bn, this message translates to:
+  /// **'আপডেট {date}'**
+  String adminUpdatedAt(String date);
+
+  /// No description provided for @adminAiSettings.
+  ///
+  /// In bn, this message translates to:
+  /// **'এআই সেটিংস'**
+  String get adminAiSettings;
+
+  /// No description provided for @adminAiEnabled.
+  ///
+  /// In bn, this message translates to:
+  /// **'এআই চালু'**
+  String get adminAiEnabled;
+
+  /// No description provided for @adminAllowPaid.
+  ///
+  /// In bn, this message translates to:
+  /// **'পেইড মডেল চলতে দিন'**
+  String get adminAllowPaid;
+
+  /// No description provided for @adminAllowPaidHelp.
+  ///
+  /// In bn, this message translates to:
+  /// **'বন্ধ থাকলে গেটওয়ে দাম আছে এমন OpenRouter মডেল বাদ দেয়'**
+  String get adminAllowPaidHelp;
+
+  /// No description provided for @adminQuotaMeal.
+  ///
+  /// In bn, this message translates to:
+  /// **'দৈনিক মিল খসড়া কোটা (মেস প্রতি)'**
+  String get adminQuotaMeal;
+
+  /// No description provided for @adminQuotaBazar.
+  ///
+  /// In bn, this message translates to:
+  /// **'দৈনিক বাজার স্ক্যান কোটা (মেস প্রতি)'**
+  String get adminQuotaBazar;
+
+  /// No description provided for @adminTimeoutMs.
+  ///
+  /// In bn, this message translates to:
+  /// **'টাইমআউট (মিলিসেকেন্ড)'**
+  String get adminTimeoutMs;
+
+  /// No description provided for @adminTemperature.
+  ///
+  /// In bn, this message translates to:
+  /// **'টেম্পারেচার'**
+  String get adminTemperature;
+
+  /// No description provided for @adminTextChain.
+  ///
+  /// In bn, this message translates to:
+  /// **'টেক্সট চেইন (মিলের খসড়া)'**
+  String get adminTextChain;
+
+  /// No description provided for @adminVisionChain.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভিশন চেইন (রসিদ স্ক্যান)'**
+  String get adminVisionChain;
+
+  /// No description provided for @adminChains.
+  ///
+  /// In bn, this message translates to:
+  /// **'চেইন'**
+  String get adminChains;
+
+  /// No description provided for @adminChainEmpty.
+  ///
+  /// In bn, this message translates to:
+  /// **'কোনো মডেল নেই। তালিকা থেকে যোগ করুন।'**
+  String get adminChainEmpty;
+
+  /// No description provided for @adminAddManually.
+  ///
+  /// In bn, this message translates to:
+  /// **'হাতে মডেল যোগ'**
+  String get adminAddManually;
+
+  /// No description provided for @adminProvider.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রোভাইডার'**
+  String get adminProvider;
+
+  /// No description provided for @adminModelId.
+  ///
+  /// In bn, this message translates to:
+  /// **'মডেল আইডি'**
+  String get adminModelId;
+
+  /// No description provided for @adminModel.
+  ///
+  /// In bn, this message translates to:
+  /// **'মডেল'**
+  String get adminModel;
+
+  /// No description provided for @adminModelCatalogue.
+  ///
+  /// In bn, this message translates to:
+  /// **'মডেল তালিকা'**
+  String get adminModelCatalogue;
+
+  /// No description provided for @adminAll.
+  ///
+  /// In bn, this message translates to:
+  /// **'সব'**
+  String get adminAll;
+
+  /// No description provided for @adminSearchModels.
+  ///
+  /// In bn, this message translates to:
+  /// **'মডেল খুঁজুন'**
+  String get adminSearchModels;
+
+  /// No description provided for @adminFree.
+  ///
+  /// In bn, this message translates to:
+  /// **'ফ্রি'**
+  String get adminFree;
+
+  /// No description provided for @adminPaid.
+  ///
+  /// In bn, this message translates to:
+  /// **'পেইড'**
+  String get adminPaid;
+
+  /// No description provided for @adminVision.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভিশন'**
+  String get adminVision;
+
+  /// No description provided for @adminText.
+  ///
+  /// In bn, this message translates to:
+  /// **'টেক্সট'**
+  String get adminText;
+
+  /// No description provided for @adminMinContext.
+  ///
+  /// In bn, this message translates to:
+  /// **'ন্যূনতম কনটেক্সট'**
+  String get adminMinContext;
+
+  /// No description provided for @adminMaxPrice.
+  ///
+  /// In bn, this message translates to:
+  /// **'সর্বোচ্চ দাম \$/১M'**
+  String get adminMaxPrice;
+
+  /// No description provided for @adminContext.
+  ///
+  /// In bn, this message translates to:
+  /// **'কনটেক্সট'**
+  String get adminContext;
+
+  /// No description provided for @adminInputPrice.
+  ///
+  /// In bn, this message translates to:
+  /// **'ইনপুট \$/১M'**
+  String get adminInputPrice;
+
+  /// No description provided for @adminOutputPrice.
+  ///
+  /// In bn, this message translates to:
+  /// **'আউটপুট \$/১M'**
+  String get adminOutputPrice;
+
+  /// No description provided for @adminAddToText.
+  ///
+  /// In bn, this message translates to:
+  /// **'টেক্সট চেইনে যোগ'**
+  String get adminAddToText;
+
+  /// No description provided for @adminAddToVision.
+  ///
+  /// In bn, this message translates to:
+  /// **'ভিশন চেইনে যোগ'**
+  String get adminAddToVision;
+
+  /// No description provided for @adminTest.
+  ///
+  /// In bn, this message translates to:
+  /// **'টেস্ট'**
+  String get adminTest;
+
+  /// No description provided for @adminTestOk.
+  ///
+  /// In bn, this message translates to:
+  /// **'ঠিক আছে · {ms} ms · {sample}'**
+  String adminTestOk(String ms, String sample);
+
+  /// No description provided for @adminGatewayMissing.
+  ///
+  /// In bn, this message translates to:
+  /// **'এআই গেটওয়ে সেট করা নেই। env.json-এ AI_GATEWAY_URL দিয়ে প্যানেল আবার বিল্ড করুন, আর গেটওয়ের CORS-এ এই সাইটের ঠিকানা যোগ করুন।'**
+  String get adminGatewayMissing;
+
+  /// No description provided for @adminPaidWarningTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'পেইড মডেল সেভ করবেন?'**
+  String get adminPaidWarningTitle;
+
+  /// No description provided for @adminPaidWarningBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'\"পেইড মডেল চলতে দিন\" বন্ধ, তাই গেটওয়ে এই মডেলগুলো বাদ দেবে:'**
+  String get adminPaidWarningBody;
+
+  /// No description provided for @adminSaveAnyway.
+  ///
+  /// In bn, this message translates to:
+  /// **'তবুও সেভ করুন'**
+  String get adminSaveAnyway;
 }
 
 class _AppLocalizationsDelegate

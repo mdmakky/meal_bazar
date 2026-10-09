@@ -31,12 +31,24 @@
   "authSendCode": "কোড পাঠান",
   "authCodeTitle": "৬ সংখ্যার কোড দিন",
   "authCodeSentTo": "{phone} নম্বরে কোড পাঠানো হয়েছে",
-  "@authCodeSentTo": {"placeholders": {"phone": {"type": "String"}}},
+  "@authCodeSentTo": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
   "authCodeLabel": "কোড",
   "authVerify": "ঢুকে পড়ুন",
   "authResend": "আবার কোড পাঠান",
   "authResendIn": "{seconds} সেকেন্ড পরে আবার কোড পাঠাতে পারবেন",
-  "@authResendIn": {"placeholders": {"seconds": {"type": "int"}}},
+  "@authResendIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
   "authChangeNumber": "নম্বর বদলান",
   "authProfileTitle": "আপনার নাম কী?",
   "authProfileHint": "মেসের সবাই এই নামে আপনাকে চিনবে",
@@ -74,7 +86,13 @@
   "signInResetSent": "পাসওয়ার্ড বদলানোর লিংক ইমেইলে পাঠানো হয়েছে",
   "signInConfirmTitle": "ইমেইলে পাঠানো লিংকে ক্লিক করুন",
   "signInConfirmBody": "{email} ঠিকানায় একটা লিংক পাঠিয়েছি। লিংকে ক্লিক করে এখানে ফিরে লগইন করুন।",
-  "@signInConfirmBody": {"placeholders": {"email": {"type": "String"}}},
+  "@signInConfirmBody": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
   "signInBackToLogin": "লগইনে ফিরে যান",
   "configMissingTitle": "সুপাবেস কনফিগ পাওয়া যায়নি",
   "configMissingBody": "অ্যাপ চালানোর সময় --dart-define দিয়ে SUPABASE_URL আর SUPABASE_ANON_KEY দিন।",
@@ -91,7 +109,13 @@
   "messMonthStartLabel": "মাস শুরু হয় যে তারিখে",
   "messMonthStartHelp": "প্রতি মাসের এই তারিখ থেকে পরের মাসের একই তারিখ পর্যন্ত এক মাসের হিসাব",
   "messMonthStartDay": "{day} তারিখ",
-  "@messMonthStartDay": {"placeholders": {"day": {"type": "String"}}},
+  "@messMonthStartDay": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
   "messCreateSubmit": "মেস খুলুন",
   "messJoinTitle": "মেসে যোগ দিন",
   "messCodeLabel": "ইনভাইট কোড",
@@ -103,7 +127,13 @@
   "messJoinSubmit": "যোগ দেওয়ার অনুরোধ পাঠান",
   "messPendingTitle": "অনুমোদনের অপেক্ষায়",
   "messPendingBody": "{mess}-এর ম্যানেজার আপনার অনুরোধ অনুমোদন করলেই মেসের হিসাব দেখতে পাবেন।",
-  "@messPendingBody": {"placeholders": {"mess": {"type": "String"}}},
+  "@messPendingBody": {
+    "placeholders": {
+      "mess": {
+        "type": "String"
+      }
+    }
+  },
   "messPendingBodyNoName": "ম্যানেজার আপনার অনুরোধ অনুমোদন করলেই মেসের হিসাব দেখতে পাবেন।",
   "messPendingRefresh": "আবার দেখুন",
   "messPendingStill": "এখনো অনুমোদন হয়নি",
@@ -118,7 +148,13 @@
   "moreSignOut": "সাইন আউট",
   "moreSignOutConfirmTitle": "সাইন আউট করবেন?",
   "moreSignOutUnsent": "অফলাইনে সেভ করা {count} টি এন্ট্রি এখনো পাঠানো হয়নি — সাইন আউট করলে মুছে যাবে",
-  "@moreSignOutUnsent": {"placeholders": {"count": {"type": "String"}}},
+  "@moreSignOutUnsent": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "moreSignOutConfirmBody": "আবার ঢুকতে ফোন নম্বরে কোড লাগবে। মেসের হিসাব সব থেকে যাবে।",
   "membersTitle": "সদস্যরা",
   "membersPending": "যোগ দিতে চায়",
@@ -129,17 +165,41 @@
   "membersNoApp": "অ্যাপ নেই",
   "membersYou": "(আপনি)",
   "membersRoom": "রুম {room}",
-  "@membersRoom": {"placeholders": {"room": {"type": "String"}}},
+  "@membersRoom": {
+    "placeholders": {
+      "room": {
+        "type": "String"
+      }
+    }
+  },
   "membersLeftOn": "{date} থেকে নেই",
-  "@membersLeftOn": {"placeholders": {"date": {"type": "String"}}},
+  "@membersLeftOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "membersEmpty": "এখনো কোনো সদস্য নেই। কোড দিয়ে সবাইকে ডাকুন।",
   "membersApprove": "অনুমোদন দিন",
   "membersApproved": "{name} এখন মেসের সদস্য",
-  "@membersApproved": {"placeholders": {"name": {"type": "String"}}},
+  "@membersApproved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "membersReject": "বাদ দিন",
   "membersRejected": "অনুরোধটা বাদ দেওয়া হয়েছে",
   "membersRejectConfirmTitle": "{name}-এর অনুরোধ বাদ দেবেন?",
-  "@membersRejectConfirmTitle": {"placeholders": {"name": {"type": "String"}}},
+  "@membersRejectConfirmTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "membersRejectConfirmBody": "চাইলে তিনি পরে আবার কোড দিয়ে অনুরোধ পাঠাতে পারবেন।",
   "membersMakeManager": "ম্যানেজার বানান",
   "membersMakeMember": "সাধারণ সদস্য বানান",
@@ -148,7 +208,13 @@
   "membersMarkActive": "আবার সক্রিয় করুন",
   "membersMarkLeft": "মেস ছেড়ে দিয়েছেন",
   "membersLeftConfirmTitle": "{name} কি মেস ছেড়ে দিয়েছেন?",
-  "@membersLeftConfirmTitle": {"placeholders": {"name": {"type": "String"}}},
+  "@membersLeftConfirmTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "membersLeftConfirmBody": "আজ থেকে তাকে আর নতুন হিসাবে ধরা হবে না। আগের মিল, বাজার আর জমার সব হিসাব যেমন আছে তেমনই থাকবে।",
   "membersLeftConfirmAction": "হ্যাঁ, ছেড়েছেন",
   "membersSaved": "পরিবর্তন সেভ হয়েছে",
@@ -158,7 +224,13 @@
   "membersAddRoom": "রুম (না দিলেও চলবে)",
   "membersAddSubmit": "যোগ করুন",
   "membersAdded": "{name} যোগ হয়েছেন",
-  "@membersAdded": {"placeholders": {"name": {"type": "String"}}},
+  "@membersAdded": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "inviteTitle": "নতুন সদস্য ডাকুন",
   "inviteBody": "এই কোডটা দিন, অথবা QR স্ক্যান করতে বলুন। অনুরোধ এলে আপনি অনুমোদন দিলেই সে মেসে ঢুকবে।",
   "inviteValidity": "৭ দিন পর্যন্ত বৈধ",
@@ -167,7 +239,19 @@
   "inviteCopied": "কোড কপি হয়েছে",
   "inviteShare": "শেয়ার করুন",
   "inviteShareMessage": "মিল বাজার অ্যাপে আমাদের মেস \"{mess}\"-এ যোগ দাও।\nকোড: {code}\nলিংক: {link}",
-  "@inviteShareMessage": {"placeholders": {"mess": {"type": "String"}, "code": {"type": "String"}, "link": {"type": "String"}}},
+  "@inviteShareMessage": {
+    "placeholders": {
+      "mess": {
+        "type": "String"
+      },
+      "code": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      }
+    }
+  },
   "inviteRegenerate": "নতুন কোড",
   "inviteManagerOnly": "শুধু ম্যানেজার নতুন সদস্য ডাকতে পারেন",
   "settingsTitle": "মেসের সেটিংস",
@@ -179,7 +263,13 @@
   "settingsManagerOnly": "শুধু ম্যানেজার সেটিংস বদলাতে পারেন",
   "mealCellOff": "অফ",
   "mealCellGuests": "{count} জন অতিথি",
-  "@mealCellGuests": {"placeholders": {"count": {"type": "String"}}},
+  "@mealCellGuests": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "mealCellOwn": "নিজের মিল",
   "mealCellGuestsLabel": "অতিথি",
   "mealCellSave": "মিল সেভ করুন",
@@ -192,12 +282,33 @@
   "todayHeadcountLabel": "আজ মোট মিল",
   "todayDayHeadcountLabel": "এই দিনের মোট মিল",
   "todayGuestsProof": "অতিথি {count}",
-  "@todayGuestsProof": {"placeholders": {"count": {"type": "String"}}},
+  "@todayGuestsProof": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "todayRateLabel": "এই মাসের মিল রেট",
   "todayRateProof": "{food} ÷ {meals} মিল",
-  "@todayRateProof": {"placeholders": {"food": {"type": "String"}, "meals": {"type": "String"}}},
+  "@todayRateProof": {
+    "placeholders": {
+      "food": {
+        "type": "String"
+      },
+      "meals": {
+        "type": "String"
+      }
+    }
+  },
   "todayRateUnallocated": "{food} খরচ হয়েছে, কিন্তু এখনো কোনো মিল নেই। মিল বসালে রেট আসবে।",
-  "@todayRateUnallocated": {"placeholders": {"food": {"type": "String"}}},
+  "@todayRateUnallocated": {
+    "placeholders": {
+      "food": {
+        "type": "String"
+      }
+    }
+  },
   "todayNoEntries": "এই দিনের মিল এখনো বসানো হয়নি",
   "todayNoEntriesMember": "ম্যানেজার এখনো এই দিনের মিল বসাননি",
   "todayFillHelp": "সব সদস্যের মিল গতকালের মতো বসবে, না থাকলে তাদের ডিফল্ট মিল (তাও না থাকলে ১টা)। পরে ট্যাপ করে বদলাবেন।",
@@ -215,19 +326,55 @@
   "todayPickMember": "কার জন্য?",
   "todayPickMealType": "কোন বেলার মিল?",
   "todayMealOffDone": "{name}-এর {meal} অফ করা হলো",
-  "@todayMealOffDone": {"placeholders": {"name": {"type": "String"}, "meal": {"type": "String"}}},
+  "@todayMealOffDone": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "meal": {
+        "type": "String"
+      }
+    }
+  },
   "mealsTitle": "মিল",
   "mealsTotalLabel": "এই মাসের মোট মিল",
   "mealsPeriod": "{from} থেকে {to}",
-  "@mealsPeriod": {"placeholders": {"from": {"type": "String"}, "to": {"type": "String"}}},
+  "@mealsPeriod": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
   "mealsByMember": "সদস্যদের মিল",
   "mealsGuestNote": "অতিথির {count} মিল সহ",
-  "@mealsGuestNote": {"placeholders": {"count": {"type": "String"}}},
+  "@mealsGuestNote": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "mealsEmpty": "এই মাসে এখনো কোনো মিল নেই",
   "mealsMemberEmpty": "এই মাসে {name}-এর কোনো মিল নেই",
-  "@mealsMemberEmpty": {"placeholders": {"name": {"type": "String"}}},
+  "@mealsMemberEmpty": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "mealsMemberTotal": "এই মাসে মোট {count} মিল",
-  "@mealsMemberTotal": {"placeholders": {"count": {"type": "String"}}},
+  "@mealsMemberTotal": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "mealTypesTitle": "মিলের ধরন",
   "mealTypesHelp": "ওজন মানে এক বেলায় কত মিল ধরা হবে। যেমন সকালের নাশতা ×০.৫।",
   "mealTypesAdd": "নতুন বেলা যোগ করুন",
@@ -237,14 +384,29 @@
   "mealTypesRename": "নাম বদলান",
   "mealTypesWeight": "ওজন",
   "mealTypesEnabled": "{name} চালু",
-  "@mealTypesEnabled": {"placeholders": {"name": {"type": "String"}}},
+  "@mealTypesEnabled": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "mealTypesEmpty": "এখনো কোনো মিলের ধরন নেই",
   "mealTypesManagerOnly": "শুধু ম্যানেজার মিলের ধরন বদলাতে পারেন",
   "moneyFoodTotal": "খাবার খরচ",
   "moneyFoodProof": "বাজার আর মিলে ভাগ হওয়া খরচ মিলিয়ে",
   "moneyMealRate": "মিল রেট",
   "moneyMealRateProof": "{food} ÷ {meals} মিল",
-  "@moneyMealRateProof": {"placeholders": {"food": {"type": "String"}, "meals": {"type": "String"}}},
+  "@moneyMealRateProof": {
+    "placeholders": {
+      "food": {
+        "type": "String"
+      },
+      "meals": {
+        "type": "String"
+      }
+    }
+  },
   "moneyExtraTotal": "অন্যান্য খরচ",
   "moneyExtraProof": "সবার মধ্যে সমান ভাগে",
   "moneyDepositTotal": "মোট জমা",
@@ -283,18 +445,48 @@
   "bazarItemPrice": "দাম",
   "bazarItemInvalid": "নাম আর দাম দুটোই লিখুন",
   "bazarItemsSum": "আইটেমের যোগফল {sum}",
-  "@bazarItemsSum": {"placeholders": {"sum": {"type": "String"}}},
+  "@bazarItemsSum": {
+    "placeholders": {
+      "sum": {
+        "type": "String"
+      }
+    }
+  },
   "bazarUseSum": "এটাই বসান",
   "bazarItemCount": "{count}টি আইটেম",
-  "@bazarItemCount": {"placeholders": {"count": {"type": "String"}}},
+  "@bazarItemCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "bazarEmpty": "এই মাসে এখনো কোনো বাজার নেই",
   "bazarShare": "শেয়ার করুন",
   "bazarShareHeader": "বাজারের হিসাব · {date}",
-  "@bazarShareHeader": {"placeholders": {"date": {"type": "String"}}},
+  "@bazarShareHeader": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "bazarShareBuyer": "বাজার করেছে: {name}",
-  "@bazarShareBuyer": {"placeholders": {"name": {"type": "String"}}},
+  "@bazarShareBuyer": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "bazarShareTotal": "মোট: {total}",
-  "@bazarShareTotal": {"placeholders": {"total": {"type": "String"}}},
+  "@bazarShareTotal": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
   "expenseAdd": "খরচ যোগ করুন",
   "expenseEdit": "খরচ এডিট করুন",
   "expenseCategory": "কিসের খরচ",
@@ -323,14 +515,35 @@
   "balanceAdvance": "অগ্রিম",
   "balanceSettled": "মিটে গেছে",
   "balanceMeals": "{meals} মিল",
-  "@balanceMeals": {"placeholders": {"meals": {"type": "String"}}},
+  "@balanceMeals": {
+    "placeholders": {
+      "meals": {
+        "type": "String"
+      }
+    }
+  },
   "balanceEmpty": "এই মাসে এখনো কারো হিসাব নেই",
   "balanceExplainTitle": "{name}-এর হিসাব",
-  "@balanceExplainTitle": {"placeholders": {"name": {"type": "String"}}},
+  "@balanceExplainTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "balanceOpening": "আগের মাস থেকে",
   "balanceCredit": "জমা আর নিজের পকেট থেকে খরচ",
   "balanceFood": "খাবার খরচ ({meals} মিল × {rate})",
-  "@balanceFood": {"placeholders": {"meals": {"type": "String"}, "rate": {"type": "String"}}},
+  "@balanceFood": {
+    "placeholders": {
+      "meals": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
   "balanceExtra": "অন্যান্য খরচের ভাগ",
   "balanceClosing": "এখনকার হিসাব",
   "monthTitle": "মাসের হিসাব",
@@ -339,7 +552,16 @@
   "monthThis": "এই মাস",
   "monthPrevious": "আগের মাস",
   "monthRange": "{from} – {to}",
-  "@monthRange": {"placeholders": {"from": {"type": "String"}, "to": {"type": "String"}}},
+  "@monthRange": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
   "monthTotalMeals": "মোট মিল",
   "monthClosedDone": "মাস বন্ধ হয়েছে",
   "monthStatusOpen": "খোলা",
@@ -369,7 +591,13 @@
   "aiConfirmAll": "সব নিশ্চিত করুন",
   "aiNoMeals": "কোনো মিল পাওয়া যায়নি",
   "aiMealsSaved": "{count}টি মিল সেভ হয়েছে",
-  "@aiMealsSaved": {"placeholders": {"count": {"type": "String"}}},
+  "@aiMealsSaved": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "aiScanTitle": "বাজারের রসিদ স্ক্যান",
   "aiCamera": "ছবি তুলুন",
   "aiGallery": "গ্যালারি থেকে নিন",
@@ -379,9 +607,21 @@
   "aiNoItems": "রসিদ থেকে কোনো জিনিস পড়া যায়নি",
   "aiTotalMismatch": "রসিদের মোট আর জিনিসের যোগফল মিলছে না। কোনটা নেবেন?",
   "aiReceiptTotal": "রসিদের মোট {amount}",
-  "@aiReceiptTotal": {"placeholders": {"amount": {"type": "String"}}},
+  "@aiReceiptTotal": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "aiItemsSum": "জিনিসের যোগফল {amount}",
-  "@aiItemsSum": {"placeholders": {"amount": {"type": "String"}}},
+  "@aiItemsSum": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "aiUseDraft": "বাজারে বসান",
   "reportTitle": "মাসিক রিপোর্ট",
   "reportFoodTotal": "খাবারের মোট খরচ",
@@ -399,7 +639,13 @@
   "reportAdvance": "অগ্রিম",
   "reportFormula": "মিল রেট = খাবারের মোট খরচ ÷ মোট মিল",
   "reportFooter": "Meal Bazar · তৈরি {date}",
-  "@reportFooter": {"placeholders": {"date": {"type": "String"}}},
+  "@reportFooter": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "reportNoMembers": "এই মাসে কোনো সদস্য নেই",
   "reportShare": "রিপোর্ট শেয়ার করুন",
   "reportPrint": "রিপোর্ট প্রিন্ট করুন",
@@ -417,7 +663,13 @@
   "accountDeleteManager": "আপনি একমাত্র ম্যানেজার হলে আগে অন্য কাউকে ম্যানেজার করুন।",
   "accountDeleteWord": "মুছুন",
   "accountDeleteTypeHint": "নিশ্চিত করতে লিখুন: {word}",
-  "@accountDeleteTypeHint": {"placeholders": {"word": {"type": "String"}}},
+  "@accountDeleteTypeHint": {
+    "placeholders": {
+      "word": {
+        "type": "String"
+      }
+    }
+  },
   "accountDeleteConfirm": "চিরতরে মুছুন",
   "auditTitle": "কার্যক্রম",
   "auditFilterAll": "সব",
@@ -428,41 +680,119 @@
   "auditAi": "এআই",
   "auditLoadMore": "আরও দেখুন",
   "auditReason": "কারণ: {reason}",
-  "@auditReason": {"placeholders": {"reason": {"type": "String"}}},
+  "@auditReason": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
   "auditSomeone": "কেউ",
   "auditSystem": "সিস্টেম",
   "auditSentence": "{actor} {thing} {verb}",
-  "@auditSentence": {"placeholders": {"actor": {"type": "String"}, "thing": {"type": "String"}, "verb": {"type": "String"}}},
+  "@auditSentence": {
+    "placeholders": {
+      "actor": {
+        "type": "String"
+      },
+      "thing": {
+        "type": "String"
+      },
+      "verb": {
+        "type": "String"
+      }
+    }
+  },
   "auditAdded": "যোগ করেছেন",
   "auditChanged": "বদলেছেন",
   "auditDeleted": "মুছেছেন",
   "auditBazar": "বাজার",
   "auditExpense": "খরচ",
   "auditDepositOf": "{name}-এর জমা",
-  "@auditDepositOf": {"placeholders": {"name": {"type": "String"}}},
+  "@auditDepositOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "auditMealOf": "{name}-এর মিল",
-  "@auditMealOf": {"placeholders": {"name": {"type": "String"}}},
+  "@auditMealOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "auditMealType": "মিলের ধরন {name}",
-  "@auditMealType": {"placeholders": {"name": {"type": "String"}}},
+  "@auditMealType": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "auditMember": "সদস্য {name}",
-  "@auditMember": {"placeholders": {"name": {"type": "String"}}},
+  "@auditMember": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "auditMessSettings": "মেসের সেটিংস",
   "auditDutyOf": "{name}-এর বাজার ডিউটি",
-  "@auditDutyOf": {"placeholders": {"name": {"type": "String"}}},
+  "@auditDutyOf": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "auditNotice": "নোটিশ {title}",
-  "@auditNotice": {"placeholders": {"title": {"type": "String"}}},
+  "@auditNotice": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
   "auditRecurring": "মাসিক বিল",
   "auditMonthClosed": "{actor} মাস বন্ধ করেছেন",
-  "@auditMonthClosed": {"placeholders": {"actor": {"type": "String"}}},
+  "@auditMonthClosed": {
+    "placeholders": {
+      "actor": {
+        "type": "String"
+      }
+    }
+  },
   "auditMonthReopened": "{actor} মাস আবার খুলেছেন",
-  "@auditMonthReopened": {"placeholders": {"actor": {"type": "String"}}},
+  "@auditMonthReopened": {
+    "placeholders": {
+      "actor": {
+        "type": "String"
+      }
+    }
+  },
   "auditAccountDeleted": "{name} অ্যাকাউন্ট মুছে ফেলেছেন",
-  "@auditAccountDeleted": {"placeholders": {"name": {"type": "String"}}},
+  "@auditAccountDeleted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "todayAiEntry": "লিখে বলুন: ‘আজ রহিম ২, করিম অফ’",
   "bazarScan": "রসিদ/ফর্দ স্ক্যান",
   "mealOffCutoffPassed": "সময় শেষ — ম্যানেজারকে বলুন",
   "mealOffHint": "কালকের মিল বন্ধ করতে আজ রাত {time}টার আগে",
-  "@mealOffHint": {"placeholders": {"time": {"type": "String"}}},
+  "@mealOffHint": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
   "mealOffTomorrow": "কাল মিল বন্ধ",
   "mealOffTomorrowTitle": "কাল কোন মিল বন্ধ থাকবে?",
   "mealOffSave": "ঠিক আছে",
@@ -478,10 +808,28 @@
   "depositVerifyReject": "বাতিল করুন",
   "depositVerifyApproveTitle": "জমা যাচাই করবেন?",
   "depositVerifyApproveBody": "{name}-এর {amount} জমা হিসাবে যোগ হবে।",
-  "@depositVerifyApproveBody": {"placeholders": {"name": {"type": "String"}, "amount": {"type": "String"}}},
+  "@depositVerifyApproveBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "depositVerifyRejectTitle": "জমা বাতিল করবেন?",
   "depositVerifyRejectBody": "{name}-এর {amount} জমা হিসাবে ধরা হবে না।",
-  "@depositVerifyRejectBody": {"placeholders": {"name": {"type": "String"}, "amount": {"type": "String"}}},
+  "@depositVerifyRejectBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "depositVerifyDone": "জমা যাচাই হয়েছে",
   "depositVerifyRejected": "জমা বাতিল হয়েছে",
   "resetTitle": "নতুন পাসওয়ার্ড দিন",
@@ -495,36 +843,96 @@
   "dashMembers": "সদস্য",
   "dashMembersProof": "সক্রিয় সদস্য",
   "dashMembersPending": "{count} জন অনুমোদনের অপেক্ষায়",
-  "@dashMembersPending": {"placeholders": {"count": {"type": "String"}}},
+  "@dashMembersPending": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "dashBazar": "মোট বাজার",
   "dashBazarProof": "মিলে ভাগের খরচসহ খাবার খরচ {food}",
-  "@dashBazarProof": {"placeholders": {"food": {"type": "String"}}},
+  "@dashBazarProof": {
+    "placeholders": {
+      "food": {
+        "type": "String"
+      }
+    }
+  },
   "dashExtra": "অন্যান্য খরচ",
   "dashExtraProof": "সমান ভাগে · মাসের মোট খরচ {total}",
-  "@dashExtraProof": {"placeholders": {"total": {"type": "String"}}},
+  "@dashExtraProof": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      }
+    }
+  },
   "dashDeposits": "মোট জমা",
   "dashDues": "মোট বাকি",
   "dashDuesProof": "{count} জনের বাকি",
-  "@dashDuesProof": {"placeholders": {"count": {"type": "String"}}},
+  "@dashDuesProof": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "dashAdvances": "মোট অগ্রিম",
   "dashAdvancesProof": "{count} জনের অগ্রিম",
-  "@dashAdvancesProof": {"placeholders": {"count": {"type": "String"}}},
+  "@dashAdvancesProof": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "dashMeals": "মোট মিল",
   "dashPeriod": "{from} – {to}",
-  "@dashPeriod": {"placeholders": {"from": {"type": "String"}, "to": {"type": "String"}}},
+  "@dashPeriod": {
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
   "dashRate": "মিল রেট",
   "dashWhoOwes": "কার কত বাকি",
   "dashMine": "আমার হিসাব",
   "dashMyMeals": "আমার মিল",
   "dashMyFood": "খাবার খরচ",
   "dashMyFoodProof": "{meals} মিল × {rate}",
-  "@dashMyFoodProof": {"placeholders": {"meals": {"type": "String"}, "rate": {"type": "String"}}},
+  "@dashMyFoodProof": {
+    "placeholders": {
+      "meals": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
   "dashMyPaid": "জমা দিয়েছি",
   "dashExplain": "হিসাবটা বুঝিয়ে দিন",
   "dashNotInMonth": "এই মাসে আপনার কোনো হিসাব নেই",
   "dashDailyTitle": "দৈনিক মিল",
   "dashDailySummary": "দৈনিক মিল: মোট {total}, সবচেয়ে বেশি {max} ({date})",
-  "@dashDailySummary": {"placeholders": {"total": {"type": "String"}, "max": {"type": "String"}, "date": {"type": "String"}}},
+  "@dashDailySummary": {
+    "placeholders": {
+      "total": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "dashCategoryTitle": "কোথায় খরচ হলো",
   "dashMonthlyTitle": "মিল রেট, গত ৬ মাস",
   "dashChartEmpty": "এই মাসে এখনো কিছু নেই",
@@ -532,7 +940,13 @@
   "dashNobodyThatDay": "এই দিনে কেউ মেসে ছিল না",
   "navBazar": "বাজার",
   "mealGridManager": "ম্যানেজার: {name}",
-  "@mealGridManager": {"placeholders": {"name": {"type": "String"}}},
+  "@mealGridManager": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "mealGridPrevMonth": "আগের মাস",
   "mealGridNextMonth": "পরের মাস",
   "mealGridTotalRow": "মোট মিল",
@@ -556,7 +970,16 @@
   "bazarPickerHelp": "ট্যাপ করে আইটেম যোগ করুন, আবার ট্যাপে বাদ",
   "setupTitle": "শুরু করি",
   "setupProgress": "{done}/{total} হয়েছে",
-  "@setupProgress": {"placeholders": {"done": {"type": "String"}, "total": {"type": "String"}}},
+  "@setupProgress": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
   "setupLater": "পরে করব",
   "setupStart": "শুরু",
   "setupMess": "মেস খোলা হয়েছে",
@@ -565,11 +988,35 @@
   "setupDeposit": "শুরুর জমা লিখুন",
   "setupMeals": "আজকের মিল বসান",
   "shareBillTitle": "*{mess}* · মাসের বিল",
-  "@shareBillTitle": {"placeholders": {"mess": {"type": "String"}}},
+  "@shareBillTitle": {
+    "placeholders": {
+      "mess": {
+        "type": "String"
+      }
+    }
+  },
   "shareBillSummaryTitle": "*{mess}* · মাসের হিসাব",
-  "@shareBillSummaryTitle": {"placeholders": {"mess": {"type": "String"}}},
+  "@shareBillSummaryTitle": {
+    "placeholders": {
+      "mess": {
+        "type": "String"
+      }
+    }
+  },
   "shareBillMeals": "মিল: {meals} × {rate} = {cost}",
-  "@shareBillMeals": {"placeholders": {"meals": {"type": "String"}, "rate": {"type": "String"}, "cost": {"type": "String"}}},
+  "@shareBillMeals": {
+    "placeholders": {
+      "meals": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      },
+      "cost": {
+        "type": "String"
+      }
+    }
+  },
   "shareBillPaid": "জমা দিয়েছেন",
   "shareBillFoodTotal": "মোট খাবার খরচ",
   "shareBillTotalMeals": "মোট মিল",
@@ -583,13 +1030,46 @@
   "shareBillToneShort": "ছোট করে",
   "shareBillToneFirm": "জোর দিয়ে",
   "shareBillRemindPolite": "আসসালামু আলাইকুম {name}, এই মাসের মেসের হিসাবে আপনার {amount} বাকি আছে। সুবিধামতো সময়ে দিয়ে দিলে খুব উপকার হয়। ধন্যবাদ!",
-  "@shareBillRemindPolite": {"placeholders": {"name": {"type": "String"}, "amount": {"type": "String"}}},
+  "@shareBillRemindPolite": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "shareBillRemindShort": "{name}, মেসের বাকি {amount}। দয়া করে দিয়ে দিন।",
-  "@shareBillRemindShort": {"placeholders": {"name": {"type": "String"}, "amount": {"type": "String"}}},
+  "@shareBillRemindShort": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "shareBillRemindFirm": "{name}, আপনার মেসের বাকি {amount} এখনো জমা হয়নি। দয়া করে ৩ দিনের মধ্যে পরিশোধ করুন।",
-  "@shareBillRemindFirm": {"placeholders": {"name": {"type": "String"}, "amount": {"type": "String"}}},
+  "@shareBillRemindFirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "shareBillPayHint": "বিকাশ/নগদ: {number}",
-  "@shareBillPayHint": {"placeholders": {"number": {"type": "String"}}},
+  "@shareBillPayHint": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
   "noticeTitle": "নোটিশ",
   "noticeEmpty": "এখনো কোনো নোটিশ নেই",
   "noticeAdd": "নোটিশ দিন",
@@ -604,7 +1084,13 @@
   "noticeNoExpiry": "মেয়াদ নেই",
   "noticeClearExpiry": "মেয়াদ সরান",
   "noticeUntil": "{date} পর্যন্ত",
-  "@noticeUntil": {"placeholders": {"date": {"type": "String"}}},
+  "@noticeUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "noticeSave": "নোটিশ সেভ করুন",
   "noticeSaved": "নোটিশ সেভ হয়েছে",
   "noticeDeleted": "নোটিশ মুছে ফেলা হয়েছে",
@@ -623,11 +1109,23 @@
   "dutyStart": "শুরুর দিন",
   "dutyEveryLabel": "কত দিন পরপর",
   "dutyEvery": "প্রতি {n} দিনে",
-  "@dutyEvery": {"placeholders": {"n": {"type": "String"}}},
+  "@dutyEvery": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
   "dutyDays": "কত দিনের জন্য",
   "dutyDaysInvalid": "১ থেকে ৩৬৬ দিনের মধ্যে দিন",
   "dutyCreated": "{count}টি পালা তৈরি হয়েছে",
-  "@dutyCreated": {"placeholders": {"count": {"type": "String"}}},
+  "@dutyCreated": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "dutyEditTitle": "পালা বদলান",
   "dutyMember": "কে বাজার করবে",
   "dutyNote": "নোট",
@@ -635,9 +1133,21 @@
   "dutyTodayMine": "আজ আপনার বাজারের পালা",
   "dutyTomorrowMine": "কাল আপনার বাজারের পালা",
   "dutyTodayOther": "আজ বাজার করবেন {name}",
-  "@dutyTodayOther": {"placeholders": {"name": {"type": "String"}}},
+  "@dutyTodayOther": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "dutyTomorrowOther": "কাল বাজার করবেন {name}",
-  "@dutyTomorrowOther": {"placeholders": {"name": {"type": "String"}}},
+  "@dutyTomorrowOther": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "dutyNextMonth": "পরের মাস",
   "splitEqualAll": "সমান (সবাই)",
   "splitByMeal": "মিল অনুযায়ী",
@@ -645,7 +1155,13 @@
   "splitSelectedHelp": "শুধু বাছাই করা সদস্যরা দেবেন, যার যত ভাগ সে তত দেবে",
   "splitPickMember": "অন্তত একজন সদস্য বাছুন",
   "splitWeight": "ভাগ {weight}",
-  "@splitWeight": {"placeholders": {"weight": {"type": "String"}}},
+  "@splitWeight": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
   "splitWeightLess": "ভাগ কমান",
   "splitWeightMore": "ভাগ বাড়ান",
   "splitPreview": "প্রিভিউ: কে কত দেবে (আসল হিসাব মাস শেষে)",
@@ -677,7 +1193,13 @@
   "remindNudgeBody": "আজকের মিল বসানো হয়নি? এখনই বসিয়ে দিন",
   "remindDutyTitle": "কাল আপনার বাজার",
   "remindDutyBody": "{mess}: কাল বাজারের দায়িত্ব আপনার",
-  "@remindDutyBody": {"placeholders": {"mess": {"type": "String"}}},
+  "@remindDutyBody": {
+    "placeholders": {
+      "mess": {
+        "type": "String"
+      }
+    }
+  },
   "remindCutoffToggle": "মিল বন্ধের সময়ের আগে",
   "remindCutoffToggleSub": "শেষ সময়ের ৩০ মিনিট আগে মনে করিয়ে দেবে",
   "remindNudgeToggle": "রাতে মিল বসানোর কথা",
@@ -694,15 +1216,39 @@
   "recurringEdit": "নিয়মিত বিল বদলান",
   "recurringDay": "মাসের কততম দিনে বসবে",
   "recurringDayValue": "মাসের {day} নম্বর দিন",
-  "@recurringDayValue": {"placeholders": {"day": {"type": "String"}}},
+  "@recurringDayValue": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
   "recurringActive": "{name} চালু",
-  "@recurringActive": {"placeholders": {"name": {"type": "String"}}},
+  "@recurringActive": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "recurringApply": "এই মাসের বিল বসান",
   "recurringApplied": "{count}টি বিল খরচে বসানো হলো",
-  "@recurringApplied": {"placeholders": {"count": {"type": "String"}}},
+  "@recurringApplied": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "recurringNothingToApply": "এই মাসের সব নিয়মিত বিল আগেই বসানো হয়েছে",
   "recurringPending": "এই মাসের {count}টি নিয়মিত বিল বসানো বাকি",
-  "@recurringPending": {"placeholders": {"count": {"type": "String"}}},
+  "@recurringPending": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
   "recurringManagerOnly": "শুধু ম্যানেজার নিয়মিত বিল বদলাতে পারেন",
   "mealDefaultTitle": "সদস্যদের ডিফল্ট মিল",
   "mealDefaultHelp": "আগের দিনের মিল না থাকলে \"আজকের মিল বসান\" এই হিসাবে মিল বসাবে।",
@@ -715,11 +1261,32 @@
   "rateAmountLabel": "প্রতি মিলের রেট (৳)",
   "rateAmountRequired": "০-এর বেশি একটি রেট লিখুন",
   "rateSurplus": "বাজার খরচের চেয়ে {amount} বেশি উঠেছে",
-  "@rateSurplus": {"placeholders": {"amount": {"type": "String"}}},
+  "@rateSurplus": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "rateDeficit": "বাজার খরচের চেয়ে {amount} কম উঠেছে",
-  "@rateDeficit": {"placeholders": {"amount": {"type": "String"}}},
+  "@rateDeficit": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "rateBalanceFood": "খাবার খরচ = {meals} মিল × {rate} (নির্দিষ্ট রেট)",
-  "@rateBalanceFood": {"placeholders": {"meals": {"type": "String"}, "rate": {"type": "String"}}},
+  "@rateBalanceFood": {
+    "placeholders": {
+      "meals": {
+        "type": "String"
+      },
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
   "platformMaintenanceTitle": "একটু কাজ চলছে",
   "platformMaintenanceBody": "অ্যাপটি কিছুক্ষণের জন্য বন্ধ আছে। একটু পরে আবার খুলুন, আপনার হিসাব নিরাপদ আছে।",
   "platformMaintenanceRetry": "আবার দেখুন",
@@ -736,5 +1303,251 @@
   "platformCopied": "কপি হয়েছে",
   "platformAboutTitle": "অ্যাপ সম্পর্কে",
   "platformVersion": "ভার্সন {version}",
-  "@platformVersion": {"placeholders": {"version": {"type": "String"}}}
+  "@platformVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "adminTitle": "মিল বাজার অ্যাডমিন",
+  "adminTitleShort": "অ্যাডমিন",
+  "adminSignIn": "লগইন করুন",
+  "adminSignInGoogle": "গুগল দিয়ে লগইন",
+  "adminSignInHint": "শুধু প্ল্যাটফর্ম অ্যাডমিনরা এখানে ঢুকতে পারেন।",
+  "adminSignOut": "লগআউট",
+  "adminAccessDenied": "প্রবেশাধিকার নেই",
+  "adminAccessDeniedBody": "এই অ্যাকাউন্ট প্ল্যাটফর্ম অ্যাডমিন নয়। অন্য অ্যাকাউন্টে লগইন করুন।",
+  "adminNavDashboard": "ড্যাশবোর্ড",
+  "adminNavMesses": "মেস",
+  "adminNavUsers": "ইউজার",
+  "adminNavSettings": "সেটিংস",
+  "adminNavAi": "এআই",
+  "adminNavBranding": "ব্র্যান্ডিং",
+  "adminNavCredentials": "ক্রেডেনশিয়াল",
+  "adminNavDeletion": "মুছে ফেলার সারি",
+  "adminStatUsersTotal": "মোট ইউজার",
+  "adminStatUsers7d": "নতুন ইউজার (৭ দিন)",
+  "adminStatMessesTotal": "মোট মেস",
+  "adminStatMessesActive7d": "সক্রিয় মেস (৭ দিন)",
+  "adminStatMeals7d": "মিল (৭ দিন)",
+  "adminStatBazars7d": "বাজার (৭ দিন)",
+  "adminStatAiCalls7d": "এআই কল (৭ দিন)",
+  "adminStatSuspendedMesses": "স্থগিত মেস",
+  "adminStatDeletionPending": "মুছে ফেলার অপেক্ষায়",
+  "adminAiUsage30d": "এআই ব্যবহার, শেষ ৩০ দিন",
+  "adminAiUsageEmpty": "এই সময়ে কোনো এআই কল হয়নি",
+  "adminDeletionEmpty": "মুছে ফেলার কোনো অনুরোধ নেই",
+  "adminUserId": "ইউজার আইডি",
+  "adminRequestedAt": "অনুরোধের সময়",
+  "adminProcessedAt": "সম্পন্ন",
+  "adminLastError": "শেষ ত্রুটি",
+  "adminSearchMesses": "মেসের নাম দিয়ে খুঁজুন, তারপর Enter",
+  "adminSearchUsers": "ইমেইল বা নাম দিয়ে খুঁজুন, তারপর Enter",
+  "adminNoResults": "কিছু পাওয়া যায়নি",
+  "adminPage": "পৃষ্ঠা {page}",
+  "@adminPage": {
+    "placeholders": {
+      "page": {
+        "type": "String"
+      }
+    }
+  },
+  "adminName": "নাম",
+  "adminMembers": "সদস্য",
+  "adminManagers": "ম্যানেজার",
+  "adminCreated": "তৈরি",
+  "adminLastActivity": "শেষ কাজ",
+  "adminLastSignIn": "শেষ লগইন",
+  "adminMessCount": "মেস",
+  "adminStatus": "অবস্থা",
+  "adminRole": "ভূমিকা",
+  "adminRoleAdmin": "অ্যাডমিন",
+  "adminActive": "চালু",
+  "adminSuspended": "স্থগিত",
+  "adminSuspend": "স্থগিত করুন",
+  "adminUnsuspend": "আবার চালু করুন",
+  "adminSuspendMess": "\"{name}\" মেস স্থগিত করবেন?",
+  "@adminSuspendMess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "adminUnsuspendMess": "\"{name}\" মেস আবার চালু করবেন?",
+  "@adminUnsuspendMess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "adminSuspendUser": "{email} স্থগিত করবেন?",
+  "@adminSuspendUser": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "adminUnsuspendUser": "{email} আবার চালু করবেন?",
+  "@adminUnsuspendUser": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "adminReason": "কারণ",
+  "adminMakeAdmin": "অ্যাডমিন বানান",
+  "adminRemoveAdmin": "অ্যাডমিন থেকে সরান",
+  "adminSaved": "সেভ হয়েছে",
+  "adminRawJson": "অ্যাডভান্সড: কাঁচা JSON",
+  "adminAdd": "যোগ করুন",
+  "adminMoveUp": "ওপরে নিন",
+  "adminMoveDown": "নিচে নিন",
+  "adminErrRequired": "এটা দিতে হবে",
+  "adminErrNumber": "একটা সংখ্যা দিন",
+  "adminErrRange": "সীমার বাইরে",
+  "adminErrVersion": "১.২.৩ ধরনের ভার্সন দিন",
+  "adminErrEmail": "সঠিক ইমেইল দিন",
+  "adminErrUrl": "http(s):// দিয়ে শুরু হওয়া লিংক দিন",
+  "adminErrTime": "HH:MM ধরনে সময় দিন",
+  "adminErrHex": "#RRGGBB ধরনে রং দিন",
+  "adminErrMealTypes": "অন্তত একটা বেলা রাখুন",
+  "adminErrChain": "প্রতিটি চেইনে ১ থেকে ৫টি মডেল রাখুন",
+  "adminFeatures": "ফিচার",
+  "adminFeaturesHelp": "বন্ধ করলে অ্যাপে ওই ফিচারের সব পথ লুকিয়ে যায়। ডেটা থেকে যায়।",
+  "adminAppSection": "অ্যাপ",
+  "adminMaintenance": "রক্ষণাবেক্ষণ মোড",
+  "adminMaintenanceHelp": "চালু থাকলে অ্যাপে পুরো পর্দার নোটিশ দেখায়",
+  "adminMessageBn": "বার্তা (বাংলা)",
+  "adminMessageEn": "বার্তা (ইংরেজি)",
+  "adminVersions": "ভার্সন",
+  "adminMinVersion": "ন্যূনতম ভার্সন",
+  "adminMinVersionHelp": "এর নিচে থাকলে আপডেট করতে বলা হয়",
+  "adminLatestVersion": "সর্বশেষ ভার্সন",
+  "adminUpdateMessageBn": "আপডেট বার্তা (বাংলা)",
+  "adminUpdateMessageEn": "আপডেট বার্তা (ইংরেজি)",
+  "adminSupport": "সহায়তা",
+  "adminSupportEmail": "সহায়তার ইমেইল",
+  "adminSupportWhatsapp": "সহায়তার হোয়াটসঅ্যাপ",
+  "adminPrivacyUrl": "প্রাইভেসি পলিসির লিংক",
+  "adminBanner": "ব্যানার",
+  "adminBannerActive": "হোমে ব্যানার দেখান",
+  "adminBannerLevel": "ধরন",
+  "adminDefaults": "নতুন মেসের ডিফল্ট",
+  "adminDefaultsHelp": "শুধু নতুন মেস তৈরির সময় কাজে লাগে",
+  "adminMonthStartDay": "মাস শুরুর দিন (১–২৮)",
+  "adminCutoff": "মিল বন্ধের শেষ সময়",
+  "adminMealTypes": "বেলা",
+  "adminWeight": "ওজন",
+  "adminExpenseCategories": "খরচের ধরন",
+  "adminSplit": "ভাগ",
+  "adminSplitEqual": "সমান ভাগ",
+  "adminSplitMeal": "মিল অনুযায়ী",
+  "adminCatalogue": "বাজারের তালিকা",
+  "adminCatalogueHelp": "বাজার যোগ করার সময় যে জিনিসগুলো বাছাই করা যায়",
+  "adminAddGroup": "গ্রুপ যোগ করুন",
+  "adminAddItem": "জিনিস যোগ করুন",
+  "adminGroupName": "গ্রুপের নাম",
+  "adminUnit": "একক",
+  "adminPaymentMethods": "পেমেন্টের মাধ্যম",
+  "adminPaymentMethodsHelp": "কী বদলানো যায় না, শুধু নাম আর দেখানো/লুকানো",
+  "adminLabelBn": "নাম (বাংলা)",
+  "adminLabelEn": "নাম (ইংরেজি)",
+  "adminAppNameBn": "অ্যাপের নাম (বাংলা)",
+  "adminAppNameEn": "অ্যাপের নাম (ইংরেজি)",
+  "adminTaglineBn": "ট্যাগলাইন (বাংলা)",
+  "adminTaglineEn": "ট্যাগলাইন (ইংরেজি)",
+  "adminBrandingReleaseNote": "লগইন ও অ্যাকাউন্ট পর্দায় নাম, ট্যাগলাইন, লোগো আর রং বদলায়। লঞ্চার আইকন আর হোম স্ক্রিনের নাম বদলাতে নতুন রিলিজ লাগবে (অ্যান্ড্রয়েডের সীমাবদ্ধতা)।",
+  "adminLogo": "লোগো",
+  "adminLogoUpload": "লোগো আপলোড",
+  "adminLogoReplace": "লোগো বদলান",
+  "adminLogoRemove": "লোগো সরান",
+  "adminLogoDefault": "লোগো না থাকলে অ্যাপ নিজের \"ম\" চিহ্ন দেখায়",
+  "adminLogoSaveHint": "আপলোডের পর সেভ চাপলে অ্যাপে দেখাবে",
+  "adminAccent": "অ্যাকসেন্ট রং",
+  "adminAccentLight": "লাইট থিম",
+  "adminAccentDark": "ডার্ক থিম",
+  "adminContrast": "কনট্রাস্ট {ratio}:১",
+  "@adminContrast": {
+    "placeholders": {
+      "ratio": {
+        "type": "String"
+      }
+    }
+  },
+  "adminContrastOk": "কনট্রাস্ট ঠিক আছে (৩:১ বা বেশি)",
+  "adminContrastLow": "কনট্রাস্ট কম (৩:১ এর নিচে): চিহ্ন ঝাপসা দেখাবে",
+  "adminSecretsHelp": "কী শুধু লেখা যায়, পড়া যায় না। সেভ করা মান কখনো দেখানো হয় না, শুধু শেষ ৪ অক্ষর।",
+  "adminSecretNotSet": "সেট করা নেই (এনভ ভ্যারিয়েবল ব্যবহার হবে)",
+  "adminSecretSet": "সেট করুন",
+  "adminSecretReplace": "বদলান",
+  "adminSecretValue": "নতুন মান",
+  "adminSecretValueHelp": "আগের মান মুছে এটা বসবে",
+  "adminSecretDeleteTitle": "{name} মুছবেন?",
+  "@adminSecretDeleteTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "adminSecretDeleteBody": "মুছলে গেটওয়ে আবার এনভ ভ্যারিয়েবল ব্যবহার করবে।",
+  "adminUpdatedAt": "আপডেট {date}",
+  "@adminUpdatedAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "adminAiSettings": "এআই সেটিংস",
+  "adminAiEnabled": "এআই চালু",
+  "adminAllowPaid": "পেইড মডেল চলতে দিন",
+  "adminAllowPaidHelp": "বন্ধ থাকলে গেটওয়ে দাম আছে এমন OpenRouter মডেল বাদ দেয়",
+  "adminQuotaMeal": "দৈনিক মিল খসড়া কোটা (মেস প্রতি)",
+  "adminQuotaBazar": "দৈনিক বাজার স্ক্যান কোটা (মেস প্রতি)",
+  "adminTimeoutMs": "টাইমআউট (মিলিসেকেন্ড)",
+  "adminTemperature": "টেম্পারেচার",
+  "adminTextChain": "টেক্সট চেইন (মিলের খসড়া)",
+  "adminVisionChain": "ভিশন চেইন (রসিদ স্ক্যান)",
+  "adminChains": "চেইন",
+  "adminChainEmpty": "কোনো মডেল নেই। তালিকা থেকে যোগ করুন।",
+  "adminAddManually": "হাতে মডেল যোগ",
+  "adminProvider": "প্রোভাইডার",
+  "adminModelId": "মডেল আইডি",
+  "adminModel": "মডেল",
+  "adminModelCatalogue": "মডেল তালিকা",
+  "adminAll": "সব",
+  "adminSearchModels": "মডেল খুঁজুন",
+  "adminFree": "ফ্রি",
+  "adminPaid": "পেইড",
+  "adminVision": "ভিশন",
+  "adminText": "টেক্সট",
+  "adminMinContext": "ন্যূনতম কনটেক্সট",
+  "adminMaxPrice": "সর্বোচ্চ দাম $/১M",
+  "adminContext": "কনটেক্সট",
+  "adminInputPrice": "ইনপুট $/১M",
+  "adminOutputPrice": "আউটপুট $/১M",
+  "adminAddToText": "টেক্সট চেইনে যোগ",
+  "adminAddToVision": "ভিশন চেইনে যোগ",
+  "adminTest": "টেস্ট",
+  "adminTestOk": "ঠিক আছে · {ms} ms · {sample}",
+  "@adminTestOk": {
+    "placeholders": {
+      "ms": {
+        "type": "String"
+      },
+      "sample": {
+        "type": "String"
+      }
+    }
+  },
+  "adminGatewayMissing": "এআই গেটওয়ে সেট করা নেই। env.json-এ AI_GATEWAY_URL দিয়ে প্যানেল আবার বিল্ড করুন, আর গেটওয়ের CORS-এ এই সাইটের ঠিকানা যোগ করুন।",
+  "adminPaidWarningTitle": "পেইড মডেল সেভ করবেন?",
+  "adminPaidWarningBody": "\"পেইড মডেল চলতে দিন\" বন্ধ, তাই গেটওয়ে এই মডেলগুলো বাদ দেবে:",
+  "adminSaveAnyway": "তবুও সেভ করুন"
 }

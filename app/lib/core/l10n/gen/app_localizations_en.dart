@@ -2182,4 +2182,555 @@ class AppLocalizationsEn extends AppLocalizations {
   String platformVersion(String version) {
     return 'Version $version';
   }
+
+  @override
+  String get adminTitle => 'Meal Bazar Admin';
+
+  @override
+  String get adminTitleShort => 'Admin';
+
+  @override
+  String get adminSignIn => 'Sign in';
+
+  @override
+  String get adminSignInGoogle => 'Sign in with Google';
+
+  @override
+  String get adminSignInHint => 'Only platform admins can use this panel.';
+
+  @override
+  String get adminSignOut => 'Sign out';
+
+  @override
+  String get adminAccessDenied => 'Access denied';
+
+  @override
+  String get adminAccessDeniedBody =>
+      'This account is not a platform admin. Sign in with another account.';
+
+  @override
+  String get adminNavDashboard => 'Dashboard';
+
+  @override
+  String get adminNavMesses => 'Messes';
+
+  @override
+  String get adminNavUsers => 'Users';
+
+  @override
+  String get adminNavSettings => 'Settings';
+
+  @override
+  String get adminNavAi => 'AI';
+
+  @override
+  String get adminNavBranding => 'Branding';
+
+  @override
+  String get adminNavCredentials => 'Credentials';
+
+  @override
+  String get adminNavDeletion => 'Deletion queue';
+
+  @override
+  String get adminStatUsersTotal => 'Users';
+
+  @override
+  String get adminStatUsers7d => 'New users (7 days)';
+
+  @override
+  String get adminStatMessesTotal => 'Messes';
+
+  @override
+  String get adminStatMessesActive7d => 'Active messes (7 days)';
+
+  @override
+  String get adminStatMeals7d => 'Meals (7 days)';
+
+  @override
+  String get adminStatBazars7d => 'Bazars (7 days)';
+
+  @override
+  String get adminStatAiCalls7d => 'AI calls (7 days)';
+
+  @override
+  String get adminStatSuspendedMesses => 'Suspended messes';
+
+  @override
+  String get adminStatDeletionPending => 'Pending deletions';
+
+  @override
+  String get adminAiUsage30d => 'AI usage, last 30 days';
+
+  @override
+  String get adminAiUsageEmpty => 'No AI calls in this period';
+
+  @override
+  String get adminDeletionEmpty => 'No deletion requests';
+
+  @override
+  String get adminUserId => 'User ID';
+
+  @override
+  String get adminRequestedAt => 'Requested';
+
+  @override
+  String get adminProcessedAt => 'Processed';
+
+  @override
+  String get adminLastError => 'Last error';
+
+  @override
+  String get adminSearchMesses => 'Search by mess name, then press Enter';
+
+  @override
+  String get adminSearchUsers => 'Search by email or name, then press Enter';
+
+  @override
+  String get adminNoResults => 'No results';
+
+  @override
+  String adminPage(String page) {
+    return 'Page $page';
+  }
+
+  @override
+  String get adminName => 'Name';
+
+  @override
+  String get adminMembers => 'Members';
+
+  @override
+  String get adminManagers => 'Managers';
+
+  @override
+  String get adminCreated => 'Created';
+
+  @override
+  String get adminLastActivity => 'Last activity';
+
+  @override
+  String get adminLastSignIn => 'Last sign-in';
+
+  @override
+  String get adminMessCount => 'Messes';
+
+  @override
+  String get adminStatus => 'Status';
+
+  @override
+  String get adminRole => 'Role';
+
+  @override
+  String get adminRoleAdmin => 'Admin';
+
+  @override
+  String get adminActive => 'Active';
+
+  @override
+  String get adminSuspended => 'Suspended';
+
+  @override
+  String get adminSuspend => 'Suspend';
+
+  @override
+  String get adminUnsuspend => 'Unsuspend';
+
+  @override
+  String adminSuspendMess(String name) {
+    return 'Suspend the mess \"$name\"?';
+  }
+
+  @override
+  String adminUnsuspendMess(String name) {
+    return 'Unsuspend the mess \"$name\"?';
+  }
+
+  @override
+  String adminSuspendUser(String email) {
+    return 'Suspend $email?';
+  }
+
+  @override
+  String adminUnsuspendUser(String email) {
+    return 'Unsuspend $email?';
+  }
+
+  @override
+  String get adminReason => 'Reason';
+
+  @override
+  String get adminMakeAdmin => 'Make admin';
+
+  @override
+  String get adminRemoveAdmin => 'Remove admin';
+
+  @override
+  String get adminSaved => 'Saved';
+
+  @override
+  String get adminRawJson => 'Advanced: raw JSON';
+
+  @override
+  String get adminAdd => 'Add';
+
+  @override
+  String get adminMoveUp => 'Move up';
+
+  @override
+  String get adminMoveDown => 'Move down';
+
+  @override
+  String get adminErrRequired => 'Required';
+
+  @override
+  String get adminErrNumber => 'Enter a number';
+
+  @override
+  String get adminErrRange => 'Out of range';
+
+  @override
+  String get adminErrVersion => 'Use a version like 1.2.3';
+
+  @override
+  String get adminErrEmail => 'Enter a valid email';
+
+  @override
+  String get adminErrUrl => 'Enter a link starting with http(s)://';
+
+  @override
+  String get adminErrTime => 'Use HH:MM';
+
+  @override
+  String get adminErrHex => 'Use a #RRGGBB colour';
+
+  @override
+  String get adminErrMealTypes => 'Keep at least one meal type';
+
+  @override
+  String get adminErrChain => 'Each chain needs 1 to 5 models';
+
+  @override
+  String get adminFeatures => 'Features';
+
+  @override
+  String get adminFeaturesHelp =>
+      'Turning a feature off hides every entry point in the app. Data stays in place.';
+
+  @override
+  String get adminAppSection => 'App';
+
+  @override
+  String get adminMaintenance => 'Maintenance mode';
+
+  @override
+  String get adminMaintenanceHelp => 'Shows a full-screen notice in the app';
+
+  @override
+  String get adminMessageBn => 'Message (Bangla)';
+
+  @override
+  String get adminMessageEn => 'Message (English)';
+
+  @override
+  String get adminVersions => 'Versions';
+
+  @override
+  String get adminMinVersion => 'Minimum version';
+
+  @override
+  String get adminMinVersionHelp => 'Older apps are asked to update';
+
+  @override
+  String get adminLatestVersion => 'Latest version';
+
+  @override
+  String get adminUpdateMessageBn => 'Update message (Bangla)';
+
+  @override
+  String get adminUpdateMessageEn => 'Update message (English)';
+
+  @override
+  String get adminSupport => 'Support';
+
+  @override
+  String get adminSupportEmail => 'Support email';
+
+  @override
+  String get adminSupportWhatsapp => 'Support WhatsApp';
+
+  @override
+  String get adminPrivacyUrl => 'Privacy policy URL';
+
+  @override
+  String get adminBanner => 'Banner';
+
+  @override
+  String get adminBannerActive => 'Show the banner on Home';
+
+  @override
+  String get adminBannerLevel => 'Level';
+
+  @override
+  String get adminDefaults => 'New mess defaults';
+
+  @override
+  String get adminDefaultsHelp => 'Applied only when a new mess is created';
+
+  @override
+  String get adminMonthStartDay => 'Month start day (1–28)';
+
+  @override
+  String get adminCutoff => 'Meal-off cutoff';
+
+  @override
+  String get adminMealTypes => 'Meal types';
+
+  @override
+  String get adminWeight => 'Weight';
+
+  @override
+  String get adminExpenseCategories => 'Expense categories';
+
+  @override
+  String get adminSplit => 'Split';
+
+  @override
+  String get adminSplitEqual => 'Equal';
+
+  @override
+  String get adminSplitMeal => 'By meals';
+
+  @override
+  String get adminCatalogue => 'Bazar catalogue';
+
+  @override
+  String get adminCatalogueHelp => 'Items offered in the bazar item picker';
+
+  @override
+  String get adminAddGroup => 'Add group';
+
+  @override
+  String get adminAddItem => 'Add item';
+
+  @override
+  String get adminGroupName => 'Group name';
+
+  @override
+  String get adminUnit => 'Unit';
+
+  @override
+  String get adminPaymentMethods => 'Payment methods';
+
+  @override
+  String get adminPaymentMethodsHelp =>
+      'Keys are fixed; only labels and visibility change';
+
+  @override
+  String get adminLabelBn => 'Label (Bangla)';
+
+  @override
+  String get adminLabelEn => 'Label (English)';
+
+  @override
+  String get adminAppNameBn => 'App name (Bangla)';
+
+  @override
+  String get adminAppNameEn => 'App name (English)';
+
+  @override
+  String get adminTaglineBn => 'Tagline (Bangla)';
+
+  @override
+  String get adminTaglineEn => 'Tagline (English)';
+
+  @override
+  String get adminBrandingReleaseNote =>
+      'Name, tagline, logo and colours change on the sign-in and account screens. The launcher icon and the home-screen app name need a new release (an Android limitation).';
+
+  @override
+  String get adminLogo => 'Logo';
+
+  @override
+  String get adminLogoUpload => 'Upload logo';
+
+  @override
+  String get adminLogoReplace => 'Replace logo';
+
+  @override
+  String get adminLogoRemove => 'Remove logo';
+
+  @override
+  String get adminLogoDefault =>
+      'Without a logo the app shows its built-in ম mark';
+
+  @override
+  String get adminLogoSaveHint => 'Press Save to publish the uploaded logo';
+
+  @override
+  String get adminAccent => 'Accent colour';
+
+  @override
+  String get adminAccentLight => 'Light theme';
+
+  @override
+  String get adminAccentDark => 'Dark theme';
+
+  @override
+  String adminContrast(String ratio) {
+    return 'Contrast $ratio:1';
+  }
+
+  @override
+  String get adminContrastOk => 'Contrast passes (3:1 or more)';
+
+  @override
+  String get adminContrastLow =>
+      'Low contrast (under 3:1): marks will be hard to see';
+
+  @override
+  String get adminSecretsHelp =>
+      'Keys are write-only. Stored values are never shown, only their last 4 characters.';
+
+  @override
+  String get adminSecretNotSet => 'Not set (the env variable is used)';
+
+  @override
+  String get adminSecretSet => 'Set';
+
+  @override
+  String get adminSecretReplace => 'Replace';
+
+  @override
+  String get adminSecretValue => 'New value';
+
+  @override
+  String get adminSecretValueHelp => 'Replaces the stored value';
+
+  @override
+  String adminSecretDeleteTitle(String name) {
+    return 'Delete $name?';
+  }
+
+  @override
+  String get adminSecretDeleteBody =>
+      'The gateway falls back to its env variable.';
+
+  @override
+  String adminUpdatedAt(String date) {
+    return 'Updated $date';
+  }
+
+  @override
+  String get adminAiSettings => 'AI settings';
+
+  @override
+  String get adminAiEnabled => 'AI enabled';
+
+  @override
+  String get adminAllowPaid => 'Allow paid models';
+
+  @override
+  String get adminAllowPaidHelp =>
+      'When off, the gateway skips OpenRouter models that cost money';
+
+  @override
+  String get adminQuotaMeal => 'Daily meal draft quota (per mess)';
+
+  @override
+  String get adminQuotaBazar => 'Daily bazar scan quota (per mess)';
+
+  @override
+  String get adminTimeoutMs => 'Timeout (ms)';
+
+  @override
+  String get adminTemperature => 'Temperature';
+
+  @override
+  String get adminTextChain => 'Text chain (meal drafts)';
+
+  @override
+  String get adminVisionChain => 'Vision chain (receipt scans)';
+
+  @override
+  String get adminChains => 'Chains';
+
+  @override
+  String get adminChainEmpty => 'No models. Add one from the catalogue.';
+
+  @override
+  String get adminAddManually => 'Add model manually';
+
+  @override
+  String get adminProvider => 'Provider';
+
+  @override
+  String get adminModelId => 'Model ID';
+
+  @override
+  String get adminModel => 'Model';
+
+  @override
+  String get adminModelCatalogue => 'Model catalogue';
+
+  @override
+  String get adminAll => 'All';
+
+  @override
+  String get adminSearchModels => 'Search models';
+
+  @override
+  String get adminFree => 'Free';
+
+  @override
+  String get adminPaid => 'Paid';
+
+  @override
+  String get adminVision => 'Vision';
+
+  @override
+  String get adminText => 'Text';
+
+  @override
+  String get adminMinContext => 'Min context';
+
+  @override
+  String get adminMaxPrice => 'Max price \$/1M';
+
+  @override
+  String get adminContext => 'Context';
+
+  @override
+  String get adminInputPrice => 'Input \$/1M';
+
+  @override
+  String get adminOutputPrice => 'Output \$/1M';
+
+  @override
+  String get adminAddToText => 'Add to text chain';
+
+  @override
+  String get adminAddToVision => 'Add to vision chain';
+
+  @override
+  String get adminTest => 'Test';
+
+  @override
+  String adminTestOk(String ms, String sample) {
+    return 'OK · $ms ms · $sample';
+  }
+
+  @override
+  String get adminGatewayMissing =>
+      'The AI gateway is not configured. Set AI_GATEWAY_URL in env.json, rebuild the panel, and allow this site\'s origin in the gateway\'s CORS.';
+
+  @override
+  String get adminPaidWarningTitle => 'Save paid models?';
+
+  @override
+  String get adminPaidWarningBody =>
+      '\"Allow paid models\" is off, so the gateway will skip these models:';
+
+  @override
+  String get adminSaveAnyway => 'Save anyway';
 }
