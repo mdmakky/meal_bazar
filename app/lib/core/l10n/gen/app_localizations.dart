@@ -3865,6 +3865,60 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'শুধু ম্যানেজার ডিফল্ট মিল বদলাতে পারেন'**
   String get mealDefaultManagerOnly;
+
+  /// No description provided for @rateSection.
+  ///
+  /// In bn, this message translates to:
+  /// **'মিল রেট'**
+  String get rateSection;
+
+  /// No description provided for @rateHelp.
+  ///
+  /// In bn, this message translates to:
+  /// **'হিসাব করে: বাজার খরচ ÷ মোট মিল। নির্দিষ্ট রেট: আগে থেকে ঘোষণা করা রেট, সবাই প্রতি মিলে এটাই দেবে।'**
+  String get rateHelp;
+
+  /// No description provided for @rateCalculated.
+  ///
+  /// In bn, this message translates to:
+  /// **'হিসাব করে'**
+  String get rateCalculated;
+
+  /// No description provided for @rateFixed.
+  ///
+  /// In bn, this message translates to:
+  /// **'নির্দিষ্ট রেট'**
+  String get rateFixed;
+
+  /// No description provided for @rateAmountLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রতি মিলের রেট (৳)'**
+  String get rateAmountLabel;
+
+  /// No description provided for @rateAmountRequired.
+  ///
+  /// In bn, this message translates to:
+  /// **'০-এর বেশি একটি রেট লিখুন'**
+  String get rateAmountRequired;
+
+  /// No description provided for @rateSurplus.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাজার খরচের চেয়ে {amount} বেশি উঠেছে'**
+  String rateSurplus(String amount);
+
+  /// No description provided for @rateDeficit.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাজার খরচের চেয়ে {amount} কম উঠেছে'**
+  String rateDeficit(String amount);
+
+  /// No description provided for @rateBalanceFood.
+  ///
+  /// In bn, this message translates to:
+  /// **'খাবার খরচ = {meals} মিল × {rate} (নির্দিষ্ট রেট)'**
+  String rateBalanceFood(String meals, String rate);
 }
 
 class _AppLocalizationsDelegate

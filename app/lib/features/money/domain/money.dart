@@ -2,6 +2,7 @@
 // The app never computes balances; amounts here are only entered and shown.
 
 import '../../../core/dates.dart';
+import '../../../core/l10n/gen/app_localizations.dart';
 import '../../month/domain/month.dart';
 
 /// Matches SQL enum `split_method`.
@@ -324,5 +325,17 @@ List<BillLine> billLines(MemberBalance b) => [
   (part: BillPart.food, amount: -b.foodCost),
   (part: BillPart.extra, amount: -b.extraCost),
 ];
+
+/// Fixed-rate months: how the rate compares with the bazar cost
+/// (`month_rate_info.surplus_or_deficit`). Null in calculated mode or at 0.
+String? rateGapText(
+  AppLocalizations l,
+  MonthTotals t,
+  String Function(num) money,
+) => !t.fixedRate || t.rateGap == 0
+    ? null
+    : t.rateGap > 0
+    ? l.rateDeficit(money(t.rateGap))
+    : l.rateSurplus(money(-t.rateGap));
 
 double _d(Object? v) => v is num ? v.toDouble() : double.parse(v as String);

@@ -7,6 +7,8 @@ class Mess {
     required this.mealOffCutoff,
     this.address,
     this.createdBy,
+    this.fixedRate = false,
+    this.fixedMealRate,
   });
 
   factory Mess.fromJson(Map<String, dynamic> json) => Mess(
@@ -17,6 +19,8 @@ class Mess {
     mealOffCutoff: json['meal_off_cutoff'] as String? ?? '22:00:00',
     address: json['address'] as String?,
     createdBy: json['created_by'] as String?,
+    fixedRate: json['meal_rate_mode'] == 'fixed',
+    fixedMealRate: (json['fixed_meal_rate'] as num?)?.toDouble(),
   );
 
   final String id;
@@ -30,4 +34,9 @@ class Mess {
   final String mealOffCutoff;
   final String? address;
   final String? createdBy;
+
+  /// `meal_rate_mode = 'fixed'`: members pay [fixedMealRate] per meal
+  /// instead of the calculated rate (PRODUCT_RULES §3).
+  final bool fixedRate;
+  final double? fixedMealRate;
 }

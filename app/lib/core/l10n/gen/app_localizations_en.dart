@@ -2096,4 +2096,38 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get mealDefaultManagerOnly =>
       'Only a manager can change default meals';
+
+  @override
+  String get rateSection => 'Meal rate';
+
+  @override
+  String get rateHelp =>
+      'Calculated: food cost ÷ total meals. Fixed: a rate announced up front that everyone pays per meal.';
+
+  @override
+  String get rateCalculated => 'Calculated';
+
+  @override
+  String get rateFixed => 'Fixed rate';
+
+  @override
+  String get rateAmountLabel => 'Rate per meal (৳)';
+
+  @override
+  String get rateAmountRequired => 'Enter a rate above 0';
+
+  @override
+  String rateSurplus(String amount) {
+    return '$amount more collected than the bazar cost';
+  }
+
+  @override
+  String rateDeficit(String amount) {
+    return '$amount less collected than the bazar cost';
+  }
+
+  @override
+  String rateBalanceFood(String meals, String rate) {
+    return 'Food = $meals meals × $rate (fixed rate)';
+  }
 }

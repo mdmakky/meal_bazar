@@ -90,7 +90,10 @@ Future<Uint8List> buildMonthReportPdf(ReportData data) async {
   final summary = [
     (l.reportFoodTotal, money(t.foodTotal)),
     (l.reportTotalMeals, Fmt.meals(t.totalMeals, banglaDigits: bd)),
-    (l.reportMealRate, money(t.mealRate)),
+    (
+      l.reportMealRate,
+      [money(t.mealRate), if (t.fixedRate) '(${l.rateFixed})'].join(' '),
+    ),
     (l.reportExtraTotal, money(t.extraTotal)),
     (l.reportDeposits, money(t.creditTotal)),
   ];

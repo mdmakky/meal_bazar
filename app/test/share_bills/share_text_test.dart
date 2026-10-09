@@ -96,6 +96,19 @@ void main() {
     expect(s, contains('Total food cost: ৳1,410'));
     expect(s, contains('Total meals: 20½'));
     expect(s, contains('Meal rate: ৳68.78'));
+    expect(s, isNot(contains('Fixed rate')));
+    const fixed = MonthTotals(
+      foodTotal: 1410,
+      totalMeals: 20.5,
+      mealRate: 60,
+      extraTotal: 0,
+      creditTotal: 0,
+      fixedRate: true,
+    );
+    expect(
+      messSummaryText([], fixed, mess: 'M', period: period),
+      contains('মিল রেট: ৳৬০ (নির্দিষ্ট রেট)'),
+    );
     expect(s, contains('Other expenses: ৳500'));
     final lines = s.split('\n').where((x) => x.startsWith('• ')).toList();
     expect(lines, [

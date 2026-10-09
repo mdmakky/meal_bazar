@@ -45,6 +45,7 @@ closing_balance   = opening_balance + member_credit − member_food_cost − mem
 - The meal rate is shown rounded to 2 decimals. Members' costs are computed from the unrounded rate and then rounded, so the rounded shares can differ from the total by a few paisa. This is accepted, and the report shows the difference as "rounding".
 - If `total_meals = 0` while `food_total > 0`, the month summary shows a warning and nobody is charged until meals exist.
 - Worked example (the test fixture): Lunch weight 1, Dinner weight 1. Rahim has 10 meals plus 2 guest meals, Karim has 8.5. Bazar is ৳1,410. Total meals = 20.5, so the rate is ৳68.78…, Rahim's cost is ৳825.37 and Karim's is ৳584.63. WiFi ৳500 on an equal split gives each ৳250.00. Rahim deposited ৳1,500, so his balance is +৳424.63 (advance).
+- **Fixed meal rate** (0016): a manager may set `meal_rate_mode = 'fixed'` with a `fixed_meal_rate` > 0 (hostel style, announced up front). Then `meal_rate` = that rate, and `member_food_cost = round(member_meals × fixed_rate, 2)`. A month may carry its own `months.fixed_meal_rate`, which wins over the mess setting. The gap `food_total − rate × total_meals` is only reported (`month_rate_info`), never charged: > 0 means the bazar cost more than the rate collected. Same fixture at ৳60: Rahim ৳720.00, Karim ৳510.00, gap 1410 − 1230 = ৳180. Close month snapshots the mode in force.
 
 ## 4. Months
 - A mess has a `month_start_day` from 1 to 28 (default 1). Month *n* runs from that day up to the same day of the next month.

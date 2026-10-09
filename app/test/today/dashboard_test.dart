@@ -103,6 +103,7 @@ List<Override> overrides({
   bool emptyCharts = false,
   bool failDaily = false,
   List<Member>? members,
+  MonthTotals t = totals,
 }) => [
   myMembershipsProvider.overrideWith(
     (ref) async => [
@@ -126,7 +127,7 @@ List<Override> overrides({
         ],
   ),
   currentPeriodProvider.overrideWith((ref, id) async => period),
-  monthTotalsProvider.overrideWith((ref, id) async => totals),
+  monthTotalsProvider.overrideWith((ref, id) async => t),
   memberBalancesProvider.overrideWith(
     (ref, id) async => [
       balance('rahim', 'Rahim', 424.63),
@@ -180,6 +181,7 @@ Future<void> pumpDashboard(
   bool manager = true,
   bool emptyCharts = false,
   bool failDaily = false,
+  MonthTotals t = totals,
 }) async {
   tester.view.physicalSize = const Size(800, 4000);
   tester.view.devicePixelRatio = 1;
@@ -191,6 +193,7 @@ Future<void> pumpDashboard(
         manager: manager,
         emptyCharts: emptyCharts,
         failDaily: failDaily,
+        t: t,
       ),
       child: app(MonthDashboard(messId: 'mess1', manager: manager)),
     ),
@@ -226,6 +229,32 @@ void main() {
       final p = AppPalette.light;
       expect(tester.widget<Text>(inFigure('৳৯৩৪.৬৩')).style?.color, p.due);
       expect(tester.widget<Text>(inFigure('৳৪২৪.৬৩')).style?.color, p.advance);
+    });
+
+    testWidgets('fixed rate: proof says fixed and shows the gap', (
+      tester,
+    ) async {
+      await pumpDashboard(
+        tester,
+        t: const MonthTotals(
+          foodTotal: 1000,
+          totalMeals: 20,
+          mealRate: 60,
+          extraTotal: 0,
+          creditTotal: 0,
+          fixedRate: true,
+          rateGap: -200,
+        ),
+      );
+      expect(inFigure('৳৬০'), findsOneWidget);
+      expect(
+        find.text('${l.rateFixed} · ${l.rateSurplus('৳২০০')}'),
+        findsOneWidget,
+      );
+      expect(
+        find.text('নির্দিষ্ট রেট · বাজার খরচের চেয়ে ৳২০০ বেশি উঠেছে'),
+        findsOneWidget,
+      );
     });
 
     testWidgets('dues list: biggest due first; tap explains the bill', (

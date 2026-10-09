@@ -1,5 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/widgets.dart' show Locale;
 import 'package:meal_bazar/core/ids.dart';
+import 'package:meal_bazar/core/l10n/gen/app_localizations.dart';
 import 'package:meal_bazar/features/money/domain/bazar_catalogue.dart';
 import 'package:meal_bazar/features/money/domain/money.dart';
 import 'package:meal_bazar/features/month/domain/month.dart';
@@ -113,5 +115,59 @@ void main() {
     expect(catalogueUnit('ডিম'), 'হালি');
     expect(catalogueUnit('সয়াবিন তেল'), 'লিটার');
     expect(catalogueUnit('কিছু একটা'), isNull);
+  });
+
+  group('fixed meal rate', () {
+    final l = lookupAppLocalizations(const Locale('bn'));
+    String money(num v) => '৳${v.round()}';
+    final base = {
+      'food_total': 1410,
+      'total_meals': 20.5,
+      'meal_rate': 60,
+      'extra_total': 0,
+      'credit_total': 0,
+    };
+
+    test('MonthTotals reads mode and gap from month_rate_info', () {
+      final t = MonthTotals.fromJson({
+        ...base,
+        'mode': 'fixed',
+        'surplus_or_deficit': '180.00',
+      });
+      expect(t.fixedRate, isTrue);
+      expect(t.rateGap, 180);
+      final c = MonthTotals.fromJson(base);
+      expect(c.fixedRate, isFalse);
+      expect(c.rateGap, 0);
+    });
+
+    test('fixed mode never warns about unallocated food', () {
+      final t = MonthTotals.fromJson({...base, 'total_meals': 0});
+      expect(t.unallocatedFood, isTrue);
+      expect(
+        MonthTotals.fromJson({
+          ...base,
+          'total_meals': 0,
+          'mode': 'fixed',
+        }).unallocatedFood,
+        isFalse,
+      );
+    });
+
+    test('rateGapText: cost above collection is a shortfall', () {
+      MonthTotals t(double gap, {bool fixed = true}) => MonthTotals(
+        foodTotal: 0,
+        totalMeals: 0,
+        mealRate: 60,
+        extraTotal: 0,
+        creditTotal: 0,
+        fixedRate: fixed,
+        rateGap: gap,
+      );
+      expect(rateGapText(l, t(180), money), l.rateDeficit('৳180'));
+      expect(rateGapText(l, t(-180), money), l.rateSurplus('৳180'));
+      expect(rateGapText(l, t(0), money), isNull);
+      expect(rateGapText(l, t(180, fixed: false), money), isNull);
+    });
   });
 }

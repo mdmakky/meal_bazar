@@ -368,7 +368,9 @@ class _RateFigure extends ConsumerWidget {
     return Figure(
       label: l.todayRateLabel,
       value: Fmt.money(t.mealRate, banglaDigits: bn),
-      proof: l.todayRateProof(food, decimal(t.totalMeals, bangla: bn)),
+      proof: t.fixedRate
+          ? l.rateFixed
+          : l.todayRateProof(food, decimal(t.totalMeals, bangla: bn)),
       initiallyExpanded: true,
     );
   }

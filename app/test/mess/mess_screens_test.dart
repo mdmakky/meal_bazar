@@ -207,4 +207,90 @@ void main() {
       expect(find.text('pending-page'), findsOneWidget);
     });
   });
+
+  group('MessSettingsScreen meal rate', () {
+    setUp(() {
+      final view =
+          TestWidgetsFlutterBinding.instance.platformDispatcher.views.first;
+      view.physicalSize = const Size(800, 3000);
+      view.devicePixelRatio = 1;
+      addTearDown(view.reset);
+    });
+
+    Future<void> save(WidgetTester tester) async {
+      await tester.ensureVisible(find.text(l.settingsSave));
+      await tester.tap(find.text(l.settingsSave));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('fixed rate needs an amount, then sends mode and rate', (
+      tester,
+    ) async {
+      when(
+        () => repo.updateMess(
+          any(),
+          name: any(named: 'name'),
+          address: any(named: 'address'),
+          monthStartDay: any(named: 'monthStartDay'),
+          mealOffCutoff: any(named: 'mealOffCutoff'),
+          fixedRate: any(named: 'fixedRate'),
+          fixedMealRate: any(named: 'fixedMealRate'),
+        ),
+      ).thenAnswer((_) async => mess);
+      await pump(tester, const MessSettingsScreen());
+      await tester.pumpAndSettle();
+
+      expect(find.text(l.rateSection), findsOneWidget);
+      expect(find.text(l.rateAmountLabel), findsNothing);
+      await tester.tap(find.text(l.rateFixed));
+      await tester.pumpAndSettle();
+      await save(tester);
+      expect(find.text(l.rateAmountRequired), findsOneWidget);
+
+      await tester.enterText(
+        find.widgetWithText(TextFormField, l.rateAmountLabel),
+        '৬০',
+      );
+      await save(tester);
+      verify(
+        () => repo.updateMess(
+          'mess1',
+          name: 'Mirpur Mess',
+          address: '',
+          monthStartDay: 1,
+          mealOffCutoff: '22:00:00',
+          fixedRate: true,
+          fixedMealRate: 60,
+        ),
+      ).called(1);
+    });
+
+    testWidgets('calculated mode sends no rate', (tester) async {
+      when(
+        () => repo.updateMess(
+          any(),
+          name: any(named: 'name'),
+          address: any(named: 'address'),
+          monthStartDay: any(named: 'monthStartDay'),
+          mealOffCutoff: any(named: 'mealOffCutoff'),
+          fixedRate: any(named: 'fixedRate'),
+          fixedMealRate: any(named: 'fixedMealRate'),
+        ),
+      ).thenAnswer((_) async => mess);
+      await pump(tester, const MessSettingsScreen());
+      await tester.pumpAndSettle();
+      await save(tester);
+      verify(
+        () => repo.updateMess(
+          'mess1',
+          name: any(named: 'name'),
+          address: any(named: 'address'),
+          monthStartDay: any(named: 'monthStartDay'),
+          mealOffCutoff: any(named: 'mealOffCutoff'),
+          fixedRate: false,
+          fixedMealRate: null,
+        ),
+      ).called(1);
+    });
+  });
 }

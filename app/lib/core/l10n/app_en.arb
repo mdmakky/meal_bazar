@@ -683,5 +683,17 @@
   "mealDefaultTitle": "Default meals",
   "mealDefaultHelp": "When a member has no meal the day before, \"Fill today\" uses these.",
   "mealDefaultEmpty": "No active members or meal types",
-  "mealDefaultManagerOnly": "Only a manager can change default meals"
+  "mealDefaultManagerOnly": "Only a manager can change default meals",
+  "rateSection": "Meal rate",
+  "rateHelp": "Calculated: food cost ÷ total meals. Fixed: a rate announced up front that everyone pays per meal.",
+  "rateCalculated": "Calculated",
+  "rateFixed": "Fixed rate",
+  "rateAmountLabel": "Rate per meal (৳)",
+  "rateAmountRequired": "Enter a rate above 0",
+  "rateSurplus": "{amount} more collected than the bazar cost",
+  "@rateSurplus": {"placeholders": {"amount": {"type": "String"}}},
+  "rateDeficit": "{amount} less collected than the bazar cost",
+  "@rateDeficit": {"placeholders": {"amount": {"type": "String"}}},
+  "rateBalanceFood": "Food = {meals} meals × {rate} (fixed rate)",
+  "@rateBalanceFood": {"placeholders": {"meals": {"type": "String"}, "rate": {"type": "String"}}}
 }

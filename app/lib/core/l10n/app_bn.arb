@@ -707,5 +707,17 @@
   "mealDefaultTitle": "সদস্যদের ডিফল্ট মিল",
   "mealDefaultHelp": "আগের দিনের মিল না থাকলে \"আজকের মিল বসান\" এই হিসাবে মিল বসাবে।",
   "mealDefaultEmpty": "কোনো সক্রিয় সদস্য বা চালু বেলা নেই",
-  "mealDefaultManagerOnly": "শুধু ম্যানেজার ডিফল্ট মিল বদলাতে পারেন"
+  "mealDefaultManagerOnly": "শুধু ম্যানেজার ডিফল্ট মিল বদলাতে পারেন",
+  "rateSection": "মিল রেট",
+  "rateHelp": "হিসাব করে: বাজার খরচ ÷ মোট মিল। নির্দিষ্ট রেট: আগে থেকে ঘোষণা করা রেট, সবাই প্রতি মিলে এটাই দেবে।",
+  "rateCalculated": "হিসাব করে",
+  "rateFixed": "নির্দিষ্ট রেট",
+  "rateAmountLabel": "প্রতি মিলের রেট (৳)",
+  "rateAmountRequired": "০-এর বেশি একটি রেট লিখুন",
+  "rateSurplus": "বাজার খরচের চেয়ে {amount} বেশি উঠেছে",
+  "@rateSurplus": {"placeholders": {"amount": {"type": "String"}}},
+  "rateDeficit": "বাজার খরচের চেয়ে {amount} কম উঠেছে",
+  "@rateDeficit": {"placeholders": {"amount": {"type": "String"}}},
+  "rateBalanceFood": "খাবার খরচ = {meals} মিল × {rate} (নির্দিষ্ট রেট)",
+  "@rateBalanceFood": {"placeholders": {"meals": {"type": "String"}, "rate": {"type": "String"}}}
 }
