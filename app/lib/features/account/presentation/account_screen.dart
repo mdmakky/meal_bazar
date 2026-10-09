@@ -68,6 +68,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
     final p = context.palette;
     final profileAsync = ref.watch(myProfileProvider);
     final profile = profileAsync.value;
+    final bn = Localizations.localeOf(context).languageCode == 'bn';
 
     if (profile != null && _loadedFor != profile.id) {
       _loadedFor = profile.id;
@@ -112,7 +113,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                             if (profile.phone case final phone?
                                 when phone.isNotEmpty)
                               Text(
-                                phone,
+                                Fmt.digits(phone, bangla: bn),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: text.bodyMedium?.copyWith(
@@ -138,6 +139,21 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                     TextField(
                       controller: _name,
                       maxLength: 80,
+                      // Only while typing, in the UI's digits.
+                      buildCounter:
+                          (
+                            _, {
+                            required currentLength,
+                            required isFocused,
+                            maxLength,
+                          }) => isFocused
+                          ? Text(
+                              Fmt.digits(
+                                '$currentLength/$maxLength',
+                                bangla: bn,
+                              ),
+                            )
+                          : null,
                       textCapitalization: TextCapitalization.words,
                       decoration: InputDecoration(labelText: l.accountName),
                     ),
@@ -179,7 +195,7 @@ class _AccountScreenState extends ConsumerState<AccountScreen> {
                     children: [
                       const BrandHeader(),
                       Text(
-                        l.platformVersion(appVersion),
+                        l.platformVersion(Fmt.digits(appVersion, bangla: bn)),
                         style: text.labelSmall?.copyWith(color: p.inkTertiary),
                       ),
                     ],

@@ -107,10 +107,11 @@ class NoticeTile extends StatelessWidget {
                   label: l.noticeUnread,
                   child: Container(
                     key: const Key('noticeUnreadDot'),
-                    width: AppSpace.sm,
-                    height: AppSpace.sm,
+                    // The same turmeric unread dot as Messages.
+                    width: AppSize.dot + 2,
+                    height: AppSize.dot + 2,
                     decoration: BoxDecoration(
-                      color: p.ink,
+                      color: p.accent,
                       shape: BoxShape.circle,
                     ),
                   ),
