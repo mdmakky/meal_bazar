@@ -9,7 +9,6 @@ import '../../meals/domain/meal.dart';
 import '../../meals/presentation/meal_widgets.dart';
 import '../../mess/application/mess_providers.dart';
 import '../../mess/domain/member.dart';
-import '../../mess/presentation/common.dart';
 import '../application/recurring_providers.dart';
 import '../domain/recurring.dart';
 
@@ -33,7 +32,7 @@ class _MealDefaultsScreenState extends ConsumerState<MealDefaultsScreen> {
           .read(recurringControllerProvider)
           .setMealDefault(messId, key, count);
     } catch (e) {
-      if (mounted) showFailure(context, e);
+      if (mounted) snackFailure(context, e);
     } finally {
       if (mounted) setState(() => _pending.remove(key));
     }
@@ -115,23 +114,54 @@ class _MealDefaultsScreenState extends ConsumerState<MealDefaultsScreen> {
       );
     }
 
-    return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: AppSpace.sm),
-          child: Text(
-            l.mealDefaultHelp,
-            style: Theme.of(context).textTheme.bodyMedium,
+    return StaggeredList(
+      child: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: AppSpace.sm),
+            child: Text(
+              l.mealDefaultHelp,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
           ),
-        ),
-        for (final m in members) ...[
-          SectionTitle(m.displayName),
-          for (final t in types)
-            stepper((memberId: m.id, mealTypeId: t.id), t.name),
+          const SizedBox(height: AppSpace.lg),
+          ...StaggeredList.wrap([
+            for (final m in members)
+              Padding(
+                padding: const EdgeInsets.only(bottom: AppSpace.md),
+                child: AppCard.raised(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpace.lg,
+                    AppSpace.md,
+                    AppSpace.sm,
+                    AppSpace.xs,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        spacing: AppSpace.md,
+                        children: [
+                          InitialsAvatar(m.displayName, size: 32),
+                          Expanded(
+                            child: Text(
+                              m.displayName,
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                          ),
+                        ],
+                      ),
+                      for (final t in types)
+                        stepper((memberId: m.id, mealTypeId: t.id), t.name),
+                    ],
+                  ),
+                ),
+              ),
+          ]),
+          const SizedBox(height: AppSpace.xl),
         ],
-        const SizedBox(height: AppSpace.xl),
-      ],
+      ),
     );
   }
 }
