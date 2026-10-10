@@ -168,16 +168,30 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
           ),
           SliverToBoxAdapter(child: LastMonthCard(messId: messId)),
           SliverToBoxAdapter(
-            child: manager
-                ? _TodayHero(
-                    day: _day,
-                    dayKey: key,
-                    types: types,
-                    onShift: _shift,
-                    onToday: () => setState(() => _day = today()),
-                    onPickDay: _pickDay,
-                  )
-                : _MemberHero(messId: messId),
+            child: Column(
+              children: [
+                manager
+                    ? _TodayHero(
+                        day: _day,
+                        dayKey: key,
+                        types: types,
+                        onShift: _shift,
+                        onToday: () => setState(() => _day = today()),
+                        onPickDay: _pickDay,
+                      )
+                    : _MemberHero(messId: messId),
+                // Under the card, so it moves nothing inside it.
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpace.gutter,
+                  ),
+                  child: Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: SyncLine(messId: messId),
+                  ),
+                ),
+              ],
+            ),
           ),
           SliverToBoxAdapter(
             child: MessageShortcuts(messId: messId, manager: manager),
@@ -371,10 +385,6 @@ class _TodayHero extends ConsumerWidget {
                       icon: const Icon(Icons.chevron_right),
                     ),
                   ],
-                ),
-                Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: SyncLine(messId: dayKey.messId),
                 ),
                 const SizedBox(height: AppSpace.lg),
                 Padding(
@@ -658,10 +668,6 @@ class _MemberHero extends ConsumerWidget {
                       ),
                     ),
                   ],
-                ),
-                Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: SyncLine(messId: messId),
                 ),
                 const SizedBox(height: AppSpace.lg),
                 balance,
