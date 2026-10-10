@@ -38,6 +38,11 @@ Push supabasePush(SupabaseClient c) => (entity, p) async {
           params: {'p_bazar': p['id'], 'p_members': buyers},
         );
       }
+    case 'shopping_items':
+      p.remove('mess_id'); // queue bookkeeping, not a column
+      requireRows(await c.from('shopping_items').upsert(p).select('id'));
+    case 'shopping_item_delete':
+      await c.from('shopping_items').delete().eq('id', p['id'] as String);
     default:
       throw AppFailure(FailureKind.validation, 'unknown entity $entity');
   }

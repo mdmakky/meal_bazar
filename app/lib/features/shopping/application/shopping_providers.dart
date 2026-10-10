@@ -40,14 +40,19 @@ class ShoppingController {
     _ref.invalidate(shoppingListsProvider(messId));
   }
 
-  /// Items are saved one by one as they change; the list view keeps its own
-  /// copy, so nothing reloads under the shopper's thumb.
-  Future<void> upsertItem(ShoppingItem i) => _repo.upsertItem(i);
+  /// Items are saved on the phone one by one as they change (and sent when
+  /// there is a network); the list view keeps its own copy, so nothing
+  /// reloads under the shopper's thumb.
+  Future<void> upsertItem(String messId, ShoppingItem i) =>
+      _repo.upsertItem(messId, i);
 
-  Future<void> deleteItem(String id) => _repo.deleteItem(id);
+  Future<void> deleteItem(String messId, String id) =>
+      _repo.deleteItem(messId, id);
+
+  Future<void> remember(ShoppingList l) => _repo.remember(l);
 
   Future<void> submit(ShoppingList l, {required bool ownPocket}) async {
-    await _repo.submit(l.id, ownPocket: ownPocket);
+    await _repo.submit(l, ownPocket: ownPocket);
     _ref.invalidate(shoppingListsProvider(l.messId));
   }
 

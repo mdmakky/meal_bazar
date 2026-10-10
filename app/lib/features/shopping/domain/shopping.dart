@@ -51,7 +51,7 @@ class ShoppingItem {
     qty: qty ?? this.qty,
     unit: unit ?? this.unit,
     bought: bought ?? this.bought,
-    price: identical(price, _keep) ? this.price : price as double?,
+    price: identical(price, _keep) ? this.price : (price as num?)?.toDouble(),
     extra: extra,
     sort: sort,
   );
@@ -140,5 +140,16 @@ class ShoppingList {
         items: items ?? this.items,
       );
 
-  String dayKey() => isoDate(date);
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'mess_id': messId,
+    'created_by': createdBy,
+    'assignee_id': assigneeId,
+    'date': isoDate(date),
+    'title': title,
+    'note': note,
+    'status': status,
+    'reject_reason': rejectReason,
+    'shopping_items': [for (final i in items) i.toJson()],
+  };
 }
