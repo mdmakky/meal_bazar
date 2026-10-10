@@ -1,18 +1,36 @@
 <!doctype html>
-<html lang="bn">
+<html lang="en" class="js">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>মিল বাজার — মেসের হিসাব, ফোনে</title>
-<meta name="description" content="মিল, বাজার, জমা আর মাস শেষের বিল, সব এক জায়গায়, বাংলায়। নেট না থাকলেও চলে। অ্যান্ড্রয়েডের জন্য বিনামূল্যে APK।">
+<title>Meal Bazar: run your whole mess from your phone</title>
+<meta name="description" content="Meals, bazar, deposits and the month-end bill in one shared ledger. Works offline, in Bangla and English. Free Android APK.">
 <meta name="theme-color" content="#FAFAF9">
 <meta property="og:type" content="website">
-<meta property="og:title" content="মিল বাজার — মেসের হিসাব, ফোনে">
-<meta property="og:description" content="মিল, বাজার, জমা আর মাস শেষের বিল, সব এক জায়গায়, বাংলায়। নেট না থাকলেও চলে।">
-<meta property="og:locale" content="bn_BD">
-<link rel="icon" href="assets/favicon.png" type="image/png">
-<link rel="preload" href="fonts/HindSiliguri-Regular.ttf" as="font" type="font/ttf" crossorigin>
+<meta property="og:site_name" content="Meal Bazar">
+<meta property="og:title" content="Meal Bazar: run your whole mess from your phone">
+<meta property="og:description" content="Meals, bazar, deposits and the month-end bill in one shared ledger. Works offline, in Bangla and English.">
+<meta property="og:url" content="https://meal-bazar.vercel.app/">
+<meta property="og:image" content="https://meal-bazar.vercel.app/assets/og.png">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="bn_BD">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://meal-bazar.vercel.app/assets/og.png">
+<link rel="alternate" hreflang="en" href="https://meal-bazar.vercel.app/">
+<link rel="alternate" hreflang="bn" href="https://meal-bazar.vercel.app/?lang=bn">
+<link rel="alternate" hreflang="x-default" href="https://meal-bazar.vercel.app/">
+<link rel="icon" href="assets/favicon.png" type="image/png" sizes="32x32">
+<link rel="icon" href="assets/logo-192.png" type="image/png" sizes="192x192">
+<link rel="apple-touch-icon" href="https://meal-bazar.vercel.app/assets/logo-192.png">
+<script>(function(){var d=document.documentElement,l=(location.search.match(/[?&]lang=(en|bn)/)||[])[1],s;try{s=localStorage.getItem("mb-lang")}catch(e){}
+l=l||(s==="bn"||s==="en"?s:(navigator.language||"").toLowerCase().indexOf("bn")===0?"bn":"en");window.__mbLang=l;d.lang=l;})();</script>
+<noscript><style>.fx,.rise{visibility:visible!important}</style></noscript>
+<link rel="preload" href="fonts/HindSiliguri-Regular.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/HindSiliguri-SemiBold.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="styles.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Meal Bazar","operatingSystem":"Android","applicationCategory":"LifestyleApplication","description":"Bangla-first, offline-first mess management: meals, bazar, deposits and the month-end bill.","softwareVersion":"1.3.2","inLanguage":["bn","en"],"downloadUrl":"https://github.com/mdmakky/meal_bazar/releases/latest","url":"https://meal-bazar.vercel.app/","offers":{"@type":"Offer","price":"0","priceCurrency":"BDT"}}</script>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -20,221 +38,316 @@
   <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></symbol>
   <symbol id="i-dl" viewBox="0 0 24 24"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
   <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18a4 4 0 0 1-.6-7.96A6 6 0 0 1 18 9.5a4.2 4.2 0 0 1-.5 8.5z"/></symbol>
-  <symbol id="i-phone" viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2.5"/><path d="M11 18h2"/></symbol>
-  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-meals" viewBox="0 0 24 24"><path d="M7 3v7a2 2 0 0 0 4 0V3M9 12v9M16 21V3c-2 1.5-3 4-3 7v3h3"/></symbol>
+  <symbol id="i-bazar" viewBox="0 0 24 24"><path d="M4 10h16l-1.5 9a1 1 0 0 1-1 .8h-11a1 1 0 0 1-1-.8zM8 10l3-6M16 10l-3-6"/></symbol>
+  <symbol id="i-money" viewBox="0 0 24 24"><path d="M4 7a2 2 0 0 1 2-2h11v3M4 7v11a2 2 0 0 0 2 2h13a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1H6a2 2 0 0 1-2-1zM16 14h.01"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><path d="M6 12h.01M12 12h.01M18 12h.01" stroke-width="3"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M21 3 3 10.5l7 3 3 7zM10 13.5 21 3"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15zM10 21h4"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M4 10h16M8 3v4M16 3v4"/></symbol>
 </svg>
 
 <header class="nav">
   <div class="wrap">
-    <a class="brand" href="#top" aria-label="Meal Bazar"><img src="assets/logo.png" width="36" height="36" alt=""><span data-en="Meal Bazar">মিল বাজার</span></a>
-    <nav class="nav-links" aria-label="বিভাগ" data-en-label="Sections">
-      <a href="#how" data-en="How it works">কীভাবে চলে</a>
-      <a href="#trust" data-en="Trust">হিসাবের ভিত্তি</a>
-      <a href="#faq" data-en="FAQ">প্রশ্নোত্তর</a>
+    <a class="brand" href="#top" aria-label="Meal Bazar"><img src="assets/logo-192.png" width="36" height="36" alt=""><span>Meal Bazar</span></a>
+    <nav class="nav-links" aria-label="Sections" data-bn-label="বিভাগ">
+      <a href="#features" data-bn="ফিচার">Features</a>
+      <a href="#how" data-bn="কীভাবে চলে">How it works</a>
+      <a href="#trust" data-bn="ভরসা">Trust</a>
+      <a href="#faq" data-bn="প্রশ্নোত্তর">FAQ</a>
     </nav>
-    <div class="lang" role="group" aria-label="ভাষা" data-en-label="Language">
-      <button type="button" data-lang="bn" aria-pressed="true">বাংলা</button>
-      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+    <div class="lang" role="group" aria-label="Language" data-bn-label="ভাষা">
+      <button type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button type="button" data-lang="bn" aria-pressed="false">বাংলা</button>
     </div>
-    <a class="btn sm" href="https://github.com/mdmakky/meal_bazar/releases/latest" data-en="Download">ডাউনলোড</a>
+    <a class="btn sm" href="https://github.com/mdmakky/meal_bazar/releases/latest" data-bn="ডাউনলোড">Download</a>
   </div>
 </header>
 
-<main id="top">
-<section class="hero" style="padding-block-end:clamp(3rem,6vw,5.5rem)">
-  <div class="wrap">
-    <div>
-      <h1 data-en="Your mess accounts, on your phone. Two minutes a day.">মেসের হিসাব, ফোনে। রোজ ২ মিনিটে।</h1>
-      <p class="sub" data-en="Meals, bazar, deposits and the month-end bill, all in one place, in Bangla. It works even when the network doesn't.">মিল, বাজার, জমা আর মাস শেষের বিল, সব এক জায়গায়, বাংলায়। নেট না থাকলেও চলে।</p>
-      <div class="cta">
-        <a class="btn lg" href="https://github.com/mdmakky/meal_bazar/releases/latest"><svg class="i" aria-hidden="true"><use href="#i-dl"/></svg><span data-en="Download Android APK">অ্যান্ড্রয়েড APK ডাউনলোড</span></a>
-        <a class="link" href="#how"><span data-en="See how it works">কীভাবে চলে দেখুন</span><svg class="i" aria-hidden="true"><use href="#i-down"/></svg></a>
-      </div>
-      <p class="note" data-en="Free download from GitHub · Version 1.3.2 · Android only for now">GitHub থেকে বিনামূল্যে ডাউনলোড · সংস্করণ ১.৩.২ · আপাতত শুধু অ্যান্ড্রয়েড</p>
+<main id="top" class="fx">
+<!-- HERO -->
+<section class="hero" id="hero" style="padding-bottom:clamp(2rem,4vw,3rem)">
+  <div class="ruled" aria-hidden="true"></div>
+  <span class="scrib" style="--r:-4deg;left:max(24px,calc(50% - 540px));top:90px" aria-hidden="true" data-bn="মিল ৪১ নাকি ৪২?">meals: 41 or 42?</span>
+  <span class="scrib" style="--r:3deg;right:max(24px,calc(50% - 540px));top:150px" aria-hidden="true">4,820 ÷ 100 = ?</span>
+  <span class="scrib" style="--r:-2deg;left:max(24px,calc(50% - 500px));top:420px" aria-hidden="true" data-bn="রাকিব ১২০০ না ১৫০০?">Rakib: 1,200 or 1,500?</span>
+  <div class="wrap hero-in">
+    <h1 id="h1" class="rise" data-bn="পুরো মেসের হিসাব চলুক ফোনে, রোজ <em>২ মিনিটে</em>">Run your whole mess from your phone in <em>two minutes</em> a day</h1>
+    <p class="sub" data-bn="মিল, বাজার, জমা আর মাস শেষের বিল, সব এক খাতায়। বাংলা আর ইংরেজি, দুই ভাষাতেই।">Meals, bazar, deposits and the month-end bill in one shared ledger. In Bangla and English.</p>
+    <div class="cta">
+      <a class="btn lg" href="https://github.com/mdmakky/meal_bazar/releases/latest"><svg class="i" aria-hidden="true"><use href="#i-dl"/></svg><span data-bn="APK ডাউনলোড">Download APK</span></a>
+      <a class="btn lg ghost" href="#how"><span data-bn="কীভাবে চলে দেখুন">See how it works</span><svg class="i" aria-hidden="true"><use href="#i-down"/></svg></a>
     </div>
-
-    <div class="slip-wrap">
-      <article class="slip" aria-labelledby="slip-t">
-        <div class="slip-h">
-          <div><h2 id="slip-t" data-en="Month-end bill">মাস শেষের বিল</h2><small data-en="Member: Rakib">সদস্য: রাকিব</small></div>
-          <span class="tag" data-en="Sample">উদাহরণ</span>
-        </div>
-        <ul>
-          <li class="ln" style="--i:0">
-            <button class="ln-b" type="button" aria-expanded="false" aria-controls="w1"><span class="ln-l"><span data-en="Meals">মিল</span><small data-en="41 meals × ৳48.20">৪১টি মিল × ৳৪৮.২০</small></span><span class="amt">৳<span data-en="1,976.20">১,৯৭৬.২০</span></span><svg class="i" aria-hidden="true"><use href="#i-chev"/></svg></button>
-            <div class="why" id="w1"><div><p data-en="Meal rate = the month's total bazar ÷ the month's total meals. So 41 meals × ৳48.20 = ৳1,976.20.">মিল-রেট = মাসের মোট বাজার ÷ মাসের মোট মিল। তাই ৪১টি মিল × ৳৪৮.২০ = ৳১,৯৭৬.২০।</p></div></div>
-          </li>
-          <li class="ln" style="--i:1">
-            <button class="ln-b" type="button" aria-expanded="false" aria-controls="w2"><span class="ln-l"><span data-en="Shared costs">শেয়ার্ড খরচ</span><small data-en="Electricity, wifi, cleaner">বিদ্যুৎ, ওয়াইফাই, বুয়া</small></span><span class="amt">৳<span data-en="650.00">৬৫০.০০</span></span><svg class="i" aria-hidden="true"><use href="#i-chev"/></svg></button>
-            <div class="why" id="w2"><div><p data-en="Monthly bills of ৳3,250 in total, split equally among 5 members: ৳3,250 ÷ 5 = ৳650.">মাসিক বিল মোট ৳৩,২৫০, সমান ৫ ভাগে: ৳৩,২৫০ ÷ ৫ = ৳৬৫০।</p></div></div>
-          </li>
-          <li class="ln" style="--i:2">
-            <button class="ln-b" type="button" aria-expanded="false" aria-controls="w3"><span class="ln-l"><span data-en="Deposit · cash">জমা · ক্যাশ</span></span><span class="amt neg">−৳<span data-en="1,500.00">১,৫০০.০০</span></span><svg class="i" aria-hidden="true"><use href="#i-chev"/></svg></button>
-            <div class="why" id="w3"><div><p data-en="Cash handed over and written in the manager's ledger. It is subtracted from what you owe.">ক্যাশে দেওয়া জমা, ম্যানেজারের খাতায় লেখা। যা দিতে হবে, তা থেকে বাদ যায়।</p></div></div>
-          </li>
-          <li class="ln" style="--i:3">
-            <button class="ln-b" type="button" aria-expanded="false" aria-controls="w4"><span class="ln-l"><span data-en="Deposit · bKash">জমা · বিকাশ</span><small data-en="TrxID verified">TrxID যাচাই করা</small></span><span class="amt neg">−৳<span data-en="800.00">৮০০.০০</span></span><svg class="i" aria-hidden="true"><use href="#i-chev"/></svg></button>
-            <div class="why" id="w4"><div><p data-en="Sent by bKash. The manager matched the TrxID and verified it, which is why it counts.">বিকাশে পাঠানো। ম্যানেজার TrxID মিলিয়ে যাচাই করেছেন, তাই এটা হিসাবে ধরা হয়েছে।</p></div></div>
-          </li>
-        </ul>
-        <div class="total ln" style="--i:4;border:0"><span data-en="Due">বাকি</span><b>৳<span data-en="326.20">৩২৬.২০</span></b></div>
-        <p class="slip-f" data-en="৳1,976.20 + ৳650 − ৳2,300. If deposits are more than the bill, it shows as credit instead.">৳১,৯৭৬.২০ + ৳৬৫০ − ৳২,৩০০। জমা বেশি হলে এখানে পাওনা দেখায়।</p>
-      </article>
-      <p class="slip-hint" data-en="Tap any line to see how it was worked out.">যেকোনো লাইনে ট্যাপ করলে হিসাবটা দেখা যায়।</p>
-    </div>
-  </div>
-</section>
-
-<section id="how" class="band">
-  <div class="wrap">
-    <div class="sec-h">
-      <h2 data-en="How it works">কীভাবে চলে</h2>
-      <p data-en="Try each one yourself. Nothing here is saved, and no real names are used.">নিজে ট্যাপ করে দেখুন। এখানে কিছুই সেভ হয় না, নামগুলোও কাল্পনিক।</p>
-    </div>
-
-    <div class="rows">
-      <!-- 1 meals -->
-      <div class="row">
-        <div class="copy" data-rv>
-          <h3 data-en="Meals: just tap">মিল লেখা: শুধু ট্যাপ</h3>
-          <p data-en="Tap a cell and it cycles through 0, ½, 1, 1½, 2. Guest meals and switching a meal off work the same way. Totals add up as you go.">ঘরে ট্যাপ করলে ০, ½, ১, ১½, ২ ঘুরে ঘুরে আসে। অতিথির মিল আর মিল বন্ধ রাখাও এভাবেই চলে। মোট নিজে নিজে যোগ হয়।</p>
-        </div>
-        <div class="demo" data-rv>
-          <div class="demo-h"><span data-en="Meals · today">মিল · আজ</span><span data-en="Tap a cell">ঘরে ট্যাপ করুন</span></div>
-          <table class="mt" id="meals">
-            <thead><tr><th scope="col" class="sr" data-en="Member">সদস্য</th><th scope="col" data-en="Breakfast">সকাল</th><th scope="col" data-en="Lunch">দুপুর</th><th scope="col" data-en="Dinner">রাত</th><th scope="col" data-en="Total">মোট</th></tr></thead>
-            <tbody></tbody>
-            <tfoot><tr><th scope="row" data-en="Total">মোট</th><td></td><td></td><td></td><td id="m-all" aria-live="polite"></td></tr></tfoot>
-          </table>
-        </div>
-      </div>
-
-      <!-- 2 bazar list -->
-      <div class="row">
-        <div class="copy" data-rv>
-          <h3 data-en="Bazar lists: tick them in the shop">বাজারের তালিকা, দোকানেই টিক</h3>
-          <p data-en="Plan a list and send one member shopping. They tick items and write prices as they buy, then send it as a bazar. It only reaches the accounts once the manager approves.">আগে তালিকা বানিয়ে একজনকে বাজারে পাঠান। সে কেনার সময় টিক দেয়, দাম লেখে, তারপর বাজার হিসেবে পাঠায়। ম্যানেজার অনুমোদন করলে তবেই হিসাবে ওঠে।</p>
-        </div>
-        <div class="demo" data-rv>
-          <div class="demo-h"><span data-en="Today's bazar list">আজকের বাজারের তালিকা</span><span data-en="Tick and write a price">টিক দিন, দাম লিখুন</span></div>
-          <ul class="bl" id="bl"></ul>
-          <div class="bl-f"><span><span data-en="Total">মোট</span> <b id="bl-t" aria-live="polite"></b></span><button class="btn sm" type="button" id="bl-send" data-en="Send as bazar">বাজার হিসেবে পাঠান</button></div>
-          <div class="status" id="bl-s" aria-live="polite"></div>
-        </div>
-      </div>
-
-      <!-- 3 deposits -->
-      <div class="row">
-        <div class="copy" data-rv>
-          <h3 data-en="Deposits: cash, bKash, Nagad">জমা: ক্যাশ, বিকাশ, নগদ</h3>
-          <p data-en="When someone pays by bKash or Nagad, they note the TrxID. The deposit becomes final once the manager checks and verifies it. Paying a member back is recorded too.">বিকাশ বা নগদে টাকা দিলে TrxID লিখে রাখা যায়। ম্যানেজার মিলিয়ে যাচাই করলে তবেই জমা পাকা হয়। কাউকে টাকা ফেরত দিলে সেটাও লেখা থাকে।</p>
-        </div>
-        <div class="demo" data-rv>
-          <div class="demo-h"><span data-en="Deposit">জমা</span><span data-en="Manager view">ম্যানেজারের পাতা</span></div>
-          <div class="dep">
-            <div><b>৳<span id="d-amt"></span></b><small id="d-who"></small></div>
-            <div id="d-act" aria-live="polite"></div>
-          </div>
-          <div class="bal"><span id="d-lbl"></span><b id="d-bal" aria-live="polite"></b></div>
-          <div class="status"><button class="reset" type="button" id="d-reset" data-en="Start over">আবার শুরু থেকে</button></div>
-        </div>
-      </div>
-
-      <!-- 4 offline -->
-      <div class="row">
-        <div class="copy" data-rv>
-          <h3 data-en="No network? Keep writing">নেট না থাকলেও লিখে যান</h3>
-          <p data-en="What you write is saved on the phone first and sent by itself when the network returns. A small strip at the top tells you how many changes are waiting.">যা লিখবেন আগে ফোনেই সেভ হয়, নেট ফিরলে নিজে থেকেই চলে যায়। ওপরের ছোট পট্টিতে দেখা যায় কয়টা পরিবর্তন অপেক্ষায় আছে।</p>
-        </div>
-        <div class="demo" data-rv>
-          <div class="demo-h"><span data-en="On this phone">এই ফোনে</span><span data-en="Try switching it off">বন্ধ করে দেখুন</span></div>
-          <button class="sw" type="button" role="switch" aria-checked="false" id="sw"><i aria-hidden="true"></i><span id="sw-l"></span></button>
-          <div class="strip" id="strip" aria-live="polite"></div>
-          <ul class="q" id="q"></ul>
-          <button class="btn sm ghost" type="button" id="q-add" data-en="Write another change">আরেকটা পরিবর্তন লিখুন</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="more">
-  <div class="wrap">
-    <div class="sec-h"><h2 data-en="And the rest of the mess ledger">আর মেসের বাকি খাতাপত্র</h2></div>
-    <ul class="rules" data-rv>
-      <li><b data-en="Shared expenses and monthly bills">শেয়ার্ড খরচ ও মাসিক বিল</b><span data-en="Split equally, or set a share for each member.">সমান ভাগে, অথবা সদস্য ধরে ধরে আলাদা করে।</span></li>
-      <li><b data-en="Notifications">নোটিফিকেশন</b><span data-en="A deposit recorded, a bazar added, your bazar duty today, or someone editing your entries: your phone tells you.">জমা লেখা হলে, বাজার যোগ হলে, আজ আপনার বাজারের পালা হলে, বা কেউ আপনার লেখা বদলালে ফোনে জানায়।</span></li>
-      <li><b data-en="Bazar duty calendar">বাজারের পালার ক্যালেন্ডার</b><span data-en="Whose turn it is to shop, at a glance.">কার কবে বাজারের পালা, এক নজরে।</span></li>
-      <li><b data-en="Invite by link">লিংকে আমন্ত্রণ</b><span data-en="Send a link and the new member joins your mess.">লিংক পাঠালেই নতুন সদস্য আপনার মেসে যোগ দিতে পারে।</span></li>
-      <li><b data-en="PDF and CSV share">PDF ও CSV শেয়ার</b><span data-en="Make the month's report and drop it in the WhatsApp or Messenger group.">মাসের রিপোর্ট বানিয়ে হোয়াটসঅ্যাপ বা মেসেঞ্জার গ্রুপে দিয়ে দিন।</span></li>
-      <li><b data-en="Notices and messages">নোটিস ও বার্তা</b><span data-en="Announcements and talk for the whole mess, kept in one place.">মেসের সবার জন্য ঘোষণা আর কথাবার্তা, এক জায়গায়।</span></li>
-      <li><b data-en="Bangla and English">বাংলা ও English</b><span data-en="Switch language any time. Bangla digits are optional.">যখন খুশি ভাষা বদলান। চাইলে বাংলা সংখ্যাও রাখা যায়।</span></li>
+    <ul class="trustrow">
+      <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span data-bn="বিনামূল্যে">Free</span></li>
+      <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span data-bn="নেট ছাড়াও চলে">Works offline</span></li>
+      <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span data-bn="বাংলা ও ইংরেজি">Bangla &amp; English</span></li>
+      <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span data-bn="অ্যান্ড্রয়েড">Android</span></li>
     </ul>
+    <div class="hero-stage">
+      <div class="notif n1" aria-hidden="true"><div><span class="dot g"><svg class="i"><use href="#i-check"/></svg></span><span><b data-bn="বাজার অনুমোদিত ৳৫১৫">Bazar approved ৳515</b><small data-bn="ম্যানেজার · এইমাত্র">Manager · just now</small></span></div></div>
+      <div class="notif n2" aria-hidden="true"><div><span class="dot"><svg class="i"><use href="#i-money"/></svg></span><span><b data-bn="সুমন ৳১,০০০ জমা দিয়েছেন">Sumon deposited ৳1,000</b><small data-bn="বিকাশ · যাচাইয়ের অপেক্ষায়">bKash · to review</small></span></div></div>
+      <div class="notif n3" aria-hidden="true"><div><span class="dot"><svg class="i"><use href="#i-cal"/></svg></span><span><b data-bn="কাল সাব্বিরের বাজারের পালা">Sabbir has bazar duty tomorrow</b><small data-bn="নোটিফিকেশন">Notification</small></span></div></div>
+      <div class="hero-ph"><div data-phone="meals" data-play="load"></div></div>
+    </div>
   </div>
 </section>
 
-<section id="trust" class="band">
-  <div class="wrap trust">
-    <div>
-      <div class="sec-h" style="margin-bottom:1.5rem"><h2 data-en="Money is worked out in the database, not guessed">টাকার হিসাব ডাটাবেসে, অনুমানে নয়</h2></div>
-      <ul class="rules tight" data-rv>
-        <li><b data-en="Not on your phone">ফোনে নয়</b><span data-en="Meal rates, bills and balances are calculated in the database. The phone only shows them, so two phones never show two different totals.">মিল-রেট, বিল, বাকি, সব হিসাব হয় ডাটাবেসে। ফোন শুধু দেখায়, তাই দুই ফোনে দুই রকম অঙ্ক আসে না।</span></li>
-        <li><b data-en="Closed months stay closed">বন্ধ মাস বন্ধই থাকে</b><span data-en="Once a month is closed it can't be edited silently. It can be reopened, but that is logged.">মাস বন্ধ হলে চুপচাপ আর কিছু বদলানো যায় না। আবার খোলা যায়, তবে সেটা লগে থাকে।</span></li>
-        <li><b data-en="Every change is logged">প্রতিটি বদল লেখা থাকে</b><span data-en="Who changed what, and when.">কে, কখন, কী বদলাল।</span></li>
-        <li><b data-en="Open your own bill's working">নিজের বিলের হিসাব খুলে দেখুন</b><span data-en="Every member can open the working of their own bill, line by line.">প্রতিটি সদস্য নিজের বিলের হিসাব লাইন ধরে ধরে খুলে দেখতে পারেন।</span></li>
+<!-- PROBLEM -->
+<section style="padding-top:clamp(3rem,6vw,5rem)">
+  <div class="wrap">
+    <h2 class="h2" data-rv data-bn="মাস শেষে <em>ঝগড়া</em> কেন?">Month-end shouldn't be a <em>fight</em></h2>
+    <div class="ba">
+      <div class="old" data-rv>
+        <h3 data-bn="পুরোনো পদ্ধতি">The old way</h3>
+        <ul>
+          <li><svg class="i" aria-hidden="true"><use href="#i-x"/></svg><span data-bn="খাতায় মিল লেখা, যে লেখে সে-ই কখনো ভুলে যায়">Meals in a notebook that someone forgets to fill</span></li>
+          <li><svg class="i" aria-hidden="true"><use href="#i-x"/></svg><span data-bn="বাজারের রসিদ হারায় হোয়াটসঅ্যাপ গ্রুপে">Bazar receipts lost in the WhatsApp group</span></li>
+          <li><svg class="i" aria-hidden="true"><use href="#i-x"/></svg><span data-bn="কে কত দিয়েছে, কেউ নিশ্চিত না">Who paid how much? Nobody is sure</span></li>
+          <li><svg class="i" aria-hidden="true"><use href="#i-x"/></svg><span data-bn="এমন বিল, যা কেউ মিলিয়ে দেখতে পারে না">A bill nobody can check</span></li>
+        </ul>
+      </div>
+      <div class="new" data-rv>
+        <h3 data-bn="Meal Bazar দিয়ে">With Meal Bazar</h3>
+        <ul>
+          <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span data-bn="প্রত্যেকে নিজের ফোনে নিজের মিল লেখে">Everyone taps their own meals on their phone</span></li>
+          <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span data-bn="প্রতিটি বাজার দামসহ লেখা, ম্যানেজার অনুমোদন করেন">Every bazar written with its price, approved by the manager</span></li>
+          <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span data-bn="প্রতিটি জমা লেখা এবং যাচাই করা">Every deposit recorded and verified</span></li>
+          <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span data-bn="একটাই বিল, প্রতিটি লাইনের হিসাবসহ">One bill, every line explained</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STORY -->
+<section id="features" style="padding-top:clamp(2rem,4vw,3rem)">
+  <div class="wrap">
+    <h2 class="h2" data-rv data-bn="খাতার সব কাজ, এবার <em>ঠিকঠাক</em>">Everything the notebook did, <em>done properly</em></h2>
+    <p class="lead" data-rv data-bn="নিজে ট্যাপ করে দেখুন। এখানে কিছুই সেভ হয় না, নামগুলোও কাল্পনিক।">Try the phones yourself. Nothing here is saved, and every name and amount is made up.</p>
+    <div class="story" id="how">
+      <div class="steps">
+        <article class="step on" data-step="0">
+          <h3 data-bn="মিল লেখা, কয়েক সেকেন্ডে">Meals in seconds</h3>
+          <p data-bn="গ্রিড খুলে ঘরে ট্যাপ করুন। ০, ½, ১, ১½, ২ ঘুরে ঘুরে আসে। মোট নিজে নিজে যোগ হয়।">Open the grid and tap a cell. It cycles 0, ½, 1, 1½, 2, and the totals add up as you go.</p>
+          <ul class="facts">
+            <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span data-bn="অতিথির মিল আর মিল বন্ধ রাখাও একই ভাবে">Guest meals and switching a meal off work the same way</span></li>
+            <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span data-bn="প্রতিটি সদস্য নিজের মিল লেখে, ম্যানেজার সবার মিল দেখেন">Each member writes their own, the manager sees everyone's</span></li>
+          </ul>
+          <div class="step-ph"><div data-phone="meals" data-play="view"></div></div>
+        </article>
+        <article class="step" data-step="1">
+          <h3 data-bn="বাজার: একজন যায়, টিক দেয়, ম্যানেজার দেখেন">Bazar: assign, tick, approve</h3>
+          <p data-bn="তালিকা বানিয়ে একজনকে বাজারে পাঠান। সে দোকানে টিক দেয়, দাম লেখে, তারপর বাজার হিসেবে পাঠায়।">Make a list and send one member shopping. They tick items and write prices in the shop, then send it as a bazar.</p>
+          <div class="flow"><span data-bn="দায়িত্ব দিন">Assign</span><span data-bn="টিক ও দাম">Tick and price</span><span data-bn="ম্যানেজারের অনুমোদন">Manager approves</span></div>
+          <ul class="facts">
+            <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span data-bn="সদস্যের পাঠানো বাজার ম্যানেজার অনুমোদন করলে তবেই হিসাবে ওঠে">A member-submitted bazar is added to the accounts once the manager approves it</span></li>
+            <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span data-bn="পরিচিত জিনিস তালিকা থেকে বেছে নেওয়া যায়, নতুনটা নিজে লেখা যায়">Pick common items from the catalogue, or write your own</span></li>
+          </ul>
+          <div class="step-ph"><div data-phone="bazar" data-play="view"></div></div>
+        </article>
+        <article class="step" data-step="2">
+          <h3 data-bn="জমা আর শেয়ার্ড খরচ, যাচাইসহ">Deposits and shared costs, double-checked</h3>
+          <p data-bn="ক্যাশ, বিকাশ বা নগদে জমা দিলে লিখে রাখা যায়। ম্যানেজার যাচাই করলে তবেই জমাটা পাকা হয়।">Record cash, bKash or Nagad deposits. A deposit becomes final once the manager verifies it.</p>
+          <ul class="facts">
+            <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span data-bn="মোবাইল পেমেন্টে TrxID লেখা থাকে">Mobile payments keep their TrxID</span></li>
+            <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span data-bn="বিদ্যুৎ, ওয়াইফাই-এর মতো মাসিক বিল সমান ভাগে, অথবা সদস্য ধরে আলাদা ভাগে">Monthly bills like electricity and wifi are split equally, or by a set share per member</span></li>
+          </ul>
+          <p class="tryit" data-bn="ম্যানেজার হিসেবে “যাচাই করুন” চেপে দেখুন।">Press Verify to see the manager's side.</p>
+          <div class="step-ph"><div data-phone="money" data-play="view"></div></div>
+        </article>
+        <article class="step" data-step="3">
+          <h3 data-bn="মাস শেষের বিল, যা সবাই মিলিয়ে দেখতে পারে">A month-end bill everyone can verify</h3>
+          <p data-bn="হিসাব ট্যাবে সদস্যের নামে ট্যাপ করলে খুলে যায় তার বিলের হিসাব: আগের মাসের জের, জমা, খাবার খরচ আর অন্যান্য খরচের ভাগ, লাইন ধরে ধরে।">Tap a member on the Money tab to open the working of their bill: last month, deposits, food cost and the share of other expenses, line by line.</p>
+          <ul class="facts">
+            <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span data-bn="মিল-রেট = মাসের খাবার খরচ ÷ মাসের মোট মিল">Meal rate = the month's food cost ÷ the month's total meals</span></li>
+            <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span data-bn="রিপোর্ট PDF বা CSV করে হোয়াটসঅ্যাপ গ্রুপে শেয়ার করা যায়">Share the report as PDF or CSV in your group chat</span></li>
+          </ul>
+          <div class="step-ph"><div data-phone="bill" data-play="view"></div></div>
+        </article>
+      </div>
+      <div class="stage"><div data-phone="meals,bazar,money,bill" data-stage></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- DAY -->
+<section class="band">
+  <div class="wrap">
+    <h2 class="h2" data-rv data-bn="মেসের একটা <em>দিন</em>">A <em>day</em> in your mess</h2>
+    <div class="day" tabindex="0" role="region" aria-label="A day in your mess" data-bn-label="মেসের একটা দিন">
+      <article class="dc" data-rv>
+        <h3 data-bn="সকাল">Morning</h3>
+        <p data-bn="ঘুম থেকে উঠে আজকের মিলে ট্যাপ করুন। মিল বন্ধ করার সময় শেষ হওয়ার আগে রিমাইন্ডার আসে।">Tap today's meals when you wake up. A reminder comes before the meal-off cutoff.</p>
+        <div class="crop"><div><div data-crop="meals"></div></div></div>
+      </article>
+      <article class="dc" data-rv>
+        <h3 data-bn="দুপুর">Noon</h3>
+        <p data-bn="ম্যানেজার আজকের বাজারের তালিকা বানিয়ে পালার সদস্যকে দেন।">The manager makes today's list and gives it to whoever has bazar duty.</p>
+        <div class="crop"><div><div data-crop="bazar"></div></div></div>
+      </article>
+      <article class="dc" data-rv>
+        <h3 data-bn="সন্ধ্যা">Evening</h3>
+        <p data-bn="কেউ বিকাশে জমা দিলে ম্যানেজার TrxID মিলিয়ে যাচাই করেন।">Someone pays by bKash and the manager matches the TrxID.</p>
+        <div class="crop"><div><div data-crop="review"></div></div></div>
+      </article>
+      <article class="dc" data-rv>
+        <h3 data-bn="রাত">Night</h3>
+        <p data-bn="নোটিস আর নোটিফিকেশন: কাল কার বাজারের পালা, মাস বন্ধ হলো কি না।">Notices and notifications: whose bazar duty is tomorrow, whether the month closed.</p>
+        <div class="crop"><div><div data-crop="notice"></div></div></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="ctaband">
+  <div class="wrap">
+    <h2 data-rv data-bn="আজ রাতেই মেসের খাতা ফোনে তুলুন">Your mess can be on it by tonight</h2>
+    <p data-rv data-bn="APK নামান, মেস খুলুন, ইনভাইট কোড পাঠান। ব্যস।">Download the APK, create a mess, share the invite code.</p>
+    <a class="btn lg" data-rv href="https://github.com/mdmakky/meal_bazar/releases/latest"><svg class="i" aria-hidden="true"><use href="#i-dl"/></svg><span data-bn="APK ডাউনলোড">Download APK</span></a>
+  </div>
+</section>
+
+<!-- ROLES -->
+<section>
+  <div class="wrap">
+    <h2 class="h2" data-rv data-bn="একটা মেস, দুই <em>ভূমিকা</em>">One mess, two <em>roles</em></h2>
+    <div class="roles">
+      <div class="role" data-rv>
+        <h3 data-bn="ম্যানেজারের জন্য">For managers</h3>
+        <p data-bn="খাতা আপনার হাতে, কিন্তু সবকিছু স্বচ্ছ।">The ledger is yours to run, and everything stays visible.</p>
+        <ul>
+          <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span data-bn="মেস খুলুন, ৬ অক্ষরের কোড, QR বা লিংকে সদস্য ডাকুন, যোগদানের অনুরোধ অনুমোদন করুন">Create the mess and invite by 6-character code, QR or link, then approve join requests</span></li>
+          <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span data-bn="বাজার অনুমোদন করুন, জমা যাচাই করুন">Approve bazar and verify deposits</span></li>
+          <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span data-bn="বাজারের পালার ক্যালেন্ডার সাজান">Plan the bazar duty calendar</span></li>
+          <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span data-bn="মাস বন্ধ করুন। পরে খুলতে হলে কারণ লিখতে হয়, আর সেটা লগে থাকে">Close the month. Reopening needs a reason and is logged</span></li>
+        </ul>
+      </div>
+      <div class="role-ph" data-rv><div data-phone="home" data-play="view"></div></div>
+      <div class="role" data-rv>
+        <h3 data-bn="সদস্যের জন্য">For members</h3>
+        <p data-bn="নিজের হিসাব নিজের ফোনেই, কাউকে জিজ্ঞেস না করে।">Your own numbers on your own phone, without asking anyone.</p>
+        <ul>
+          <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span data-bn="নিজের মিল লিখুন, ইচ্ছে হলে মিল বন্ধ রাখুন">Write your meals, or switch a meal off</span></li>
+          <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span data-bn="জমা লিখুন, যাচাই হলে জানতে পারবেন">Record a deposit and see when it's verified</span></li>
+          <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span data-bn="পালা এলে বাজারের তালিকা নিয়ে দোকানে যান, টিক দিন">On your duty day, take the list to the shop and tick as you buy</span></li>
+          <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span data-bn="নিজের বিলের হিসাব লাইন ধরে ধরে খুলে দেখুন">Open your own bill's working, line by line</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OFFLINE -->
+<section class="band">
+  <div class="wrap off-g">
+    <div class="phwrap" data-rv><div data-phone="meals" id="offPh"></div></div>
+    <div class="copy" data-rv>
+      <h2 data-bn="নেট চলে গেলেও লেখা <em>থামে না</em>">Keep writing when the network <em>drops</em></h2>
+      <p class="lead" data-bn="যা লিখবেন আগে ফোনেই সেভ হয়, নেট ফিরলে নিজে থেকেই চলে যায়। ওপরের ছোট পট্টিতে দেখা যায় কয়টা পরিবর্তন অপেক্ষায় আছে।">What you write is saved on the phone first and sent by itself when the network is back. A small strip at the top shows how many changes are waiting.</p>
+      <button class="sw" type="button" role="switch" aria-checked="false" id="sw"><i aria-hidden="true"></i><span id="sw-l"></span></button>
+      <ul class="notes">
+        <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span data-bn="নেটওয়ার্ক বন্ধ করে ফোনের মিলে ট্যাপ করুন, ওপরের পট্টিতে অপেক্ষায় থাকা পরিবর্তন গোনা হবে">Switch the network off, then tap a meal on the phone: the strip counts what is waiting</span></li>
+        <li><svg class="i" aria-hidden="true"><use href="#i-check"/></svg><span data-bn="একই লেখা দুবার গেলেও হিসাব দুবার ধরা হয় না">A change sent twice is never counted twice</span></li>
       </ul>
     </div>
-    <div class="log" data-rv>
-      <div class="log-h"><span data-en="Change log">পরিবর্তনের লগ</span><span class="tag" data-en="Sample">উদাহরণ</span></div>
-      <ol>
-        <li><span class="chg" data-en="Lunch, Sumon: 1 → 2">দুপুরের মিল, সুমন: ১ → ২</span><small data-en="Edited by Rakib (manager) · 12:40">রাকিব (ম্যানেজার) বদলেছেন · ১২:৪০</small></li>
-        <li><span class="chg" data-en="Deposit ৳1,000 bKash: verified">জমা ৳১,০০০ বিকাশ: যাচাই হয়েছে</span><small data-en="Rakib (manager) · 09:15">রাকিব (ম্যানেজার) · ০৯:১৫</small></li>
-        <li><span class="chg" data-en="Month closed">মাস বন্ধ করা হয়েছে</span><small data-en="Rakib (manager) · last day of the month">রাকিব (ম্যানেজার) · মাসের শেষ দিন</small></li>
-      </ol>
+  </div>
+</section>
+
+<!-- TRUST -->
+<section id="trust" class="dark">
+  <div class="wrap dark-g">
+    <div>
+      <h2 class="h2" data-rv data-bn="আপনার বিল হিসাব হয় <em>একভাবে</em>, এক জায়গায়">Your bill is calculated <em>one way</em>, in one place</h2>
+      <ul class="rules stag" data-rv>
+        <li><b data-bn="ফোনে নয়, ডাটাবেসে">Not on your phone</b><span data-bn="মিল-রেট, বিল, বাকি, সব হিসাব হয় ডাটাবেসে। ফোন শুধু দেখায়, তাই দুই ফোনে দুই রকম অঙ্ক আসে না।">Meal rates, bills and balances are calculated in the database. The phone only shows them, so two phones never show two different totals.</span></li>
+        <li><b data-bn="বন্ধ মাস বন্ধই থাকে">Closed months stay locked</b><span data-bn="মাস বন্ধ হলে চুপচাপ আর কিছু বদলানো যায় না। আবার খুলতে হলে কারণ লিখতে হয়।">Once a month is closed it can't be changed silently. Reopening takes an explicit action and a reason.</span></li>
+        <li><b data-bn="প্রতিটি বদল লেখা থাকে">Every change is logged</b><span data-bn="কে, কখন, কী বদলাল, সব অডিট লগে।">Who changed what, and when, in an audit log.</span></li>
+        <li><b data-bn="তথ্য আপনার">Your data is yours</b><span data-bn="মেসের হিসাব দেখেন শুধু সেই মেসের সদস্যরা। রিপোর্ট PDF বা CSV করে নিয়ে যেতে পারেন, আর চাইলে অ্যাকাউন্ট মুছে ফেলা যায়।">Only members of your mess can see its accounts. Export reports as PDF or CSV, and delete your account whenever you want.</span></li>
+      </ul>
+    </div>
+    <div class="logp" data-rv>
+      <div class="logh"><span data-bn="পরিবর্তনের লগ">Change log</span><span class="pill" data-bn="উদাহরণ">Example</span></div>
+      <div class="tick" aria-label="Example change log" data-bn-label="পরিবর্তনের লগের উদাহরণ" role="region" tabindex="0"><ol id="tickol">
+        <li><span class="chg" data-bn="দুপুরের মিল, সুমন: ১ → ২">Lunch, Sumon: 1 → 2</span><small data-bn="রাকিব (ম্যানেজার) বদলেছেন · ১২:৪০">Edited by Rakib (manager) · 12:40</small></li>
+        <li><span class="chg" data-bn="জমা ৳১,০০০ বিকাশ: যাচাই হয়েছে">Deposit ৳1,000 bKash: verified</span><small data-bn="রাকিব (ম্যানেজার) · ০৯:১৫">Rakib (manager) · 09:15</small></li>
+        <li><span class="chg" data-bn="বাজার ৳১,২৪০ অনুমোদিত">Bazar ৳1,240 approved</span><small data-bn="রাকিব (ম্যানেজার) · ০৮:০২">Rakib (manager) · 08:02</small></li>
+        <li><span class="chg" data-bn="শেয়ার্ড খরচ যোগ: ওয়াইফাই ৳৮০০">Shared cost added: Wi-Fi ৳800</span><small data-bn="রাকিব (ম্যানেজার) · ২ তারিখ">Rakib (manager) · 2nd</small></li>
+        <li><span class="chg" data-bn="রাতের মিল, সাব্বির: ০ → ১">Dinner, Sabbir: 0 → 1</span><small data-bn="সাব্বির · গতকাল">Sabbir · yesterday</small></li>
+        <li><span class="chg" data-bn="মাস বন্ধ করা হয়েছে">Month closed</span><small data-bn="রাকিব (ম্যানেজার) · মাসের শেষ দিন">Rakib (manager) · last day of the month</small></li>
+        <li><span class="chg" data-bn="মাস আবার খোলা হয়েছে">Month reopened</span><small data-bn="কারণ: ভুল TrxID · রাকিব (ম্যানেজার)">Reason: wrong TrxID · Rakib (manager)</small></li>
+      </ol></div>
     </div>
   </div>
 </section>
 
-<section id="faq">
+<!-- WHO -->
+<section>
   <div class="wrap">
-    <div class="sec-h"><h2 data-en="Questions">প্রশ্নোত্তর</h2></div>
+    <h2 class="h2" data-rv data-bn="যেখানে <em>মেস</em> চলে, সেখানেই">Wherever a <em>mess</em> is run</h2>
+    <div class="who stag" data-rv>
+      <div><h3 data-bn="ছাত্রদের মেস">Student messes</h3><p data-bn="মাসের শেষে কে কত দেবে, তা নিয়ে আর তর্ক নয়।">No more arguing about who owes what at the end of the month.</p></div>
+      <div><h3 data-bn="ব্যাচেলর ফ্ল্যাট">Bachelor flats</h3><p data-bn="বাজারের পালা ঘুরিয়ে ঘুরিয়ে, সবার জানা হিসাবে।">Rotate bazar duty, and keep one account everyone can see.</p></div>
+      <div><h3 data-bn="হোস্টেল">Hostels</h3><p data-bn="অনেক সদস্য, একজন ম্যানেজার, সব হিসাব এক জায়গায়।">Many members, one manager, all the accounts in one place.</p></div>
+      <div><h3 data-bn="অফিসের মেস">Office messes</h3><p data-bn="দুপুরের খাবারের মিল আর বিল, কোনো খাতা ছাড়াই।">Lunch meals and the bill, without a notebook.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" class="band">
+  <div class="wrap">
+    <h2 class="h2" data-rv data-bn="প্রশ্ন আছে? <em>উত্তরও</em> আছে">Questions, <em>answered</em></h2>
     <div class="faq" data-rv>
-      <details><summary><span data-en="Is it free to download?">ডাউনলোড করতে কি টাকা লাগে?</span><svg class="i" aria-hidden="true"><use href="#i-chev"/></svg></summary><p data-en="No. The APK is a free download from GitHub. When you install it, your phone may ask permission to install from outside the Play Store.">না। APK ফাইলটা GitHub থেকে বিনামূল্যে ডাউনলোড করা যায়। ইনস্টলের সময় ফোন প্লে স্টোরের বাইরে থেকে ইনস্টল করার অনুমতি চাইতে পারে।</p></details>
-      <details><summary><span data-en="Is there an iPhone version?">আইফোনে চলবে?</span><svg class="i" aria-hidden="true"><use href="#i-chev"/></svg></summary><p data-en="Not yet. Meal Bazar is Android only for now.">এখনো না। আপাতত মিল বাজার শুধু অ্যান্ড্রয়েডের জন্য।</p></details>
-      <details><summary><span data-en="Does it work offline?">নেট না থাকলে চলবে?</span><svg class="i" aria-hidden="true"><use href="#i-chev"/></svg></summary><p data-en="Yes. Your entries are saved on the phone and sent when the network comes back. A small strip shows how many changes are waiting.">হ্যাঁ। লেখা ফোনে সেভ থাকে, নেট ফিরলে পাঠিয়ে দেয়। কয়টা পরিবর্তন অপেক্ষায় আছে, একটা ছোট পট্টিতে দেখা যায়।</p></details>
-      <details><summary><span data-en="Who can see my data?">আমার তথ্য কে দেখতে পারবে?</span><svg class="i" aria-hidden="true"><use href="#i-chev"/></svg></summary><p data-en="Only the members of your own mess can see its accounts. That rule is enforced in the database itself, not just in the app. Read more in the <a href='https://meal-bazar-admin.vercel.app/privacy'>privacy policy</a>.">আপনার মেসের হিসাব শুধু সেই মেসের সদস্যরাই দেখতে পারেন। নিয়মটা অ্যাপে নয়, ডাটাবেসেই আটকানো। বিস্তারিত <a href="https://meal-bazar-admin.vercel.app/privacy">গোপনীয়তা নীতি</a>তে।</p></details>
-      <details><summary><span data-en="Is it in Bangla?">বাংলায় চলে?</span><svg class="i" aria-hidden="true"><use href="#i-chev"/></svg></summary><p data-en="Yes, Bangla is the default, and English is one tap away. Bangla digits are optional.">হ্যাঁ, বাংলাই ডিফল্ট, ইংরেজি এক ট্যাপ দূরে। চাইলে বাংলা সংখ্যাও রাখা যায়।</p></details>
-      <details><summary><span data-en="How do we get started?">শুরু করব কীভাবে?</span><svg class="i" aria-hidden="true"><use href="#i-chev"/></svg></summary><p data-en="One person creates the mess. Everyone else joins with an invite link or code.">একজন মেস খোলেন। বাকিরা আমন্ত্রণ লিংক বা কোড দিয়ে যোগ দেন।</p></details>
-      <details><summary><span data-en="Can I delete my account?">অ্যাকাউন্ট মুছে ফেলা যায়?</span><svg class="i" aria-hidden="true"><use href="#i-chev"/></svg></summary><p data-en="Yes. Use the <a href='https://meal-bazar-admin.vercel.app/delete-account'>account deletion page</a>.">হ্যাঁ। <a href="https://meal-bazar-admin.vercel.app/delete-account">অ্যাকাউন্ট মুছার পাতা</a> থেকে করতে পারেন।</p></details>
+      <details><summary><span data-bn="ডাউনলোড করতে কি টাকা লাগে?">Is it free?</span><svg class="i" aria-hidden="true"><use href="#i-chev"/></svg></summary><p data-bn="না। APK ফাইলটা GitHub থেকে বিনামূল্যে ডাউনলোড করা যায়।">Yes. The APK is a free download from GitHub.</p></details>
+      <details><summary><span data-bn="নেট না থাকলে চলবে?">Does it work offline?</span><svg class="i" aria-hidden="true"><use href="#i-chev"/></svg></summary><p data-bn="হ্যাঁ। লেখা আগে ফোনে সেভ হয়, নেট ফিরলে পাঠিয়ে দেয়। কয়টা পরিবর্তন অপেক্ষায় আছে, একটা ছোট পট্টিতে দেখা যায়।">Yes. Entries are saved on the phone first and sent when the network comes back. A small strip shows how many changes are waiting.</p></details>
+      <details><summary><span data-bn="মিল লিখতে কি নেট লাগে?">Do I need internet to tick meals?</span><svg class="i" aria-hidden="true"><use href="#i-chev"/></svg></summary><p data-bn="না। নেট ছাড়াই মিল লেখা যায়। নেট এলে বাকি সদস্যদের ফোনেও পৌঁছে যায়।">No. You can tick meals with no connection. When the network returns, the changes sync to everyone else's phones.</p></details>
+      <details><summary><span data-bn="আমার তথ্য কি নিরাপদ?">Is my data safe?</span><svg class="i" aria-hidden="true"><use href="#i-chev"/></svg></summary><p data-bn="আপনার মেসের হিসাব শুধু সেই মেসের সদস্যরাই দেখতে পারেন। নিয়মটা অ্যাপে নয়, ডাটাবেসেই আটকানো। প্রতিটি বদল অডিট লগে থাকে।">Only members of your own mess can see its accounts. That rule is enforced in the database itself, not just in the app, and every change goes in an audit log.</p></details>
+      <details><summary><span data-bn="নতুন সদস্য কীভাবে যোগ দেয়?">How do members join?</span><svg class="i" aria-hidden="true"><use href="#i-chev"/></svg></summary><p data-bn="ম্যানেজার ৬ অক্ষরের কোড, QR কোড বা লিংক পাঠান। যোগদানের অনুরোধ ম্যানেজার অনুমোদন করলে তবেই সদস্য হওয়া যায়।">The manager shares a 6-character code, a QR code or a link. A join request needs the manager's approval.</p></details>
+      <details><summary><span data-bn="আইফোনে চলবে?">Is there an iPhone version?</span><svg class="i" aria-hidden="true"><use href="#i-chev"/></svg></summary><p data-bn="এখনো না। আপাতত Meal Bazar শুধু অ্যান্ড্রয়েডের জন্য, APK আকারে।">Not yet. Meal Bazar is Android only for now, as an APK.</p></details>
+      <details><summary><span data-bn="PDF বা CSV এক্সপোর্ট করা যায়?">Can I export a PDF or CSV?</span><svg class="i" aria-hidden="true"><use href="#i-chev"/></svg></summary><p data-bn="হ্যাঁ। মাসের রিপোর্ট PDF বা CSV করে হোয়াটসঅ্যাপ বা মেসেঞ্জার গ্রুপে শেয়ার করা যায়।">Yes. Make the month's report as a PDF or CSV and share it to your WhatsApp or Messenger group.</p></details>
+      <details><summary><span data-bn="অ্যাকাউন্ট মুছে ফেলা যায়?">Can I delete my account?</span><svg class="i" aria-hidden="true"><use href="#i-chev"/></svg></summary><p data-bn="হ্যাঁ, অ্যাকাউন্ট মুছে ফেলার ব্যবস্থা আছে।">Yes, account deletion is supported.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- DOWNLOAD -->
+<section id="download">
+  <div class="wrap dl">
+    <div data-rv>
+      <h2 class="h2" data-bn="ফোনে নিন <em>Meal Bazar</em>">Get Meal Bazar on your <em>phone</em></h2>
+      <div class="cta">
+        <a class="btn lg" href="https://github.com/mdmakky/meal_bazar/releases/latest"><svg class="i" aria-hidden="true"><use href="#i-dl"/></svg><span data-bn="APK ডাউনলোড">Download APK</span></a>
+      </div>
+      <p class="note" data-bn="বিনামূল্যে · সংস্করণ ১.৩.২ · আপাতত শুধু অ্যান্ড্রয়েড">Free · Version 1.3.2 · Android only for now</p>
+      <ol class="inst">
+        <li><span data-bn="GitHub রিলিজ পাতা থেকে APK ডাউনলোড করুন">Download the APK from the GitHub release page</span></li>
+        <li><span data-bn="ফোন চাইলে &ldquo;এই সোর্স থেকে ইনস্টলের অনুমতি&rdquo; দিন (এটা প্লে স্টোরের বাইরের অ্যাপ)">If your phone asks, allow installing from this source (it is installed outside the Play Store)</span></li>
+        <li><span data-bn="ইনস্টল শেষে অ্যাপ খুলুন">Open the app</span></li>
+        <li><span data-bn="নতুন মেস খুলুন, অথবা আমন্ত্রণ কোড দিয়ে যোগ দিন">Create a mess, or join one with an invite code</span></li>
+      </ol>
+    </div>
+    <div class="qr" data-rv>
+      <img src="assets/qr.svg" width="220" height="220" alt="QR code linking to the Meal Bazar download page" data-bn-alt="Meal Bazar ডাউনলোড পাতার QR কোড" loading="lazy">
+      <p data-bn="কম্পিউটারে আছেন? ফোনের ক্যামেরায় স্ক্যান করে ডাউনলোড পাতা খুলুন।">On a computer? Scan this with your phone to open the download page.</p>
     </div>
   </div>
 </section>
 </main>
 
-<div class="final">
+<footer class="fx">
   <div class="wrap">
-    <div>
-      <h2 data-en="Put the mess ledger on your phone, starting today.">আজ থেকেই মেসের খাতা থাকুক ফোনে।</h2>
-      <p data-en="Free APK for Android, version 1.3.2." >অ্যান্ড্রয়েডের জন্য বিনামূল্যে APK, সংস্করণ ১.৩.২।</p>
-      <p style="margin-top:1.5rem"><a class="btn lg" href="https://github.com/mdmakky/meal_bazar/releases/latest"><svg class="i" aria-hidden="true"><use href="#i-dl"/></svg><span data-en="Download Android APK">অ্যান্ড্রয়েড APK ডাউনলোড</span></a></p>
-    </div>
-    <div class="mark" aria-hidden="true">
-      <img src="assets/intro_tile.png" width="620" height="620" alt="" loading="lazy">
-      <img class="glyph" src="assets/intro_glyph.png" width="620" height="620" alt="" loading="lazy">
-      <img class="steam" src="assets/intro_steam.png" width="620" height="620" alt="" loading="lazy">
-    </div>
-  </div>
-</div>
-
-<footer>
-  <div class="wrap">
-    <a class="brand" href="#top"><img src="assets/logo.png" width="32" height="32" alt="" loading="lazy"><span><span data-en="Meal Bazar">মিল বাজার</span> <small data-en="v1.3.2">সংস্করণ ১.৩.২</small></span></a>
-    <nav aria-label="ফুটার" data-en-label="Footer">
-      <a href="https://github.com/mdmakky/meal_bazar/releases/latest" data-en="GitHub releases">GitHub রিলিজ</a>
-      <a href="https://meal-bazar-admin.vercel.app/privacy" data-en="Privacy">গোপনীয়তা নীতি</a>
-      <a href="https://meal-bazar-admin.vercel.app/terms" data-en="Terms">শর্তাবলি</a>
-      <a href="https://meal-bazar-admin.vercel.app/delete-account" data-en="Delete account">অ্যাকাউন্ট মুছুন</a>
+    <a class="brand" href="#top"><img src="assets/logo-192.png" width="32" height="32" alt="" loading="lazy"><span>Meal Bazar <small data-bn="সংস্করণ ১.৩.২">v1.3.2</small></span></a>
+    <nav aria-label="Footer" data-bn-label="ফুটার">
+      <a href="privacy.html" data-bn="গোপনীয়তা নীতি">Privacy</a>
+      <a href="terms.html" data-bn="শর্তাবলি">Terms</a>
+      <a href="delete-account.html" data-bn="অ্যাকাউন্ট মুছুন">Delete account</a>
+      <a href="https://github.com/mdmakky/meal_bazar/releases/latest" data-bn="GitHub রিলিজ">GitHub releases</a>
     </nav>
   </div>
 </footer>
