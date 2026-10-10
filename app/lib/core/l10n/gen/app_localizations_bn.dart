@@ -4329,6 +4329,15 @@ class AppLocalizationsBn extends AppLocalizations {
   String get shopSearchMember => 'সদস্য খুঁজুন';
 
   @override
+  String get shopAddCustom => 'নিজের আইটেম লিখুন';
+
+  @override
+  String get shopPickHint => 'ওপর থেকে আইটেম বেছে তালিকা বানান';
+
+  @override
+  String get shopEmptyList => 'তালিকায় কিছু নেই';
+
+  @override
   String get fundModeFix => 'খরচ ঠিক করুন';
 
   @override

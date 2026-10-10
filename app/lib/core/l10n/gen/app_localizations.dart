@@ -7844,6 +7844,24 @@ abstract class AppLocalizations {
   /// **'সদস্য খুঁজুন'**
   String get shopSearchMember;
 
+  /// No description provided for @shopAddCustom.
+  ///
+  /// In bn, this message translates to:
+  /// **'নিজের আইটেম লিখুন'**
+  String get shopAddCustom;
+
+  /// No description provided for @shopPickHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'ওপর থেকে আইটেম বেছে তালিকা বানান'**
+  String get shopPickHint;
+
+  /// No description provided for @shopEmptyList.
+  ///
+  /// In bn, this message translates to:
+  /// **'তালিকায় কিছু নেই'**
+  String get shopEmptyList;
+
   /// No description provided for @fundModeFix.
   ///
   /// In bn, this message translates to:

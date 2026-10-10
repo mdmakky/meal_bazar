@@ -4341,6 +4341,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shopSearchMember => 'Find a member';
 
   @override
+  String get shopAddCustom => 'Write your own item';
+
+  @override
+  String get shopPickHint => 'Pick items above to build the list';
+
+  @override
+  String get shopEmptyList => 'Nothing on this list';
+
+  @override
   String get fundModeFix => 'Fix the cost';
 
   @override

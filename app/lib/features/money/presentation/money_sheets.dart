@@ -1207,7 +1207,7 @@ class _BazarPageState extends ConsumerState<_BazarPage>
   );
 
   /// Built once: the picker keeps its own state (open, tab, search).
-  late final Widget _picker = _Picker(
+  late final Widget _picker = BazarItemPicker(
     selected: _names,
     onToggle: _toggle,
     open: _b == null,
@@ -1918,11 +1918,12 @@ class _AddLineRow extends StatelessWidget {
   }
 }
 
-/// "তালিকা থেকে বাছুন": a collapsible card with a search field, scrolling
+/// "তালিকা থেকে বাছুন" (also the bazar list's picker): a collapsible card with a search field, scrolling
 /// category tabs and the chips of one tab (or the search's matches). A chip
 /// is checked while its line is on the bazar; tapping toggles the line.
-class _Picker extends ConsumerStatefulWidget {
-  const _Picker({
+class BazarItemPicker extends ConsumerStatefulWidget {
+  const BazarItemPicker({
+    super.key,
     required this.selected,
     required this.onToggle,
     required this.open,
@@ -1935,10 +1936,10 @@ class _Picker extends ConsumerStatefulWidget {
   final bool open;
 
   @override
-  ConsumerState<_Picker> createState() => _PickerState();
+  ConsumerState<BazarItemPicker> createState() => _PickerState();
 }
 
-class _PickerState extends ConsumerState<_Picker> {
+class _PickerState extends ConsumerState<BazarItemPicker> {
   late var _open = widget.open;
   final _query = TextEditingController();
   var _tab = 0;
