@@ -200,6 +200,33 @@ abstract final class AppTheme {
           side: BorderSide(color: p.border),
         ),
       ),
+      // Calendars: paper surface, the amber accent marks the chosen day.
+      datePickerTheme: DatePickerThemeData(
+        backgroundColor: p.surface,
+        surfaceTintColor: Colors.transparent,
+        headerBackgroundColor: p.surface,
+        headerForegroundColor: p.ink,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.xl),
+        ),
+        dayForegroundColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.disabled) ? p.inkTertiary : p.ink,
+        ),
+        dayBackgroundColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.selected) ? p.accent : null,
+        ),
+        todayForegroundColor: WidgetStatePropertyAll(p.ink),
+        todayBackgroundColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.selected) ? p.accent : null,
+        ),
+        todayBorder: BorderSide(color: p.accent),
+        yearForegroundColor: WidgetStatePropertyAll(p.ink),
+        yearBackgroundColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.selected) ? p.accent : null,
+        ),
+        cancelButtonStyle: TextButton.styleFrom(foregroundColor: p.ink),
+        confirmButtonStyle: TextButton.styleFrom(foregroundColor: p.ink),
+      ),
       bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: p.surface,
         modalBackgroundColor: p.surface,
