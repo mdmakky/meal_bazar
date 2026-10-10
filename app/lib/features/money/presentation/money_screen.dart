@@ -97,25 +97,13 @@ class _MoneyScreenState extends ConsumerState<MoneyScreen> {
         ],
       ),
       floatingActionButton: isManager
-          ? Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              spacing: AppSpace.md,
-              children: [
-                // The one small secondary action: pay a member back.
-                if (_tab == MoneyTab.deposit)
-                  FilledButton.tonalIcon(
-                    icon: const Icon(Icons.remove_circle_outline),
-                    label: Text(l.withdrawAction),
-                    onPressed: () => showWithdrawalSheet(context),
-                  ),
-                FloatingActionButton.extended(
-                  icon: const Icon(Icons.add),
-                  label: Text(addLabel),
-                  onPressed: () => add(context),
-                ),
-              ],
-            )
+          ? (_tab == MoneyTab.deposit
+                ? null // its actions sit inline, above the list
+                : FloatingActionButton.extended(
+                    icon: const Icon(Icons.add),
+                    label: Text(addLabel),
+                    onPressed: () => add(context),
+                  ))
           : !ref.featureOn('member_deposits')
           ? null
           : FloatingActionButton.extended(
@@ -152,6 +140,8 @@ class _MoneyScreenState extends ConsumerState<MoneyScreen> {
                 ),
               ),
             ),
+            if (isManager && _tab == MoneyTab.deposit)
+              const SliverToBoxAdapter(child: _DepositActions()),
             switch (_tab) {
               MoneyTab.members => _Balances(messId: messId),
               MoneyTab.expense => _ExpenseList(messId: messId),
@@ -1199,29 +1189,48 @@ class _DepositList extends ConsumerWidget {
       context,
       ref.watch(depositsProvider(messId)),
       onRetry: () => ref.invalidate(depositsProvider(messId)),
-      data: (page) => _PagedSliver<Deposit>(
-        // Pending first: they need the manager's attention.
+      data: (page) {
+        final review = isManager && ref.featureOn('deposit_verification')
+            ? page.items
+                  .where((d) => d.status == DepositStatus.pending)
+                  .toList()
+            : <Deposit>[];
+        // Managers decide on pending ones in the strip; the rest is history.
+        // Everyone else sees one list, pending first.
         // ponytail: only reorders loaded rows; a server-side order if pages get long.
-        page: (
-          items: [
-            ...page.items.where((d) => d.status == DepositStatus.pending),
-            ...page.items.where((d) => d.status != DepositStatus.pending),
+        final rest = review.isEmpty
+            ? [
+                ...page.items.where((d) => d.status == DepositStatus.pending),
+                ...page.items.where((d) => d.status != DepositStatus.pending),
+              ]
+            : page.items
+                  .where((d) => d.status != DepositStatus.pending)
+                  .toList();
+        return SliverMainAxisGroup(
+          slivers: [
+            if (review.isNotEmpty)
+              SliverToBoxAdapter(
+                child: _ReviewStrip(
+                  deposits: review,
+                  names: names,
+                  methodOf: (d) => methodLabel(
+                    l,
+                    d.method,
+                    ref.watch(platformConfigProvider),
+                  ),
+                  onEdit: (d) => showDepositForm(context, existing: d),
+                ),
+              ),
+            if (rest.isNotEmpty || review.isEmpty)
+              _PagedSliver<Deposit>(
+                page: (items: rest, hasMore: page.hasMore),
+                empty: l.depositEmpty,
+                loadMore: ref.read(depositsProvider(messId).notifier).loadMore,
+                row: (d) => _depositRow(context, ref, l, names, isManager, d),
+              ),
           ],
-          hasMore: page.hasMore,
-        ),
-        empty: l.depositEmpty,
-        loadMore: ref.read(depositsProvider(messId).notifier).loadMore,
-        row: (d) => Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _depositRow(context, ref, l, names, isManager, d),
-            if (isManager &&
-                d.status == DepositStatus.pending &&
-                ref.featureOn('deposit_verification'))
-              _VerifyActions(deposit: d, name: names[d.memberId] ?? ''),
-          ],
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -1371,33 +1380,228 @@ class _VerifyActionsState extends ConsumerState<_VerifyActions> {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
+    return Row(
+      spacing: AppSpace.sm,
+      children: [
+        Expanded(
+          flex: 2,
+          child: AppButton(
+            label: l.depositVerifyReject,
+            variant: AppButtonVariant.secondary,
+            loading: _busy == false,
+            onPressed: _busy == null ? () => _decide(false) : null,
+          ),
+        ),
+        Expanded(
+          flex: 3,
+          child: AppButton(
+            label: l.depositVerifyApprove,
+            variant: AppButtonVariant.accent,
+            loading: _busy == true,
+            onPressed: _busy == null ? () => _decide(true) : null,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Managers' two deposit actions, side by side above the list (nothing
+/// floats over the rows).
+class _DepositActions extends StatelessWidget {
+  const _DepositActions();
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppSpace.gutter,
         0,
         AppSpace.gutter,
-        AppSpace.md,
+        AppSpace.lg,
       ),
       child: Row(
         spacing: AppSpace.sm,
         children: [
           Expanded(
             child: AppButton(
-              label: l.depositVerifyReject,
-              variant: AppButtonVariant.secondary,
-              loading: _busy == false,
-              onPressed: _busy == null ? () => _decide(false) : null,
+              key: const Key('deposit-add'),
+              label: l.depositAdd,
+              icon: Icons.add,
+              onPressed: () => showAddDepositSheet(context),
             ),
           ),
           Expanded(
             child: AppButton(
-              label: l.depositVerifyApprove,
-              loading: _busy == true,
-              onPressed: _busy == null ? () => _decide(true) : null,
+              key: const Key('deposit-payback'),
+              label: l.withdrawAction,
+              icon: Icons.remove_circle_outline,
+              variant: AppButtonVariant.secondary,
+              onPressed: () => showWithdrawalSheet(context),
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Pending deposits as a swipe strip, one decision at a time (like the
+/// notices on Home), with the count and dots.
+class _ReviewStrip extends StatefulWidget {
+  const _ReviewStrip({
+    required this.deposits,
+    required this.names,
+    required this.methodOf,
+    required this.onEdit,
+  });
+
+  final List<Deposit> deposits;
+  final Map<String, String> names;
+  final String Function(Deposit) methodOf;
+  final void Function(Deposit) onEdit;
+
+  @override
+  State<_ReviewStrip> createState() => _ReviewStripState();
+}
+
+class _ReviewStripState extends State<_ReviewStrip> {
+  final _pages = PageController(viewportFraction: 0.9);
+  int _page = 0;
+
+  @override
+  void dispose() {
+    _pages.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final p = context.palette;
+    final text = Theme.of(context).textTheme;
+    final n = widget.deposits.length;
+    final page = _page.clamp(0, n - 1);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: AppSpace.sm,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpace.gutter),
+          child: Row(
+            spacing: AppSpace.sm,
+            children: [
+              Text(
+                l.depositReviewTitle,
+                style: text.labelLarge?.copyWith(
+                  color: p.accent,
+                  letterSpacing: 0.4,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpace.sm,
+                  vertical: 2,
+                ),
+                decoration: BoxDecoration(
+                  color: p.accentSoft,
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                ),
+                child: Text(
+                  '$n',
+                  key: const Key('review-count'),
+                  style: text.labelSmall,
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: 196,
+          child: PageView.builder(
+            key: const Key('reviewStrip'),
+            controller: _pages,
+            padEnds: false,
+            clipBehavior: Clip.none,
+            itemCount: n,
+            onPageChanged: (i) => setState(() => _page = i),
+            itemBuilder: (context, i) {
+              final d = widget.deposits[i];
+              final name = widget.names[d.memberId] ?? '';
+              return Padding(
+                padding: EdgeInsetsDirectional.only(
+                  start: i == 0 ? AppSpace.gutter : 0,
+                  end: AppSpace.sm,
+                ),
+                child: AppCard.raised(
+                  onTap: () => widget.onEdit(d),
+                  padding: const EdgeInsets.all(AppSpace.md),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: AppSpace.xs,
+                    children: [
+                      Row(
+                        spacing: AppSpace.sm,
+                        children: [
+                          InitialsAvatar(name),
+                          Expanded(
+                            child: Text(
+                              name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: text.titleSmall,
+                            ),
+                          ),
+                          Text(
+                            widget.methodOf(d),
+                            style: text.labelSmall?.copyWith(
+                              color: p.inkSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Money(
+                        d.amount,
+                        banglaDigits: banglaDigits(context),
+                        style: text.headlineSmall,
+                      ),
+                      Text(
+                        [
+                          shortDate(context, d.date),
+                          if (d.trxId != null) 'TrxID ${d.trxId}',
+                        ].join(' · '),
+                        style: text.bodySmall?.copyWith(color: p.inkTertiary),
+                      ),
+                      const Spacer(),
+                      _VerifyActions(deposit: d, name: name),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        if (n > 1)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            spacing: AppSpace.xs,
+            children: [
+              for (var i = 0; i < n; i++)
+                AnimatedContainer(
+                  duration: AppMotion.of(context, AppMotion.base),
+                  curve: AppMotion.state,
+                  width: i == page ? 18 : 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: i == page ? p.accent : p.border,
+                    borderRadius: BorderRadius.circular(3),
+                  ),
+                ),
+            ],
+          ),
+        const SizedBox(height: AppSpace.md),
+      ],
     );
   }
 }

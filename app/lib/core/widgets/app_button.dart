@@ -4,7 +4,7 @@ import '../l10n/gen/app_localizations.dart';
 import '../motion/effects.dart';
 import '../theme/tokens.dart';
 
-enum AppButtonVariant { primary, secondary, text }
+enum AppButtonVariant { primary, secondary, accent, text }
 
 /// Height 48, radius 12 (from theme). Presses scale to 0.96. Loading
 /// cross-fades the label to a spinner at the same width and ignores taps.
@@ -74,6 +74,15 @@ class AppButton extends StatelessWidget {
     final enabled = onPressed != null;
     Widget button = switch (variant) {
       AppButtonVariant.primary => FilledButton(onPressed: tap, child: child),
+      // The one warm, decisive action next to a quiet one (e.g. Verify).
+      AppButtonVariant.accent => FilledButton(
+        onPressed: tap,
+        style: FilledButton.styleFrom(
+          backgroundColor: Theme.of(context).extension<AppPalette>()?.accent,
+          foregroundColor: const Color(0xFF141413),
+        ),
+        child: child,
+      ),
       AppButtonVariant.secondary => OutlinedButton(
         onPressed: tap,
         child: child,
