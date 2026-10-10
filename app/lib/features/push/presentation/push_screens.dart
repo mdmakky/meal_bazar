@@ -82,6 +82,11 @@ import '../domain/push.dart';
   PushType.message => (Icons.forum_outlined, l.pushMessage, l.pushMessageSub),
   PushType.groupMessage => (Icons.groups_outlined, l.pushGroup, l.pushGroupSub),
   PushType.memberLeft => (Icons.logout, l.pushMemberLeft, l.pushMemberLeftSub),
+  PushType.shoppingAssigned => (
+    Icons.checklist_rtl_outlined,
+    l.pushShopping,
+    l.pushShoppingSub,
+  ),
   PushType.messDeletion => (
     Icons.delete_outline,
     l.pushMessDeletion,

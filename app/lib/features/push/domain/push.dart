@@ -21,7 +21,8 @@ enum PushType {
   groupMessage('group_message'),
   entryEdited('entry_edited'),
   memberLeft('member_left', managerOnly: true),
-  messDeletion('mess_deletion');
+  messDeletion('mess_deletion'),
+  shoppingAssigned('shopping_assigned');
 
   const PushType(this.key, {this.managerOnly = false});
 

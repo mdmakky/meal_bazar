@@ -7580,6 +7580,228 @@ abstract class AppLocalizations {
   /// **'মেস ডিলিটের সময় ঠিক হলে বা বাতিল হলে'**
   String get pushMessDeletionSub;
 
+  /// No description provided for @shopTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাজারের তালিকা'**
+  String get shopTitle;
+
+  /// No description provided for @shopNew.
+  ///
+  /// In bn, this message translates to:
+  /// **'নতুন তালিকা'**
+  String get shopNew;
+
+  /// No description provided for @shopSheetTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'নতুন বাজারের তালিকা'**
+  String get shopSheetTitle;
+
+  /// No description provided for @shopFieldTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'নাম (ইচ্ছামতো)'**
+  String get shopFieldTitle;
+
+  /// No description provided for @shopFieldDate.
+  ///
+  /// In bn, this message translates to:
+  /// **'কোন দিন'**
+  String get shopFieldDate;
+
+  /// No description provided for @shopFieldAssign.
+  ///
+  /// In bn, this message translates to:
+  /// **'কে বাজারে যাবে'**
+  String get shopFieldAssign;
+
+  /// No description provided for @shopMe.
+  ///
+  /// In bn, this message translates to:
+  /// **'আমি'**
+  String get shopMe;
+
+  /// No description provided for @shopFieldNote.
+  ///
+  /// In bn, this message translates to:
+  /// **'নোট (ইচ্ছামতো)'**
+  String get shopFieldNote;
+
+  /// No description provided for @shopCreate.
+  ///
+  /// In bn, this message translates to:
+  /// **'তালিকা বানান'**
+  String get shopCreate;
+
+  /// No description provided for @shopAddItem.
+  ///
+  /// In bn, this message translates to:
+  /// **'আইটেম যোগ করুন'**
+  String get shopAddItem;
+
+  /// No description provided for @shopAddExtra.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাড়তি কিছু যোগ করুন'**
+  String get shopAddExtra;
+
+  /// No description provided for @shopItemName.
+  ///
+  /// In bn, this message translates to:
+  /// **'আইটেম'**
+  String get shopItemName;
+
+  /// No description provided for @shopItemQty.
+  ///
+  /// In bn, this message translates to:
+  /// **'পরিমাণ'**
+  String get shopItemQty;
+
+  /// No description provided for @shopPrice.
+  ///
+  /// In bn, this message translates to:
+  /// **'দাম'**
+  String get shopPrice;
+
+  /// No description provided for @shopProgress.
+  ///
+  /// In bn, this message translates to:
+  /// **'{total}টির মধ্যে {done}টি কেনা হয়েছে'**
+  String shopProgress(String done, String total);
+
+  /// No description provided for @shopTotal.
+  ///
+  /// In bn, this message translates to:
+  /// **'মোট'**
+  String get shopTotal;
+
+  /// No description provided for @shopSubmit.
+  ///
+  /// In bn, this message translates to:
+  /// **'হয়ে গেছে, বাজার হিসেবে পাঠান'**
+  String get shopSubmit;
+
+  /// No description provided for @shopSubmitSheet.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই বাজার পাঠান'**
+  String get shopSubmitSheet;
+
+  /// No description provided for @shopOwnPocket.
+  ///
+  /// In bn, this message translates to:
+  /// **'আমি নিজের পকেট থেকে দিয়েছি'**
+  String get shopOwnPocket;
+
+  /// No description provided for @shopFromFund.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেসের ফান্ড থেকে দেওয়া'**
+  String get shopFromFund;
+
+  /// No description provided for @shopSubmitted.
+  ///
+  /// In bn, this message translates to:
+  /// **'পাঠানো হয়েছে। ম্যানেজারের অনুমোদনের অপেক্ষায়।'**
+  String get shopSubmitted;
+
+  /// No description provided for @shopRejected.
+  ///
+  /// In bn, this message translates to:
+  /// **'গ্রহণ করা হয়নি: {reason}'**
+  String shopRejected(String reason);
+
+  /// No description provided for @shopSentDone.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাজারে যোগ হয়েছে'**
+  String get shopSentDone;
+
+  /// No description provided for @shopSent.
+  ///
+  /// In bn, this message translates to:
+  /// **'ম্যানেজারকে পাঠানো হয়েছে'**
+  String get shopSent;
+
+  /// No description provided for @shopNothing.
+  ///
+  /// In bn, this message translates to:
+  /// **'অন্তত একটা আইটেমে টিক দিন আর তার দাম লিখুন'**
+  String get shopNothing;
+
+  /// No description provided for @shopEmpty.
+  ///
+  /// In bn, this message translates to:
+  /// **'এখনো কোনো বাজারের তালিকা নেই। বাজারে যাওয়ার আগে একটা বানিয়ে নিন।'**
+  String get shopEmpty;
+
+  /// No description provided for @shopStatusOpen.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাকি'**
+  String get shopStatusOpen;
+
+  /// No description provided for @shopStatusWaiting.
+  ///
+  /// In bn, this message translates to:
+  /// **'অপেক্ষায়'**
+  String get shopStatusWaiting;
+
+  /// No description provided for @shopAssignedTo.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name}-এর জন্য'**
+  String shopAssignedTo(String name);
+
+  /// No description provided for @shopCancel.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই তালিকা মুছুন'**
+  String get shopCancel;
+
+  /// No description provided for @shopCancelAsk.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই তালিকা মুছবেন?'**
+  String get shopCancelAsk;
+
+  /// No description provided for @shopHomeTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'আপনার বাজারের তালিকা আছে'**
+  String get shopHomeTitle;
+
+  /// No description provided for @shopHomeSub.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count}টি আইটেম কিনতে হবে'**
+  String shopHomeSub(String count);
+
+  /// No description provided for @shopExtra.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাড়তি'**
+  String get shopExtra;
+
+  /// No description provided for @shopNotFound.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই তালিকা আর খোলা নেই।'**
+  String get shopNotFound;
+
+  /// No description provided for @pushShopping.
+  ///
+  /// In bn, this message translates to:
+  /// **'আপনার জন্য বাজারের তালিকা'**
+  String get pushShopping;
+
+  /// No description provided for @pushShoppingSub.
+  ///
+  /// In bn, this message translates to:
+  /// **'ম্যানেজার বাজারের তালিকা দিলে'**
+  String get pushShoppingSub;
+
   /// No description provided for @fundModeFix.
   ///
   /// In bn, this message translates to:

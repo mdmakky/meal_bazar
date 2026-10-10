@@ -4185,6 +4185,126 @@ class AppLocalizationsBn extends AppLocalizations {
   String get pushMessDeletionSub => 'মেস ডিলিটের সময় ঠিক হলে বা বাতিল হলে';
 
   @override
+  String get shopTitle => 'বাজারের তালিকা';
+
+  @override
+  String get shopNew => 'নতুন তালিকা';
+
+  @override
+  String get shopSheetTitle => 'নতুন বাজারের তালিকা';
+
+  @override
+  String get shopFieldTitle => 'নাম (ইচ্ছামতো)';
+
+  @override
+  String get shopFieldDate => 'কোন দিন';
+
+  @override
+  String get shopFieldAssign => 'কে বাজারে যাবে';
+
+  @override
+  String get shopMe => 'আমি';
+
+  @override
+  String get shopFieldNote => 'নোট (ইচ্ছামতো)';
+
+  @override
+  String get shopCreate => 'তালিকা বানান';
+
+  @override
+  String get shopAddItem => 'আইটেম যোগ করুন';
+
+  @override
+  String get shopAddExtra => 'বাড়তি কিছু যোগ করুন';
+
+  @override
+  String get shopItemName => 'আইটেম';
+
+  @override
+  String get shopItemQty => 'পরিমাণ';
+
+  @override
+  String get shopPrice => 'দাম';
+
+  @override
+  String shopProgress(String done, String total) {
+    return '$totalটির মধ্যে $doneটি কেনা হয়েছে';
+  }
+
+  @override
+  String get shopTotal => 'মোট';
+
+  @override
+  String get shopSubmit => 'হয়ে গেছে, বাজার হিসেবে পাঠান';
+
+  @override
+  String get shopSubmitSheet => 'এই বাজার পাঠান';
+
+  @override
+  String get shopOwnPocket => 'আমি নিজের পকেট থেকে দিয়েছি';
+
+  @override
+  String get shopFromFund => 'মেসের ফান্ড থেকে দেওয়া';
+
+  @override
+  String get shopSubmitted => 'পাঠানো হয়েছে। ম্যানেজারের অনুমোদনের অপেক্ষায়।';
+
+  @override
+  String shopRejected(String reason) {
+    return 'গ্রহণ করা হয়নি: $reason';
+  }
+
+  @override
+  String get shopSentDone => 'বাজারে যোগ হয়েছে';
+
+  @override
+  String get shopSent => 'ম্যানেজারকে পাঠানো হয়েছে';
+
+  @override
+  String get shopNothing => 'অন্তত একটা আইটেমে টিক দিন আর তার দাম লিখুন';
+
+  @override
+  String get shopEmpty =>
+      'এখনো কোনো বাজারের তালিকা নেই। বাজারে যাওয়ার আগে একটা বানিয়ে নিন।';
+
+  @override
+  String get shopStatusOpen => 'বাকি';
+
+  @override
+  String get shopStatusWaiting => 'অপেক্ষায়';
+
+  @override
+  String shopAssignedTo(String name) {
+    return '$name-এর জন্য';
+  }
+
+  @override
+  String get shopCancel => 'এই তালিকা মুছুন';
+
+  @override
+  String get shopCancelAsk => 'এই তালিকা মুছবেন?';
+
+  @override
+  String get shopHomeTitle => 'আপনার বাজারের তালিকা আছে';
+
+  @override
+  String shopHomeSub(String count) {
+    return '$countটি আইটেম কিনতে হবে';
+  }
+
+  @override
+  String get shopExtra => 'বাড়তি';
+
+  @override
+  String get shopNotFound => 'এই তালিকা আর খোলা নেই।';
+
+  @override
+  String get pushShopping => 'আপনার জন্য বাজারের তালিকা';
+
+  @override
+  String get pushShoppingSub => 'ম্যানেজার বাজারের তালিকা দিলে';
+
+  @override
   String get fundModeFix => 'খরচ ঠিক করুন';
 
   @override

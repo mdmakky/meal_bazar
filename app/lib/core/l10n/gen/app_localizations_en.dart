@@ -4199,6 +4199,125 @@ class AppLocalizationsEn extends AppLocalizations {
       'When the mess is scheduled for deletion or the deletion is cancelled';
 
   @override
+  String get shopTitle => 'Bazar lists';
+
+  @override
+  String get shopNew => 'New list';
+
+  @override
+  String get shopSheetTitle => 'New bazar list';
+
+  @override
+  String get shopFieldTitle => 'Title (optional)';
+
+  @override
+  String get shopFieldDate => 'Day';
+
+  @override
+  String get shopFieldAssign => 'Who goes shopping';
+
+  @override
+  String get shopMe => 'Me';
+
+  @override
+  String get shopFieldNote => 'Note (optional)';
+
+  @override
+  String get shopCreate => 'Create list';
+
+  @override
+  String get shopAddItem => 'Add item';
+
+  @override
+  String get shopAddExtra => 'Add something extra';
+
+  @override
+  String get shopItemName => 'Item';
+
+  @override
+  String get shopItemQty => 'Qty';
+
+  @override
+  String get shopPrice => 'Price';
+
+  @override
+  String shopProgress(String done, String total) {
+    return '$done of $total bought';
+  }
+
+  @override
+  String get shopTotal => 'Total';
+
+  @override
+  String get shopSubmit => 'Done, send as bazar';
+
+  @override
+  String get shopSubmitSheet => 'Send this bazar';
+
+  @override
+  String get shopOwnPocket => 'I paid from my own pocket';
+
+  @override
+  String get shopFromFund => 'Paid from the mess fund';
+
+  @override
+  String get shopSubmitted => 'Sent. Waiting for the manager to approve it.';
+
+  @override
+  String shopRejected(String reason) {
+    return 'Not accepted: $reason';
+  }
+
+  @override
+  String get shopSentDone => 'Added to the bazar';
+
+  @override
+  String get shopSent => 'Sent to the manager';
+
+  @override
+  String get shopNothing => 'Tick at least one item and write its price';
+
+  @override
+  String get shopEmpty => 'No bazar list yet. Make one before you go shopping.';
+
+  @override
+  String get shopStatusOpen => 'To do';
+
+  @override
+  String get shopStatusWaiting => 'Waiting';
+
+  @override
+  String shopAssignedTo(String name) {
+    return 'For $name';
+  }
+
+  @override
+  String get shopCancel => 'Delete this list';
+
+  @override
+  String get shopCancelAsk => 'Delete this list?';
+
+  @override
+  String get shopHomeTitle => 'You have a bazar list';
+
+  @override
+  String shopHomeSub(String count) {
+    return '$count items to buy';
+  }
+
+  @override
+  String get shopExtra => 'Extra';
+
+  @override
+  String get shopNotFound => 'This list is no longer open.';
+
+  @override
+  String get pushShopping => 'Bazar list for you';
+
+  @override
+  String get pushShoppingSub => 'When a manager gives you a list to shop';
+
+  @override
   String get fundModeFix => 'Fix the cost';
 
   @override
