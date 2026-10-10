@@ -43,10 +43,16 @@ class PasswordRecovery extends Notifier<bool> {
     final sub = ref
         .watch(authRepositoryProvider)
         .passwordRecoveryEvents()
-        .listen((_) => state = true);
+        .listen((_) {
+          if (!codeFlow) state = true;
+        });
     ref.onDispose(sub.cancel);
     return false;
   }
+
+  /// True while the reset-by-code screen verifies its code: that sign-in
+  /// also fires a recovery event, but the screen sets the password itself.
+  bool codeFlow = false;
 
   void clear() => state = false;
 }

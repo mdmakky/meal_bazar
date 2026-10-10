@@ -39,6 +39,11 @@ void main() {
   final active = [m(MemberStatus.active)];
   final pending = [m(MemberStatus.pending)];
 
+  test('reset-code screen is reachable signed out', () {
+    expect(land('/auth/reset-code', signedIn: false), '/auth/reset-code');
+    expect(land('/auth/reset-code', memberships: active), '/today');
+  });
+
   test('signed out always lands on sign-in', () {
     expect(land('/', signedIn: false), '/auth/sign-in');
     expect(land('/today', signedIn: false), '/auth/sign-in');

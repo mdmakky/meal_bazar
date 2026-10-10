@@ -7,6 +7,7 @@ import '../features/audit/presentation/audit_screen.dart';
 import '../features/audit/presentation/my_activity_screen.dart';
 import '../features/auth/application/auth_providers.dart';
 import '../features/auth/presentation/profile_setup_screen.dart';
+import '../features/auth/presentation/reset_code_screen.dart';
 import '../features/auth/presentation/set_new_password_screen.dart';
 import '../features/auth/presentation/sign_in_screen.dart';
 import '../features/duty/presentation/duty_screen.dart';
@@ -70,6 +71,7 @@ String? decideRedirect({
       : null;
 
   if (!signedIn) {
+    if (path == '/auth/reset-code') return null;
     return path == '/auth/sign-in'
         ? null
         : _withCode('/auth/sign-in', inviteCode);
@@ -142,6 +144,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/auth/sign-in',
         builder: (_, state) =>
             SignInScreen(inviteCode: state.uri.queryParameters['code']),
+      ),
+      GoRoute(
+        path: '/auth/reset-code',
+        // Redirect sends a deep link without an email back to sign-in.
+        redirect: (_, state) => state.extra is String ? null : '/auth/sign-in',
+        builder: (_, state) => ResetCodeScreen(email: state.extra! as String),
       ),
       GoRoute(
         path: '/auth/reset-password',

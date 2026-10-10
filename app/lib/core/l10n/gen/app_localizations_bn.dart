@@ -160,11 +160,11 @@ class AppLocalizationsBn extends AppLocalizations {
       'এই মাসের হিসাব বন্ধ হয়ে গেছে, আর বদলানো যাবে না';
 
   @override
-  String get failureInvalidOtp => 'কোডটা মেলেনি। আবার দেখে লিখুন।';
+  String get failureInvalidOtp =>
+      'কোডটা ঠিক নয় বা মেয়াদ শেষ — আবার চেষ্টা করুন';
 
   @override
-  String get failureRateLimited =>
-      'অনেকবার চেষ্টা হয়েছে। একটু পরে আবার চেষ্টা করুন।';
+  String get failureRateLimited => 'একটু পরে আবার চেষ্টা করুন';
 
   @override
   String get failureValidation => 'কিছু তথ্য ঠিক নেই। দেখে আবার দিন।';
@@ -222,14 +222,14 @@ class AppLocalizationsBn extends AppLocalizations {
   String get signInForgot => 'পাসওয়ার্ড ভুলে গেছেন?';
 
   @override
-  String get signInResetSent => 'পাসওয়ার্ড বদলানোর লিংক ইমেইলে পাঠানো হয়েছে';
+  String get signInResetSent => 'পাসওয়ার্ড বদলানোর কোড ইমেইলে পাঠানো হয়েছে';
 
   @override
-  String get signInConfirmTitle => 'ইমেইলে পাঠানো লিংকে ক্লিক করুন';
+  String get signInConfirmTitle => 'ইমেইলে পাঠানো কোডটা লিখুন';
 
   @override
   String signInConfirmBody(String email) {
-    return '$email ঠিকানায় একটা লিংক পাঠিয়েছি। লিংকে ক্লিক করে এখানে ফিরে লগইন করুন।';
+    return '$email-এ একটা কোড পাঠিয়েছি। ইমেইলে পাঠানো কোডটা এখানে লিখুন।';
   }
 
   @override
@@ -1742,6 +1742,40 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get resetSave => 'পাসওয়ার্ড সেভ করুন';
+
+  @override
+  String get authCodeEmailLabel => 'ইমেইলের কোড';
+
+  @override
+  String authCodeEmailSentTo(String email) {
+    return '$email-এ একটা কোড পাঠানো হয়েছে';
+  }
+
+  @override
+  String get authCodeResend => 'আবার কোড পাঠান';
+
+  @override
+  String authCodeResendIn(int seconds) {
+    return 'আবার কোড পাঠান ($seconds সেকেন্ড)';
+  }
+
+  @override
+  String get authCodeResent => 'নতুন কোড পাঠানো হয়েছে';
+
+  @override
+  String get authCodeInvalid => 'ইমেইলের কোডটা লিখুন';
+
+  @override
+  String get authCodeChangeEmail => 'ইমেইল ঠিক করুন';
+
+  @override
+  String get authCodeResetTitle => 'কোড দিয়ে পাসওয়ার্ড বদলান';
+
+  @override
+  String get authCodeResetSubmit => 'পাসওয়ার্ড বদলান';
+
+  @override
+  String get authCodeConfirmSubmit => 'নিশ্চিত করুন';
 
   @override
   String get resetDone => 'পাসওয়ার্ড বদলানো হয়েছে';

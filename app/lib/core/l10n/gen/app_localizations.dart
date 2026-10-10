@@ -389,13 +389,13 @@ abstract class AppLocalizations {
   /// No description provided for @failureInvalidOtp.
   ///
   /// In bn, this message translates to:
-  /// **'কোডটা মেলেনি। আবার দেখে লিখুন।'**
+  /// **'কোডটা ঠিক নয় বা মেয়াদ শেষ — আবার চেষ্টা করুন'**
   String get failureInvalidOtp;
 
   /// No description provided for @failureRateLimited.
   ///
   /// In bn, this message translates to:
-  /// **'অনেকবার চেষ্টা হয়েছে। একটু পরে আবার চেষ্টা করুন।'**
+  /// **'একটু পরে আবার চেষ্টা করুন'**
   String get failureRateLimited;
 
   /// No description provided for @failureValidation.
@@ -509,19 +509,19 @@ abstract class AppLocalizations {
   /// No description provided for @signInResetSent.
   ///
   /// In bn, this message translates to:
-  /// **'পাসওয়ার্ড বদলানোর লিংক ইমেইলে পাঠানো হয়েছে'**
+  /// **'পাসওয়ার্ড বদলানোর কোড ইমেইলে পাঠানো হয়েছে'**
   String get signInResetSent;
 
   /// No description provided for @signInConfirmTitle.
   ///
   /// In bn, this message translates to:
-  /// **'ইমেইলে পাঠানো লিংকে ক্লিক করুন'**
+  /// **'ইমেইলে পাঠানো কোডটা লিখুন'**
   String get signInConfirmTitle;
 
   /// No description provided for @signInConfirmBody.
   ///
   /// In bn, this message translates to:
-  /// **'{email} ঠিকানায় একটা লিংক পাঠিয়েছি। লিংকে ক্লিক করে এখানে ফিরে লগইন করুন।'**
+  /// **'{email}-এ একটা কোড পাঠিয়েছি। ইমেইলে পাঠানো কোডটা এখানে লিখুন।'**
   String signInConfirmBody(String email);
 
   /// No description provided for @signInBackToLogin.
@@ -3223,6 +3223,66 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'পাসওয়ার্ড সেভ করুন'**
   String get resetSave;
+
+  /// No description provided for @authCodeEmailLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'ইমেইলের কোড'**
+  String get authCodeEmailLabel;
+
+  /// No description provided for @authCodeEmailSentTo.
+  ///
+  /// In bn, this message translates to:
+  /// **'{email}-এ একটা কোড পাঠানো হয়েছে'**
+  String authCodeEmailSentTo(String email);
+
+  /// No description provided for @authCodeResend.
+  ///
+  /// In bn, this message translates to:
+  /// **'আবার কোড পাঠান'**
+  String get authCodeResend;
+
+  /// No description provided for @authCodeResendIn.
+  ///
+  /// In bn, this message translates to:
+  /// **'আবার কোড পাঠান ({seconds} সেকেন্ড)'**
+  String authCodeResendIn(int seconds);
+
+  /// No description provided for @authCodeResent.
+  ///
+  /// In bn, this message translates to:
+  /// **'নতুন কোড পাঠানো হয়েছে'**
+  String get authCodeResent;
+
+  /// No description provided for @authCodeInvalid.
+  ///
+  /// In bn, this message translates to:
+  /// **'ইমেইলের কোডটা লিখুন'**
+  String get authCodeInvalid;
+
+  /// No description provided for @authCodeChangeEmail.
+  ///
+  /// In bn, this message translates to:
+  /// **'ইমেইল ঠিক করুন'**
+  String get authCodeChangeEmail;
+
+  /// No description provided for @authCodeResetTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'কোড দিয়ে পাসওয়ার্ড বদলান'**
+  String get authCodeResetTitle;
+
+  /// No description provided for @authCodeResetSubmit.
+  ///
+  /// In bn, this message translates to:
+  /// **'পাসওয়ার্ড বদলান'**
+  String get authCodeResetSubmit;
+
+  /// No description provided for @authCodeConfirmSubmit.
+  ///
+  /// In bn, this message translates to:
+  /// **'নিশ্চিত করুন'**
+  String get authCodeConfirmSubmit;
 
   /// No description provided for @resetDone.
   ///

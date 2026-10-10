@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show OtpType;
 
 import '../../../core/env.dart';
 import '../../../core/failure_text.dart';
@@ -8,11 +10,12 @@ import '../../../core/l10n/gen/app_localizations.dart';
 import '../../../core/platform/platform_config.dart';
 import '../../../core/widgets/widgets.dart';
 import '../application/auth_providers.dart';
+import 'code_widgets.dart';
 import 'login_hero.dart';
 
 final _emailRe = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 
-enum _Busy { google, email, reset }
+enum _Busy { google, email, reset, verify }
 
 /// Google or email/password. The router leaves this screen once the auth
 /// state turns signed in.
@@ -36,8 +39,10 @@ class SignInScreen extends ConsumerStatefulWidget {
 class _SignInScreenState extends ConsumerState<SignInScreen> {
   final _email = TextEditingController();
   final _password = TextEditingController();
+  final _code = TextEditingController();
   bool _signUp = false;
   _Busy? _busy;
+  String? _codeError;
   String? _emailError;
   String? _passwordError;
   Object? _failure;
@@ -49,6 +54,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   void dispose() {
     _email.dispose();
     _password.dispose();
+    _code.dispose();
     super.dispose();
   }
 
@@ -106,7 +112,26 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
         l.signInResetSent,
         icon: Icons.mark_email_read_outlined,
       );
+      context.go('/auth/reset-code', extra: _email.text.trim());
     });
+  }
+
+  /// Signup code: on success a session starts and the router moves on.
+  void _confirm() {
+    final code = _code.text.trim();
+    final bad = code.length < 6;
+    setState(
+      () => _codeError = bad
+          ? AppLocalizations.of(context).authCodeInvalid
+          : null,
+    );
+    if (bad) return;
+    _run(
+      _Busy.verify,
+      () => ref
+          .read(authRepositoryProvider)
+          .verifyEmailOtp(_confirmEmail!, code, OtpType.signup),
+    );
   }
 
   void _google() => _run(
@@ -158,14 +183,52 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
             Text(l.signInConfirmBody(confirm), style: text.bodyLarge),
           ],
         ),
+        AppCard.raised(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              EmailCodeField(
+                key: const Key('signupCode'),
+                controller: _code,
+                autofocus: true,
+                errorText: _codeError,
+              ),
+              if (_failure != null) failureLine(),
+              const SizedBox(height: AppSpace.lg),
+              AppButton(
+                key: const Key('confirmCode'),
+                expand: true,
+                loading: _busy == _Busy.verify,
+                label: l.authCodeConfirmSubmit,
+                onPressed: _tap(_Busy.verify, _confirm),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: AppSpace.sm),
+                child: Align(
+                  child: ResendCodeButton(
+                    enabled: !busy,
+                    onResend: () => ref
+                        .read(authRepositoryProvider)
+                        .resendSignupCode(confirm),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
         AppButton(
           expand: true,
+          variant: AppButtonVariant.text,
           label: l.signInBackToLogin,
-          onPressed: () => setState(() {
-            _confirmEmail = null;
-            _signUp = false;
-            _password.clear();
-          }),
+          onPressed: busy
+              ? null
+              : () => setState(() {
+                  _confirmEmail = null;
+                  _signUp = false;
+                  _failure = null;
+                  _code.clear();
+                  _password.clear();
+                }),
         ),
       ];
     } else {

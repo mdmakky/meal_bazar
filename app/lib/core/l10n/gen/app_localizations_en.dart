@@ -163,11 +163,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get failureInvalidOtp =>
-      'That code did not match. Check it and try again.';
+      'That code is wrong or has expired — try again';
 
   @override
-  String get failureRateLimited =>
-      'Too many tries. Please wait a little and try again.';
+  String get failureRateLimited => 'Please try again in a little while';
 
   @override
   String get failureValidation =>
@@ -227,14 +226,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signInForgot => 'Forgot password?';
 
   @override
-  String get signInResetSent => 'We emailed you a link to reset your password';
+  String get signInResetSent => 'We emailed you a code to reset your password';
 
   @override
-  String get signInConfirmTitle => 'Click the link we emailed you';
+  String get signInConfirmTitle => 'Enter the code we emailed you';
 
   @override
   String signInConfirmBody(String email) {
-    return 'We sent a link to $email. Click it, then come back here and log in.';
+    return 'We sent a code to $email. Enter the code from the email here.';
   }
 
   @override
@@ -1751,6 +1750,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get resetSave => 'Save password';
+
+  @override
+  String get authCodeEmailLabel => 'Code from the email';
+
+  @override
+  String authCodeEmailSentTo(String email) {
+    return 'We sent a code to $email';
+  }
+
+  @override
+  String get authCodeResend => 'Send the code again';
+
+  @override
+  String authCodeResendIn(int seconds) {
+    return 'Send the code again (${seconds}s)';
+  }
+
+  @override
+  String get authCodeResent => 'A new code was sent';
+
+  @override
+  String get authCodeInvalid => 'Enter the code from the email';
+
+  @override
+  String get authCodeChangeEmail => 'Fix the email';
+
+  @override
+  String get authCodeResetTitle => 'Reset password with the code';
+
+  @override
+  String get authCodeResetSubmit => 'Change password';
+
+  @override
+  String get authCodeConfirmSubmit => 'Confirm';
 
   @override
   String get resetDone => 'Password changed';

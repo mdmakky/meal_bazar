@@ -58,6 +58,16 @@ class AuthRepository {
         _auth.resetPasswordForEmail(email.trim(), redirectTo: authRedirectUrl),
   );
 
+  /// Signs in with the 6-10 digit code from the email ([OtpType.recovery] or
+  /// [OtpType.signup]); a bad or expired code maps to `invalidOtp`.
+  Future<void> verifyEmailOtp(String email, String token, OtpType type) =>
+      guard(
+        () => _auth.verifyOTP(email: email.trim(), token: token, type: type),
+      );
+
+  Future<void> resendSignupCode(String email) =>
+      guard(() => _auth.resend(type: OtpType.signup, email: email.trim()));
+
   Future<void> updatePassword(String password) =>
       guard(() => _auth.updateUser(UserAttributes(password: password)));
 
