@@ -14,9 +14,11 @@ import '../../meals/presentation/meal_widgets.dart' show pickOne;
 import '../../mess/application/mess_providers.dart';
 import '../../mess/domain/member.dart';
 import '../../mess/presentation/common.dart';
-import '../../money/domain/bazar_catalogue.dart' show bazarUnits;
+import '../../../core/platform/platform_config.dart';
+import '../../money/domain/bazar_catalogue.dart' show bazarUnits, catalogueUnit;
 import '../../money/domain/money.dart' show parseAmount;
-import '../../money/presentation/money_sheets.dart' show money, shortDate;
+import '../../money/presentation/money_sheets.dart'
+    show BazarItemPicker, money, shortDate;
 import '../application/shopping_providers.dart';
 import '../data/shopping_repository.dart';
 import '../domain/shopping.dart';
@@ -418,6 +420,7 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
   Object? _error;
   var _loading = true;
   var _busy = false;
+  final _picked = ValueNotifier<Set<String>>({});
   final _timers = <String, Timer>{};
   final _pending = <String, ShoppingItem>{};
 
@@ -431,6 +434,7 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
 
   @override
   void dispose() {
+    _picked.dispose();
     // Whatever was typed a moment ago still reaches the server.
     for (final t in _timers.values) {
       t.cancel();
@@ -447,6 +451,9 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
     try {
       final l = await _repo.list(ref.read(currentMessIdProvider)!, widget.id);
       if (mounted) {
+        _picked.value = {
+          for (final i in l?.items ?? const <ShoppingItem>[]) i.name,
+        };
         setState(() {
           _list = l;
           _error = null;
@@ -466,6 +473,7 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
   /// Shows [l] and keeps the phone's copy in step, so the list survives a
   /// restart or a lost signal.
   void _setList(ShoppingList l) {
+    _picked.value = {for (final i in l.items) i.name};
     setState(() => _list = l);
     unawaited(ref.read(shoppingControllerProvider).remember(l));
   }
@@ -529,6 +537,32 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
       name: r.name,
       qty: r.qty,
       unit: r.unit,
+      extra: !planner,
+      sort: list.items.isEmpty ? 0 : list.items.last.sort + 1,
+    );
+    _setList(list.copyWith(items: [...list.items, item]));
+    try {
+      await ref.read(shoppingControllerProvider).upsertItem(list.messId, item);
+    } catch (e) {
+      if (mounted) showFailure(context, e);
+    }
+  }
+
+  /// A catalogue chip: on adds the item (quantity 1, its usual unit), off
+  /// takes it off the list again (the shopper only their own extras).
+  Future<void> _toggle(String name, {required bool planner}) async {
+    final list = _list!;
+    final existing = list.items.where((i) => i.name == name).firstOrNull;
+    if (existing != null) {
+      if (planner || existing.extra) await _remove(existing);
+      return;
+    }
+    final item = ShoppingItem(
+      id: uuidV4(),
+      listId: list.id,
+      name: name,
+      qty: 1,
+      unit: catalogueUnit(name, ref.read(platformConfigProvider).catalogue),
       extra: !planner,
       sort: list.items.isEmpty ? 0 : list.items.last.sort + 1,
     );
@@ -751,10 +785,27 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
               ),
             ),
           const SizedBox(height: AppSpace.lg),
+          // Pick from the catalogue, like on the Add bazar form.
+          if (editable)
+            Padding(
+              padding: const EdgeInsets.only(bottom: AppSpace.md),
+              child: BazarItemPicker(
+                key: const Key('shop-picker'),
+                selected: _picked,
+                onToggle: (n) => _toggle(n, planner: planner),
+                open: list.items.isEmpty,
+              ),
+            ),
           if (list.items.isEmpty)
             Padding(
-              padding: const EdgeInsets.all(AppSpace.xl),
-              child: Center(child: Text(l.shopAddItem, style: text.bodyMedium)),
+              padding: const EdgeInsets.all(AppSpace.lg),
+              child: Center(
+                child: Text(
+                  editable ? l.shopPickHint : l.shopEmptyList,
+                  textAlign: TextAlign.center,
+                  style: text.bodyMedium?.copyWith(color: p.inkTertiary),
+                ),
+              ),
             )
           else
             RaisedGroup(
@@ -776,7 +827,7 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
               padding: const EdgeInsets.only(top: AppSpace.md),
               child: AppButton(
                 key: const Key('shop-add-item'),
-                label: planner ? l.shopAddItem : l.shopAddExtra,
+                label: l.shopAddCustom,
                 icon: Icons.add,
                 variant: AppButtonVariant.secondary,
                 onPressed: () => _add(planner: planner),
@@ -789,26 +840,43 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
           : BottomAction(
               children: [
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   spacing: AppSpace.lg,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(l.shopTotal, style: text.labelSmall),
-                        Text(
-                          money(context, list.total),
-                          key: const Key('shop-total'),
-                          style: text.titleLarge?.copyWith(
-                            fontFeatures: const [FontFeature.tabularFigures()],
+                    // The running total: small label over a bold figure,
+                    // centred on the button's height.
+                    SizedBox(
+                      height: 48,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            l.shopTotal,
+                            style: text.labelSmall?.copyWith(
+                              color: p.inkTertiary,
+                              height: 1.1,
+                            ),
                           ),
-                        ),
-                      ],
+                          Text(
+                            money(context, list.total),
+                            key: const Key('shop-total'),
+                            style: text.titleLarge?.copyWith(
+                              height: 1.15,
+                              fontFeatures: const [
+                                FontFeature.tabularFigures(),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     Expanded(
                       child: AppButton(
                         key: const Key('shop-submit'),
                         label: l.shopSubmit,
+                        icon: Icons.send_outlined,
+                        expand: true,
                         loading: _busy,
                         onPressed: () => _submit(manager),
                       ),
