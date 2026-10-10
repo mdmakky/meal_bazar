@@ -2134,7 +2134,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dutyTitle => 'Bazar duty';
 
   @override
-  String get dutyGenerate => 'Make a rota';
+  String get dutyGenerate => 'Auto rota (take turns)';
 
   @override
   String get dutyEmpty => 'Nobody has bazar duty this month';
@@ -4090,6 +4090,113 @@ class AppLocalizationsEn extends AppLocalizations {
   String fundModeShortTitle(String amount) {
     return 'Fund is short: $amount missing';
   }
+
+  @override
+  String get fundShortMemberNote =>
+      'Spending is more than the fund holds right now. The manager will sort it out.';
+
+  @override
+  String get depositReviewTitle => 'TO REVIEW';
+
+  @override
+  String get dutyCalendarHint =>
+      'Tap a day to choose who goes. Or use Auto rota to fill many days.';
+
+  @override
+  String get dutyDayPick =>
+      'Who does the bazar this day? Tap to add or remove.';
+
+  @override
+  String get dutyNobody => 'Nobody is on duty this day';
+
+  @override
+  String get pushEntryEdited => 'Changes to entries';
+
+  @override
+  String get pushEntryEditedSub =>
+      'When a bazar or cost is edited or deleted, or your deposit or meals are changed';
+
+  @override
+  String get leaveTile => 'Leave this mess';
+
+  @override
+  String get leaveTitle => 'Leave this mess';
+
+  @override
+  String get leaveNotMember => 'You are not a member of this mess.';
+
+  @override
+  String get leaveOnlyManager =>
+      'You are the only manager. Make someone else a manager first (More → Members), then you can leave.';
+
+  @override
+  String leaveOwes(Object amount) {
+    return 'You owe the mess $amount this month. Pay it first: ask the managers to settle up and let you go.';
+  }
+
+  @override
+  String leaveOwed(Object amount) {
+    return 'The mess owes you $amount. You can leave now. The managers are told and will pay you back.';
+  }
+
+  @override
+  String get leaveClean =>
+      'You owe nothing and are owed nothing. You can leave now.';
+
+  @override
+  String get leaveAsk => 'Ask the managers';
+
+  @override
+  String get leaveAsked => 'The managers have been told';
+
+  @override
+  String get leaveAction => 'Leave the mess';
+
+  @override
+  String get leaveDone => 'You left the mess';
+
+  @override
+  String get deleteMessTitle => 'Delete this mess';
+
+  @override
+  String get deleteMessBody =>
+      'The mess is erased with all its members, meals, bazar, money and notices 30 days from now. Everyone is told. You can cancel any time before that. Take a backup first.';
+
+  @override
+  String get deleteMessBackup => 'Back up my data (PDF / CSV)';
+
+  @override
+  String deleteMessType(String name) {
+    return 'Type the mess name to confirm: $name';
+  }
+
+  @override
+  String get deleteMessAction => 'Delete in 30 days';
+
+  @override
+  String get deleteMessScheduled => 'Scheduled. It will be erased in 30 days.';
+
+  @override
+  String get deleteMessCancel => 'Cancel the deletion';
+
+  @override
+  String deletionBanner(String date) {
+    return 'This mess will be erased on $date';
+  }
+
+  @override
+  String get pushMemberLeft => 'Members leaving';
+
+  @override
+  String get pushMemberLeftSub =>
+      'When a member leaves, or asks to leave while owing money';
+
+  @override
+  String get pushMessDeletion => 'Mess deletion';
+
+  @override
+  String get pushMessDeletionSub =>
+      'When the mess is scheduled for deletion or the deletion is cancelled';
 
   @override
   String get fundModeFix => 'Fix the cost';

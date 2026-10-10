@@ -3911,7 +3911,7 @@ abstract class AppLocalizations {
   /// No description provided for @dutyGenerate.
   ///
   /// In bn, this message translates to:
-  /// **'পালা বানান'**
+  /// **'পালাক্রমে নিজে নিজে সাজান'**
   String get dutyGenerate;
 
   /// No description provided for @dutyEmpty.
@@ -7399,6 +7399,186 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'ফান্ডে টাকা কম: {amount} ঘাটতি'**
   String fundModeShortTitle(String amount);
+
+  /// No description provided for @fundShortMemberNote.
+  ///
+  /// In bn, this message translates to:
+  /// **'এখন খরচ ফান্ডের চেয়ে বেশি। ম্যানেজার বিষয়টা মিটিয়ে নেবেন।'**
+  String get fundShortMemberNote;
+
+  /// No description provided for @depositReviewTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'যাচাই বাকি'**
+  String get depositReviewTitle;
+
+  /// No description provided for @dutyCalendarHint.
+  ///
+  /// In bn, this message translates to:
+  /// **'যেকোনো দিনে চাপুন, কে যাবে ঠিক করুন। অনেক দিন একসাথে সাজাতে \"পালাক্রমে\" ব্যবহার করুন।'**
+  String get dutyCalendarHint;
+
+  /// No description provided for @dutyDayPick.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই দিন কে বাজার করবে? চাপলেই যোগ বা বাদ হবে।'**
+  String get dutyDayPick;
+
+  /// No description provided for @dutyNobody.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই দিনে কারও পালা নেই'**
+  String get dutyNobody;
+
+  /// No description provided for @pushEntryEdited.
+  ///
+  /// In bn, this message translates to:
+  /// **'এন্ট্রি বদলালে'**
+  String get pushEntryEdited;
+
+  /// No description provided for @pushEntryEditedSub.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাজার বা খরচ বদলালে, অথবা আপনার জমা বা খাবার বদলালে'**
+  String get pushEntryEditedSub;
+
+  /// No description provided for @leaveTile.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেস ছাড়ুন'**
+  String get leaveTile;
+
+  /// No description provided for @leaveTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেস ছাড়ুন'**
+  String get leaveTitle;
+
+  /// No description provided for @leaveNotMember.
+  ///
+  /// In bn, this message translates to:
+  /// **'আপনি এই মেসের সদস্য নন।'**
+  String get leaveNotMember;
+
+  /// No description provided for @leaveOnlyManager.
+  ///
+  /// In bn, this message translates to:
+  /// **'আপনিই একমাত্র ম্যানেজার। আগে অন্য কাউকে ম্যানেজার বানান (More → Members), তারপর ছাড়তে পারবেন।'**
+  String get leaveOnlyManager;
+
+  /// No description provided for @leaveOwes.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই মাসে আপনার মেসের কাছে {amount} বাকি। আগে মিটিয়ে নিতে ম্যানেজারকে জানান, তিনি হিসাব মিটিয়ে ছেড়ে দেবেন।'**
+  String leaveOwes(Object amount);
+
+  /// No description provided for @leaveOwed.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেস আপনাকে {amount} দেবে। এখনই ছাড়তে পারেন। ম্যানেজার জানবেন এবং আপনাকে টাকা ফেরত দেবেন।'**
+  String leaveOwed(Object amount);
+
+  /// No description provided for @leaveClean.
+  ///
+  /// In bn, this message translates to:
+  /// **'আপনার কিছু দেওয়া বা পাওয়ার নেই। এখনই ছাড়তে পারেন।'**
+  String get leaveClean;
+
+  /// No description provided for @leaveAsk.
+  ///
+  /// In bn, this message translates to:
+  /// **'ম্যানেজারকে জানান'**
+  String get leaveAsk;
+
+  /// No description provided for @leaveAsked.
+  ///
+  /// In bn, this message translates to:
+  /// **'ম্যানেজারদের জানানো হয়েছে'**
+  String get leaveAsked;
+
+  /// No description provided for @leaveAction.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেস ছাড়ুন'**
+  String get leaveAction;
+
+  /// No description provided for @leaveDone.
+  ///
+  /// In bn, this message translates to:
+  /// **'আপনি মেস ছেড়েছেন'**
+  String get leaveDone;
+
+  /// No description provided for @deleteMessTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেস ডিলিট করুন'**
+  String get deleteMessTitle;
+
+  /// No description provided for @deleteMessBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'৩০ দিন পরে মেসটি সব সদস্য, খাবার, বাজার, টাকা আর নোটিশসহ মুছে যাবে। সবাইকে জানানো হবে। এর আগে যেকোনো সময় বাতিল করতে পারবেন। আগে ব্যাকআপ নিয়ে রাখুন।'**
+  String get deleteMessBody;
+
+  /// No description provided for @deleteMessBackup.
+  ///
+  /// In bn, this message translates to:
+  /// **'আমার তথ্যের ব্যাকআপ নিন (PDF / CSV)'**
+  String get deleteMessBackup;
+
+  /// No description provided for @deleteMessType.
+  ///
+  /// In bn, this message translates to:
+  /// **'নিশ্চিত করতে মেসের নাম লিখুন: {name}'**
+  String deleteMessType(String name);
+
+  /// No description provided for @deleteMessAction.
+  ///
+  /// In bn, this message translates to:
+  /// **'৩০ দিন পরে ডিলিট করুন'**
+  String get deleteMessAction;
+
+  /// No description provided for @deleteMessScheduled.
+  ///
+  /// In bn, this message translates to:
+  /// **'ঠিক হয়েছে। ৩০ দিন পরে মুছে যাবে।'**
+  String get deleteMessScheduled;
+
+  /// No description provided for @deleteMessCancel.
+  ///
+  /// In bn, this message translates to:
+  /// **'ডিলিট বাতিল করুন'**
+  String get deleteMessCancel;
+
+  /// No description provided for @deletionBanner.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই মেস {date} তারিখে মুছে যাবে'**
+  String deletionBanner(String date);
+
+  /// No description provided for @pushMemberLeft.
+  ///
+  /// In bn, this message translates to:
+  /// **'সদস্য মেস ছাড়লে'**
+  String get pushMemberLeft;
+
+  /// No description provided for @pushMemberLeftSub.
+  ///
+  /// In bn, this message translates to:
+  /// **'কেউ মেস ছাড়লে, বা বাকি থাকা অবস্থায় ছাড়তে চাইলে'**
+  String get pushMemberLeftSub;
+
+  /// No description provided for @pushMessDeletion.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেস ডিলিট'**
+  String get pushMessDeletion;
+
+  /// No description provided for @pushMessDeletionSub.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেস ডিলিটের সময় ঠিক হলে বা বাতিল হলে'**
+  String get pushMessDeletionSub;
 
   /// No description provided for @fundModeFix.
   ///

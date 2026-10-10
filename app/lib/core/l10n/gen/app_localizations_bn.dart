@@ -2126,7 +2126,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get dutyTitle => 'বাজারের পালা';
 
   @override
-  String get dutyGenerate => 'পালা বানান';
+  String get dutyGenerate => 'পালাক্রমে নিজে নিজে সাজান';
 
   @override
   String get dutyEmpty => 'এই মাসে কারও বাজারের পালা নেই';
@@ -4078,6 +4078,111 @@ class AppLocalizationsBn extends AppLocalizations {
   String fundModeShortTitle(String amount) {
     return 'ফান্ডে টাকা কম: $amount ঘাটতি';
   }
+
+  @override
+  String get fundShortMemberNote =>
+      'এখন খরচ ফান্ডের চেয়ে বেশি। ম্যানেজার বিষয়টা মিটিয়ে নেবেন।';
+
+  @override
+  String get depositReviewTitle => 'যাচাই বাকি';
+
+  @override
+  String get dutyCalendarHint =>
+      'যেকোনো দিনে চাপুন, কে যাবে ঠিক করুন। অনেক দিন একসাথে সাজাতে \"পালাক্রমে\" ব্যবহার করুন।';
+
+  @override
+  String get dutyDayPick => 'এই দিন কে বাজার করবে? চাপলেই যোগ বা বাদ হবে।';
+
+  @override
+  String get dutyNobody => 'এই দিনে কারও পালা নেই';
+
+  @override
+  String get pushEntryEdited => 'এন্ট্রি বদলালে';
+
+  @override
+  String get pushEntryEditedSub =>
+      'বাজার বা খরচ বদলালে, অথবা আপনার জমা বা খাবার বদলালে';
+
+  @override
+  String get leaveTile => 'মেস ছাড়ুন';
+
+  @override
+  String get leaveTitle => 'মেস ছাড়ুন';
+
+  @override
+  String get leaveNotMember => 'আপনি এই মেসের সদস্য নন।';
+
+  @override
+  String get leaveOnlyManager =>
+      'আপনিই একমাত্র ম্যানেজার। আগে অন্য কাউকে ম্যানেজার বানান (More → Members), তারপর ছাড়তে পারবেন।';
+
+  @override
+  String leaveOwes(Object amount) {
+    return 'এই মাসে আপনার মেসের কাছে $amount বাকি। আগে মিটিয়ে নিতে ম্যানেজারকে জানান, তিনি হিসাব মিটিয়ে ছেড়ে দেবেন।';
+  }
+
+  @override
+  String leaveOwed(Object amount) {
+    return 'মেস আপনাকে $amount দেবে। এখনই ছাড়তে পারেন। ম্যানেজার জানবেন এবং আপনাকে টাকা ফেরত দেবেন।';
+  }
+
+  @override
+  String get leaveClean =>
+      'আপনার কিছু দেওয়া বা পাওয়ার নেই। এখনই ছাড়তে পারেন।';
+
+  @override
+  String get leaveAsk => 'ম্যানেজারকে জানান';
+
+  @override
+  String get leaveAsked => 'ম্যানেজারদের জানানো হয়েছে';
+
+  @override
+  String get leaveAction => 'মেস ছাড়ুন';
+
+  @override
+  String get leaveDone => 'আপনি মেস ছেড়েছেন';
+
+  @override
+  String get deleteMessTitle => 'মেস ডিলিট করুন';
+
+  @override
+  String get deleteMessBody =>
+      '৩০ দিন পরে মেসটি সব সদস্য, খাবার, বাজার, টাকা আর নোটিশসহ মুছে যাবে। সবাইকে জানানো হবে। এর আগে যেকোনো সময় বাতিল করতে পারবেন। আগে ব্যাকআপ নিয়ে রাখুন।';
+
+  @override
+  String get deleteMessBackup => 'আমার তথ্যের ব্যাকআপ নিন (PDF / CSV)';
+
+  @override
+  String deleteMessType(String name) {
+    return 'নিশ্চিত করতে মেসের নাম লিখুন: $name';
+  }
+
+  @override
+  String get deleteMessAction => '৩০ দিন পরে ডিলিট করুন';
+
+  @override
+  String get deleteMessScheduled => 'ঠিক হয়েছে। ৩০ দিন পরে মুছে যাবে।';
+
+  @override
+  String get deleteMessCancel => 'ডিলিট বাতিল করুন';
+
+  @override
+  String deletionBanner(String date) {
+    return 'এই মেস $date তারিখে মুছে যাবে';
+  }
+
+  @override
+  String get pushMemberLeft => 'সদস্য মেস ছাড়লে';
+
+  @override
+  String get pushMemberLeftSub =>
+      'কেউ মেস ছাড়লে, বা বাকি থাকা অবস্থায় ছাড়তে চাইলে';
+
+  @override
+  String get pushMessDeletion => 'মেস ডিলিট';
+
+  @override
+  String get pushMessDeletionSub => 'মেস ডিলিটের সময় ঠিক হলে বা বাতিল হলে';
 
   @override
   String get fundModeFix => 'খরচ ঠিক করুন';
