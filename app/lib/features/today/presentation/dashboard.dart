@@ -299,6 +299,12 @@ class _CashCard extends ConsumerWidget {
                       fontFeatures: const [FontFeature.tabularFigures()],
                     ),
                   ),
+                  if (c.cash < 0)
+                    Text(
+                      l.splitMemNegativeCash,
+                      key: const Key('cash-negative-note'),
+                      style: text.bodySmall?.copyWith(color: p.inkSecondary),
+                    ),
                   if (c.pendingDeposits > 0)
                     Text(
                       l.cashPending(m(c.pendingDeposits)),

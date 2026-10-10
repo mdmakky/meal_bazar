@@ -590,6 +590,21 @@ class _MemberHero extends ConsumerWidget {
                   ],
                 );
               }
+              // credit = deposits + paid from own pocket; 0 = nothing put in.
+              if (c < 0 && me.credit == 0) {
+                balance = Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  spacing: AppSpace.xs,
+                  children: [
+                    balance,
+                    Text(
+                      l.splitMemNoDeposit,
+                      key: const Key('no-deposit-note'),
+                      style: text.bodySmall?.copyWith(color: p.inkSecondary),
+                    ),
+                  ],
+                );
+              }
             }
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,

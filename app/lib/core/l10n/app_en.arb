@@ -1944,5 +1944,14 @@
   "monthEndPushReopened": "Month correction",
   "monthEndPushReopenedSub": "When the manager reopens a closed month",
   "monthEndProvisionalTitle": "Last month's account (provisional)",
-  "monthEndProvisionalBalance": "Provisional balance"
+  "monthEndProvisionalBalance": "Provisional balance",
+  "splitMemMealOnly": "Meal share only",
+  "splitMemMealOnlyHelp": "Equal-split costs (rent, Wi-Fi…) are not counted for this member; only the meal-based costs apply.",
+  "splitMemMealOnlyTag": "Meal only",
+  "splitMemWho": "Who shares it",
+  "splitMemBillsHelp": "Write down monthly fixed costs (rent, Wi-Fi…) once. Each month, tap \"Add this month's bills\" to turn them into expenses — nothing is counted in the accounts before that.",
+  "splitMemSharedBy": "Shared by {count}",
+  "@splitMemSharedBy": {"placeholders": {"count": {"type": "String"}}},
+  "splitMemNegativeCash": "Spending is more than the fund. If someone paid from their own pocket, record the expense under their name as \"own money\".",
+  "splitMemNoDeposit": "No deposit this month yet, so the share of costs shows as due."
 }

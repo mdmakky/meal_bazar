@@ -119,6 +119,7 @@ List<Override> overrides({
   List<MonthPoint>? months,
   List<AuditEntry>? activity,
   bool failCash = false,
+  double cash = 1800.0,
   List<Member>? members,
   List<MemberTransparency>? transparency,
 }) => [
@@ -159,7 +160,7 @@ List<Override> overrides({
         : (
             depositsIn: 3000.0,
             fundSpent: 1200.0,
-            cash: 1800.0,
+            cash: cash,
             pendingDeposits: 700.0,
           ),
   ),
@@ -210,6 +211,7 @@ Future<void> pumpDashboard(
   List<MonthPoint>? months,
   List<AuditEntry>? activity,
   bool failCash = false,
+  double cash = 1800.0,
   List<Member>? members,
   List<MemberTransparency>? transparency,
 }) async {
@@ -255,6 +257,7 @@ Future<void> pumpDashboard(
           months: months,
           activity: activity,
           failCash: failCash,
+          cash: cash,
           members: members,
           transparency: transparency,
         ),
@@ -364,6 +367,17 @@ void main() {
       expect(find.text('৳১,৮০০'), findsOneWidget);
       expect(find.text(l.cashProof('৳৩,০০০', '৳১,২০০')), findsOneWidget);
       expect(find.text(l.cashPending('৳৭০০')), findsOneWidget);
+    });
+
+    testWidgets('positive cash has no explanation line', (tester) async {
+      await pumpDashboard(tester);
+      expect(find.byKey(const Key('cash-negative-note')), findsNothing);
+    });
+
+    testWidgets('negative cash explains itself', (tester) async {
+      await pumpDashboard(tester, cash: -700);
+      expect(find.byKey(const Key('cash-negative-note')), findsOneWidget);
+      expect(find.text(l.cashTitle), findsOneWidget);
     });
 
     testWidgets('a failing section fails alone, with retry', (tester) async {

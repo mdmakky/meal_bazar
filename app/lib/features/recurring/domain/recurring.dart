@@ -13,6 +13,7 @@ class RecurringExpense {
     this.note,
     this.active = true,
     this.dayOfPeriod = 1,
+    this.shares = const {},
   });
 
   factory RecurringExpense.fromJson(Map<String, dynamic> j) => RecurringExpense(
@@ -24,6 +25,12 @@ class RecurringExpense {
     note: j['note'] as String?,
     active: j['active'] as bool,
     dayOfPeriod: j['day_of_period'] as int,
+    shares: {
+      for (final s in (j['recurring_expense_members'] as List? ?? const []))
+        (s as Map<String, dynamic>)['member_id'] as String: double.parse(
+          '${s['weight']}',
+        ),
+    },
   );
 
   final String id;
@@ -37,6 +44,9 @@ class RecurringExpense {
   /// 1–28: posted on period start + this − 1.
   final int dayOfPeriod;
 
+  /// `recurring_expense_members`: member id → weight. Empty = everyone present.
+  final Map<String, double> shares;
+
   RecurringExpense copyWith({bool? active}) => RecurringExpense(
     id: id,
     messId: messId,
@@ -46,7 +56,12 @@ class RecurringExpense {
     note: note,
     active: active ?? this.active,
     dayOfPeriod: dayOfPeriod,
+    shares: shares,
   );
+
+  List<Map<String, dynamic>> sharesJson() => [
+    for (final s in shares.entries) {'member_id': s.key, 'weight': s.value},
+  ];
 
   Map<String, dynamic> toJson() => {
     'id': id,

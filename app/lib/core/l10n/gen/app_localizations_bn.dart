@@ -3936,4 +3936,34 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get monthEndProvisionalBalance => 'অস্থায়ী ব্যালেন্স';
+
+  @override
+  String get splitMemMealOnly => 'শুধু মিলের ভাগ';
+
+  @override
+  String get splitMemMealOnlyHelp =>
+      'খরচের সমান ভাগ (ভাড়া, ওয়াইফাই…) ধরা হবে না, শুধু মিল অনুযায়ী খরচ হবে।';
+
+  @override
+  String get splitMemMealOnlyTag => 'মিল-শুধু';
+
+  @override
+  String get splitMemWho => 'কারা ভাগ দেবে';
+
+  @override
+  String get splitMemBillsHelp =>
+      'প্রতি মাসের নির্দিষ্ট খরচ (বাসা ভাড়া, ওয়াইফাই…) একবার লিখে রাখুন। প্রতি মাসে \'এই মাসের বিল যোগ করুন\' চাপলে খরচ হিসাবে বসে যায় — তার আগে হিসাবে কিছু ধরা হয় না।';
+
+  @override
+  String splitMemSharedBy(String count) {
+    return '$count জনের মধ্যে';
+  }
+
+  @override
+  String get splitMemNegativeCash =>
+      'ফান্ডের চেয়ে বেশি খরচ হয়েছে। কেউ নিজের টাকায় দিয়ে থাকলে খরচটা তার নামে \'নিজের টাকায়\' করুন।';
+
+  @override
+  String get splitMemNoDeposit =>
+      'এই মাসে এখনো জমা নেই, তাই খরচের ভাগ বাকি দেখাচ্ছে।';
 }

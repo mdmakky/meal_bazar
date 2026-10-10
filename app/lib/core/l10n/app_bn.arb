@@ -2293,5 +2293,14 @@
   "monthEndPushReopened": "মাস সংশোধন",
   "monthEndPushReopenedSub": "ম্যানেজার বন্ধ মাস সংশোধন করলে",
   "monthEndProvisionalTitle": "গত মাসের হিসাব (অস্থায়ী)",
-  "monthEndProvisionalBalance": "অস্থায়ী ব্যালেন্স"
+  "monthEndProvisionalBalance": "অস্থায়ী ব্যালেন্স",
+  "splitMemMealOnly": "শুধু মিলের ভাগ",
+  "splitMemMealOnlyHelp": "খরচের সমান ভাগ (ভাড়া, ওয়াইফাই…) ধরা হবে না, শুধু মিল অনুযায়ী খরচ হবে।",
+  "splitMemMealOnlyTag": "মিল-শুধু",
+  "splitMemWho": "কারা ভাগ দেবে",
+  "splitMemBillsHelp": "প্রতি মাসের নির্দিষ্ট খরচ (বাসা ভাড়া, ওয়াইফাই…) একবার লিখে রাখুন। প্রতি মাসে 'এই মাসের বিল যোগ করুন' চাপলে খরচ হিসাবে বসে যায় — তার আগে হিসাবে কিছু ধরা হয় না।",
+  "splitMemSharedBy": "{count} জনের মধ্যে",
+  "@splitMemSharedBy": {"placeholders": {"count": {"type": "String"}}},
+  "splitMemNegativeCash": "ফান্ডের চেয়ে বেশি খরচ হয়েছে। কেউ নিজের টাকায় দিয়ে থাকলে খরচটা তার নামে 'নিজের টাকায়' করুন।",
+  "splitMemNoDeposit": "এই মাসে এখনো জমা নেই, তাই খরচের ভাগ বাকি দেখাচ্ছে।"
 }

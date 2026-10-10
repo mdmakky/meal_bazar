@@ -155,6 +155,49 @@ void main() {
       expect(find.text(l.membersApproved('Karim')), findsOneWidget);
     });
 
+    testWidgets('meal-only: parsed, tagged, and the switch calls the repo', (
+      tester,
+    ) async {
+      final json = {
+        'id': 'k',
+        'mess_id': 'mess1',
+        'display_name': 'Karim',
+        'role': 'member',
+        'status': 'active',
+        'joined_on': '2026-10-01',
+      };
+      expect(Member.fromJson(json).mealOnly, false);
+      expect(Member.fromJson({...json, 'meal_only': true}).mealOnly, true);
+
+      when(
+        () => repo.setMealOnly('k', true),
+      ).thenAnswer((_) async => member('k', 'Karim'));
+      final k = Member.fromJson({...json, 'meal_only': false});
+      final sam = Member.fromJson({
+        ...json,
+        'id': 's',
+        'display_name': 'Sam',
+        'meal_only': true,
+      });
+      await pump(
+        tester,
+        const MembersScreen(),
+        members: [
+          member('me', 'Rahim', role: MemberRole.manager),
+          k,
+          sam,
+        ],
+      );
+      await tester.pumpAndSettle();
+      expect(find.text(l.splitMemMealOnlyTag), findsOneWidget); // Sam only
+
+      await tester.tap(find.text('Karim'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(Switch));
+      await tester.pumpAndSettle();
+      verify(() => repo.setMealOnly('k', true)).called(1);
+    });
+
     testWidgets('member does not see pending requests', (tester) async {
       await pump(tester, const MembersScreen(), manager: false, members: list);
       await tester.pumpAndSettle();

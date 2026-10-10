@@ -13,18 +13,31 @@ class RecurringRepository {
   Future<List<RecurringExpense>> bills(String messId) => guard(() async {
     final rows = await _client
         .from('recurring_expenses')
-        .select()
+        .select('*, recurring_expense_members(member_id, weight)')
         .eq('mess_id', messId)
         .order('day_of_period', ascending: true)
         .order('created_at', ascending: true);
     return rows.map(RecurringExpense.fromJson).toList();
   });
 
-  /// Upsert on the client id, so a retried save is idempotent.
+  /// Upsert on the client id, then replace the sharing members (none =
+  /// everyone); a retried save is idempotent.
+  // ponytail: delete + insert are two calls, not one transaction; a failed
+  // second call shows the error and saving again repairs it.
   Future<void> saveBill(RecurringExpense b) => guard(() async {
     requireRows(
       await _client.from('recurring_expenses').upsert(b.toJson()).select('id'),
     );
+    await _client
+        .from('recurring_expense_members')
+        .delete()
+        .eq('recurring_id', b.id);
+    if (b.shares.isNotEmpty) {
+      await _client.from('recurring_expense_members').insert([
+        for (final s in b.sharesJson())
+          {...s, 'recurring_id': b.id, 'mess_id': b.messId},
+      ]);
+    }
   });
 
   /// Posts this period's bills (period containing [day]); returns how many.

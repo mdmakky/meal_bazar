@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/dates.dart';
 import '../../../core/failure_text.dart';
 import '../../../core/ids.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
@@ -10,7 +11,7 @@ import '../../mess/application/mess_providers.dart';
 import '../../mess/presentation/common.dart';
 import '../../money/application/money_providers.dart';
 import '../../money/domain/money.dart';
-import '../../money/presentation/money_sheets.dart' show splitLabel;
+import '../../money/presentation/money_sheets.dart' show ShareList, splitLabel;
 import '../application/recurring_providers.dart';
 import '../domain/recurring.dart';
 
@@ -145,7 +146,7 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
           Padding(
             padding: const EdgeInsets.all(AppSpace.gutter),
             child: Text(
-              l.recurringHelp,
+              l.splitMemBillsHelp,
               style: text.bodyMedium?.copyWith(color: p.inkSecondary),
             ),
           ),
@@ -177,7 +178,8 @@ class _RecurringScreenState extends ConsumerState<RecurringScreen> {
                       subtitle: Text(
                         '${Fmt.money(b.amount, banglaDigits: bn)} · '
                         '${splitLabel(l, b.split)} · '
-                        '${l.recurringDayValue(Fmt.digits('${b.dayOfPeriod}', bangla: bn))}',
+                        '${l.recurringDayValue(Fmt.digits('${b.dayOfPeriod}', bangla: bn))}'
+                        '${b.shares.isEmpty ? '' : ' · ${l.splitMemSharedBy(Fmt.digits('${b.shares.length}', bangla: bn))}'}',
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -223,7 +225,15 @@ class _BillFormState extends ConsumerState<_BillForm> {
   late var _category = _e?.categoryId;
   late var _split = _e?.split ?? SplitMethod.equal;
   late var _day = _e?.dayOfPeriod ?? 1;
+  late var _weights = {...?_e?.shares};
+  var _selected = false;
   var _noCategory = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _selected = _weights.isNotEmpty;
+  }
 
   @override
   void dispose() {
@@ -232,9 +242,24 @@ class _BillFormState extends ConsumerState<_BillForm> {
     super.dispose();
   }
 
+  /// "Selected" starts with the present members who take equal shares.
+  Future<void> _pickWho(bool selected) async {
+    setState(() => _selected = selected);
+    if (!selected || _weights.isNotEmpty) return;
+    final all = await ref.read(membersProvider(widget.messId).future);
+    if (!mounted || !_selected || _weights.isNotEmpty) return;
+    setState(
+      () => _weights = {
+        for (final m in all)
+          if (m.presentOn(today()) && !m.mealOnly) m.id: 1,
+      },
+    );
+  }
+
   void _submit() {
     setState(() => _noCategory = _category == null);
     if (!_form.currentState!.validate() || _category == null) return;
+    if (_split == SplitMethod.equal && _selected && _weights.isEmpty) return;
     final note = _note.text.trim();
     Navigator.pop(
       context,
@@ -247,6 +272,7 @@ class _BillFormState extends ConsumerState<_BillForm> {
         note: note.isEmpty ? null : note,
         active: _e?.active ?? true,
         dayOfPeriod: _day,
+        shares: _split == SplitMethod.equal && _selected ? _weights : const {},
       ),
     );
   }
@@ -314,6 +340,31 @@ class _BillFormState extends ConsumerState<_BillForm> {
             selected: {_split},
             onSelectionChanged: (s) => setState(() => _split = s.first),
           ),
+          if (_split == SplitMethod.equal) ...[
+            Text(l.splitMemWho, style: text.titleSmall),
+            SegmentedButton<bool>(
+              showSelectedIcon: false,
+              segments: [
+                ButtonSegment(value: false, label: Text(l.splitEqualAll)),
+                ButtonSegment(value: true, label: Text(l.splitSelected)),
+              ],
+              selected: {_selected},
+              onSelectionChanged: (s) => _pickWho(s.first),
+            ),
+            if (_selected)
+              ShareList(
+                messId: widget.messId,
+                weights: _weights,
+                onChanged: (w) => setState(() => _weights = w),
+              ),
+            if (_selected && _weights.isEmpty)
+              Text(
+                l.splitPickMember,
+                style: text.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.error,
+                ),
+              ),
+          ],
           DropdownButtonFormField<int>(
             initialValue: _day,
             decoration: InputDecoration(labelText: l.recurringDay),

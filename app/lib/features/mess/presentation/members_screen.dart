@@ -9,7 +9,14 @@ import '../application/mess_providers.dart';
 import '../domain/member.dart';
 import 'common.dart';
 
-enum _Action { makeManager, makeMember, markInactive, markActive, markLeft }
+enum _Action {
+  toggleMealOnly,
+  makeManager,
+  makeMember,
+  markInactive,
+  markActive,
+  markLeft,
+}
 
 class MembersScreen extends ConsumerWidget {
   const MembersScreen({super.key});
@@ -182,9 +189,15 @@ class _MemberRow extends ConsumerWidget {
       subtitle: sub.isEmpty
           ? null
           : Text(sub, maxLines: 2, overflow: TextOverflow.ellipsis),
-      trailing: member.role == MemberRole.manager
-          ? StatusTag(l.membersRoleManager, strong: true)
-          : null,
+      trailing: Wrap(
+        spacing: AppSpace.xs,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          if (member.mealOnly) StatusTag(l.splitMemMealOnlyTag),
+          if (member.role == MemberRole.manager)
+            StatusTag(l.membersRoleManager, strong: true),
+        ],
+      ),
       onTap: canManage ? () => _manage(context, ref) : null,
     );
   }
@@ -205,6 +218,13 @@ class _MemberRow extends ConsumerWidget {
       title: m.displayName,
       child: Column(
         children: [
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text(l.splitMemMealOnly),
+            subtitle: Text(l.splitMemMealOnlyHelp),
+            value: m.mealOnly,
+            onChanged: (_) => Navigator.pop(context, _Action.toggleMealOnly),
+          ),
           if (m.status != MemberStatus.left)
             m.role == MemberRole.manager
                 ? option(
@@ -248,6 +268,7 @@ class _MemberRow extends ConsumerWidget {
     final c = ref.read(messControllerProvider);
     try {
       await switch (action) {
+        _Action.toggleMealOnly => c.setMealOnly(m, !m.mealOnly),
         _Action.makeManager => c.setRole(m, MemberRole.manager),
         _Action.makeMember => c.setRole(m, MemberRole.member),
         _Action.markInactive => c.setStatus(m, MemberStatus.inactive),

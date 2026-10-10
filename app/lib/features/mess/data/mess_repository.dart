@@ -120,6 +120,9 @@ class MessRepository {
   Future<Member> setRole(String memberId, MemberRole role) =>
       _updateMember(memberId, {'role': role.name});
 
+  Future<Member> setMealOnly(String memberId, bool mealOnly) =>
+      _updateMember(memberId, {'meal_only': mealOnly});
+
   /// `left` stamps `left_on` today; any other status clears it.
   Future<Member> setStatus(String memberId, MemberStatus status) =>
       _updateMember(memberId, {

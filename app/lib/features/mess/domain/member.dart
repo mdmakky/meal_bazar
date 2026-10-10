@@ -18,6 +18,7 @@ class Member {
     this.leftOn,
     this.room,
     this.notes,
+    this.mealOnly = false,
   });
 
   factory Member.fromJson(Map<String, dynamic> json) => Member(
@@ -33,6 +34,7 @@ class Member {
         : DateTime.parse(json['left_on'] as String),
     room: json['room'] as String?,
     notes: json['notes'] as String?,
+    mealOnly: json['meal_only'] as bool? ?? false,
   );
 
   final String id;
@@ -47,6 +49,9 @@ class Member {
   final DateTime? leftOn;
   final String? room;
   final String? notes;
+
+  /// Manager-set: no automatic equal share of rent/Wi-Fi; still pays by meals.
+  final bool mealOnly;
 
   bool get hasAccount => userId != null;
 

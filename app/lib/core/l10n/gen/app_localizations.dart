@@ -7165,6 +7165,54 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'অস্থায়ী ব্যালেন্স'**
   String get monthEndProvisionalBalance;
+
+  /// No description provided for @splitMemMealOnly.
+  ///
+  /// In bn, this message translates to:
+  /// **'শুধু মিলের ভাগ'**
+  String get splitMemMealOnly;
+
+  /// No description provided for @splitMemMealOnlyHelp.
+  ///
+  /// In bn, this message translates to:
+  /// **'খরচের সমান ভাগ (ভাড়া, ওয়াইফাই…) ধরা হবে না, শুধু মিল অনুযায়ী খরচ হবে।'**
+  String get splitMemMealOnlyHelp;
+
+  /// No description provided for @splitMemMealOnlyTag.
+  ///
+  /// In bn, this message translates to:
+  /// **'মিল-শুধু'**
+  String get splitMemMealOnlyTag;
+
+  /// No description provided for @splitMemWho.
+  ///
+  /// In bn, this message translates to:
+  /// **'কারা ভাগ দেবে'**
+  String get splitMemWho;
+
+  /// No description provided for @splitMemBillsHelp.
+  ///
+  /// In bn, this message translates to:
+  /// **'প্রতি মাসের নির্দিষ্ট খরচ (বাসা ভাড়া, ওয়াইফাই…) একবার লিখে রাখুন। প্রতি মাসে \'এই মাসের বিল যোগ করুন\' চাপলে খরচ হিসাবে বসে যায় — তার আগে হিসাবে কিছু ধরা হয় না।'**
+  String get splitMemBillsHelp;
+
+  /// No description provided for @splitMemSharedBy.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count} জনের মধ্যে'**
+  String splitMemSharedBy(String count);
+
+  /// No description provided for @splitMemNegativeCash.
+  ///
+  /// In bn, this message translates to:
+  /// **'ফান্ডের চেয়ে বেশি খরচ হয়েছে। কেউ নিজের টাকায় দিয়ে থাকলে খরচটা তার নামে \'নিজের টাকায়\' করুন।'**
+  String get splitMemNegativeCash;
+
+  /// No description provided for @splitMemNoDeposit.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই মাসে এখনো জমা নেই, তাই খরচের ভাগ বাকি দেখাচ্ছে।'**
+  String get splitMemNoDeposit;
 }
 
 class _AppLocalizationsDelegate

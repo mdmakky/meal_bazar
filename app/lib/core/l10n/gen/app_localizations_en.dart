@@ -3949,4 +3949,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get monthEndProvisionalBalance => 'Provisional balance';
+
+  @override
+  String get splitMemMealOnly => 'Meal share only';
+
+  @override
+  String get splitMemMealOnlyHelp =>
+      'Equal-split costs (rent, Wi-Fi…) are not counted for this member; only the meal-based costs apply.';
+
+  @override
+  String get splitMemMealOnlyTag => 'Meal only';
+
+  @override
+  String get splitMemWho => 'Who shares it';
+
+  @override
+  String get splitMemBillsHelp =>
+      'Write down monthly fixed costs (rent, Wi-Fi…) once. Each month, tap \"Add this month\'s bills\" to turn them into expenses — nothing is counted in the accounts before that.';
+
+  @override
+  String splitMemSharedBy(String count) {
+    return 'Shared by $count';
+  }
+
+  @override
+  String get splitMemNegativeCash =>
+      'Spending is more than the fund. If someone paid from their own pocket, record the expense under their name as \"own money\".';
+
+  @override
+  String get splitMemNoDeposit =>
+      'No deposit this month yet, so the share of costs shows as due.';
 }

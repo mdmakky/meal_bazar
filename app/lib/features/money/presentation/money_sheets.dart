@@ -2575,10 +2575,11 @@ enum _Split { equal, meal, selected }
 
 /// Member checklist with a ভাগ (weight) stepper each, then a display-only
 /// preview of every selected member's part of the amount.
-class _ShareList extends ConsumerWidget {
-  const _ShareList({
+class ShareList extends ConsumerWidget {
+  const ShareList({
+    super.key,
     required this.messId,
-    required this.amount,
+    this.amount,
     required this.weights,
     required this.onChanged,
   });
@@ -2586,7 +2587,9 @@ class _ShareList extends ConsumerWidget {
   static const maxWeight = 20.0;
 
   final String messId;
-  final TextEditingController amount;
+
+  /// Null hides the per-member amount preview (monthly bills).
+  final TextEditingController? amount;
   final Map<String, double> weights;
   final ValueChanged<Map<String, double>> onChanged;
 
@@ -2627,6 +2630,10 @@ class _ShareList extends ConsumerWidget {
                           onChanged: (v) => _set(m.id, v! ? 1 : null),
                         ),
                         Flexible(child: Text(m.displayName)),
+                        if (m.mealOnly) ...[
+                          const SizedBox(width: AppSpace.sm),
+                          StatusTag(l.splitMemMealOnlyTag),
+                        ],
                       ],
                     ),
                   ),
@@ -2650,33 +2657,34 @@ class _ShareList extends ConsumerWidget {
               ],
             ],
           ),
-        ValueListenableBuilder(
-          valueListenable: amount,
-          builder: (context, v, _) {
-            final a = parseAmount(v.text);
-            if (a == null || weights.isEmpty) return const SizedBox.shrink();
-            final preview = sharePreview(a, weights);
-            return Padding(
-              padding: const EdgeInsets.only(top: AppSpace.sm),
-              child: Column(
-                key: const Key('share-preview'),
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: AppSpace.xs,
-                children: [
-                  _Label(l.splitPreview),
-                  for (final m in members)
-                    if (preview[m.id] case final p?)
-                      Row(
-                        children: [
-                          Expanded(child: Text(m.displayName)),
-                          RollingNumber.money(p, banglaDigits: bn),
-                        ],
-                      ),
-                ],
-              ),
-            );
-          },
-        ),
+        if (amount case final amount?)
+          ValueListenableBuilder(
+            valueListenable: amount,
+            builder: (context, v, _) {
+              final a = parseAmount(v.text);
+              if (a == null || weights.isEmpty) return const SizedBox.shrink();
+              final preview = sharePreview(a, weights);
+              return Padding(
+                padding: const EdgeInsets.only(top: AppSpace.sm),
+                child: Column(
+                  key: const Key('share-preview'),
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  spacing: AppSpace.xs,
+                  children: [
+                    _Label(l.splitPreview),
+                    for (final m in members)
+                      if (preview[m.id] case final p?)
+                        Row(
+                          children: [
+                            Expanded(child: Text(m.displayName)),
+                            RollingNumber.money(p, banglaDigits: bn),
+                          ],
+                        ),
+                  ],
+                ),
+              );
+            },
+          ),
       ],
     );
   }
@@ -2836,7 +2844,7 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm>
                       _Required(
                         ok: () => _weights.isNotEmpty,
                         message: l.splitPickMember,
-                        child: _ShareList(
+                        child: ShareList(
                           messId: messId,
                           amount: _amount,
                           weights: _weights,

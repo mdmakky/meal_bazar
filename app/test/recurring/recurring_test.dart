@@ -56,6 +56,9 @@ void main() {
     Widget home, {
     bool manager = true,
   }) async {
+    tester.view.physicalSize = const Size(800, 3000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -161,6 +164,60 @@ void main() {
       expect(saved.id, 'r1');
       expect(saved.active, false);
       expect(saved.amount, 12000);
+    });
+
+    testWidgets('explains what monthly bills are', (tester) async {
+      await pump(tester, const RecurringScreen());
+      final l = AppLocalizations.of(
+        tester.element(find.byType(RecurringScreen)),
+      );
+      expect(find.text(l.splitMemBillsHelp), findsOneWidget);
+    });
+
+    testWidgets('who shares: loads saved members and persists changes', (
+      tester,
+    ) async {
+      when(() => repo.bills(any())).thenAnswer(
+        (_) async => [
+          RecurringExpense.fromJson({
+            ...rent.toJson(),
+            'recurring_expense_members': [
+              {'member_id': 'k', 'weight': '2.00'},
+            ],
+          }),
+        ],
+      );
+      await pump(tester, const RecurringScreen());
+      expect(find.textContaining('১ জনের মধ্যে'), findsOneWidget);
+
+      await tester.tap(find.text('বাসা ভাড়া'));
+      await tester.pumpAndSettle();
+      final boxes = tester
+          .widgetList<Checkbox>(find.byType(Checkbox))
+          .map((c) => c.value)
+          .toList();
+      expect(boxes, [false, true]); // Rahim off, Karim on
+
+      await tester.tap(find.byType(Checkbox).first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('সেভ করুন'));
+      await tester.pumpAndSettle();
+      final b =
+          verify(() => repo.saveBill(captureAny())).captured.single
+              as RecurringExpense;
+      expect(b.shares, {'me': 1.0, 'k': 2.0});
+    });
+
+    testWidgets('Everyone saves no member rows', (tester) async {
+      await pump(tester, const RecurringScreen());
+      await tester.tap(find.text('বাসা ভাড়া'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('সেভ করুন'));
+      await tester.pumpAndSettle();
+      final b =
+          verify(() => repo.saveBill(captureAny())).captured.single
+              as RecurringExpense;
+      expect(b.shares, isEmpty);
     });
 
     testWidgets('posts this month and reports the count', (tester) async {

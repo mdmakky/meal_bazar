@@ -153,6 +153,11 @@ class MessController {
   Future<void> setRole(Member m, MemberRole role) =>
       _changed(m, () => _repo.setRole(m.id, role));
 
+  Future<void> setMealOnly(Member m, bool v) async {
+    await _changed(m, () => _repo.setMealOnly(m.id, v));
+    monthProviders(m.messId).forEach(_ref.invalidate); // shares change balances
+  }
+
   Future<void> setStatus(Member m, MemberStatus status) =>
       _changed(m, () => _repo.setStatus(m.id, status));
 
