@@ -12,6 +12,7 @@ import '../../mess/presentation/common.dart';
 import '../../money/presentation/money_sheets.dart' show longDate, shortDate;
 import '../application/duty_providers.dart';
 import '../domain/duty.dart';
+import 'duty_calendar.dart';
 
 /// Member id → display name for the current mess.
 Map<String, String> _names(WidgetRef ref, String messId) => {
@@ -108,6 +109,7 @@ class _DutyScreenState extends ConsumerState<DutyScreen> {
             child: switch (ref.watch(dutiesProvider(key))) {
               AsyncValue(:final value?) => _DutyList(
                 messId: messId,
+                month: _month,
                 duties: value,
                 isManager: isManager,
                 onGenerate: () => _generate(messId),
@@ -133,6 +135,7 @@ class _DutyScreenState extends ConsumerState<DutyScreen> {
                 AppButton(
                   label: l.dutyGenerate,
                   icon: Icons.autorenew,
+                  variant: AppButtonVariant.secondary,
                   onPressed: () => _generate(messId),
                 ),
               ],
@@ -144,12 +147,14 @@ class _DutyScreenState extends ConsumerState<DutyScreen> {
 class _DutyList extends ConsumerWidget {
   const _DutyList({
     required this.messId,
+    required this.month,
     required this.duties,
     required this.isManager,
     required this.onGenerate,
   });
 
   final String messId;
+  final DateTime month;
   final List<BazarDuty> duties;
   final bool isManager;
   final VoidCallback onGenerate;
@@ -197,6 +202,16 @@ class _DutyList extends ConsumerWidget {
       child: ListView(
         padding: const EdgeInsets.only(bottom: AppSpace.xl),
         children: [
+          Padding(
+            padding: const EdgeInsets.only(top: AppSpace.sm),
+            child: DutyCalendar(
+              messId: messId,
+              month: month,
+              duties: duties,
+              names: _names(ref, messId),
+              isManager: isManager,
+            ),
+          ),
           if (upcoming.isNotEmpty) ...[
             SectionTitle(l.dutyMyUpcoming),
             group(upcoming, 0),

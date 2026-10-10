@@ -125,7 +125,7 @@ void main() {
     when(() => repo.generate(any(), any())).thenAnswer((_) async => 30);
     await pump(tester, const DutyScreen(), repo: repo, me: rahim);
 
-    await tester.tap(find.text('পালা বানান').last);
+    await tester.tap(find.text('পালাক্রমে নিজে নিজে সাজান').last);
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilterChip, 'করিম'));
     await tester.pump();
@@ -133,8 +133,8 @@ void main() {
     await tester.pump();
     expect(find.text('১. করিম'), findsOneWidget);
     expect(find.text('২. রহিম'), findsOneWidget);
-    await tester.ensureVisible(find.text('পালা বানান').last);
-    await tester.tap(find.text('পালা বানান').last);
+    await tester.ensureVisible(find.text('পালাক্রমে নিজে নিজে সাজান').last);
+    await tester.tap(find.text('পালাক্রমে নিজে নিজে সাজান').last);
     await tester.pumpAndSettle();
 
     final r =
@@ -150,6 +150,25 @@ void main() {
     expect(find.text('৩০টি পালা তৈরি হয়েছে'), findsOneWidget);
   });
 
+  testWidgets('manager picks who goes on a day from the calendar', (
+    tester,
+  ) async {
+    final repo = MockDutyRepository();
+    final t = today();
+    when(() => repo.duties(any(), any(), any())).thenAnswer((_) async => []);
+    when(() => repo.save(any())).thenAnswer((_) async {});
+    await pump(tester, const DutyScreen(), repo: repo, me: rahim);
+
+    await tester.tap(find.byKey(Key('duty-day-${t.day}')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('duty-chip-করিম')));
+    await tester.pumpAndSettle();
+    final saved =
+        verify(() => repo.save(captureAny())).captured.single as BazarDuty;
+    expect(saved.memberId, 'm-karim');
+    expect(saved.date, t);
+  });
+
   testWidgets('member cannot tick any duty (managers only)', (tester) async {
     final repo = MockDutyRepository();
     final t = today();
@@ -159,7 +178,15 @@ void main() {
     when(() => repo.markMine(any(), any())).thenAnswer((_) async {});
     await pump(tester, const DutyScreen(), repo: repo, me: karim);
 
-    expect(find.text('পালা বানান'), findsNothing); // member: no rota button
+    expect(
+      find.text('পালাক্রমে নিজে নিজে সাজান'),
+      findsNothing,
+    ); // member: no rota button
+    await tester.scrollUntilVisible(
+      find.widgetWithText(DutyTile, 'রহিম'),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
     final mine = find.descendant(
       of: find.widgetWithText(DutyTile, 'করিম').first,
       matching: find.byType(Checkbox),
