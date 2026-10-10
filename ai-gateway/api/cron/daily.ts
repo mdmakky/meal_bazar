@@ -60,6 +60,7 @@ export const GET = handle(async (req) => {
     const { data, error } = await sb.rpc('prune_old_data');
     if (error) console.log('prune failed', error.code);
     else pruned = data;
+    await sb.rpc('purge_deleted_messes'); // messes past their 30-day grace (0038)
   } catch {
     console.log('prune failed');
   }
