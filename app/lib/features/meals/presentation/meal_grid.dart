@@ -306,31 +306,39 @@ class SyncLine extends ConsumerWidget {
     ];
     final failed = ops.where((o) => o.status == opFailed);
     final error = failed.firstOrNull?.lastError;
-    return Column(
-      children: [
-        SyncBadge(
-          state: queueState(ops),
-          onRetry: () => ref.read(syncServiceProvider).retryFailed(),
-          onDiscard: () async {
-            await ref.read(appDbProvider).discard(failed.map((o) => o.id));
-            ref.invalidate(dayEntriesProvider);
-          },
-        ),
-        if (error != null)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpace.md),
-            child: Text(
-              failureText(
-                context,
-                AppFailure(
-                  FailureKind.values.asNameMap()[error] ?? FailureKind.unknown,
-                ),
-              ),
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.labelSmall,
-            ),
+    // The line keeps its height when there is nothing to say, so the
+    // "Syncing…" flash after a tap does not push the whole grid down and
+    // back up.
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 24),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SyncBadge(
+            state: queueState(ops),
+            onRetry: () => ref.read(syncServiceProvider).retryFailed(),
+            onDiscard: () async {
+              await ref.read(appDbProvider).discard(failed.map((o) => o.id));
+              ref.invalidate(dayEntriesProvider);
+            },
           ),
-      ],
+          if (error != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpace.md),
+              child: Text(
+                failureText(
+                  context,
+                  AppFailure(
+                    FailureKind.values.asNameMap()[error] ??
+                        FailureKind.unknown,
+                  ),
+                ),
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.labelSmall,
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
