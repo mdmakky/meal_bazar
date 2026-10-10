@@ -199,6 +199,8 @@ class _MealsScreenState extends ConsumerState<MealsScreen> {
                 ),
               ),
             ),
+          // Under the grid, so its comings and goings move nothing above it.
+          SyncLine(messId: messId),
           _DayTotal(dayKey: key, types: types),
           if (!closed &&
               myId != null &&
@@ -246,7 +248,6 @@ class _MealsScreenState extends ConsumerState<MealsScreen> {
                 onShift: _shift,
                 onToday: () => _go(today()),
               ),
-              SyncLine(messId: messId),
               const SizedBox(height: AppSpace.sm),
               // Swipe the grid sideways to change the day.
               GestureDetector(
