@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:meal_bazar/core/errors.dart';
 import 'package:meal_bazar/core/l10n/gen/app_localizations.dart';
@@ -130,6 +131,7 @@ const totals = MonthTotals(
   creditTotal: 1500,
 );
 
+Mess activeMess = mess;
 late MockMoneyRepository repo;
 late MockStorage storage;
 
@@ -149,7 +151,7 @@ Future<void> pump(
       overrides: [
         moneyRepositoryProvider.overrideWithValue(repo),
         myMembershipsProvider.overrideWith(
-          (ref) async => [Membership(member: members.first, mess: mess)],
+          (ref) async => [Membership(member: members.first, mess: activeMess)],
         ),
         amIManagerProvider.overrideWithValue(manager),
         storageServiceProvider.overrideWithValue(storage),
@@ -285,6 +287,7 @@ void main() {
   });
 
   setUp(() {
+    activeMess = mess;
     repo = MockMoneyRepository();
     storage = MockStorage();
     when(() => repo.saveBazar(any())).thenAnswer((_) async {});
@@ -608,6 +611,102 @@ void main() {
       expect(e.split, SplitMethod.meal);
       expect(e.paidByMemberId, isNull);
       expect(e.amount, 800);
+    });
+
+    group('fund overdraft prompt', () {
+      Override cashOf(double? c) => messCashProvider.overrideWith(
+        (ref, id) async => c == null
+            ? null
+            : (depositsIn: c, fundSpent: 0.0, cash: c, pendingDeposits: 0.0),
+      );
+      Future<void> fill(
+        WidgetTester tester,
+        List<Object> extra, {
+        bool pocket = false,
+      }) async {
+        await pump(tester, opener(showAddExpenseSheet), extra: extra);
+        await openSheet(tester);
+        await tester.enterText(find.byKey(const Key('amount')), '800');
+        await tester.tap(find.widgetWithText(ChoiceChip, 'গ্যাস'));
+        if (pocket) {
+          for (final f in [
+            find.text(l.moneyPaidPocket),
+            find.widgetWithText(ChoiceChip, 'Karim'),
+          ]) {
+            await tester.ensureVisible(f);
+            await tester.tap(f);
+            await tester.pumpAndSettle();
+          }
+        }
+        await tapSave(tester);
+      }
+
+      testWidgets('yes: pick the payer, saved as own pocket', (tester) async {
+        await fill(tester, [cashOf(300)]);
+        expect(find.text(l.fundModePromptTitle), findsOneWidget);
+        expect(find.text(l.fundModePromptBody('৳৩০০', '৳৮০০')), findsOneWidget);
+        verifyNever(() => repo.saveExpense(any()));
+        await tester.tap(find.text(l.fundModeYesPocket));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Karim').last);
+        await tester.pumpAndSettle();
+        final e =
+            verify(() => repo.saveExpense(captureAny())).captured.single
+                as Expense;
+        expect(e.paidByMemberId, 'k');
+      });
+
+      testWidgets('picker cancelled: back to the form, nothing saved', (
+        tester,
+      ) async {
+        await fill(tester, [cashOf(300)]);
+        await tester.tap(find.text(l.fundModeYesPocket));
+        await tester.pumpAndSettle();
+        await tester.tapAt(const Offset(5, 5));
+        await tester.pumpAndSettle();
+        verifyNever(() => repo.saveExpense(any()));
+        expect(find.byKey(const Key('amount')), findsOneWidget);
+      });
+
+      testWidgets('no: saved from the fund', (tester) async {
+        await fill(tester, [cashOf(300)]);
+        await tester.tap(find.text(l.fundModeNoFund));
+        await tester.pumpAndSettle();
+        final e =
+            verify(() => repo.saveExpense(captureAny())).captured.single
+                as Expense;
+        expect(e.paidByMemberId, isNull);
+      });
+
+      testWidgets('cancel: stays in the form', (tester) async {
+        await fill(tester, [cashOf(300)]);
+        await tester.tap(find.text(l.cancel));
+        await tester.pumpAndSettle();
+        verifyNever(() => repo.saveExpense(any()));
+      });
+
+      for (final (name, extra, pocket) in [
+        ('cash is enough', [cashOf(800)], false),
+        ('own pocket', [cashOf(300)], true),
+        ('fund mode off', [cashOf(300)], false),
+        ('cash unknown', [cashOf(null)], false),
+      ]) {
+        testWidgets('no prompt: $name', (tester) async {
+          if (name == 'fund mode off') {
+            activeMess = const Mess(
+              id: 'mess1',
+              name: 'Mirpur Mess',
+              monthStartDay: 1,
+              currency: '৳',
+              mealOffCutoff: '22:00:00',
+              fundMode: false,
+            );
+          }
+          await fill(tester, extra, pocket: pocket);
+          expect(find.text(l.fundModePromptTitle), findsNothing);
+          verify(() => repo.saveExpense(any())).called(1);
+        });
+      }
     });
 
     testWidgets('expense among selected members: weights and preview', (

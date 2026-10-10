@@ -196,6 +196,9 @@ One group conversation per mess on the 0022 tables (not separate ones: the feed,
 | `reopen_month(month, reason)` | Reason ≥ 5 chars, audited, sets `reopened_at/reopen_reason`, pushes `month_reopened` to the other members. Closing again clears them and re-snapshots. |
 | `my_last_month(mess)` | Adds `provisional` and `reopened_at`; while the month is not closed the figures are provisional, never null. |
 
+### Fund mode (0035)
+`messes.fund_mode boolean default true` (manager edits it in Mess settings). Presentation only: when on, a negative `mess_cash` is flagged and entering a from-the-fund cost larger than the fund asks whether a member paid from their own pocket (`paid_by_member_id`, which credits that member exactly as before); when off the fund card is hidden.
+
 ## Error codes
 RPCs and triggers raise `errcode 'P0001'` with a short message key that the app maps to bn/en text: `MONTH_CLOSED`, `LAST_MANAGER`, `INVALID_INVITE`, `ALREADY_MEMBER`, `NOT_MANAGER`, `REASON_REQUIRED`, `MESS_SUSPENDED`, `USER_SUSPENDED`, `NOT_PLATFORM_ADMIN`, `LAST_ADMIN`, `INVALID_CONFIG`, `TOO_SOON`, `CUTOFF_PASSED`, `FEATURE_OFF`, `PENDING_ITEMS`, `FUTURE_DATE`, `BAZAR_REQUEST_NOT_PENDING`, `ITEMS_INVALID`.
 

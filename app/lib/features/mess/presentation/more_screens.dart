@@ -797,6 +797,22 @@ class _MessSettingsScreenState extends ConsumerState<MessSettingsScreen> {
               ),
               const SizedBox(height: AppSpace.lg),
               _deadlineSection(context, mess!.id),
+              SwitchListTile(
+                key: const ValueKey('fund-mode'),
+                contentPadding: EdgeInsets.zero,
+                title: Text(l.fundModeTitle),
+                subtitle: Text(l.fundModeHelp),
+                value: mess.fundMode,
+                onChanged: (on) async {
+                  try {
+                    await ref
+                        .read(messControllerProvider)
+                        .setFundMode(mess.id, on);
+                  } catch (e) {
+                    if (context.mounted) showFailure(context, e);
+                  }
+                },
+              ),
               // Kept while the mess already uses a fixed rate.
               if (ref.featureOn('fixed_rate') || _fixedRate) ...[
                 const SizedBox(height: AppSpace.lg),

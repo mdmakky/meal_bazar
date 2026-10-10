@@ -24,6 +24,8 @@ import '../../messages/presentation/messages_screens.dart'
 import '../../mess/application/mess_providers.dart';
 import '../../mess/domain/member.dart';
 import '../../mess/presentation/common.dart';
+import '../../month/application/month_providers.dart';
+import '../../month/domain/month.dart' show MonthPeriod;
 import '../application/bazar_request_providers.dart';
 import '../application/money_providers.dart';
 import '../domain/bazar_catalogue.dart';
@@ -224,6 +226,69 @@ mixin _Submit<W extends ConsumerStatefulWidget> on ConsumerState<W> {
       action: l.delete,
     );
     if (ok && mounted) await run(action, l.moneyDeleted);
+  }
+
+  /// Fund mode: when [amount] (from the fund) is more than the fund holds
+  /// this period, asks whether someone paid from their pocket. Returns
+  /// (go on?, payer chosen). Unknown cash or an old period: no question.
+  Future<(bool, String?)> fundCheck(
+    String messId, {
+    required double amount,
+    required DateTime date,
+    double oldFund = 0,
+  }) async {
+    if (ref.read(currentMessProvider)?.fundMode != true) return (true, null);
+    double? cash;
+    MonthPeriod? period;
+    try {
+      period = await ref.read(currentPeriodProvider(messId).future);
+      cash = (await ref.read(messCashProvider(messId).future))?.cash;
+    } catch (_) {}
+    if (cash == null || period == null || !mounted) return (true, null);
+    if (date.isBefore(period.start) || !date.isBefore(period.end)) {
+      return (true, null);
+    }
+    final have = cash + oldFund;
+    if (amount <= have) return (true, null);
+    final l = AppLocalizations.of(context);
+    final ask = await showDialog<bool>(
+      context: context,
+      builder: (c) => AlertDialog(
+        title: Text(l.fundModePromptTitle),
+        content: Text(
+          l.fundModePromptBody(money(context, have), money(context, amount)),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(c), child: Text(l.cancel)),
+          TextButton(
+            onPressed: () => Navigator.pop(c, false),
+            child: Text(l.fundModeNoFund),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(c, true),
+            child: Text(l.fundModeYesPocket),
+          ),
+        ],
+      ),
+    );
+    if (ask == null || !mounted) return (false, null);
+    if (!ask) return (true, null);
+    final members = _pickable(await ref.read(membersProvider(messId).future));
+    if (!mounted) return (false, null);
+    final who = await showDialog<String>(
+      context: context,
+      builder: (c) => SimpleDialog(
+        title: Text(l.fundModePickPayer),
+        children: [
+          for (final m in members)
+            SimpleDialogOption(
+              onPressed: () => Navigator.pop(c, m.id),
+              child: Text(m.displayName),
+            ),
+        ],
+      ),
+    );
+    return (who != null, who);
   }
 
   /// Error line, the optional lead, then the action row.
@@ -1041,7 +1106,7 @@ class _BazarPageState extends ConsumerState<_BazarPage>
   }
 
   @override
-  void onSave(String messId) {
+  Future<void> onSave(String messId) async {
     final formOk = formKey.currentState!.validate();
     final l = AppLocalizations.of(context);
     final problems = [
@@ -1059,8 +1124,18 @@ class _BazarPageState extends ConsumerState<_BazarPage>
       );
       return;
     }
+    if (_paidBy == null) {
+      final (go, who) = await fundCheck(
+        messId,
+        amount: parseAmount(_amount.text)!,
+        date: _date,
+        oldFund: _b != null && _b.paidByMemberId == null ? _b.amount : 0,
+      );
+      if (!go || !mounted) return;
+      if (who != null) setState(() => _paidBy = who);
+    }
     final ctrl = ref.read(moneyControllerProvider);
-    run(
+    await run(
       () async => ctrl.saveBazar(_build(messId, await uploadPhoto(messId))),
       l.moneySaved,
     );
@@ -2747,24 +2822,44 @@ class _ExpenseFormState extends ConsumerState<_ExpenseForm>
   }
 
   @override
-  void onSave(String messId) => save(
-    () async => ref
-        .read(moneyControllerProvider)
-        .saveExpense(
-          Expense(
-            id: _e?.id ?? uuidV4(),
-            messId: messId,
-            date: _date,
-            categoryId: _category!,
-            amount: parseAmount(_amount.text)!,
-            split: _split == _Split.meal ? SplitMethod.meal : SplitMethod.equal,
-            shares: _split == _Split.selected ? _weights : const {},
-            paidByMemberId: _pocket ? _paidBy : null,
-            note: _trimmed(_note),
-            receiptPath: await uploadPhoto(messId),
+  Future<void> onSave(String messId) async {
+    if (!formKey.currentState!.validate()) return;
+    if (!_pocket) {
+      final (go, who) = await fundCheck(
+        messId,
+        amount: parseAmount(_amount.text)!,
+        date: _date,
+        oldFund: _e != null && _e.paidByMemberId == null ? _e.amount : 0,
+      );
+      if (!go || !mounted) return;
+      if (who != null) {
+        setState(() {
+          _pocket = true;
+          _paidBy = who;
+        });
+      }
+    }
+    await save(
+      () async => ref
+          .read(moneyControllerProvider)
+          .saveExpense(
+            Expense(
+              id: _e?.id ?? uuidV4(),
+              messId: messId,
+              date: _date,
+              categoryId: _category!,
+              amount: parseAmount(_amount.text)!,
+              split: _split == _Split.meal
+                  ? SplitMethod.meal
+                  : SplitMethod.equal,
+              shares: _split == _Split.selected ? _weights : const {},
+              paidByMemberId: _pocket ? _paidBy : null,
+              note: _trimmed(_note),
+              receiptPath: await uploadPhoto(messId),
+            ),
           ),
-        ),
-  );
+    );
+  }
 
   @override
   VoidCallback? get onDelete => switch (_e) {

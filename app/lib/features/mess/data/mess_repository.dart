@@ -186,6 +186,11 @@ class MessRepository {
     () => _client.from('messes').update({'auto_meals': on}).eq('id', messId),
   );
 
+  /// Manager only (RLS). Fund mode on: warn when the fund can't cover a cost (0035).
+  Future<void> setFundMode(String messId, bool on) => guard(
+    () => _client.from('messes').update({'fund_mode': on}).eq('id', messId),
+  );
+
   /// [every] null switches automatic due reminders off.
   Future<Mess> setDueReminders(
     String messId, {

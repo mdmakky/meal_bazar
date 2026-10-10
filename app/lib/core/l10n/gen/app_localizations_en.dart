@@ -4045,4 +4045,36 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get splitMemNoDeposit =>
       'No deposit this month yet, so the share of costs shows as due.';
+
+  @override
+  String get fundModeTitle => 'The mess keeps a fund (members deposit first)';
+
+  @override
+  String get fundModeHelp =>
+      'When on, you are warned if the fund is short. If your mess splits costs at month end, keep it off.';
+
+  @override
+  String fundModeShortTitle(String amount) {
+    return 'Fund is short: $amount missing';
+  }
+
+  @override
+  String get fundModeFix => 'Fix the cost';
+
+  @override
+  String get fundModePromptTitle => 'Fund is short';
+
+  @override
+  String fundModePromptBody(String cash, String amount) {
+    return 'The fund has $cash, the cost is $amount. Did someone pay this from their own pocket?';
+  }
+
+  @override
+  String get fundModeYesPocket => 'Yes, choose who paid';
+
+  @override
+  String get fundModeNoFund => 'No, from the fund';
+
+  @override
+  String get fundModePickPayer => 'Who paid?';
 }

@@ -51,6 +51,9 @@ class MonthDashboard extends ConsumerWidget {
           SectionTitle(l.dashWhoOwes),
           _DuesList(messId: messId),
         ] else ...[
+          // Members see the mess fund too (hidden when the mess keeps none).
+          SectionTitle(l.dashTitle),
+          _CashCard(messId: messId),
           SectionTitle(l.transTitle),
           _Transparency(messId: messId),
           SectionTitle(l.activityTitle),
@@ -265,6 +268,10 @@ class _CashCard extends ConsumerWidget {
     final bn = bnDigits(context);
     final p = context.palette;
     final text = Theme.of(context).textTheme;
+    if (ref.watch(currentMessProvider)?.fundMode == false) {
+      return const SizedBox.shrink();
+    }
+    final manager = ref.watch(amIManagerProvider);
     return _section(
       context,
       ref.watch(messCashProvider(messId)),
@@ -300,10 +307,49 @@ class _CashCard extends ConsumerWidget {
                     ),
                   ),
                   if (c.cash < 0)
-                    Text(
-                      l.splitMemNegativeCash,
-                      key: const Key('cash-negative-note'),
-                      style: text.bodySmall?.copyWith(color: p.inkSecondary),
+                    Container(
+                      padding: const EdgeInsets.all(AppSpace.md),
+                      decoration: BoxDecoration(
+                        color: p.due.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(AppRadius.md),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: AppSpace.sm,
+                        children: [
+                          Row(
+                            spacing: AppSpace.sm,
+                            children: [
+                              Icon(Icons.warning_amber_rounded, color: p.due),
+                              Expanded(
+                                child: Text(
+                                  l.fundModeShortTitle(m(-c.cash)),
+                                  key: const Key('cash-short'),
+                                  style: text.titleSmall?.copyWith(
+                                    color: p.due,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            l.splitMemNegativeCash,
+                            key: const Key('cash-negative-note'),
+                            style: text.bodySmall?.copyWith(
+                              color: p.inkSecondary,
+                            ),
+                          ),
+                          if (manager)
+                            AppButton(
+                              key: const Key('cash-fix'),
+                              label: l.fundModeFix,
+                              variant: AppButtonVariant.secondary,
+                              onPressed: () => context.go(
+                                '/money?tab=${MoneyTab.expense.name}',
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                   if (c.pendingDeposits > 0)
                     Text(

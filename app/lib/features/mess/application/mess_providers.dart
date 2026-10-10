@@ -206,6 +206,11 @@ class MessController {
     _ref.invalidate(myMembershipsProvider);
   }
 
+  Future<void> setFundMode(String messId, bool on) async {
+    await _repo.setFundMode(messId, on);
+    _ref.invalidate(myMembershipsProvider);
+  }
+
   Future<void> setAutoMeals(String messId, bool on) async {
     await _repo.setAutoMeals(messId, on);
     _ref.invalidate(myMembershipsProvider);

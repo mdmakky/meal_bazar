@@ -4032,4 +4032,36 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get splitMemNoDeposit =>
       'এই মাসে এখনো জমা নেই, তাই খরচের ভাগ বাকি দেখাচ্ছে।';
+
+  @override
+  String get fundModeTitle => 'মেসের ফান্ড আছে (আগে জমা নেওয়া হয়)';
+
+  @override
+  String get fundModeHelp =>
+      'চালু থাকলে ফান্ডে টাকা কম পড়লে সতর্ক করা হবে। যাদের মেসে মাস শেষে খরচ ভাগ হয়, তারা বন্ধ রাখুন।';
+
+  @override
+  String fundModeShortTitle(String amount) {
+    return 'ফান্ডে টাকা কম: $amount ঘাটতি';
+  }
+
+  @override
+  String get fundModeFix => 'খরচ ঠিক করুন';
+
+  @override
+  String get fundModePromptTitle => 'ফান্ডে টাকা কম';
+
+  @override
+  String fundModePromptBody(String cash, String amount) {
+    return 'ফান্ডে আছে $cash, খরচ $amount। এটা কি কারও নিজের টাকায় দেওয়া?';
+  }
+
+  @override
+  String get fundModeYesPocket => 'হ্যাঁ, কে দিয়েছে বাছুন';
+
+  @override
+  String get fundModeNoFund => 'না, ফান্ড থেকেই';
+
+  @override
+  String get fundModePickPayer => 'কে দিয়েছে?';
 }

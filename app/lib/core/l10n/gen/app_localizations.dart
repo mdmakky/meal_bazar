@@ -7321,6 +7321,60 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'এই মাসে এখনো জমা নেই, তাই খরচের ভাগ বাকি দেখাচ্ছে।'**
   String get splitMemNoDeposit;
+
+  /// No description provided for @fundModeTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেসের ফান্ড আছে (আগে জমা নেওয়া হয়)'**
+  String get fundModeTitle;
+
+  /// No description provided for @fundModeHelp.
+  ///
+  /// In bn, this message translates to:
+  /// **'চালু থাকলে ফান্ডে টাকা কম পড়লে সতর্ক করা হবে। যাদের মেসে মাস শেষে খরচ ভাগ হয়, তারা বন্ধ রাখুন।'**
+  String get fundModeHelp;
+
+  /// No description provided for @fundModeShortTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'ফান্ডে টাকা কম: {amount} ঘাটতি'**
+  String fundModeShortTitle(String amount);
+
+  /// No description provided for @fundModeFix.
+  ///
+  /// In bn, this message translates to:
+  /// **'খরচ ঠিক করুন'**
+  String get fundModeFix;
+
+  /// No description provided for @fundModePromptTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'ফান্ডে টাকা কম'**
+  String get fundModePromptTitle;
+
+  /// No description provided for @fundModePromptBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'ফান্ডে আছে {cash}, খরচ {amount}। এটা কি কারও নিজের টাকায় দেওয়া?'**
+  String fundModePromptBody(String cash, String amount);
+
+  /// No description provided for @fundModeYesPocket.
+  ///
+  /// In bn, this message translates to:
+  /// **'হ্যাঁ, কে দিয়েছে বাছুন'**
+  String get fundModeYesPocket;
+
+  /// No description provided for @fundModeNoFund.
+  ///
+  /// In bn, this message translates to:
+  /// **'না, ফান্ড থেকেই'**
+  String get fundModeNoFund;
+
+  /// No description provided for @fundModePickPayer.
+  ///
+  /// In bn, this message translates to:
+  /// **'কে দিয়েছে?'**
+  String get fundModePickPayer;
 }
 
 class _AppLocalizationsDelegate

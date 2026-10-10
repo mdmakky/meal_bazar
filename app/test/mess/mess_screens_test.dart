@@ -388,6 +388,18 @@ void main() {
       await tester.pumpAndSettle();
     }
 
+    testWidgets('fund mode switch is saved', (tester) async {
+      when(() => repo.setFundMode(any(), any())).thenAnswer((_) async {});
+      await pump(tester, const MessSettingsScreen());
+      await tester.pumpAndSettle();
+      final sw = find.byKey(const ValueKey('fund-mode'));
+      await tester.ensureVisible(sw);
+      expect(tester.widget<SwitchListTile>(sw).value, isTrue);
+      await tester.tap(sw);
+      await tester.pumpAndSettle();
+      verify(() => repo.setFundMode('mess1', false)).called(1);
+    });
+
     testWidgets('fixed rate needs an amount, then sends mode and rate', (
       tester,
     ) async {

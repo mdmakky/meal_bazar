@@ -31,6 +31,8 @@ class MockMealRepository extends Mock implements MealRepository {}
 
 final l = lookupAppLocalizations(const Locale('bn'));
 
+var fundModeOn = true;
+
 const mess = Mess(
   id: 'mess1',
   name: 'Mirpur Mess',
@@ -129,7 +131,16 @@ List<Override> overrides({
         member: manager
             ? member('rahim', 'Rahim', role: MemberRole.manager)
             : member('karim', 'Karim'),
-        mess: mess,
+        mess: fundModeOn
+            ? mess
+            : const Mess(
+                id: 'mess1',
+                name: 'Mirpur Mess',
+                monthStartDay: 1,
+                currency: '৳',
+                mealOffCutoff: '22:00:00',
+                fundMode: false,
+              ),
       ),
     ],
   ),
@@ -374,6 +385,30 @@ void main() {
       expect(find.byKey(const Key('cash-negative-note')), findsNothing);
     });
 
+    testWidgets('fund short: warning with shortfall and fix button', (
+      tester,
+    ) async {
+      await pumpDashboard(tester, cash: -700);
+      expect(find.text(l.fundModeShortTitle('৳৭০০')), findsOneWidget);
+      await tester.tap(find.byKey(const Key('cash-fix')));
+      await tester.pumpAndSettle();
+      expect(find.text('money /money?tab=expense'), findsOneWidget);
+    });
+
+    testWidgets('cash >= 0: no warning', (tester) async {
+      await pumpDashboard(tester, cash: 0);
+      expect(find.byKey(const Key('cash-short')), findsNothing);
+      expect(find.byKey(const Key('cash-fix')), findsNothing);
+    });
+
+    testWidgets('fund mode off: no cash card', (tester) async {
+      fundModeOn = false;
+      addTearDown(() => fundModeOn = true);
+      await pumpDashboard(tester, cash: -700);
+      expect(find.text(l.cashTitle), findsNothing);
+      expect(find.byKey(const Key('cash-short')), findsNothing);
+    });
+
     testWidgets('negative cash explains itself', (tester) async {
       await pumpDashboard(tester, cash: -700);
       expect(find.byKey(const Key('cash-negative-note')), findsOneWidget);
@@ -431,8 +466,9 @@ void main() {
       // No own-pocket part when there is none.
       expect(find.text('${l.transDeposits} ৳১,০০০'), findsOneWidget);
       expect(find.text('-৳৮৩৪.৬৩'), findsOneWidget);
-      // Manager-only pieces stay out.
-      expect(find.text(l.cashTitle), findsNothing);
+      // Members see the fund too; the manager-only pieces stay out.
+      expect(find.text(l.cashTitle), findsOneWidget);
+      expect(find.byKey(const Key('cash-fix')), findsNothing);
       expect(find.text(l.dueRemindButton), findsNothing);
       expect(find.text(l.attnTitle), findsNothing);
     });

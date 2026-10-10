@@ -2350,5 +2350,16 @@
   "splitMemSharedBy": "{count} জনের মধ্যে",
   "@splitMemSharedBy": {"placeholders": {"count": {"type": "String"}}},
   "splitMemNegativeCash": "ফান্ডের চেয়ে বেশি খরচ হয়েছে। কেউ নিজের টাকায় দিয়ে থাকলে খরচটা তার নামে 'নিজের টাকায়' করুন।",
-  "splitMemNoDeposit": "এই মাসে এখনো জমা নেই, তাই খরচের ভাগ বাকি দেখাচ্ছে।"
+  "splitMemNoDeposit": "এই মাসে এখনো জমা নেই, তাই খরচের ভাগ বাকি দেখাচ্ছে।",
+  "fundModeTitle": "মেসের ফান্ড আছে (আগে জমা নেওয়া হয়)",
+  "fundModeHelp": "চালু থাকলে ফান্ডে টাকা কম পড়লে সতর্ক করা হবে। যাদের মেসে মাস শেষে খরচ ভাগ হয়, তারা বন্ধ রাখুন।",
+  "fundModeShortTitle": "ফান্ডে টাকা কম: {amount} ঘাটতি",
+  "@fundModeShortTitle": {"placeholders": {"amount": {"type": "String"}}},
+  "fundModeFix": "খরচ ঠিক করুন",
+  "fundModePromptTitle": "ফান্ডে টাকা কম",
+  "fundModePromptBody": "ফান্ডে আছে {cash}, খরচ {amount}। এটা কি কারও নিজের টাকায় দেওয়া?",
+  "@fundModePromptBody": {"placeholders": {"cash": {"type": "String"}, "amount": {"type": "String"}}},
+  "fundModeYesPocket": "হ্যাঁ, কে দিয়েছে বাছুন",
+  "fundModeNoFund": "না, ফান্ড থেকেই",
+  "fundModePickPayer": "কে দিয়েছে?"
 }

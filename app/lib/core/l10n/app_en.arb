@@ -1971,5 +1971,16 @@
   "splitMemSharedBy": "Shared by {count}",
   "@splitMemSharedBy": {"placeholders": {"count": {"type": "String"}}},
   "splitMemNegativeCash": "Spending is more than the fund. If someone paid from their own pocket, record the expense under their name as \"own money\".",
-  "splitMemNoDeposit": "No deposit this month yet, so the share of costs shows as due."
+  "splitMemNoDeposit": "No deposit this month yet, so the share of costs shows as due.",
+  "fundModeTitle": "The mess keeps a fund (members deposit first)",
+  "fundModeHelp": "When on, you are warned if the fund is short. If your mess splits costs at month end, keep it off.",
+  "fundModeShortTitle": "Fund is short: {amount} missing",
+  "@fundModeShortTitle": {"placeholders": {"amount": {"type": "String"}}},
+  "fundModeFix": "Fix the cost",
+  "fundModePromptTitle": "Fund is short",
+  "fundModePromptBody": "The fund has {cash}, the cost is {amount}. Did someone pay this from their own pocket?",
+  "@fundModePromptBody": {"placeholders": {"cash": {"type": "String"}, "amount": {"type": "String"}}},
+  "fundModeYesPocket": "Yes, choose who paid",
+  "fundModeNoFund": "No, from the fund",
+  "fundModePickPayer": "Who paid?"
 }

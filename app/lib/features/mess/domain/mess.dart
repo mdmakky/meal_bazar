@@ -15,6 +15,7 @@ class Mess {
     this.fixedMealRate,
     this.dueReminderEvery,
     this.dueReminderMin = 0,
+    this.fundMode = true,
     this.autoMeals = false,
     this.autoMealsLastDate,
     this.autoMealsLastCount,
@@ -33,6 +34,7 @@ class Mess {
     fixedMealRate: (json['fixed_meal_rate'] as num?)?.toDouble(),
     dueReminderEvery: (json['due_reminder_every'] as num?)?.toInt(),
     dueReminderMin: double.tryParse('${json['due_reminder_min']}') ?? 0,
+    fundMode: json['fund_mode'] != false,
     autoMeals: json['auto_meals'] == true,
     autoMealsLastDate: json['auto_meals_last_date'] as String?,
     autoMealsLastCount: (json['auto_meals_last_count'] as num?)?.toInt(),
@@ -64,6 +66,9 @@ class Mess {
 
   /// Only dues above this are reminded.
   final double dueReminderMin;
+
+  /// The mess keeps a fund: members deposit first (supabase 0035).
+  final bool fundMode;
 
   /// Missing meals are filled in after midnight (0031); the last run's day and size.
   final bool autoMeals;
