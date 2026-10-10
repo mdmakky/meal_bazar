@@ -22,43 +22,43 @@ class AppShell extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     return Scaffold(
-      body: shell,
-      // Unsent changes are announced app-wide, right above the tabs.
-      bottomNavigationBar: Column(
-        mainAxisSize: MainAxisSize.min,
+      // Unsent changes are announced app-wide, right above the tabs. The strip
+      // floats over the page instead of pushing it (and its + button) up.
+      body: Stack(
         children: [
-          const SyncStrip(),
-          AppNavBar(
-            selectedIndex: shell.currentIndex,
-            onSelected: (i) =>
-                shell.goBranch(i, initialLocation: i == shell.currentIndex),
-            items: [
-              AppNavItem(
-                icon: Icons.home_outlined,
-                selectedIcon: Icons.home,
-                label: l.navHome,
-              ),
-              AppNavItem(
-                icon: Icons.restaurant_outlined,
-                selectedIcon: Icons.restaurant,
-                label: l.navMeals,
-              ),
-              AppNavItem(
-                icon: Icons.shopping_basket_outlined,
-                selectedIcon: Icons.shopping_basket,
-                label: l.navBazar,
-              ),
-              AppNavItem(
-                icon: Icons.account_balance_wallet_outlined,
-                selectedIcon: Icons.account_balance_wallet,
-                label: l.navMoney,
-              ),
-              AppNavItem(
-                icon: Icons.more_horiz,
-                selectedIcon: Icons.more_horiz,
-                label: l.navMore,
-              ),
-            ],
+          shell,
+          const Align(alignment: Alignment.bottomCenter, child: SyncStrip()),
+        ],
+      ),
+      bottomNavigationBar: AppNavBar(
+        selectedIndex: shell.currentIndex,
+        onSelected: (i) =>
+            shell.goBranch(i, initialLocation: i == shell.currentIndex),
+        items: [
+          AppNavItem(
+            icon: Icons.home_outlined,
+            selectedIcon: Icons.home,
+            label: l.navHome,
+          ),
+          AppNavItem(
+            icon: Icons.restaurant_outlined,
+            selectedIcon: Icons.restaurant,
+            label: l.navMeals,
+          ),
+          AppNavItem(
+            icon: Icons.shopping_basket_outlined,
+            selectedIcon: Icons.shopping_basket,
+            label: l.navBazar,
+          ),
+          AppNavItem(
+            icon: Icons.account_balance_wallet_outlined,
+            selectedIcon: Icons.account_balance_wallet,
+            label: l.navMoney,
+          ),
+          AppNavItem(
+            icon: Icons.more_horiz,
+            selectedIcon: Icons.more_horiz,
+            label: l.navMore,
           ),
         ],
       ),
