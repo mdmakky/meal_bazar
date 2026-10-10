@@ -9,12 +9,15 @@ import '../../../core/widgets/widgets.dart';
 import '../../auth/application/auth_providers.dart';
 
 /// The link a QR / share message carries; [extractInviteCode] reads it back.
-String inviteLink(String code) => 'https://mealbazar.app/join/$code';
+String inviteLink(String code) => '$inviteLinkBase$code';
 
-final _codeInUrl = RegExp(r'/join/([A-Za-z0-9]{6})(?:[/?#]|$)');
-final _rawCode = RegExp(r'^[A-Za-z0-9]{6}$');
+/// The web landing page that opens the app (app/web/join.html).
+const inviteLinkBase = 'https://meal-bazar-admin.vercel.app/join/';
 
-/// The 6-character invite code inside a scanned `…/join/CODE` URL or a raw
+final _codeInUrl = RegExp(r'/join/([A-Za-z0-9]{6,12})(?:[/?#]|$)');
+final _rawCode = RegExp(r'^[A-Za-z0-9]{6,12}$');
+
+/// The 6 to 12 character invite code inside a scanned `…/join/CODE` URL or a raw
 /// code, uppercased; null for anything else.
 String? extractInviteCode(String scanned) {
   final s = scanned.trim();
@@ -23,10 +26,10 @@ String? extractInviteCode(String scanned) {
   return code?.toUpperCase();
 }
 
-/// Letters/digits only, uppercased, at most 6.
+/// Letters/digits only, uppercased, at most 12.
 final inviteCodeFormatters = <TextInputFormatter>[
   FilteringTextInputFormatter.allow(RegExp('[A-Za-z0-9]')),
-  LengthLimitingTextInputFormatter(6),
+  LengthLimitingTextInputFormatter(12),
   TextInputFormatter.withFunction(
     (_, v) => v.copyWith(text: v.text.toUpperCase()),
   ),

@@ -98,6 +98,17 @@ void main() {
     expect(land('/bazar', signedIn: false), '/auth/sign-in');
   });
 
+  test('a 10-char link invite carries through a signed-out start', () {
+    expect(
+      land('/join/K7MQ2XW9ZA', signedIn: false),
+      '/auth/sign-in?code=K7MQ2XW9ZA',
+    );
+    expect(
+      land('/auth/profile?code=K7MQ2XW9ZA'),
+      '/onboarding/join?code=K7MQ2XW9ZA',
+    );
+  });
+
   test('invite deep link survives sign-in and profile setup', () {
     expect(land('/join/AB12', signedIn: false), '/auth/sign-in?code=AB12');
     expect(

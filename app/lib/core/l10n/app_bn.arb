@@ -252,6 +252,54 @@
     }
   },
   "inviteRegenerate": "নতুন কোড",
+  "inviteByLink": "লিংক দিয়ে ডাকুন",
+  "inviteLinkSheetTitle": "লিংক দিয়ে ডাকুন",
+  "inviteeNameLabel": "কাকে ডাকছেন? (ঐচ্ছিক)",
+  "inviteCreateLink": "লিংক বানান",
+  "inviteCopyLink": "লিংক কপি করুন",
+  "inviteLinkCopied": "লিংক কপি হয়েছে",
+  "inviteLinkNote": "লিংকটা একজনের জন্য, ৭ দিন চলবে। অ্যাকাউন্ট না থাকলে আগে অ্যাকাউন্ট খুলতে বলা হবে, থাকলে সরাসরি মেসে যোগ হবে।",
+  "inviteLinkShareMessage": "{manager} আপনাকে '{mess}' মেসে ডেকেছেন। যোগ দিতে এই লিংকে চাপুন: {link}",
+  "@inviteLinkShareMessage": {
+    "placeholders": {
+      "manager": {
+        "type": "String"
+      },
+      "mess": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "inviteSharedCodeTitle": "সবার জন্য কোড (অনুমোদন লাগবে)",
+  "inviteCardTitle": "{inviter} আপনাকে '{mess}' মেসে ডেকেছেন",
+  "@inviteCardTitle": {
+    "placeholders": {
+      "inviter": {
+        "type": "String"
+      },
+      "mess": {
+        "type": "String"
+      }
+    }
+  },
+  "inviteCardFor": "({name} এর জন্য)",
+  "@inviteCardFor": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "inviteJoinNow": "মেসে যোগ দিন",
+  "inviteJoined": "মেসে যোগ হয়েছে",
+  "inviteReasonUsed": "এই লিংক আগেই ব্যবহার করা হয়েছে — ম্যানেজারকে নতুন লিংক দিতে বলুন",
+  "inviteReasonExpired": "এই লিংকের মেয়াদ শেষ — ম্যানেজারকে নতুন লিংক দিতে বলুন",
+  "inviteReasonRevoked": "এই লিংক বাতিল করা হয়েছে — ম্যানেজারকে নতুন লিংক দিতে বলুন",
+  "inviteReasonUnknown": "এই লিংক বা কোড ঠিক নয় — আবার দেখুন, অথবা ম্যানেজারকে জিজ্ঞেস করুন",
+  "inviteSignInBanner": "মেসে যোগ দিতে আগে অ্যাকাউন্ট খুলুন বা লগইন করুন (Google দিয়েও পারবেন)",
   "inviteManagerOnly": "শুধু ম্যানেজার নতুন সদস্য ডাকতে পারেন",
   "settingsTitle": "মেসের সেটিংস",
   "settingsAddress": "ঠিকানা (না দিলেও চলবে)",

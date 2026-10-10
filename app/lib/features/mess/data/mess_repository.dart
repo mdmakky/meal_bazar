@@ -2,6 +2,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/db/db.dart';
 import '../../../core/errors.dart';
+import '../domain/invite_preview.dart';
 import '../domain/member.dart';
 import '../domain/mess.dart';
 
@@ -56,7 +57,26 @@ class MessRepository {
     return code as String;
   });
 
-  /// Returns my (pending) member id.
+  /// Manager only: a single-use link code (10 characters, valid 7 days).
+  Future<String> createInviteLink(String messId, {String? inviteeName}) =>
+      guard(() async {
+        final code = await _client.rpc(
+          'create_invite_link',
+          params: {'p_mess': messId, 'p_invitee_name': inviteeName?.trim()},
+        );
+        return code as String;
+      });
+
+  /// Callable before sign-in: who invites, to which mess, still usable?
+  Future<InvitePreview> invitePreview(String code) => guard(() async {
+    final rows = await _client.rpc(
+      'invite_preview',
+      params: {'p_code': code.trim()},
+    );
+    return InvitePreview.fromJson((rows as List).first as Map<String, dynamic>);
+  });
+
+  /// Returns my member id (pending, or active for a link invite).
   Future<String> joinMess({
     required String code,
     required String displayName,

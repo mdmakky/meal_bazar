@@ -515,6 +515,72 @@ class AppLocalizationsBn extends AppLocalizations {
   String get inviteRegenerate => 'নতুন কোড';
 
   @override
+  String get inviteByLink => 'লিংক দিয়ে ডাকুন';
+
+  @override
+  String get inviteLinkSheetTitle => 'লিংক দিয়ে ডাকুন';
+
+  @override
+  String get inviteeNameLabel => 'কাকে ডাকছেন? (ঐচ্ছিক)';
+
+  @override
+  String get inviteCreateLink => 'লিংক বানান';
+
+  @override
+  String get inviteCopyLink => 'লিংক কপি করুন';
+
+  @override
+  String get inviteLinkCopied => 'লিংক কপি হয়েছে';
+
+  @override
+  String get inviteLinkNote =>
+      'লিংকটা একজনের জন্য, ৭ দিন চলবে। অ্যাকাউন্ট না থাকলে আগে অ্যাকাউন্ট খুলতে বলা হবে, থাকলে সরাসরি মেসে যোগ হবে।';
+
+  @override
+  String inviteLinkShareMessage(String manager, String mess, String link) {
+    return '$manager আপনাকে \'$mess\' মেসে ডেকেছেন। যোগ দিতে এই লিংকে চাপুন: $link';
+  }
+
+  @override
+  String get inviteSharedCodeTitle => 'সবার জন্য কোড (অনুমোদন লাগবে)';
+
+  @override
+  String inviteCardTitle(String inviter, String mess) {
+    return '$inviter আপনাকে \'$mess\' মেসে ডেকেছেন';
+  }
+
+  @override
+  String inviteCardFor(String name) {
+    return '($name এর জন্য)';
+  }
+
+  @override
+  String get inviteJoinNow => 'মেসে যোগ দিন';
+
+  @override
+  String get inviteJoined => 'মেসে যোগ হয়েছে';
+
+  @override
+  String get inviteReasonUsed =>
+      'এই লিংক আগেই ব্যবহার করা হয়েছে — ম্যানেজারকে নতুন লিংক দিতে বলুন';
+
+  @override
+  String get inviteReasonExpired =>
+      'এই লিংকের মেয়াদ শেষ — ম্যানেজারকে নতুন লিংক দিতে বলুন';
+
+  @override
+  String get inviteReasonRevoked =>
+      'এই লিংক বাতিল করা হয়েছে — ম্যানেজারকে নতুন লিংক দিতে বলুন';
+
+  @override
+  String get inviteReasonUnknown =>
+      'এই লিংক বা কোড ঠিক নয় — আবার দেখুন, অথবা ম্যানেজারকে জিজ্ঞেস করুন';
+
+  @override
+  String get inviteSignInBanner =>
+      'মেসে যোগ দিতে আগে অ্যাকাউন্ট খুলুন বা লগইন করুন (Google দিয়েও পারবেন)';
+
+  @override
   String get inviteManagerOnly => 'শুধু ম্যানেজার নতুন সদস্য ডাকতে পারেন';
 
   @override

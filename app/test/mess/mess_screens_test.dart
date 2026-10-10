@@ -4,12 +4,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:meal_bazar/core/l10n/gen/app_localizations.dart';
 import 'package:meal_bazar/core/theme/app_theme.dart';
+import 'package:meal_bazar/core/widgets/widgets.dart';
 import 'package:meal_bazar/features/auth/application/auth_providers.dart';
 import 'package:meal_bazar/features/auth/domain/profile.dart';
 import 'package:meal_bazar/features/meals/application/meal_providers.dart';
 import 'package:meal_bazar/features/meals/domain/meal.dart';
 import 'package:meal_bazar/features/mess/application/mess_providers.dart';
 import 'package:meal_bazar/features/mess/data/mess_repository.dart';
+import 'package:meal_bazar/features/mess/domain/invite_preview.dart';
 import 'package:meal_bazar/features/mess/domain/member.dart';
 import 'package:meal_bazar/features/mess/domain/mess.dart';
 import 'package:meal_bazar/features/mess/presentation/mess_screens.dart';
@@ -55,11 +57,13 @@ Future<void> pump(
   Widget screen, {
   bool manager = true,
   List<Member> members = const [],
+  List<GoRoute> extraRoutes = const [],
 }) {
   final router = GoRouter(
     routes: [
       GoRoute(path: '/', builder: (_, _) => screen),
       GoRoute(path: '/pending', builder: (_, _) => const Text('pending-page')),
+      ...extraRoutes,
     ],
   );
   return tester.pumpWidget(
@@ -125,7 +129,10 @@ void main() {
       expect(extractInviteCode(''), isNull);
       expect(extractInviteCode('hello world'), isNull);
       expect(extractInviteCode('ABC12'), isNull);
-      expect(extractInviteCode('https://mealbazar.app/join/ABC1234'), isNull);
+      expect(
+        extractInviteCode('https://mealbazar.app/join/ABC1234567890'),
+        isNull,
+      );
       expect(extractInviteCode('https://example.com/other/ABC123'), isNull);
     });
   });
@@ -217,6 +224,106 @@ void main() {
     verify(() => repo.createInvite('mess1')).called(1);
     expect(find.text('ABC123'), findsOneWidget);
     expect(find.text(l.inviteValidity), findsOneWidget);
+  });
+
+  testWidgets('invite link sheet creates a link and shows it', (tester) async {
+    when(() => repo.createInvite('mess1')).thenAnswer((_) async => 'ABC123');
+    when(
+      () => repo.createInviteLink('mess1', inviteeName: 'Karim'),
+    ).thenAnswer((_) async => 'K7MQ2XW9ZA');
+    await pump(tester, const InviteScreen());
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('inviteByLink')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('inviteeName')), 'Karim');
+    await tester.tap(find.byKey(const Key('createLink')));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('https://meal-bazar-admin.vercel.app/join/K7MQ2XW9ZA'),
+      findsOneWidget,
+    );
+    expect(find.text(l.inviteCopyLink), findsOneWidget);
+    expect(find.text(l.inviteLinkNote), findsOneWidget);
+  });
+
+  group('JoinMessScreen invite preview', () {
+    InvitePreview preview({
+      bool valid = true,
+      String? reason,
+      bool auto = true,
+      String? invitee,
+    }) => InvitePreview(
+      valid: valid,
+      reason: reason,
+      messName: 'Mirpur Mess',
+      inviterName: 'Rahim',
+      inviteeName: invitee,
+      autoApprove: auto,
+    );
+
+    testWidgets('valid link invite joins and goes home', (tester) async {
+      when(
+        () => repo.invitePreview('K7MQ2XW9ZA'),
+      ).thenAnswer((_) async => preview(invitee: 'Karim'));
+      when(
+        () => repo.joinMess(code: 'K7MQ2XW9ZA', displayName: 'Rahim'),
+      ).thenAnswer((_) async => 'member-id');
+      await pump(
+        tester,
+        const JoinMessScreen(initialCode: 'k7mq2xw9za'),
+        extraRoutes: [
+          GoRoute(path: '/today', builder: (_, _) => const Text('home-page')),
+        ],
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text(l.inviteCardTitle('Rahim', 'Mirpur Mess')), findsOne);
+      expect(find.text(l.inviteCardFor('Karim')), findsOneWidget);
+      await tester.tap(find.widgetWithText(AppButton, l.inviteJoinNow));
+      await tester.pumpAndSettle();
+
+      verify(
+        () => repo.joinMess(code: 'K7MQ2XW9ZA', displayName: 'Rahim'),
+      ).called(1);
+      expect(find.text('home-page'), findsOneWidget);
+    });
+
+    for (final (reason, text) in [
+      ('used', l.inviteReasonUsed),
+      ('expired', l.inviteReasonExpired),
+    ]) {
+      testWidgets('$reason invite explains and keeps the code field', (
+        tester,
+      ) async {
+        when(
+          () => repo.invitePreview('K7MQ2XW9ZA'),
+        ).thenAnswer((_) async => preview(valid: false, reason: reason));
+        await pump(tester, const JoinMessScreen(initialCode: 'K7MQ2XW9ZA'));
+        await tester.pumpAndSettle();
+
+        expect(find.text(text), findsOneWidget);
+        expect(find.byKey(const Key('inviteCode')), findsOneWidget);
+        expect(find.widgetWithText(AppButton, l.inviteJoinNow), findsNothing);
+      });
+    }
+  });
+
+  test('InvitePreview parses the RPC row', () {
+    final p = InvitePreview.fromJson({
+      'valid': false,
+      'reason': 'used',
+      'mess_name': 'M',
+      'inviter_name': 'R',
+      'invitee_name': null,
+      'auto_approve': true,
+    });
+    expect(
+      (p.valid, p.reason, p.messName, p.autoApprove),
+      (false, 'used', 'M', true),
+    );
+    expect(p.inviteeName, isNull);
   });
 
   group('JoinMessScreen', () {

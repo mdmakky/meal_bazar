@@ -8,6 +8,7 @@ import '../../../core/platform/platform_widgets.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../auth/application/auth_providers.dart';
 import '../application/mess_providers.dart';
+import '../domain/invite_preview.dart';
 import '../domain/member.dart';
 import 'common.dart';
 
@@ -208,6 +209,9 @@ class _JoinMessScreenState extends ConsumerState<JoinMessScreen> {
   final _myName = TextEditingController();
   var _saving = false;
 
+  /// The code from the deep link, previewed before joining; null when typed.
+  late final String? _linkCode = extractInviteCode(widget.initialCode ?? '');
+
   @override
   void initState() {
     super.initState();
@@ -235,10 +239,25 @@ class _JoinMessScreenState extends ConsumerState<JoinMessScreen> {
     if (_saving || !_form.currentState!.validate()) return;
     setState(() => _saving = true);
     try {
+      final preview = _linkCode == null
+          ? null
+          : ref.read(invitePreviewProvider(_linkCode)).value;
       await ref
           .read(messControllerProvider)
           .joinMess(code: _code.text, displayName: _myName.text);
-      if (mounted) context.go('/pending');
+      if (!mounted) return;
+      if (preview?.valid == true && preview!.autoApprove) {
+        // Active at once: wait for the fresh memberships, then go home.
+        final l = AppLocalizations.of(context);
+        await ref.read(myMembershipsProvider.future);
+        if (!mounted) return;
+        showSnack(context, l.inviteJoined);
+        context.go('/today');
+      } else {
+        // A link code typed by hand also activates; the router sends active
+        // members on from /pending.
+        context.go('/pending');
+      }
     } catch (e) {
       if (!mounted) return;
       setState(() => _saving = false);
@@ -250,6 +269,11 @@ class _JoinMessScreenState extends ConsumerState<JoinMessScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
+    final linkCode = _linkCode;
+    final preview = linkCode == null
+        ? null
+        : ref.watch(invitePreviewProvider(linkCode));
+    final good = preview?.value?.valid == true ? preview!.value! : null;
     return Scaffold(
       appBar: AppBar(title: Text(l.messJoinTitle)),
       body: Form(
@@ -257,45 +281,60 @@ class _JoinMessScreenState extends ConsumerState<JoinMessScreen> {
         child: ListView(
           padding: const EdgeInsets.all(AppSpace.gutter),
           children: [
-            AppCard.raised(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  TextFormField(
-                    key: const Key('inviteCode'),
-                    controller: _code,
-                    autofocus: _code.text.isEmpty,
-                    textCapitalization: TextCapitalization.characters,
-                    autocorrect: false,
-                    enableSuggestions: false,
-                    inputFormatters: inviteCodeFormatters,
-                    textInputAction: TextInputAction.next,
-                    style: text.headlineSmall?.copyWith(
-                      letterSpacing: AppSpace.sm,
-                      fontFeatures: const [FontFeature.tabularFigures()],
-                    ),
-                    decoration: InputDecoration(
-                      labelText: l.messCodeLabel,
-                      helperText: l.messCodeHelp,
-                      hintText: 'ABC123',
-                    ),
-                    validator: (v) =>
-                        (v ?? '').length == 6 ? null : l.messCodeInvalid,
-                  ),
-                  const SizedBox(height: AppSpace.md),
-                  Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: AppButton(
-                      label: l.messScanQr,
-                      icon: Icons.qr_code_scanner,
-                      variant: AppButtonVariant.secondary,
-                      onPressed: _scan,
-                    ),
-                  ),
-                ],
+            if (preview != null) ...[
+              preview.when(
+                loading: () => const Padding(
+                  padding: EdgeInsets.all(AppSpace.lg),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
+                // Offline or unreachable: fall back to the manual form.
+                error: (_, _) => const SizedBox.shrink(),
+                data: (p) => _InvitePreviewCard(p),
               ),
-            ),
-            const SizedBox(height: AppSpace.md),
+              const SizedBox(height: AppSpace.md),
+            ],
+            if (good == null)
+              AppCard.raised(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TextFormField(
+                      key: const Key('inviteCode'),
+                      controller: _code,
+                      autofocus: _code.text.isEmpty,
+                      textCapitalization: TextCapitalization.characters,
+                      autocorrect: false,
+                      enableSuggestions: false,
+                      inputFormatters: inviteCodeFormatters,
+                      textInputAction: TextInputAction.next,
+                      style: text.headlineSmall?.copyWith(
+                        letterSpacing: AppSpace.sm,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                      decoration: InputDecoration(
+                        labelText: l.messCodeLabel,
+                        helperText: l.messCodeHelp,
+                        hintText: 'ABC123',
+                      ),
+                      validator: (v) {
+                        final n = (v ?? '').length;
+                        return n >= 6 && n <= 12 ? null : l.messCodeInvalid;
+                      },
+                    ),
+                    const SizedBox(height: AppSpace.md),
+                    Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: AppButton(
+                        label: l.messScanQr,
+                        icon: Icons.qr_code_scanner,
+                        variant: AppButtonVariant.secondary,
+                        onPressed: _scan,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            if (good == null) const SizedBox(height: AppSpace.md),
             AppCard.raised(
               child: TextFormField(
                 controller: _myName,
@@ -315,9 +354,65 @@ class _JoinMessScreenState extends ConsumerState<JoinMessScreen> {
       bottomNavigationBar: BottomAction(
         children: [
           AppButton(
-            label: l.messJoinSubmit,
+            label: good?.autoApprove == true
+                ? l.inviteJoinNow
+                : l.messJoinSubmit,
             loading: _saving,
             onPressed: _submit,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Who invited me, or a calm reason the invite no longer works.
+class _InvitePreviewCard extends StatelessWidget {
+  const _InvitePreviewCard(this.preview);
+
+  final InvitePreview preview;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final p = context.palette;
+    final pv = preview;
+    final String title;
+    String? sub;
+    if (pv.valid) {
+      title = l.inviteCardTitle(pv.inviterName ?? '', pv.messName ?? '');
+      if (pv.inviteeName != null) sub = l.inviteCardFor(pv.inviteeName!);
+    } else {
+      title = switch (pv.reason) {
+        'used' => l.inviteReasonUsed,
+        'expired' => l.inviteReasonExpired,
+        'revoked' => l.inviteReasonRevoked,
+        _ => l.inviteReasonUnknown,
+      };
+    }
+    return AppCard.raised(
+      key: const Key('invitePreview'),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: AppSpace.md,
+        children: [
+          Icon(
+            pv.valid ? Icons.mark_email_read_outlined : Icons.link_off,
+            color: p.inkSecondary,
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: text.titleMedium),
+                if (sub != null)
+                  Text(
+                    sub,
+                    style: text.bodyMedium?.copyWith(color: p.inkSecondary),
+                  ),
+              ],
+            ),
           ),
         ],
       ),

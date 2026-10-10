@@ -1028,6 +1028,114 @@ abstract class AppLocalizations {
   /// **'নতুন কোড'**
   String get inviteRegenerate;
 
+  /// No description provided for @inviteByLink.
+  ///
+  /// In bn, this message translates to:
+  /// **'লিংক দিয়ে ডাকুন'**
+  String get inviteByLink;
+
+  /// No description provided for @inviteLinkSheetTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'লিংক দিয়ে ডাকুন'**
+  String get inviteLinkSheetTitle;
+
+  /// No description provided for @inviteeNameLabel.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাকে ডাকছেন? (ঐচ্ছিক)'**
+  String get inviteeNameLabel;
+
+  /// No description provided for @inviteCreateLink.
+  ///
+  /// In bn, this message translates to:
+  /// **'লিংক বানান'**
+  String get inviteCreateLink;
+
+  /// No description provided for @inviteCopyLink.
+  ///
+  /// In bn, this message translates to:
+  /// **'লিংক কপি করুন'**
+  String get inviteCopyLink;
+
+  /// No description provided for @inviteLinkCopied.
+  ///
+  /// In bn, this message translates to:
+  /// **'লিংক কপি হয়েছে'**
+  String get inviteLinkCopied;
+
+  /// No description provided for @inviteLinkNote.
+  ///
+  /// In bn, this message translates to:
+  /// **'লিংকটা একজনের জন্য, ৭ দিন চলবে। অ্যাকাউন্ট না থাকলে আগে অ্যাকাউন্ট খুলতে বলা হবে, থাকলে সরাসরি মেসে যোগ হবে।'**
+  String get inviteLinkNote;
+
+  /// No description provided for @inviteLinkShareMessage.
+  ///
+  /// In bn, this message translates to:
+  /// **'{manager} আপনাকে \'{mess}\' মেসে ডেকেছেন। যোগ দিতে এই লিংকে চাপুন: {link}'**
+  String inviteLinkShareMessage(String manager, String mess, String link);
+
+  /// No description provided for @inviteSharedCodeTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'সবার জন্য কোড (অনুমোদন লাগবে)'**
+  String get inviteSharedCodeTitle;
+
+  /// No description provided for @inviteCardTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'{inviter} আপনাকে \'{mess}\' মেসে ডেকেছেন'**
+  String inviteCardTitle(String inviter, String mess);
+
+  /// No description provided for @inviteCardFor.
+  ///
+  /// In bn, this message translates to:
+  /// **'({name} এর জন্য)'**
+  String inviteCardFor(String name);
+
+  /// No description provided for @inviteJoinNow.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেসে যোগ দিন'**
+  String get inviteJoinNow;
+
+  /// No description provided for @inviteJoined.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেসে যোগ হয়েছে'**
+  String get inviteJoined;
+
+  /// No description provided for @inviteReasonUsed.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই লিংক আগেই ব্যবহার করা হয়েছে — ম্যানেজারকে নতুন লিংক দিতে বলুন'**
+  String get inviteReasonUsed;
+
+  /// No description provided for @inviteReasonExpired.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই লিংকের মেয়াদ শেষ — ম্যানেজারকে নতুন লিংক দিতে বলুন'**
+  String get inviteReasonExpired;
+
+  /// No description provided for @inviteReasonRevoked.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই লিংক বাতিল করা হয়েছে — ম্যানেজারকে নতুন লিংক দিতে বলুন'**
+  String get inviteReasonRevoked;
+
+  /// No description provided for @inviteReasonUnknown.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই লিংক বা কোড ঠিক নয় — আবার দেখুন, অথবা ম্যানেজারকে জিজ্ঞেস করুন'**
+  String get inviteReasonUnknown;
+
+  /// No description provided for @inviteSignInBanner.
+  ///
+  /// In bn, this message translates to:
+  /// **'মেসে যোগ দিতে আগে অ্যাকাউন্ট খুলুন বা লগইন করুন (Google দিয়েও পারবেন)'**
+  String get inviteSignInBanner;
+
   /// No description provided for @inviteManagerOnly.
   ///
   /// In bn, this message translates to:

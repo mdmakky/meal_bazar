@@ -1,0 +1,59 @@
+<!doctype html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex"><title>মেসে যোগ দিন · Meal Bazar</title><link rel="icon" href="/favicon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600&display=swap"><style>
+:root{--bg:#F7F6F3;--fg:#141416;--muted:#5d5c58;--line:#e2e0da;--accent:#C98A0B;--card:#fff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 "Hind Siliguri",system-ui,sans-serif;padding:24px 16px 48px}
+main{max-width:480px;margin:0 auto}header{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+header img{width:44px;height:44px;border-radius:12px}header b{font-size:18px}header span{display:block;color:var(--muted);font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:16px}
+h1{font-size:22px;line-height:1.35;margin:0 0 6px}p{margin:0 0 8px}.muted{color:var(--muted);font-size:14px}
+.btn{display:block;width:100%;text-align:center;font:inherit;font-weight:600;border-radius:12px;padding:12px 16px;margin-top:12px;border:1px solid var(--fg);text-decoration:none;cursor:pointer}
+.primary{background:var(--fg);color:#fff}.secondary{background:transparent;color:var(--fg)}
+.code{display:flex;align-items:center;gap:12px;justify-content:space-between}
+.code b{font-size:22px;letter-spacing:3px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.code button{font:inherit;font-weight:600;color:var(--accent);background:none;border:1px solid var(--accent);border-radius:10px;padding:6px 14px;cursor:pointer}
+ol{margin:8px 0 0;padding-left:20px}li{margin-bottom:4px}
+</style></head>
+<body><main>
+<header><img src="/icons/Icon-192.png" alt=""><div><b>Meal Bazar</b><span>মিল বাজার</span></div></header>
+<div class="card"><h1 id="title">একটু অপেক্ষা করুন…</h1><p class="muted" id="sub"></p></div>
+<div id="actions" hidden>
+<div class="card">
+<a class="btn primary" id="open" href="#">অ্যাপ খুলুন</a>
+<h2 style="font-size:17px;margin:20px 0 0">অ্যাপ নেই?</h2>
+<ol><li>arm64 ফাইলটা নামান, খুলে ইনস্টল করুন</li><li>তারপর এই লিংকে আবার চাপুন</li></ol>
+<a class="btn secondary" href="https://github.com/mdmakky/meal_bazar/releases/latest">অ্যাপ নামিয়ে নিন</a>
+</div>
+<div class="card code"><div><span class="muted">অ্যাপে হাতে লিখে যোগ দিতে</span><br>কোড: <b id="code"></b></div><button id="copy" type="button">কপি</button></div>
+</div>
+<script>
+(function(){
+var SUPABASE_URL="https://teacmkqhtmvuyjjwlbch.supabase.co",KEY="sb_publishable_djw4L9Ze1tH1Nm9kR9ISMQ_ar6OJhuN";
+var $=function(i){return document.getElementById(i)};
+var m=location.pathname.match(/^\/join\/([A-Za-z0-9]{6,12})\/?$/);
+var code=m?m[1].toUpperCase():"";
+var reasons={used:"এই লিংক আগেই ব্যবহার করা হয়েছে — ম্যানেজারকে নতুন লিংক দিতে বলুন",expired:"এই লিংকের মেয়াদ শেষ — ম্যানেজারকে নতুন লিংক দিতে বলুন",revoked:"এই লিংক বাতিল করা হয়েছে — ম্যানেজারকে নতুন লিংক দিতে বলুন",unknown:"এই লিংক ঠিক নয় — আবার দেখুন, অথবা ম্যানেজারকে জিজ্ঞেস করুন"};
+function show(t,s){$("title").textContent=t;$("sub").textContent=s||""}
+if(!code){show(reasons.unknown);return}
+$("code").textContent=code;
+$("open").href="intent://meal-bazar-admin.vercel.app/join/"+code+"#Intent;scheme=https;package=com.mealbazar.meal_bazar;S.browser_fallback_url=https%3A%2F%2Fgithub.com%2Fmdmakky%2Fmeal_bazar%2Freleases%2Flatest;end";
+$("copy").onclick=function(){
+  var b=this,ok=function(){b.textContent="কপি হয়েছে"};
+  if(navigator.clipboard)navigator.clipboard.writeText(code).then(ok,function(){});
+};
+fetch(SUPABASE_URL+"/rest/v1/rpc/invite_preview",{method:"POST",headers:{"apikey":KEY,"Authorization":"Bearer "+KEY,"Content-Type":"application/json"},body:JSON.stringify({p_code:code})})
+.then(function(r){if(!r.ok)throw 0;return r.json()})
+.then(function(rows){
+  var p=rows&&rows[0];
+  if(!p)throw 0;
+  if(p.valid){
+    show((p.inviter_name||"ম্যানেজার")+" আপনাকে '"+(p.mess_name||"")+"' মেসে ডেকেছেন",p.invitee_name?"("+p.invitee_name+" এর জন্য)":"");
+    $("actions").hidden=false;
+  }else{
+    show(reasons[p.reason]||reasons.unknown);
+    $("actions").hidden=false;
+  }
+})
+.catch(function(){show("এখন লিংকটা যাচাই করা যাচ্ছে না","ইন্টারনেট দেখে আবার চেষ্টা করুন। চাইলে অ্যাপ খুলে এই কোড দিয়েও যোগ দিতে পারেন।");$("actions").hidden=false});
+})();
+</script></main></body></html>

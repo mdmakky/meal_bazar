@@ -9,6 +9,7 @@ import '../../meals/application/meal_providers.dart';
 import '../../month/application/month_providers.dart';
 import '../../push/application/push_service.dart';
 import '../data/mess_repository.dart';
+import '../domain/invite_preview.dart';
 import '../domain/member.dart';
 import '../domain/mess.dart';
 
@@ -85,6 +86,11 @@ final leftMemberIdsProvider = Provider.family<Set<String>, String>(
   },
 );
 
+/// Who invited me to which mess; keyed by the invite code.
+final invitePreviewProvider = FutureProvider.family<InvitePreview, String>(
+  (ref, code) => ref.watch(messRepositoryProvider).invitePreview(code),
+);
+
 /// The manager's due-reminder texts (supabase 0030).
 final dueReminderTextsProvider =
     FutureProvider.family<List<DueReminderText>, String>(
@@ -119,6 +125,9 @@ class MessController {
   }
 
   Future<String> createInvite(String messId) => _repo.createInvite(messId);
+
+  Future<String> createInviteLink(String messId, {String? inviteeName}) =>
+      _repo.createInviteLink(messId, inviteeName: inviteeName);
 
   Future<String> joinMess({
     required String code,

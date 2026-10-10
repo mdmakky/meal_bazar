@@ -20,7 +20,11 @@ class SignInScreen extends ConsumerStatefulWidget {
   const SignInScreen({
     super.key,
     this.googleEnabled = Env.googleWebClientId != '',
+    this.inviteCode,
   });
+
+  /// An invite being followed: shows a hint to create an account first.
+  final String? inviteCode;
 
   /// Hidden when no Google web client id is configured.
   final bool googleEnabled;
@@ -167,6 +171,16 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     } else {
       body = [
         Text(l.signInTitle, style: text.displaySmall),
+        if (widget.inviteCode?.isNotEmpty ?? false)
+          Container(
+            key: const Key('inviteBanner'),
+            padding: const EdgeInsets.all(AppSpace.md),
+            decoration: BoxDecoration(
+              color: p.accentSoft,
+              borderRadius: BorderRadius.circular(AppRadius.md),
+            ),
+            child: Text(l.inviteSignInBanner, style: text.bodyMedium),
+          ),
         if (google)
           AppButton(
             key: const Key('google'),

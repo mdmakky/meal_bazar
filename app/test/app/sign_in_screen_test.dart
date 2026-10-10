@@ -21,6 +21,7 @@ void main() {
     WidgetTester tester, {
     bool google = true,
     Map<String, Object?> config = const {},
+    String? inviteCode,
   }) => tester.pumpWidget(
     ProviderScope(
       overrides: [
@@ -32,7 +33,7 @@ void main() {
         locale: const Locale('bn'),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
-        home: SignInScreen(googleEnabled: google),
+        home: SignInScreen(googleEnabled: google, inviteCode: inviteCode),
       ),
     ),
   );
@@ -52,6 +53,16 @@ void main() {
       () => repo.signUpWithEmail(any(), any()),
     ).thenAnswer((_) async => false);
     when(() => repo.signInWithGoogle()).thenAnswer((_) async => false);
+  });
+
+  testWidgets('shows the join hint only when following an invite', (
+    tester,
+  ) async {
+    await pump(tester);
+    expect(find.byKey(const Key('inviteBanner')), findsNothing);
+    await pump(tester, inviteCode: 'K7MQ2XW9ZA');
+    await tester.pump();
+    expect(find.text(l.inviteSignInBanner), findsOneWidget);
   });
 
   testWidgets('fits a 360 dp phone at 1.3x text without overflow', (

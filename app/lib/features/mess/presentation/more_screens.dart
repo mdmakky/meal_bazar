@@ -346,6 +346,20 @@ class _InviteScreenState extends ConsumerState<InviteScreen> {
       body = ListView(
         padding: const EdgeInsets.all(AppSpace.gutter),
         children: [
+          AppButton(
+            key: const Key('inviteByLink'),
+            expand: true,
+            icon: Icons.link,
+            label: l.inviteByLink,
+            onPressed: () => AppSheet.show<void>(
+              context,
+              title: l.inviteLinkSheetTitle,
+              child: const _InviteLinkSheet(),
+            ),
+          ),
+          const SizedBox(height: AppSpace.xl),
+          Text(l.inviteSharedCodeTitle, style: text.titleMedium),
+          const SizedBox(height: AppSpace.xs),
           Text(
             l.inviteBody,
             style: text.bodyLarge?.copyWith(color: p.inkSecondary),
@@ -438,6 +452,107 @@ class _InviteScreenState extends ConsumerState<InviteScreen> {
                 ),
               ],
             ),
+    );
+  }
+}
+
+/// Makes a single-use invite link for one person, then offers copy / share.
+class _InviteLinkSheet extends ConsumerStatefulWidget {
+  const _InviteLinkSheet();
+
+  @override
+  ConsumerState<_InviteLinkSheet> createState() => _InviteLinkSheetState();
+}
+
+class _InviteLinkSheetState extends ConsumerState<_InviteLinkSheet> {
+  final _name = TextEditingController();
+  String? _link;
+  var _busy = false;
+
+  @override
+  void dispose() {
+    _name.dispose();
+    super.dispose();
+  }
+
+  Future<void> _create() async {
+    final messId = ref.read(currentMessIdProvider);
+    if (_busy || messId == null) return;
+    setState(() => _busy = true);
+    try {
+      final code = await ref
+          .read(messControllerProvider)
+          .createInviteLink(messId, inviteeName: _name.text);
+      if (mounted) setState(() => _link = inviteLink(code));
+    } catch (e) {
+      if (mounted) showFailure(context, e);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _copy(String link) async {
+    final l = AppLocalizations.of(context);
+    await Clipboard.setData(ClipboardData(text: link));
+    if (mounted) showSnack(context, l.inviteLinkCopied);
+  }
+
+  void _share(String link) {
+    final l = AppLocalizations.of(context);
+    final manager = ref.read(currentMembershipProvider)?.member.displayName;
+    final mess = ref.read(currentMessProvider)?.name ?? '';
+    SharePlus.instance.share(
+      ShareParams(text: l.inviteLinkShareMessage(manager ?? '', mess, link)),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final p = context.palette;
+    final link = _link;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: AppSpace.md,
+      children: [
+        if (link == null) ...[
+          TextField(
+            key: const Key('inviteeName'),
+            controller: _name,
+            maxLength: 60,
+            textInputAction: TextInputAction.done,
+            decoration: InputDecoration(labelText: l.inviteeNameLabel),
+            onSubmitted: (_) => _create(),
+          ),
+          AppButton(
+            key: const Key('createLink'),
+            expand: true,
+            label: l.inviteCreateLink,
+            loading: _busy,
+            onPressed: _create,
+          ),
+        ] else ...[
+          SelectableText(link, key: const Key('inviteLinkText')),
+          AppButton(
+            expand: true,
+            icon: Icons.share_outlined,
+            label: l.inviteShare,
+            onPressed: () => _share(link),
+          ),
+          AppButton(
+            expand: true,
+            icon: Icons.copy,
+            variant: AppButtonVariant.secondary,
+            label: l.inviteCopyLink,
+            onPressed: () => _copy(link),
+          ),
+        ],
+        Text(
+          l.inviteLinkNote,
+          style: text.bodyMedium?.copyWith(color: p.inkTertiary),
+        ),
+      ],
     );
   }
 }

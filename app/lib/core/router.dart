@@ -138,7 +138,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/', builder: (_, _) => const _SplashScreen()),
       GoRoute(path: '/join/:code', builder: (_, _) => const _SplashScreen()),
       // Phone login (PhoneScreen) disabled until an SMS provider is funded.
-      GoRoute(path: '/auth/sign-in', builder: (_, _) => const SignInScreen()),
+      GoRoute(
+        path: '/auth/sign-in',
+        builder: (_, state) =>
+            SignInScreen(inviteCode: state.uri.queryParameters['code']),
+      ),
       GoRoute(
         path: '/auth/reset-password',
         builder: (_, _) => const SetNewPasswordScreen(),

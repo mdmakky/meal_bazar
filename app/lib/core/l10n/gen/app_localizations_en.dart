@@ -520,6 +520,72 @@ class AppLocalizationsEn extends AppLocalizations {
   String get inviteRegenerate => 'New code';
 
   @override
+  String get inviteByLink => 'Invite by link';
+
+  @override
+  String get inviteLinkSheetTitle => 'Invite by link';
+
+  @override
+  String get inviteeNameLabel => 'Who are you inviting? (optional)';
+
+  @override
+  String get inviteCreateLink => 'Create link';
+
+  @override
+  String get inviteCopyLink => 'Copy link';
+
+  @override
+  String get inviteLinkCopied => 'Link copied';
+
+  @override
+  String get inviteLinkNote =>
+      'The link is for one person and works for 7 days. Without an account they are asked to create one first; with one they join the mess directly.';
+
+  @override
+  String inviteLinkShareMessage(String manager, String mess, String link) {
+    return '$manager invited you to the mess \'$mess\'. Tap this link to join: $link';
+  }
+
+  @override
+  String get inviteSharedCodeTitle => 'Shared code (needs approval)';
+
+  @override
+  String inviteCardTitle(String inviter, String mess) {
+    return '$inviter invited you to the mess \'$mess\'';
+  }
+
+  @override
+  String inviteCardFor(String name) {
+    return '(for $name)';
+  }
+
+  @override
+  String get inviteJoinNow => 'Join the mess';
+
+  @override
+  String get inviteJoined => 'You joined the mess';
+
+  @override
+  String get inviteReasonUsed =>
+      'This link was already used. Ask the manager for a new link.';
+
+  @override
+  String get inviteReasonExpired =>
+      'This link has expired. Ask the manager for a new link.';
+
+  @override
+  String get inviteReasonRevoked =>
+      'This link was cancelled. Ask the manager for a new link.';
+
+  @override
+  String get inviteReasonUnknown =>
+      'This link or code is not valid. Check it again or ask the manager.';
+
+  @override
+  String get inviteSignInBanner =>
+      'To join the mess, first create an account or log in (Google works too)';
+
+  @override
   String get inviteManagerOnly => 'Only a manager can invite members';
 
   @override
