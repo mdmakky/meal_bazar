@@ -249,7 +249,7 @@ class BazarScreen extends ConsumerWidget {
                 ),
               ),
             ),
-            SliverToBoxAdapter(child: ShoppingSection(messId: messId)),
+            SliverToBoxAdapter(child: ShoppingEntryCard(messId: messId)),
             if (manager)
               _BazarRequests(
                 messId: messId,

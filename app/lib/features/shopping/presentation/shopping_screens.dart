@@ -238,6 +238,90 @@ class _NewShoppingListFormState extends ConsumerState<NewShoppingListForm> {
   }
 }
 
+/// The Bazar tab's way in: one clear card to the lists (and to start one).
+class ShoppingEntryCard extends ConsumerWidget {
+  const ShoppingEntryCard({super.key, required this.messId});
+
+  final String messId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final p = context.palette;
+    final text = Theme.of(context).textTheme;
+    final n =
+        (ref.watch(shoppingListsProvider(messId)).value ?? const []).length;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpace.gutter,
+        0,
+        AppSpace.gutter,
+        AppSpace.lg,
+      ),
+      child: AppCard.raised(
+        key: const Key('shop-entry'),
+        onTap: () => context.push('/bazar/lists'),
+        padding: const EdgeInsets.all(AppSpace.md),
+        child: Row(
+          spacing: AppSpace.md,
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: p.accentSoft,
+                borderRadius: BorderRadius.circular(AppRadius.md),
+              ),
+              child: Icon(Icons.checklist_rtl_outlined, color: p.ink),
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l.shopTitle, style: text.titleSmall),
+                  Text(
+                    n == 0
+                        ? l.shopEntryNone
+                        : l.shopEntryCount(
+                            Fmt.digits('$n', bangla: l.localeName == 'bn'),
+                          ),
+                    style: text.bodySmall?.copyWith(color: p.inkSecondary),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right, color: p.inkTertiary),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// All the lists, and a way to start one.
+class ShoppingListsScreen extends ConsumerWidget {
+  const ShoppingListsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final messId = ref.watch(currentMessIdProvider);
+    return Scaffold(
+      appBar: AppBar(title: Text(l.shopTitle)),
+      body: messId == null
+          ? EmptyView(message: l.shopEmpty)
+          : RefreshIndicator(
+              onRefresh: () =>
+                  ref.refresh(shoppingListsProvider(messId).future),
+              child: ListView(
+                padding: const EdgeInsets.only(top: AppSpace.sm),
+                children: [ShoppingSection(messId: messId)],
+              ),
+            ),
+    );
+  }
+}
+
 // ── Home: a list waiting for me ────────────────────────────────────────────
 
 /// Home, for the member a manager sent shopping: one tap to the list.

@@ -4312,6 +4312,14 @@ class AppLocalizationsBn extends AppLocalizations {
       'বদলানো হয়েছে। যার কাছ থেকে সরানো হলো তাকে জানানো হয়েছে।';
 
   @override
+  String get shopEntryNone => 'বাজারে যাওয়ার আগে তালিকা বানিয়ে নিন';
+
+  @override
+  String shopEntryCount(String count) {
+    return '$countটি চলছে';
+  }
+
+  @override
   String get fundModeFix => 'খরচ ঠিক করুন';
 
   @override

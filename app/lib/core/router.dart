@@ -202,6 +202,10 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (_, _) => const BazarScreen(),
                 routes: [
                   GoRoute(
+                    path: 'lists',
+                    builder: (_, _) => const ShoppingListsScreen(),
+                  ),
+                  GoRoute(
                     path: 'list/:id',
                     builder: (_, state) =>
                         ShoppingListScreen(id: state.pathParameters['id']!),

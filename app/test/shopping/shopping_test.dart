@@ -269,4 +269,15 @@ void main() {
     ).captured;
     expect(c.single, 'm-boss');
   });
+
+  testWidgets('the Bazar tab has one clear card to the lists', (tester) async {
+    await pumpApp(
+      tester,
+      const Scaffold(body: ShoppingEntryCard(messId: 'mess1')),
+      boss,
+    );
+    expect(find.byKey(const Key('shop-entry')), findsOneWidget);
+    expect(find.text('Bazar lists'), findsOneWidget);
+    expect(find.text('1 going on'), findsOneWidget);
+  });
 }

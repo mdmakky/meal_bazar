@@ -7814,6 +7814,18 @@ abstract class AppLocalizations {
   /// **'বদলানো হয়েছে। যার কাছ থেকে সরানো হলো তাকে জানানো হয়েছে।'**
   String get shopWhoChanged;
 
+  /// No description provided for @shopEntryNone.
+  ///
+  /// In bn, this message translates to:
+  /// **'বাজারে যাওয়ার আগে তালিকা বানিয়ে নিন'**
+  String get shopEntryNone;
+
+  /// No description provided for @shopEntryCount.
+  ///
+  /// In bn, this message translates to:
+  /// **'{count}টি চলছে'**
+  String shopEntryCount(String count);
+
   /// No description provided for @fundModeFix.
   ///
   /// In bn, this message translates to:

@@ -4324,6 +4324,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shopWhoChanged => 'Updated. The person it was taken from is told.';
 
   @override
+  String get shopEntryNone => 'Plan a bazar before you go shopping';
+
+  @override
+  String shopEntryCount(String count) {
+    return '$count going on';
+  }
+
+  @override
   String get fundModeFix => 'Fix the cost';
 
   @override
