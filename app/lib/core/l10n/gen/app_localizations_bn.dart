@@ -4235,7 +4235,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get shopTotal => 'মোট';
 
   @override
-  String get shopSubmit => 'হয়ে গেছে, বাজার হিসেবে পাঠান';
+  String get shopSubmit => 'বাজার হিসেবে পাঠান';
 
   @override
   String get shopSubmitSheet => 'এই বাজার পাঠান';

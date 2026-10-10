@@ -837,54 +837,7 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
       ),
       bottomNavigationBar: !editable
           ? null
-          : BottomAction(
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  spacing: AppSpace.lg,
-                  children: [
-                    // The running total: small label over a bold figure,
-                    // centred on the button's height.
-                    SizedBox(
-                      height: 48,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            l.shopTotal,
-                            style: text.labelSmall?.copyWith(
-                              color: p.inkTertiary,
-                              height: 1.1,
-                            ),
-                          ),
-                          Text(
-                            money(context, list.total),
-                            key: const Key('shop-total'),
-                            style: text.titleLarge?.copyWith(
-                              height: 1.15,
-                              fontFeatures: const [
-                                FontFeature.tabularFigures(),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: AppButton(
-                        key: const Key('shop-submit'),
-                        label: l.shopSubmit,
-                        icon: Icons.send_outlined,
-                        expand: true,
-                        loading: _busy,
-                        onPressed: () => _submit(manager),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+          : _SendBar(list: list, busy: _busy, onSend: () => _submit(manager)),
     );
   }
 }
@@ -915,11 +868,30 @@ class _ItemRowState extends State<_ItemRow> {
   late final _price = TextEditingController(
     text: widget.item.price == null ? '' : _num(widget.item.price!),
   );
+  late final _qty = TextEditingController(
+    text: widget.item.qty == null ? '' : _num(widget.item.qty!),
+  );
 
   @override
   void dispose() {
     _price.dispose();
+    _qty.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickUnit() async {
+    final l = AppLocalizations.of(context);
+    final item = widget.item;
+    final u = await pickOne<String>(
+      context,
+      title: l.bazarItemUnit,
+      options: [
+        for (final x in {?item.unit, ...bazarUnits}) (x, x),
+      ],
+    );
+    if (u != null && mounted) {
+      widget.onChanged(item.copyWith(unit: u), now: true);
+    }
   }
 
   @override
@@ -928,11 +900,6 @@ class _ItemRowState extends State<_ItemRow> {
     final p = context.palette;
     final text = Theme.of(context).textTheme;
     final item = widget.item;
-    final bn = l.localeName == 'bn';
-    final qty = [
-      if (item.qty != null) Fmt.digits(_num(item.qty!), bangla: bn),
-      ?item.unit,
-    ].join(' ');
     final row = Padding(
       padding: const EdgeInsetsDirectional.only(
         start: AppSpace.sm,
@@ -953,14 +920,14 @@ class _ItemRowState extends State<_ItemRow> {
                 : null,
           ),
           Expanded(
-            child: InkWell(
-              onTap: widget.editable ? widget.onEdit : null,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: AppSpace.sm),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                InkWell(
+                  onTap: widget.editable ? widget.onEdit : null,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: AppSpace.xs),
+                    child: Text(
                       item.name,
                       style: text.bodyLarge?.copyWith(
                         decoration: item.bought
@@ -969,17 +936,104 @@ class _ItemRowState extends State<_ItemRow> {
                         color: item.bought ? p.inkSecondary : p.ink,
                       ),
                     ),
-                    if (qty.isNotEmpty || item.extra)
+                  ),
+                ),
+                // Quantity is typed right here (decimals ok) with its unit,
+                // as on the Add bazar form: no extra tap to change it.
+                Row(
+                  spacing: AppSpace.sm,
+                  children: [
+                    Container(
+                      height: 34,
+                      decoration: BoxDecoration(
+                        color: p.surfaceMuted,
+                        borderRadius: BorderRadius.circular(AppRadius.sm),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            width: 44,
+                            child: TextField(
+                              key: Key('shop-qty-${item.id}'),
+                              controller: _qty,
+                              enabled: widget.editable,
+                              textAlign: TextAlign.center,
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                    decimal: true,
+                                  ),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                  RegExp('[0-9০-৯.]'),
+                                ),
+                              ],
+                              onChanged: (v) {
+                                final q = parseAmount(v);
+                                if (q != null && q > 0) {
+                                  widget.onChanged(item.copyWith(qty: q));
+                                }
+                              },
+                              style: text.titleSmall?.copyWith(
+                                fontFeatures: const [
+                                  FontFeature.tabularFigures(),
+                                ],
+                              ),
+                              decoration: InputDecoration(
+                                hintText: l.shopItemQty,
+                                isDense: true,
+                                border: InputBorder.none,
+                                enabledBorder: InputBorder.none,
+                                disabledBorder: InputBorder.none,
+                                focusedBorder: InputBorder.none,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpace.xs,
+                                  vertical: AppSpace.sm,
+                                ),
+                              ),
+                            ),
+                          ),
+                          InkWell(
+                            key: Key('shop-unit-${item.id}'),
+                            borderRadius: BorderRadius.circular(AppRadius.sm),
+                            onTap: widget.editable ? _pickUnit : null,
+                            child: Padding(
+                              padding: const EdgeInsetsDirectional.only(
+                                start: AppSpace.xs,
+                                end: AppSpace.xs,
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    item.unit ?? l.bazarItemUnit,
+                                    style: text.labelLarge?.copyWith(
+                                      color: item.unit == null
+                                          ? p.inkTertiary
+                                          : p.ink,
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.arrow_drop_down,
+                                    size: 18,
+                                    color: p.inkTertiary,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (item.extra)
                       Text(
-                        [
-                          if (qty.isNotEmpty) qty,
-                          if (item.extra) l.shopExtra,
-                        ].join(' · '),
+                        l.shopExtra,
                         style: text.bodySmall?.copyWith(color: p.inkTertiary),
                       ),
                   ],
                 ),
-              ),
+                const SizedBox(height: AppSpace.xs),
+              ],
             ),
           ),
           SizedBox(
@@ -1374,6 +1428,114 @@ class _ShopperListState extends State<_ShopperList> {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// The list's bottom bar: how far along, the running total, and the one
+/// action. A white surface with a hairline and a soft lift, so it reads as
+/// part of the app and not as a button floating on the page.
+class _SendBar extends StatelessWidget {
+  const _SendBar({
+    required this.list,
+    required this.busy,
+    required this.onSend,
+  });
+
+  final ShoppingList list;
+  final bool busy;
+  final VoidCallback onSend;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final p = context.palette;
+    final text = Theme.of(context).textTheme;
+    final bn = l.localeName == 'bn';
+    final total = list.items.length;
+    final done = list.boughtCount;
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: p.surface,
+        border: Border(top: BorderSide(color: p.border)),
+        boxShadow: [
+          BoxShadow(
+            color: p.ink.withValues(alpha: 0.06),
+            blurRadius: 16,
+            offset: const Offset(0, -4),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpace.gutter,
+            AppSpace.md,
+            AppSpace.gutter,
+            AppSpace.md,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: AppSpace.md,
+            children: [
+              if (total > 0)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(2),
+                  child: LinearProgressIndicator(
+                    key: const Key('shop-progress'),
+                    value: done / total,
+                    minHeight: 4,
+                    color: p.accent,
+                    backgroundColor: p.surfaceMuted,
+                  ),
+                ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          money(context, list.total),
+                          key: const Key('shop-total'),
+                          style: text.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            height: 1.2,
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                          ),
+                        ),
+                        Text(
+                          total == 0
+                              ? l.shopTotal
+                              : l.shopProgress(
+                                  Fmt.digits('$done', bangla: bn),
+                                  Fmt.digits('$total', bangla: bn),
+                                ),
+                          style: text.bodySmall?.copyWith(color: p.inkTertiary),
+                        ),
+                      ],
+                    ),
+                  ),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(minWidth: 168),
+                    child: AppButton(
+                      key: const Key('shop-submit'),
+                      label: l.shopSubmit,
+                      icon: Icons.send_outlined,
+                      loading: busy,
+                      onPressed: onSend,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

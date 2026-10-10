@@ -2416,7 +2416,7 @@
   "shopProgress": "{total}টির মধ্যে {done}টি কেনা হয়েছে",
   "@shopProgress": {"placeholders": {"done": {"type": "String"}, "total": {"type": "String"}}},
   "shopTotal": "মোট",
-  "shopSubmit": "হয়ে গেছে, বাজার হিসেবে পাঠান",
+  "shopSubmit": "বাজার হিসেবে পাঠান",
   "shopSubmitSheet": "এই বাজার পাঠান",
   "shopOwnPocket": "আমি নিজের পকেট থেকে দিয়েছি",
   "shopFromFund": "মেসের ফান্ড থেকে দেওয়া",

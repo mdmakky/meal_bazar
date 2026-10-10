@@ -280,4 +280,20 @@ void main() {
     expect(find.text('Bazar lists'), findsOneWidget);
     expect(find.text('1 going on'), findsOneWidget);
   });
+
+  testWidgets('quantity is typed right on the row, no extra tap', (
+    tester,
+  ) async {
+    when(() => repo.list(any(), any())).thenAnswer((_) async => sample());
+    await pumpApp(tester, const ShoppingListScreen(id: 'l1'), shopper);
+    await tester.enterText(find.byKey(const Key('shop-qty-i1')), '7.5');
+    await tester.pump(const Duration(milliseconds: 800));
+    final saved = verify(
+      () => repo.upsertItem(any(), captureAny()),
+    ).captured.whereType<ShoppingItem>().where((i) => i.id == 'i1').last;
+    expect(saved.qty, 7.5);
+    // The bar shows how far along and the total.
+    expect(find.byKey(const Key('shop-progress')), findsOneWidget);
+    expect(find.byKey(const Key('shop-total')), findsOneWidget);
+  });
 }

@@ -4249,7 +4249,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shopTotal => 'Total';
 
   @override
-  String get shopSubmit => 'Done, send as bazar';
+  String get shopSubmit => 'Send as bazar';
 
   @override
   String get shopSubmitSheet => 'Send this bazar';

@@ -7679,7 +7679,7 @@ abstract class AppLocalizations {
   /// No description provided for @shopSubmit.
   ///
   /// In bn, this message translates to:
-  /// **'হয়ে গেছে, বাজার হিসেবে পাঠান'**
+  /// **'বাজার হিসেবে পাঠান'**
   String get shopSubmit;
 
   /// No description provided for @shopSubmitSheet.

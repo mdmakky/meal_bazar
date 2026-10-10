@@ -2037,7 +2037,7 @@
   "shopProgress": "{done} of {total} bought",
   "@shopProgress": {"placeholders": {"done": {"type": "String"}, "total": {"type": "String"}}},
   "shopTotal": "Total",
-  "shopSubmit": "Done, send as bazar",
+  "shopSubmit": "Send as bazar",
   "shopSubmitSheet": "Send this bazar",
   "shopOwnPocket": "I paid from my own pocket",
   "shopFromFund": "Paid from the mess fund",
