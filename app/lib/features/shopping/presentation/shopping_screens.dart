@@ -211,16 +211,23 @@ class _NewShoppingListFormState extends ConsumerState<NewShoppingListForm> {
           },
         ),
         if (manager && members.isNotEmpty)
-          DropdownButtonFormField<String?>(
+          _WhoField(
             key: const Key('shop-assign'),
-            initialValue: _assignee,
-            decoration: InputDecoration(labelText: l.shopFieldAssign),
-            items: [
-              DropdownMenuItem(value: null, child: Text(l.shopMe)),
-              for (final m in members)
-                DropdownMenuItem(value: m.id, child: Text(m.displayName)),
-            ],
-            onChanged: (v) => setState(() => _assignee = v),
+            name: _assignee == null
+                ? l.shopMe
+                : members.firstWhere((m) => m.id == _assignee).displayName,
+            sub: _assignee == null ? l.shopMeSub : l.shopNotifies,
+            onTap: () async {
+              final pick = await pickShopper(
+                context,
+                members: members,
+                meId: me,
+                selectedId: _assignee ?? me,
+              );
+              if (pick != null && mounted) {
+                setState(() => _assignee = pick == me ? null : pick);
+              }
+            },
           ),
         TextField(
           controller: _note,
@@ -608,14 +615,14 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
           in ref.read(membersProvider(list.messId)).value ?? const <Member>[])
         if (m.status == MemberStatus.active) m,
     ];
-    final pick = await pickOne<String>(
+    final pick = await pickShopper(
       context,
-      title: l.shopChangeWho,
-      options: [
-        if (me != null) (me, l.shopMe),
+      members: [
         for (final m in members)
-          if (m.id != me) (m.id, m.displayName),
+          if (m.id != me) m,
       ],
+      meId: me,
+      selectedId: list.assigneeId ?? list.createdBy,
     );
     if (pick == null || !mounted) return;
     try {
@@ -1069,6 +1076,234 @@ class _ItemFormState extends State<_ItemForm> {
           key: const Key('shop-item-save'),
           label: l.save,
           onPressed: _done,
+        ),
+      ],
+    );
+  }
+}
+
+/// The "who goes shopping" field: avatar, name, a line on what happens, a
+/// chevron. Tapping opens [pickShopper].
+class _WhoField extends StatelessWidget {
+  const _WhoField({
+    super.key,
+    required this.name,
+    required this.sub,
+    required this.onTap,
+  });
+
+  final String name;
+  final String sub;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final p = context.palette;
+    final text = Theme.of(context).textTheme;
+    return Semantics(
+      button: true,
+      label: '${l.shopFieldAssign}: $name',
+      excludeSemantics: true,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        child: InputDecorator(
+          decoration: InputDecoration(
+            labelText: l.shopFieldAssign,
+            contentPadding: const EdgeInsets.fromLTRB(
+              AppSpace.sm,
+              AppSpace.sm + 2,
+              AppSpace.md,
+              AppSpace.sm + 2,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppRadius.lg),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppRadius.lg),
+              borderSide: BorderSide(color: p.border, width: 1.5),
+            ),
+          ),
+          child: Row(
+            spacing: AppSpace.md,
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: p.accentSoft,
+                  shape: BoxShape.circle,
+                ),
+                child: Text(
+                  name.isEmpty ? '?' : name.characters.first,
+                  style: text.labelLarge,
+                ),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(name, style: text.titleSmall),
+                    Text(
+                      sub,
+                      style: text.bodySmall?.copyWith(color: p.inkTertiary),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  color: p.surfaceMuted,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.expand_more, size: 18, color: p.inkSecondary),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A list sheet to pick who goes: me first (set apart), then the members,
+/// the chosen one tinted amber with a tick; a search box once there are many.
+/// Returns the chosen member id ([meId] for "me"), or null if dismissed.
+Future<String?> pickShopper(
+  BuildContext context, {
+  required List<Member> members,
+  required String? meId,
+  required String? selectedId,
+}) => AppSheet.show<String>(
+  context,
+  title: AppLocalizations.of(context).shopFieldAssign,
+  child: _ShopperList(members: members, meId: meId, selectedId: selectedId),
+);
+
+class _ShopperList extends StatefulWidget {
+  const _ShopperList({
+    required this.members,
+    required this.meId,
+    required this.selectedId,
+  });
+
+  final List<Member> members;
+  final String? meId;
+  final String? selectedId;
+
+  @override
+  State<_ShopperList> createState() => _ShopperListState();
+}
+
+class _ShopperListState extends State<_ShopperList> {
+  var _q = '';
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final p = context.palette;
+    final text = Theme.of(context).textTheme;
+    final shown = [
+      for (final m in widget.members)
+        if (m.id != widget.meId &&
+            m.displayName.toLowerCase().contains(_q.trim().toLowerCase()))
+          m,
+    ];
+    Widget row(String id, String name, String sub, {Key? key}) {
+      final on = id == widget.selectedId;
+      return Material(
+        key: key,
+        color: on ? p.accentSoft : Colors.transparent,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          onTap: () => Navigator.pop(context, id),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpace.sm,
+              vertical: AppSpace.sm,
+            ),
+            child: Row(
+              spacing: AppSpace.md,
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: on ? p.surface : p.surfaceMuted,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    name.isEmpty ? '?' : name.characters.first,
+                    style: text.labelLarge,
+                  ),
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(name, style: text.titleSmall),
+                      if (sub.isNotEmpty)
+                        Text(
+                          sub,
+                          style: text.bodySmall?.copyWith(color: p.inkTertiary),
+                        ),
+                    ],
+                  ),
+                ),
+                if (on) Icon(Icons.check, color: p.accent),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (widget.members.length > 6)
+          Padding(
+            padding: const EdgeInsets.only(bottom: AppSpace.sm),
+            child: TextField(
+              key: const Key('shop-who-search'),
+              onChanged: (v) => setState(() => _q = v),
+              decoration: InputDecoration(
+                hintText: l.shopSearchMember,
+                prefixIcon: const Icon(Icons.search),
+                isDense: true,
+                filled: true,
+                fillColor: p.surfaceMuted,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+          ),
+        if (widget.meId != null && _q.trim().isEmpty) ...[
+          row(widget.meId!, l.shopMe, l.shopMeSub, key: const Key('who-me')),
+          Divider(height: AppSpace.lg, color: p.border),
+        ],
+        Flexible(
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              for (final m in shown)
+                row(
+                  m.id,
+                  m.displayName,
+                  l.shopNotifies,
+                  key: Key('who-${m.id}'),
+                ),
+            ],
+          ),
         ),
       ],
     );

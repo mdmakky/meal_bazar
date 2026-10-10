@@ -7826,6 +7826,24 @@ abstract class AppLocalizations {
   /// **'{count}টি চলছে'**
   String shopEntryCount(String count);
 
+  /// No description provided for @shopMeSub.
+  ///
+  /// In bn, this message translates to:
+  /// **'নিজেই কিনব'**
+  String get shopMeSub;
+
+  /// No description provided for @shopNotifies.
+  ///
+  /// In bn, this message translates to:
+  /// **'নোটিফিকেশন পাবেন'**
+  String get shopNotifies;
+
+  /// No description provided for @shopSearchMember.
+  ///
+  /// In bn, this message translates to:
+  /// **'সদস্য খুঁজুন'**
+  String get shopSearchMember;
+
   /// No description provided for @fundModeFix.
   ///
   /// In bn, this message translates to:

@@ -4320,6 +4320,15 @@ class AppLocalizationsBn extends AppLocalizations {
   }
 
   @override
+  String get shopMeSub => 'নিজেই কিনব';
+
+  @override
+  String get shopNotifies => 'নোটিফিকেশন পাবেন';
+
+  @override
+  String get shopSearchMember => 'সদস্য খুঁজুন';
+
+  @override
   String get fundModeFix => 'খরচ ঠিক করুন';
 
   @override

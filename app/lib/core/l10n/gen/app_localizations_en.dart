@@ -4332,6 +4332,15 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get shopMeSub => 'I will buy it myself';
+
+  @override
+  String get shopNotifies => 'Gets a notification';
+
+  @override
+  String get shopSearchMember => 'Find a member';
+
+  @override
   String get fundModeFix => 'Fix the cost';
 
   @override
