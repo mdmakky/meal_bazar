@@ -6,6 +6,7 @@ import '../../../core/dates.dart';
 import '../../../core/db/sync.dart';
 import '../../../core/failure_text.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
+import '../../mess/presentation/leave_delete.dart';
 import '../../../core/platform/platform_config.dart';
 import '../../../core/platform/platform_widgets.dart';
 import '../../../core/widgets/widgets.dart';
@@ -50,6 +51,20 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
   /// The last day's grid, shown while another day loads so stepping the
   /// date never blanks the page.
   (String, Map<String, MealEntry>)? _lastGrid;
+
+  /// Any day, back to 2020, up to tomorrow (as the arrows).
+  Future<void> _pickDay() async {
+    final tomorrow = dayOnly(
+      DateTime.now().add(const Duration(days: 1, hours: 2)),
+    );
+    final d = await showDatePicker(
+      context: context,
+      initialDate: _day.isAfter(tomorrow) ? tomorrow : _day,
+      firstDate: DateTime(2020),
+      lastDate: tomorrow,
+    );
+    if (d != null && mounted) setState(() => _day = dayOnly(d));
+  }
 
   void _shift(int days) =>
       setState(() => _day = dayOnly(_day.add(Duration(days: days, hours: 2))));
@@ -142,6 +157,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
           const SliverToBoxAdapter(child: PlatformBanner()),
           if (manager && ref.featureOn('setup_checklist'))
             SliverToBoxAdapter(child: SetupChecklist(messId: messId)),
+          const SliverToBoxAdapter(child: DeletionBanner()),
           const SliverToBoxAdapter(child: HomeNotices()),
           // Bazar duty sits up top with the notices: who goes today, next.
           const SliverToBoxAdapter(
@@ -159,6 +175,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                     types: types,
                     onShift: _shift,
                     onToday: () => setState(() => _day = today()),
+                    onPickDay: _pickDay,
                   )
                 : _MemberHero(messId: messId),
           ),
@@ -237,6 +254,7 @@ class _TodayHero extends ConsumerWidget {
     required this.dayKey,
     required this.types,
     required this.onShift,
+    required this.onPickDay,
     required this.onToday,
   });
 
@@ -244,6 +262,10 @@ class _TodayHero extends ConsumerWidget {
   final MessDay dayKey;
   final List<MealType> types;
   final ValueChanged<int> onShift;
+
+  /// Opens the calendar (asked from the screen, outside this dark card, so the
+  /// calendar keeps the app's light theme).
+  final VoidCallback onPickDay;
   final VoidCallback onToday;
 
   @override
@@ -286,7 +308,7 @@ class _TodayHero extends ConsumerWidget {
                     Expanded(
                       child: InkWell(
                         borderRadius: BorderRadius.circular(AppRadius.sm),
-                        onTap: isToday ? null : onToday,
+                        onTap: onPickDay,
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
                             vertical: AppSpace.xs,
@@ -328,6 +350,13 @@ class _TodayHero extends ConsumerWidget {
                         ),
                       ),
                     ),
+                    if (!isToday)
+                      IconButton(
+                        key: const Key('today-back'),
+                        tooltip: l.todayBackToToday,
+                        onPressed: onToday,
+                        icon: const Icon(Icons.today_outlined),
+                      ),
                     IconButton(
                       tooltip: l.todayPrevDay,
                       onPressed: () => onShift(-1),

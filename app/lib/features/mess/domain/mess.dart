@@ -19,6 +19,7 @@ class Mess {
     this.autoMeals = false,
     this.autoMealsLastDate,
     this.autoMealsLastCount,
+    this.deleteRequestedAt,
   });
 
   factory Mess.fromJson(Map<String, dynamic> json) => Mess(
@@ -38,6 +39,9 @@ class Mess {
     autoMeals: json['auto_meals'] == true,
     autoMealsLastDate: json['auto_meals_last_date'] as String?,
     autoMealsLastCount: (json['auto_meals_last_count'] as num?)?.toInt(),
+    deleteRequestedAt: json['delete_requested_at'] == null
+        ? null
+        : DateTime.parse(json['delete_requested_at'] as String),
   );
 
   final String id;
@@ -74,6 +78,11 @@ class Mess {
   final bool autoMeals;
   final String? autoMealsLastDate;
   final int? autoMealsLastCount;
+
+  /// The owner asked to delete the mess; it is erased 30 days later (0038).
+  final DateTime? deleteRequestedAt;
+
+  DateTime? get deletesOn => deleteRequestedAt?.add(const Duration(days: 30));
 }
 
 /// One of the manager's due-reminder texts; `{name}`, `{amount}` and

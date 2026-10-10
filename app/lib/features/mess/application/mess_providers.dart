@@ -124,6 +124,26 @@ class MessController {
     return id;
   }
 
+  Future<({double balance, bool onlyManager})?> leavePreview(String messId) =>
+      _repo.leavePreview(messId);
+
+  Future<void> leaveMess(String messId) async {
+    await _repo.leaveMess(messId);
+    _ref.invalidate(myMembershipsProvider);
+  }
+
+  Future<void> requestLeave(String messId) => _repo.requestLeave(messId);
+
+  Future<void> requestDeletion(String messId, String name) async {
+    await _repo.requestDeletion(messId, name);
+    _ref.invalidate(myMembershipsProvider);
+  }
+
+  Future<void> cancelDeletion(String messId) async {
+    await _repo.cancelDeletion(messId);
+    _ref.invalidate(myMembershipsProvider);
+  }
+
   Future<String> createInvite(String messId) => _repo.createInvite(messId);
 
   Future<String> createInviteLink(String messId, {String? inviteeName}) =>

@@ -181,6 +181,43 @@ class MessRepository {
     return Mess.fromJson(requireRows(rows).first);
   });
 
+  /// My balance this month (positive: the mess owes me) and whether I am the
+  /// only manager; null when I am not a member (0038).
+  Future<({double balance, bool onlyManager})?> leavePreview(String messId) =>
+      guard(() async {
+        final rows = await _client.rpc(
+          'leave_preview',
+          params: {'p_mess': messId},
+        );
+        final list = rows as List;
+        if (list.isEmpty) return null;
+        final r = list.first as Map<String, dynamic>;
+        return (
+          balance: double.tryParse('${r['balance']}') ?? 0,
+          onlyManager: r['only_manager'] == true,
+        );
+      });
+
+  /// Leaves at once (owed or settled); refuses when I owe (DUES_OUTSTANDING).
+  Future<void> leaveMess(String messId) =>
+      guard(() => _client.rpc('leave_mess', params: {'p_mess': messId}));
+
+  /// Tells the managers I want to leave (when I owe money).
+  Future<void> requestLeave(String messId) =>
+      guard(() => _client.rpc('request_leave', params: {'p_mess': messId}));
+
+  /// Owner only: erase the mess in 30 days unless cancelled.
+  Future<void> requestDeletion(String messId, String name) => guard(
+    () => _client.rpc(
+      'request_mess_deletion',
+      params: {'p_mess': messId, 'p_name': name},
+    ),
+  );
+
+  Future<void> cancelDeletion(String messId) => guard(
+    () => _client.rpc('cancel_mess_deletion', params: {'p_mess': messId}),
+  );
+
   /// Manager only (RLS). Switches the automatic missing-meal fill (0031).
   Future<void> setAutoMeals(String messId, bool on) => guard(
     () => _client.from('messes').update({'auto_meals': on}).eq('id', messId),

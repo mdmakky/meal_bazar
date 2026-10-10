@@ -19,7 +19,9 @@ import '../../notices/application/notice_providers.dart';
 import '../../push/application/inbox_providers.dart';
 import '../application/mess_providers.dart';
 import '../domain/member.dart';
+import '../domain/mess.dart';
 import 'common.dart';
+import 'leave_delete.dart';
 
 class MoreScreen extends ConsumerWidget {
   const MoreScreen({super.key});
@@ -155,6 +157,8 @@ class MoreScreen extends ConsumerWidget {
         l.accountTitle,
         () => context.push('/more/account'),
       ),
+      if (membership?.mess != null)
+        tile(Icons.logout, l.leaveTile, () => showLeaveMessSheet(context)),
       if (usable.length > 1)
         tile(
           Icons.swap_horiz,
@@ -569,6 +573,15 @@ class MessSettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _MessSettingsScreenState extends ConsumerState<MessSettingsScreen> {
+  /// Only whoever opened the mess may delete it (a manager of an ownerless
+  /// mess too).
+  bool _isOwner(Mess mess) {
+    final me = ref.read(currentMembershipProvider)?.member;
+    return me != null &&
+        me.role == MemberRole.manager &&
+        (mess.createdBy == null || mess.createdBy == me.userId);
+  }
+
   final _form = GlobalKey<FormState>();
   final _name = TextEditingController();
   final _address = TextEditingController();
@@ -841,6 +854,24 @@ class _MessSettingsScreenState extends ConsumerState<MessSettingsScreen> {
                         : l.rateAmountRequired,
                   ),
                 ],
+              ],
+              // The last thing on the page, in red: it cannot be missed and
+              // cannot be tapped by accident while saving.
+              if (_isOwner(mess)) ...[
+                const SizedBox(height: AppSpace.xxxl),
+                OutlinedButton.icon(
+                  key: const Key('delete-mess'),
+                  icon: const Icon(Icons.delete_outline),
+                  label: Text(l.deleteMessTitle),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: context.palette.due,
+                    side: BorderSide(
+                      color: context.palette.due.withValues(alpha: 0.5),
+                    ),
+                  ),
+                  onPressed: () => showDeleteMessSheet(context),
+                ),
+                const SizedBox(height: AppSpace.lg),
               ],
             ],
           ),
