@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -38,8 +40,10 @@ class HomeNotices extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 spacing: AppSpace.sm,
                 children: [
-                  for (final n in all.take(max))
-                    _NoticeCard(key: ValueKey(n.id), notice: n),
+                  if (all.length == 1)
+                    _NoticeCard(key: ValueKey(all.first.id), notice: all.first)
+                  else
+                    _NoticeCarousel(notices: all.take(max).toList()),
                   if (all.length > max)
                     Align(
                       alignment: AlignmentDirectional.centerEnd,
@@ -51,6 +55,115 @@ class HomeNotices extends ConsumerWidget {
                 ],
               ),
             ),
+    );
+  }
+}
+
+/// Several notices as one swipeable strip: the next card peeks in, it
+/// advances by itself every few seconds (never with "Remove animations"),
+/// and a touch hands control to the reader.
+class _NoticeCarousel extends StatefulWidget {
+  const _NoticeCarousel({required this.notices});
+
+  final List<Notice> notices;
+
+  @override
+  State<_NoticeCarousel> createState() => _NoticeCarouselState();
+}
+
+class _NoticeCarouselState extends State<_NoticeCarousel> {
+  static const _every = Duration(seconds: 5);
+  static const _height = 116.0;
+
+  // Endless: the strip only ever moves one way, wrapping past the last card.
+  late final _pages = PageController(
+    viewportFraction: 0.92,
+    initialPage: widget.notices.length * 1000,
+  );
+  Timer? _timer;
+  int _page = 0; // position in the list
+  late int _raw = widget.notices.length * 1000; // position in the strip
+  bool _touched = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _arm();
+  }
+
+  void _arm() {
+    _timer?.cancel();
+    if (_touched || AppMotion.reduced(context)) return;
+    _timer = Timer(_every, () {
+      if (!mounted || !_pages.hasClients) return;
+      _pages.animateToPage(
+        _raw + 1,
+        duration: AppMotion.of(context, AppMotion.slow),
+        curve: AppMotion.state,
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _pages.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final n = widget.notices.length;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: AppSpace.sm,
+      children: [
+        SizedBox(
+          height: _height,
+          child: Listener(
+            onPointerDown: (_) {
+              _touched = true;
+              _timer?.cancel();
+            },
+            child: PageView.builder(
+              key: const Key('noticeCarousel'),
+              controller: _pages,
+              padEnds: false,
+              clipBehavior: Clip.none,
+              onPageChanged: (i) {
+                _raw = i;
+                setState(() => _page = i % n);
+                _arm();
+              },
+              itemBuilder: (_, i) {
+                final notice = widget.notices[i % n];
+                return Padding(
+                  padding: const EdgeInsetsDirectional.only(end: AppSpace.sm),
+                  child: _NoticeCard(key: ValueKey(notice.id), notice: notice),
+                );
+              },
+            ),
+          ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          spacing: AppSpace.xs,
+          children: [
+            for (var i = 0; i < n; i++)
+              AnimatedContainer(
+                duration: AppMotion.of(context, AppMotion.base),
+                curve: AppMotion.state,
+                width: i == _page ? 18 : 6,
+                height: 6,
+                decoration: BoxDecoration(
+                  color: i == _page ? p.accent : p.border,
+                  borderRadius: BorderRadius.circular(3),
+                ),
+              ),
+          ],
+        ),
+      ],
     );
   }
 }

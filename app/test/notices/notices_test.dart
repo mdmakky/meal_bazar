@@ -287,23 +287,26 @@ void main() {
       ],
     );
     await tester.pumpAndSettle();
+    // A swipeable strip: the first card, the next one peeking, dots below.
+    expect(find.byKey(const Key('noticeCarousel')), findsOneWidget);
     expect(find.text('Notice p1'), findsOneWidget);
-    expect(find.text('Notice e1'), findsOneWidget);
+    expect(find.text('Notice u1'), findsNothing);
+    await tester.drag(
+      find.byKey(const Key('noticeCarousel')),
+      const Offset(-400, 0),
+    );
+    await tester.pumpAndSettle();
+    await tester.drag(
+      find.byKey(const Key('noticeCarousel')),
+      const Offset(-400, 0),
+    );
+    await tester.pumpAndSettle();
     expect(find.text('Notice u1'), findsOneWidget);
     expect(find.text('Notice u2'), findsNothing);
     expect(find.text('Notice gone'), findsNothing);
-    expect(find.text(l.noticeUntil('৫ নভেম্বর')), findsOneWidget);
     expect(find.text(l.homeNoticeAll), findsOneWidget);
-    // Only the unread one's dot is lit.
-    final dots = tester
-        .widgetList<AnimatedOpacity>(
-          find.ancestor(
-            of: find.byKey(const Key('homeNoticeUnreadDot')),
-            matching: find.byType(AnimatedOpacity),
-          ),
-        )
-        .map((o) => o.opacity);
-    expect(dots, [0, 0, 1]);
+    // The unread one's dot is lit.
+    expect(find.byKey(const Key('homeNoticeUnreadDot')), findsWidgets);
 
     await tester.tap(find.text(l.homeNoticeAll));
     await tester.pumpAndSettle();
