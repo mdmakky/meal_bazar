@@ -204,3 +204,12 @@ RPCs and triggers raise `errcode 'P0001'` with a short message key that the app 
 
 ## Storage
 The `receipts` bucket is private. Object paths are `{mess_id}/{uuid}.jpg`. Policies: read if `is_mess_member(split_part(name,'/',1)::uuid)`, write if the caller is a manager (v1.1: the uploading member as well).
+
+### Edit notifications (0037)
+Push type `entry_edited` (one switch). `bazars_edit_push` / `expenses_edit_push` tell everyone but the editor about a changed or deleted bazar / shared cost (amount, date, payer, category, split); `deposits_edit_push` tells only that member about a changed or deleted deposit / payback (status changes keep their own pushes); `meal_entries_edit_push` tells a member their meals were entered or changed by a manager, once per 10 minutes. Nothing for system work (no `auth.uid()`), `source in ('system','auto')`, the actor's own rows, or an upsert that changes nothing.
+
+### Leaving and deleting a mess (0038)
+`leave_preview(mess)` → `(balance, only_manager)`; `leave_mess(mess)` leaves at once when the member owes nothing or is owed (`DUES_OUTSTANDING` when they owe, `LAST_MANAGER` for the only manager), tells the managers (`member_left`); `request_leave(mess)` pushes the managers when the member owes. `messes.delete_requested_at/_by`: `request_mess_deletion(mess, name)` (owner = `created_by`, or any manager of an ownerless mess; `NAME_MISMATCH`, `NOT_OWNER`) starts 30 days and tells everyone (`mess_deletion`); `cancel_mess_deletion(mess)`; `purge_deleted_messes()` (service role, called by the daily cron) erases messes past 30 days (all FKs cascade; audit rows are skipped while `meal_bazar.purging` is on). Receipt files already uploaded are not removed from storage.
+
+### One correction, one log line (0039)
+`audit_row()` merges an actor's change to a row within 10 minutes into their previous `insert`/`update` log line (keeps the first `old`, takes the latest `new`; drops the line when the row is back where it started). Deletes, soft deletes and system writes are never merged. `my_activity` also shows a meal insert whose count is not 1 (a corrected fill).
