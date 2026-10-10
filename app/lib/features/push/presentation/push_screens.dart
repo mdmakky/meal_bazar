@@ -81,6 +81,17 @@ import '../domain/push.dart';
   PushType.dueReminder => (Icons.payments_outlined, l.pushDue, l.pushDueSub),
   PushType.message => (Icons.forum_outlined, l.pushMessage, l.pushMessageSub),
   PushType.groupMessage => (Icons.groups_outlined, l.pushGroup, l.pushGroupSub),
+  PushType.memberLeft => (Icons.logout, l.pushMemberLeft, l.pushMemberLeftSub),
+  PushType.messDeletion => (
+    Icons.delete_outline,
+    l.pushMessDeletion,
+    l.pushMessDeletionSub,
+  ),
+  PushType.entryEdited => (
+    Icons.edit_note_outlined,
+    l.pushEntryEdited,
+    l.pushEntryEditedSub,
+  ),
 };
 
 /// One switch per push type, saved to `profiles.notification_prefs`.

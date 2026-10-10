@@ -1,6 +1,6 @@
 /// Push types the server sends (supabase/migrations/0019_push.sql,
 /// `message` from 0022_messages.sql, deposit_added / bazar_request* from
-/// 0026). [key] is
+/// 0026, entry_edited from 0037, member_left / mess_deletion from 0038). [key] is
 /// the `push_outbox.type` and the `profiles.notification_prefs` key.
 enum PushType {
   joinRequest('join_request', managerOnly: true),
@@ -18,7 +18,10 @@ enum PushType {
   monthReopened('month_reopened'),
   dueReminder('due_reminder'),
   message('message'),
-  groupMessage('group_message');
+  groupMessage('group_message'),
+  entryEdited('entry_edited'),
+  memberLeft('member_left', managerOnly: true),
+  messDeletion('mess_deletion');
 
   const PushType(this.key, {this.managerOnly = false});
 
