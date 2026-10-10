@@ -1590,8 +1590,8 @@ class _BazarPageState extends ConsumerState<_BazarPage>
   }
 }
 
-/// One item on one ~56 dp row: name (edit in place), `− ১ কেজি +` (tap the
-/// unit to change it), price. Swipe left to remove. Rebuilds only itself.
+/// One item on one ~56 dp row: name (edit in place), quantity (typed, decimals
+/// ok) with its unit (tap to change), price. Swipe left to remove. Rebuilds only itself.
 class _LineRow extends StatefulWidget {
   const _LineRow({
     super.key,
@@ -1618,7 +1618,16 @@ class _LineRowState extends State<_LineRow> {
     widget.line.fresh = false;
   }
 
-  void _setQty(double v) => setState(() => widget.line.qty = v);
+  /// Typed quantity ("2.5"): decimals are allowed, so no +/- tapping.
+  late final _qty = TextEditingController(
+    text: widget.line.qty == null ? '' : _num(widget.line.qty!),
+  );
+
+  @override
+  void dispose() {
+    _qty.dispose();
+    super.dispose();
+  }
 
   Future<void> _pickUnit() async {
     final l = AppLocalizations.of(context);
@@ -1641,11 +1650,6 @@ class _LineRowState extends State<_LineRow> {
     final p = context.palette;
     final text = Theme.of(context).textTheme;
     final line = widget.line;
-    final qty = line.qty;
-    final qtyText = [
-      qty == null ? '—' : Fmt.digits(_num(qty), bangla: banglaDigits(context)),
-      ?line.unit,
-    ].join(' ');
     String? need(String? v) =>
         !line.isEmpty && (v ?? '').trim().isEmpty ? l.bazarItemInvalid : null;
     const none = InputBorder.none;
@@ -1673,46 +1677,91 @@ class _LineRowState extends State<_LineRow> {
       ),
       validator: need,
     );
-    final minus = _QtyButton(
-      icon: Icons.remove,
-      label: '${l.mealCellDecrease} ${l.bazarItemQty}',
-      onTap: qty == null || qty <= 0.5
-          ? null
-          : () => _setQty(qty - (qty > 1 ? 1 : 0.5)),
-    );
-    final label = Semantics(
-      button: true,
-      label: l.bazarQtyLabel(qtyText),
-      excludeSemantics: true,
-      child: InkWell(
+    // Quantity and unit read as one control: a typed number, then its unit.
+    final qtyText = _qty.text.trim();
+    final qtyNum = parseAmount(qtyText);
+    final qtyBad = qtyText.isNotEmpty && (qtyNum == null || qtyNum <= 0);
+    final qty = Container(
+      height: _fieldHeight,
+      decoration: BoxDecoration(
+        color: p.surfaceMuted,
         borderRadius: BorderRadius.circular(AppRadius.sm),
-        onTap: _pickUnit,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            minWidth: AppSize.stepTarget,
-            minHeight: AppSize.touch,
+        border: qtyBad ? Border.all(color: p.due) : null,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 48,
+            child: TextFormField(
+              key: const Key('item-qty'),
+              controller: _qty,
+              textAlign: TextAlign.center,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp('[0-9০-৯.]')),
+              ],
+              onChanged: (v) {
+                line.qty = v.trim().isEmpty ? null : parseAmount(v);
+                setState(() {});
+              },
+              style: text.titleSmall?.copyWith(
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+              decoration: InputDecoration(
+                hintText: l.bazarItemQty,
+                isDense: true,
+                border: none,
+                enabledBorder: none,
+                focusedBorder: none,
+                errorBorder: none,
+                focusedErrorBorder: none,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: AppSpace.xs,
+                  vertical: AppSpace.sm + 2,
+                ),
+              ),
+              validator: (v) {
+                final t = (v ?? '').trim();
+                if (t.isEmpty) return null;
+                final n = parseAmount(t);
+                return n == null || n <= 0 ? l.moneyAmountInvalid : null;
+              },
+            ),
           ),
-          child: Center(
-            widthFactor: 1,
-            child: PopOnChange(
-              value: qty,
-              child: Text(
-                qtyText,
-                key: const Key('item-qty'),
-                maxLines: 1,
-                style: text.labelLarge?.copyWith(
-                  fontFeatures: const [FontFeature.tabularFigures()],
+          Semantics(
+            button: true,
+            label: l.bazarItemUnit,
+            excludeSemantics: true,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(AppRadius.sm),
+              onTap: _pickUnit,
+              child: Padding(
+                padding: const EdgeInsetsDirectional.only(
+                  start: AppSpace.xs,
+                  end: AppSpace.xs,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      line.unit ?? l.bazarItemUnit,
+                      key: const Key('item-unit'),
+                      maxLines: 1,
+                      style: text.labelLarge?.copyWith(
+                        color: line.unit == null ? p.inkTertiary : p.ink,
+                      ),
+                    ),
+                    Icon(Icons.arrow_drop_down, size: 18, color: p.inkTertiary),
+                  ],
                 ),
               ),
             ),
           ),
-        ),
+        ],
       ),
-    );
-    final plus = _QtyButton(
-      icon: Icons.add,
-      label: '${l.mealCellIncrease} ${l.bazarItemQty}',
-      onTap: () => _setQty(qty == null ? 1 : (qty < 1 ? qty + 0.5 : qty + 1)),
     );
     final price = SizedBox(
       width: _priceWidth,
@@ -1736,7 +1785,7 @@ class _LineRowState extends State<_LineRow> {
           errorMaxLines: 2,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: AppSpace.sm,
-            vertical: AppSpace.md,
+            vertical: AppSpace.sm + 2,
           ),
           border: box(),
           enabledBorder: box(),
@@ -1767,9 +1816,7 @@ class _LineRowState extends State<_LineRow> {
               ? Row(
                   children: [
                     Expanded(child: name),
-                    minus,
-                    label,
-                    plus,
+                    qty,
                     const SizedBox(width: AppSpace.xs),
                     price,
                   ],
@@ -1781,9 +1828,7 @@ class _LineRowState extends State<_LineRow> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        minus,
-                        Flexible(child: label),
-                        plus,
+                        qty,
                         const SizedBox(width: AppSpace.xs),
                         price,
                       ],
@@ -1828,6 +1873,9 @@ class _LineRowState extends State<_LineRow> {
 }
 
 const double _priceWidth = 96;
+
+/// Quantity and price fields share one compact height.
+const double _fieldHeight = 40;
 
 /// Row width (per text-scale unit) below which an item takes two lines.
 const double _oneLineWidth = 280;
@@ -1892,57 +1940,6 @@ class _AddLineRow extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-/// A 28 dp circle in a 40 × 48 dp hit area (the meal grid's step button).
-class _QtyButton extends StatelessWidget {
-  const _QtyButton({required this.icon, required this.label, this.onTap});
-
-  final IconData icon;
-  final String label;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final p = context.palette;
-    final on = onTap != null;
-    return Semantics(
-      button: true,
-      enabled: on,
-      label: label,
-      excludeSemantics: true,
-      child: PressableScale(
-        enabled: on,
-        haptic: on,
-        scale: 0.85,
-        child: InkResponse(
-          onTap: onTap,
-          radius: AppSize.stepTarget / 2,
-          child: SizedBox(
-            width: AppSize.stepTarget,
-            height: AppSize.touch,
-            child: Center(
-              child: AnimatedContainer(
-                duration: AppMotion.of(context, AppMotion.fast),
-                width: AppSize.stepFace,
-                height: AppSize.stepFace,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: on ? p.surfaceMuted : Colors.transparent,
-                  border: Border.all(color: on ? p.surfaceMuted : p.border),
-                ),
-                child: Icon(
-                  icon,
-                  size: AppSize.dot * 2,
-                  color: on ? p.ink : p.inkTertiary,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

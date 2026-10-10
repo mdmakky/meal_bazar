@@ -257,6 +257,12 @@ Future<void> tapSave(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
+/// The typed quantity of the [i]-th item row.
+String qtyOf(WidgetTester t, int i) => t
+    .widget<TextFormField>(find.byKey(const Key('item-qty')).at(i))
+    .controller!
+    .text;
+
 void main() {
   setUpAll(() {
     registerFallbackValue(
@@ -386,7 +392,8 @@ void main() {
       await pump(tester, opener((c) => showBazarForm(c, existing: existing)));
       await openSheet(tester);
       expect(find.text(l.bazarEdit), findsOneWidget);
-      expect(find.text('২ কেজি'), findsOneWidget);
+      expect(qtyOf(tester, 0), '2');
+      expect(find.text('কেজি'), findsOneWidget);
       expect(find.widgetWithText(AppButton, l.delete), findsNothing);
       await tapSave(tester);
       final b = saved();
@@ -470,8 +477,10 @@ void main() {
       await pick(tester, 'আলু');
       await pick(tester, 'ডিম');
       expect(find.byKey(const Key('item-price')), findsNWidgets(2));
-      expect(find.text('১ কেজি'), findsOneWidget);
-      expect(find.text('১ হালি'), findsOneWidget);
+      expect(qtyOf(tester, 0), '1');
+      expect(qtyOf(tester, 1), '1');
+      expect(find.text('কেজি'), findsOneWidget);
+      expect(find.text('হালি'), findsOneWidget);
       await price(tester, 0, '60');
       await price(tester, 1, '50');
       expect(amount(tester), '১১০');
@@ -483,15 +492,12 @@ void main() {
       expect(amount(tester), '৫০');
       expect(find.text('৳৫০'), findsOneWidget);
 
-      // The qty stepper, then the unit chooser.
-      await tapIt(
-        tester,
-        find.bySemanticsLabel('${l.mealCellIncrease} ${l.bazarItemQty}'),
-      );
-      expect(find.text('২ হালি'), findsOneWidget);
-      await tapIt(tester, find.text('২ হালি'));
+      // The qty is typed (decimals ok), then the unit chooser.
+      await tester.enterText(find.byKey(const Key('item-qty')), '2');
+      await tester.pump();
+      await tapIt(tester, find.text('হালি'));
       await tapIt(tester, find.text('ডজন').last);
-      expect(find.text('২ ডজন'), findsOneWidget);
+      expect(find.text('ডজন'), findsOneWidget);
 
       await tapSave(tester);
       final item = saved().items.single;
@@ -510,7 +516,7 @@ void main() {
       await price(tester, 1, '50');
       expect(amount(tester), '১১০');
 
-      await tester.fling(find.text('১ কেজি'), const Offset(-600, 0), 2000);
+      await tester.fling(find.text('কেজি'), const Offset(-600, 0), 2000);
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('item-price')), findsOneWidget);
       expect(amount(tester), '৫০');
@@ -581,19 +587,10 @@ void main() {
       await buyer(tester, 'Karim');
       await pick(tester, 'সয়াবিন তেল');
       await price(tester, 0, '১২৫০');
-      await tapIt(
-        tester,
-        find.bySemanticsLabel('${l.mealCellIncrease} ${l.bazarItemQty}'),
-      );
-      await tapIt(
-        tester,
-        find.bySemanticsLabel('${l.mealCellDecrease} ${l.bazarItemQty}'),
-      );
-      await tapIt(
-        tester,
-        find.bySemanticsLabel('${l.mealCellDecrease} ${l.bazarItemQty}'),
-      );
-      expect(find.text('০.৫ লিটার'), findsOneWidget);
+      await tester.enterText(find.byKey(const Key('item-qty')), '0.5');
+      await tester.pump();
+      expect(qtyOf(tester, 0), '0.5');
+      expect(find.text('লিটার'), findsOneWidget);
       await tapIt(tester, find.widgetWithText(ChoiceChip, 'Karim'));
       expect(tester.takeException(), isNull);
     });
@@ -860,7 +857,7 @@ void main() {
       await tester.tap(chip);
       await tester.pumpAndSettle();
       expect(
-        find.text('১ কেজি'),
+        find.text('কেজি'),
         findsOneWidget,
         reason: 'the config unit fills the line',
       );
