@@ -333,7 +333,9 @@ class _CashCard extends ConsumerWidget {
                             ],
                           ),
                           Text(
-                            l.splitMemNegativeCash,
+                            manager
+                                ? l.splitMemNegativeCash
+                                : l.fundShortMemberNote,
                             key: const Key('cash-negative-note'),
                             style: text.bodySmall?.copyWith(
                               color: p.inkSecondary,
