@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/shopping/presentation/shopping_screens.dart';
 import '../features/account/presentation/account_screen.dart';
 import '../features/audit/presentation/audit_screen.dart';
 import '../features/audit/presentation/my_activity_screen.dart';
@@ -196,7 +197,17 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           StatefulShellBranch(
             routes: [
-              GoRoute(path: '/bazar', builder: (_, _) => const BazarScreen()),
+              GoRoute(
+                path: '/bazar',
+                builder: (_, _) => const BazarScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'list/:id',
+                    builder: (_, state) =>
+                        ShoppingListScreen(id: state.pathParameters['id']!),
+                  ),
+                ],
+              ),
             ],
           ),
           StatefulShellBranch(

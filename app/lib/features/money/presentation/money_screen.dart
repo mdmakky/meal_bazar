@@ -16,6 +16,7 @@ import '../../messages/domain/message_draft.dart';
 import '../../month/application/month_providers.dart';
 import '../../month/domain/month.dart';
 import '../../report/presentation/report_actions.dart';
+import '../../shopping/presentation/shopping_screens.dart';
 import '../application/bazar_request_providers.dart';
 import '../application/money_providers.dart';
 import '../domain/bazar_request.dart';
@@ -248,6 +249,7 @@ class BazarScreen extends ConsumerWidget {
                 ),
               ),
             ),
+            SliverToBoxAdapter(child: ShoppingSection(messId: messId)),
             if (manager)
               _BazarRequests(
                 messId: messId,

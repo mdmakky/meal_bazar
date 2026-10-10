@@ -7,6 +7,7 @@ import '../../../core/db/sync.dart';
 import '../../../core/failure_text.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
 import '../../mess/presentation/leave_delete.dart';
+import '../../shopping/presentation/shopping_screens.dart';
 import '../../../core/platform/platform_config.dart';
 import '../../../core/platform/platform_widgets.dart';
 import '../../../core/widgets/widgets.dart';
@@ -166,6 +167,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
               child: TodayDutyCard(),
             ),
           ),
+          const SliverToBoxAdapter(child: ShoppingHomeCard()),
           SliverToBoxAdapter(child: LastMonthCard(messId: messId)),
           SliverToBoxAdapter(
             child: Column(
