@@ -103,7 +103,9 @@ begin
       perform fail('NOT_MEMBER');
     end if;
   end if;
-  if v_for = v_me then
+  -- "Me" is no assignee when I made the list; a manager taking over someone
+  -- else's list is named.
+  if v_for = v_me and v_me = coalesce(v_old.created_by, v_me) then
     v_for := null;
   end if;
 
@@ -120,6 +122,18 @@ begin
       'বাজারের তালিকা', format('%s: আপনাকে বাজারে যেতে বলা হয়েছে', v_mess),
       'Bazar list for you', format('%s: you were asked to do the bazar', v_mess),
       '/bazar/list/' || p_id::text);
+  end if;
+  -- A manager who sends the list to someone else (or takes it back) tells
+  -- the person it was taken from.
+  if v_old.assignee_id is not null and v_old.assignee_id is distinct from v_for then
+    select user_id into v_user from mess_members where id = v_old.assignee_id;
+    if v_user is not null and v_user is distinct from v_uid then
+      select name into v_mess from messes where id = p_mess;
+      perform push_enqueue(array[v_user], 'shopping_assigned',
+        'বাজারের তালিকা সরানো হয়েছে', format('%s: বাজারের তালিকাটি আপনার কাছ থেকে সরানো হয়েছে', v_mess),
+        'Bazar list taken back', format('%s: the bazar list was taken back from you', v_mess),
+        '/bazar');
+    end if;
   end if;
   return p_id;
 end $$;

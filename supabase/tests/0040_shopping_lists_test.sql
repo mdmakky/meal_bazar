@@ -13,7 +13,7 @@ insert into mess_members (mess_id, user_id, display_name) values (:'mess', :R, '
 insert into mess_members (mess_id, user_id, display_name) values (:'mess', :K, 'Karim') returning id as karim \gset
 select set_config('meal_bazar.trusted', '', false);
 update mess_members set joined_on = current_date - 70 where mess_id = :'mess';
-insert into device_tokens (token, user_id, platform) values ('tok-list-mgr-0001', :M, 'android'), ('tok-list-rahim-01', :R, 'android');
+insert into device_tokens (token, user_id, platform) values ('tok-list-mgr-0001', :M, 'android'), ('tok-list-rahim-01', :R, 'android'), ('tok-list-karim-01', :K, 'android');
 select set_config('meal_bazar.today', '', false);
 select (now() at time zone 'Asia/Dhaka')::date as today \gset
 
@@ -88,6 +88,27 @@ select request_id as req3 from shopping_lists where id = '40400000-0000-0000-000
 select test.check((select status = 'done' from shopping_lists where id = '40400000-0000-0000-0000-0000000000a3')
                   and exists (select 1 from bazars where id = :'req3' and amount = 410 and paid_by_member_id is null),
                   'a manager list becomes the bazar at once (from the fund)');
+
+-- ── a manager changes their mind: revoke, send to someone else, take it back ──
+select test.act_as(:M);
+select save_shopping_list('40400000-0000-0000-0000-0000000000a5', :'mess', :'today', null, null, :'rahim');
+select test.act_as(null);
+delete from push_outbox;
+select test.act_as(:M);
+select save_shopping_list('40400000-0000-0000-0000-0000000000a5', :'mess', :'today', null, null, :'karim');
+select test.act_as(null);
+select test.check((select count(*) = 1 from push_outbox where user_id = :R and title = 'বাজারের তালিকা সরানো হয়েছে'), 'Rahim is told it was taken back');
+select test.check((select count(*) = 1 from push_outbox where user_id = :K and type = 'shopping_assigned' and title = 'বাজারের তালিকা'), 'Karim is told it is his');
+select test.act_as(:R);
+select test.check((select count(*) = 0 from shopping_lists where id = '40400000-0000-0000-0000-0000000000a5'), 'Rahim no longer sees it');
+select test.act_as(:K);
+select test.check((select count(*) = 1 from shopping_lists where id = '40400000-0000-0000-0000-0000000000a5'), 'Karim sees it');
+select test.act_as(:M);
+select save_shopping_list('40400000-0000-0000-0000-0000000000a5', :'mess', :'today', null, null, :'mgr');
+select test.act_as(null);
+select test.check((select assignee_id is null and created_by = :'mgr' from shopping_lists where id = '40400000-0000-0000-0000-0000000000a5'), 'taken back by its own maker: no assignee');
+select test.act_as(:K);
+select test.check((select count(*) = 0 from shopping_lists where id = '40400000-0000-0000-0000-0000000000a5'), 'Karim lost it');
 
 -- nothing ticked with a price cannot be submitted
 select test.act_as(:M);
