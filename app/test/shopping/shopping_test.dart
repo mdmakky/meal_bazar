@@ -62,13 +62,15 @@ void main() {
   late MockShopping repo;
 
   setUpAll(() {
+    registerFallbackValue(sample());
     registerFallbackValue(const ShoppingItem(id: 'x', listId: 'x', name: 'x'));
   });
 
   setUp(() {
     repo = MockShopping();
-    when(() => repo.upsertItem(any())).thenAnswer((_) async {});
+    when(() => repo.upsertItem(any(), any())).thenAnswer((_) async {});
     when(() => repo.lists(any())).thenAnswer((_) async => [sample()]);
+    when(() => repo.remember(any())).thenAnswer((_) async {});
     when(
       () => repo.submit(any(), ownPocket: any(named: 'ownPocket')),
     ).thenAnswer((_) async {});
@@ -124,10 +126,12 @@ void main() {
   testWidgets('the shopper ticks, prices and sends the list as a bazar', (
     tester,
   ) async {
-    when(() => repo.list('l1')).thenAnswer((_) async => sample());
+    when(() => repo.list(any(), 'l1')).thenAnswer((_) async => sample());
     await pumpApp(tester, const ShoppingListScreen(id: 'l1'), shopper);
     expect(find.text('চাল'), findsOneWidget);
     expect(find.byKey(const Key('shop-submit')), findsOneWidget);
+    // A shopper cannot send the list to someone else.
+    expect(find.byKey(const Key('shop-menu')), findsNothing);
 
     await tester.enterText(find.byKey(const Key('shop-price-i1')), '600');
     await tester.pump();
@@ -144,13 +148,15 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('I paid from my own pocket'));
     await tester.pumpAndSettle();
-    verify(() => repo.submit('l1', ownPocket: true)).called(1);
+    verify(
+      () => repo.submit(any(that: isA<ShoppingList>()), ownPocket: true),
+    ).called(1);
     // Both prices were saved before it was sent.
-    verify(() => repo.upsertItem(any())).called(greaterThanOrEqualTo(2));
+    verify(() => repo.upsertItem(any(), any())).called(greaterThanOrEqualTo(2));
   });
 
   testWidgets('nothing priced: the list is not sent', (tester) async {
-    when(() => repo.list('l1')).thenAnswer((_) async => sample());
+    when(() => repo.list(any(), 'l1')).thenAnswer((_) async => sample());
     await pumpApp(tester, const ShoppingListScreen(id: 'l1'), shopper);
     await tester.tap(find.byKey(const Key('shop-submit')));
     await tester.pumpAndSettle();
@@ -163,7 +169,7 @@ void main() {
 
   testWidgets('a rejected list says why and is open again', (tester) async {
     when(
-      () => repo.list('l1'),
+      () => repo.list(any(), 'l1'),
     ).thenAnswer((_) async => sample(reject: 'wrong price'));
     await pumpApp(tester, const ShoppingListScreen(id: 'l1'), shopper);
     expect(find.byKey(const Key('shop-rejected')), findsOneWidget);
@@ -172,7 +178,7 @@ void main() {
 
   testWidgets('a submitted list is read-only', (tester) async {
     when(
-      () => repo.list('l1'),
+      () => repo.list(any(), 'l1'),
     ).thenAnswer((_) async => sample(status: 'submitted'));
     await pumpApp(tester, const ShoppingListScreen(id: 'l1'), shopper);
     expect(find.byKey(const Key('shop-submitted')), findsOneWidget);
@@ -193,7 +199,7 @@ void main() {
           assigneeId: any(named: 'assigneeId'),
         ),
       ).thenAnswer((_) async {});
-      when(() => repo.list(any())).thenAnswer((_) async => sample());
+      when(() => repo.list(any(), any())).thenAnswer((_) async => sample());
       await pumpApp(
         tester,
         const Scaffold(
@@ -227,4 +233,40 @@ void main() {
       expect(c.single, 'm-rahim');
     },
   );
+
+  testWidgets('a manager sent it to the wrong person: change who goes', (
+    tester,
+  ) async {
+    when(() => repo.list(any(), any())).thenAnswer((_) async => sample());
+    when(
+      () => repo.saveList(
+        id: any(named: 'id'),
+        messId: any(named: 'messId'),
+        date: any(named: 'date'),
+        title: any(named: 'title'),
+        note: any(named: 'note'),
+        assigneeId: any(named: 'assigneeId'),
+      ),
+    ).thenAnswer((_) async {});
+    await pumpApp(tester, const ShoppingListScreen(id: 'l1'), boss);
+    await tester.tap(find.byKey(const Key('shop-menu')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Change who goes'));
+    await tester.pumpAndSettle();
+    // Me or anyone: take it back or send it elsewhere.
+    expect(find.text('Me'), findsOneWidget);
+    await tester.tap(find.text('Me'));
+    await tester.pumpAndSettle();
+    final c = verify(
+      () => repo.saveList(
+        id: 'l1',
+        messId: 'mess1',
+        date: any(named: 'date'),
+        title: any(named: 'title'),
+        note: any(named: 'note'),
+        assigneeId: captureAny(named: 'assigneeId'),
+      ),
+    ).captured;
+    expect(c.single, 'm-boss');
+  });
 }

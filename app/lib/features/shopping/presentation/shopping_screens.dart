@@ -330,7 +330,7 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
   final _timers = <String, Timer>{};
   final _pending = <String, ShoppingItem>{};
 
-  ShoppingRepository get _repo => ref.read(shoppingRepositoryProvider);
+  late final ShoppingRepository _repo = ref.read(shoppingRepositoryProvider);
 
   @override
   void initState() {
@@ -345,14 +345,16 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
       t.cancel();
     }
     for (final i in _pending.values) {
-      unawaited(_repo.upsertItem(i).catchError((Object _) {}));
+      unawaited(
+        _repo.upsertItem(_list?.messId ?? '', i).catchError((Object _) {}),
+      );
     }
     super.dispose();
   }
 
   Future<void> _load() async {
     try {
-      final l = await _repo.list(widget.id);
+      final l = await _repo.list(ref.read(currentMessIdProvider)!, widget.id);
       if (mounted) {
         setState(() {
           _list = l;
@@ -370,12 +372,17 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
     }
   }
 
+  /// Shows [l] and keeps the phone's copy in step, so the list survives a
+  /// restart or a lost signal.
+  void _setList(ShoppingList l) {
+    setState(() => _list = l);
+    unawaited(ref.read(shoppingControllerProvider).remember(l));
+  }
+
   void _replace(ShoppingItem item) {
     final l = _list!;
-    setState(
-      () => _list = l.copyWith(
-        items: [for (final i in l.items) i.id == item.id ? item : i],
-      ),
+    _setList(
+      l.copyWith(items: [for (final i in l.items) i.id == item.id ? item : i]),
     );
   }
 
@@ -389,7 +396,9 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
       final latest = _pending.remove(item.id);
       if (latest == null) return;
       try {
-        await ref.read(shoppingControllerProvider).upsertItem(latest);
+        await ref
+            .read(shoppingControllerProvider)
+            .upsertItem(_list!.messId, latest);
       } catch (e) {
         if (mounted) showFailure(context, e);
       }
@@ -410,7 +419,7 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
     final items = _pending.values.toList();
     _pending.clear();
     for (final i in items) {
-      await _repo.upsertItem(i);
+      await _repo.upsertItem(_list!.messId, i);
     }
   }
 
@@ -432,9 +441,9 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
       extra: !planner,
       sort: list.items.isEmpty ? 0 : list.items.last.sort + 1,
     );
-    setState(() => _list = list.copyWith(items: [...list.items, item]));
+    _setList(list.copyWith(items: [...list.items, item]));
     try {
-      await ref.read(shoppingControllerProvider).upsertItem(item);
+      await ref.read(shoppingControllerProvider).upsertItem(list.messId, item);
     } catch (e) {
       if (mounted) showFailure(context, e);
     }
@@ -463,7 +472,9 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
     _pending.remove(item.id);
     _timers.remove(item.id)?.cancel();
     try {
-      await ref.read(shoppingControllerProvider).deleteItem(item.id);
+      await ref
+          .read(shoppingControllerProvider)
+          .deleteItem(list.messId, item.id);
     } catch (e) {
       if (mounted) {
         showFailure(context, e);
@@ -499,6 +510,45 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
       if (mounted) showFailure(context, e);
     } finally {
       if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  /// A manager sent it to the wrong person (or wants it back): pick again.
+  /// The person it is taken from is told.
+  Future<void> _reassign() async {
+    final l = AppLocalizations.of(context);
+    final list = _list!;
+    final me = ref.read(currentMembershipProvider)?.member.id;
+    final members = [
+      for (final m
+          in ref.read(membersProvider(list.messId)).value ?? const <Member>[])
+        if (m.status == MemberStatus.active) m,
+    ];
+    final pick = await pickOne<String>(
+      context,
+      title: l.shopChangeWho,
+      options: [
+        if (me != null) (me, l.shopMe),
+        for (final m in members)
+          if (m.id != me) (m.id, m.displayName),
+      ],
+    );
+    if (pick == null || !mounted) return;
+    try {
+      await ref
+          .read(shoppingControllerProvider)
+          .saveList(
+            id: list.id,
+            messId: list.messId,
+            date: list.date,
+            title: list.title,
+            note: list.note,
+            assigneeId: pick,
+          );
+      await _load();
+      if (mounted) showSnack(context, l.shopWhoChanged);
+    } catch (e) {
+      if (mounted) showFailure(context, e);
     }
   }
 
@@ -558,8 +608,11 @@ class _ShoppingListScreenState extends ConsumerState<ShoppingListScreen> {
         actions: [
           if (list.isOpen && planner)
             PopupMenuButton<int>(
-              onSelected: (_) => _cancel(),
+              key: const Key('shop-menu'),
+              onSelected: (v) => v == 1 ? _reassign() : _cancel(),
               itemBuilder: (_) => [
+                if (manager)
+                  PopupMenuItem(value: 1, child: Text(l.shopChangeWho)),
                 PopupMenuItem(value: 0, child: Text(l.shopCancel)),
               ],
             ),

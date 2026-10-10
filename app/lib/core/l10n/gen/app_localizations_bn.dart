@@ -4305,6 +4305,13 @@ class AppLocalizationsBn extends AppLocalizations {
   String get pushShoppingSub => 'ম্যানেজার বাজারের তালিকা দিলে';
 
   @override
+  String get shopChangeWho => 'কে যাবে বদলান';
+
+  @override
+  String get shopWhoChanged =>
+      'বদলানো হয়েছে। যার কাছ থেকে সরানো হলো তাকে জানানো হয়েছে।';
+
+  @override
   String get fundModeFix => 'খরচ ঠিক করুন';
 
   @override

@@ -7802,6 +7802,18 @@ abstract class AppLocalizations {
   /// **'ম্যানেজার বাজারের তালিকা দিলে'**
   String get pushShoppingSub;
 
+  /// No description provided for @shopChangeWho.
+  ///
+  /// In bn, this message translates to:
+  /// **'কে যাবে বদলান'**
+  String get shopChangeWho;
+
+  /// No description provided for @shopWhoChanged.
+  ///
+  /// In bn, this message translates to:
+  /// **'বদলানো হয়েছে। যার কাছ থেকে সরানো হলো তাকে জানানো হয়েছে।'**
+  String get shopWhoChanged;
+
   /// No description provided for @fundModeFix.
   ///
   /// In bn, this message translates to:

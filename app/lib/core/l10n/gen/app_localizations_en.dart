@@ -4318,6 +4318,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pushShoppingSub => 'When a manager gives you a list to shop';
 
   @override
+  String get shopChangeWho => 'Change who goes';
+
+  @override
+  String get shopWhoChanged => 'Updated. The person it was taken from is told.';
+
+  @override
   String get fundModeFix => 'Fix the cost';
 
   @override

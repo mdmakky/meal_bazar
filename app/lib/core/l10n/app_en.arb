@@ -2061,6 +2061,8 @@
   "shopNotFound": "This list is no longer open.",
   "pushShopping": "Bazar list for you",
   "pushShoppingSub": "When a manager gives you a list to shop",
+  "shopChangeWho": "Change who goes",
+  "shopWhoChanged": "Updated. The person it was taken from is told.",
   "fundModeFix": "Fix the cost",
   "fundModePromptTitle": "Fund is short",
   "fundModePromptBody": "The fund has {cash}, the cost is {amount}. Did someone pay this from their own pocket?",
