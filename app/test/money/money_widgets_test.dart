@@ -328,11 +328,6 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    String amount(WidgetTester tester) => tester
-        .widget<TextFormField>(find.byKey(const Key('amount')))
-        .controller!
-        .text;
-
     Bazar saved() =>
         verify(() => repo.saveBazar(captureAny())).captured.single as Bazar;
 
@@ -483,13 +478,15 @@ void main() {
       expect(find.text('হালি'), findsOneWidget);
       await price(tester, 0, '60');
       await price(tester, 1, '50');
-      expect(amount(tester), '১১০');
+      expect(
+        find.byKey(const Key('amount')),
+        findsNothing,
+      ); // the total follows the items
       expect(find.text('৳১১০'), findsOneWidget); // sticky running total
 
       // Tapping the chip again removes the line and its price.
       await pick(tester, 'আলু');
       expect(find.byKey(const Key('item-price')), findsOneWidget);
-      expect(amount(tester), '৫০');
       expect(find.text('৳৫০'), findsOneWidget);
 
       // The qty is typed (decimals ok), then the unit chooser.
@@ -514,25 +511,25 @@ void main() {
       await pick(tester, 'ডিম');
       await price(tester, 0, '60');
       await price(tester, 1, '50');
-      expect(amount(tester), '১১০');
+      expect(find.text('৳১১০'), findsOneWidget);
 
       await tester.fling(find.text('কেজি'), const Offset(-600, 0), 2000);
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('item-price')), findsOneWidget);
-      expect(amount(tester), '৫০');
+      expect(find.text('৳৫০'), findsOneWidget);
       expect(find.text(l.bazarItemRemoved), findsOneWidget);
 
       await tester.tap(find.text(l.undo));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('item-price')), findsNWidgets(2));
-      expect(amount(tester), '১১০');
+      expect(find.text('৳১১০'), findsOneWidget);
       final first = tester.widget<TextFormField>(
         find.byKey(const Key('item-name')).first,
       );
       expect(first.controller!.text, 'আলু', reason: 'back in its place');
     });
 
-    testWidgets('a typed amount is kept; the sum becomes a hint', (
+    testWidgets('a typed total stands alone; priced items replace the field', (
       tester,
     ) async {
       await pump(tester, opener(showAddBazarSheet));
@@ -540,11 +537,9 @@ void main() {
       await tester.enterText(find.byKey(const Key('amount')), '700');
       await pick(tester, 'চাল');
       await price(tester, 0, '650');
-      expect(amount(tester), '700');
-      expect(find.text(l.bazarItemsSum('৳৬৫০')), findsOneWidget);
-      await tapIt(tester, find.text(l.bazarUseSum));
-      expect(amount(tester), '৬৫০');
-      expect(find.text(l.bazarItemsSum('৳৬৫০')), findsNothing);
+      // The field is gone; the total is the items' sum.
+      expect(find.byKey(const Key('amount')), findsNothing);
+      expect(find.text('৳৬৫০'), findsOneWidget);
     });
 
     testWidgets('custom item line; a line without a price blocks save', (

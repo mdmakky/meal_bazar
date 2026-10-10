@@ -251,11 +251,6 @@ void main() {
   });
 
   group('submission sheet', () {
-    String amount(WidgetTester tester) => tester
-        .widget<TextFormField>(find.byKey(const Key('amount')))
-        .controller!
-        .text;
-
     bool amountLocked(WidgetTester tester) => tester
         .widget<TextField>(
           find.descendant(
@@ -314,8 +309,11 @@ void main() {
       await reveal(tester, price);
       await tester.enterText(price, '60');
       await tester.pumpAndSettle();
-      expect(amount(tester), '৬০');
-      expect(amountLocked(tester), isTrue);
+      expect(
+        find.byKey(const Key('amount')),
+        findsNothing,
+      ); // follows the items
+      expect(find.text('৳৬০'), findsWidgets);
 
       await send(tester);
       final r = sent();

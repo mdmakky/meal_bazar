@@ -409,16 +409,12 @@ class _AmountField extends StatefulWidget {
     required this.controller,
     this.autofocus = false,
     this.positive = false,
-    this.readOnly = false,
     this.onChanged,
   });
 
   final TextEditingController controller;
   final bool autofocus;
   final ValueChanged<String>? onChanged;
-
-  /// Follows something else (a member's bazar: the items' sum).
-  final bool readOnly;
 
   /// Deposits must be > 0; bazar and expenses may be 0.
   final bool positive;
@@ -475,7 +471,7 @@ class _AmountFieldState extends State<_AmountField> {
       key: const Key('amount'),
       controller: widget.controller,
       focusNode: _focus,
-      readOnly: widget.readOnly,
+
       onChanged: widget.onChanged,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       inputFormatters: [FilteringTextInputFormatter.allow(RegExp('[0-9০-৯.]'))],
@@ -1002,20 +998,21 @@ class _BazarPageState extends ConsumerState<_BazarPage>
     _rename();
   }
 
-  /// The amount follows the items' sum until the user types one.
-  /// A filled-in amount in the locale's digits, like the user would type it.
-  String _typed(double v) => Fmt.digits(_num(v), bangla: banglaDigits(context));
-
+  /// The amount follows the items' sum (see [_recalc]).
   void _recalc() {
     final sum = itemsTotal([
       for (final i in _lines.value) parseAmount(i.price.text) ?? 0,
     ]);
     _sum.value = sum;
     _summed.value = sum > 0;
+    // Priced items are the amount; a typed total only stands without them.
+    if (sum > 0) _amountTyped = false;
     if (_amountTyped) return;
     // A member's amount is typed only while no item has a price.
     if (_request && sum == 0) return;
-    final text = sum == 0 ? '' : _typed(sum);
+    // Plain digits: the field is hidden while priced items stand in for it, and
+    // this also runs from initState (no locale lookup there).
+    final text = sum == 0 ? '' : _num(sum);
     if (_amount.text != text) _amount.text = text;
   }
 
@@ -1441,41 +1438,18 @@ class _BazarPageState extends ConsumerState<_BazarPage>
             ),
           ),
         const SizedBox(height: AppSpace.xl),
-        if (_request)
-          // Locked to the items' sum once an item has a price.
-          ValueListenableBuilder<bool>(
-            valueListenable: _summed,
-            builder: (context, summed, _) => _AmountField(
-              controller: _amount,
-              positive: true,
-              readOnly: summed,
-            ),
-          )
-        else
-          _AmountField(
-            controller: _amount,
-            onChanged: (_) => _amountTyped = true,
-          ),
-        ListenableBuilder(
-          listenable: Listenable.merge([_amount, _sum]),
-          builder: (context, _) {
-            final sum = _sum.value;
-            if (sum == 0 || parseAmount(_amount.text) == sum) {
-              return const SizedBox.shrink();
-            }
-            return Row(
-              children: [
-                Expanded(child: _Label(l.bazarItemsSum(money(context, sum)))),
-                TextButton(
-                  onPressed: () {
-                    _amountTyped = false;
-                    _amount.text = _typed(sum);
-                  },
-                  child: Text(l.bazarUseSum),
+        // The total below follows the items' prices, so the amount is only asked
+        // for while no item has a price (a bazar written as one total).
+        ValueListenableBuilder<bool>(
+          valueListenable: _summed,
+          builder: (context, summed, _) => summed
+              ? const SizedBox.shrink()
+              : _request
+              ? _AmountField(controller: _amount, positive: true)
+              : _AmountField(
+                  controller: _amount,
+                  onChanged: (_) => _amountTyped = true,
                 ),
-              ],
-            );
-          },
         ),
         const SizedBox(height: AppSpace.xl),
         Text(l.bazarItems, style: text.titleSmall),
