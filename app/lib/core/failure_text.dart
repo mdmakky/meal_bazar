@@ -24,6 +24,8 @@ String failureText(BuildContext context, Object error) {
     FailureKind.futureDate => l.bazarReqFailFutureDate,
     FailureKind.bazarRequestNotPending => l.bazarReqFailNotPending,
     FailureKind.itemsInvalid => l.bazarReqFailItemsInvalid,
+    FailureKind.withdrawalExceeds => l.withdrawFailExceeds,
+    FailureKind.amountInvalid => l.withdrawFailAmount,
     FailureKind.invalidOtp => l.failureInvalidOtp,
     FailureKind.invalidCredentials => l.failureInvalidCredentials,
     FailureKind.emailTaken => l.failureEmailTaken,

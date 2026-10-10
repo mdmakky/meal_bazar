@@ -172,6 +172,18 @@ void main() {
       ),
     ], names);
     expect(_lines(deposit)[1], '2026-10-07,আলম,2000,বিকাশ,ABC123,যাচাই বাকি,');
+
+    final payback = depositsCsv(l, [
+      Deposit(
+        id: '2',
+        messId: 'x',
+        memberId: 'a',
+        date: DateTime(2026, 10, 8),
+        amount: -800,
+        kind: 'withdrawal',
+      ),
+    ], names);
+    expect(_lines(payback)[1], '2026-10-08,আলম,-800,ক্যাশ,,ফেরত,');
   });
 
   group('cookMealCountText', () {

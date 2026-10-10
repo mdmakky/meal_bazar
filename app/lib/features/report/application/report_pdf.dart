@@ -874,6 +874,7 @@ Future<pw.Document> buildMonthReport(ReportData d) async {
             children: [
               await tx(methodLabel(l, x.method), 8.5),
               if (x.trxId?.trim().isNotEmpty ?? false) await tag(x.trxId!),
+              if (x.isWithdrawal) await tag(l.withdrawTag, own: true),
               if (x.status == DepositStatus.pending)
                 await tag(l.depositPending, own: true),
             ],

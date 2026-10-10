@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/failure_text.dart';
 import '../../../core/l10n/gen/app_localizations.dart';
 import '../../../core/widgets/widgets.dart';
+import '../../money/presentation/money_sheets.dart' show showWithdrawalSheet;
 import '../application/mess_providers.dart';
 import '../domain/member.dart';
 import 'common.dart';
@@ -16,6 +17,7 @@ enum _Action {
   markInactive,
   markActive,
   markLeft,
+  payBack,
 }
 
 class MembersScreen extends ConsumerWidget {
@@ -252,10 +254,19 @@ class _MemberRow extends ConsumerWidget {
             ),
           if (m.status != MemberStatus.left)
             option(_Action.markLeft, Icons.logout, l.membersMarkLeft),
+          option(
+            _Action.payBack,
+            Icons.remove_circle_outline,
+            l.withdrawAction,
+          ),
         ],
       ),
     );
     if (action == null || !context.mounted) return;
+    if (action == _Action.payBack) {
+      await showWithdrawalSheet(context, member: m);
+      return;
+    }
     if (action == _Action.markLeft &&
         !await confirmDialog(
           context,
@@ -274,6 +285,7 @@ class _MemberRow extends ConsumerWidget {
         _Action.markInactive => c.setStatus(m, MemberStatus.inactive),
         _Action.markActive => c.setStatus(m, MemberStatus.active),
         _Action.markLeft => c.setStatus(m, MemberStatus.left),
+        _Action.payBack => Future<void>.value(),
       };
       if (context.mounted) showSnack(context, l.membersSaved);
     } catch (e) {

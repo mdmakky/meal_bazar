@@ -1535,7 +1535,7 @@ abstract class AppLocalizations {
   /// No description provided for @moneyDepositTotal.
   ///
   /// In bn, this message translates to:
-  /// **'মোট জমা'**
+  /// **'মোট জমা (ফেরত বাদে)'**
   String get moneyDepositTotal;
 
   /// No description provided for @moneyDepositProof.
@@ -6299,7 +6299,7 @@ abstract class AppLocalizations {
   /// No description provided for @cashProof.
   ///
   /// In bn, this message translates to:
-  /// **'জমা {deposits} − ফান্ড থেকে খরচ {spent}'**
+  /// **'জমা (ফেরত বাদে) {deposits} − ফান্ড থেকে খরচ {spent}'**
   String cashProof(String deposits, String spent);
 
   /// No description provided for @cashPending.
@@ -6353,7 +6353,7 @@ abstract class AppLocalizations {
   /// No description provided for @transDeposits.
   ///
   /// In bn, this message translates to:
-  /// **'জমা'**
+  /// **'জমা (ফেরত বাদে)'**
   String get transDeposits;
 
   /// No description provided for @transOwnPocket.
@@ -7375,6 +7375,96 @@ abstract class AppLocalizations {
   /// In bn, this message translates to:
   /// **'কে দিয়েছে?'**
   String get fundModePickPayer;
+
+  /// No description provided for @withdrawAction.
+  ///
+  /// In bn, this message translates to:
+  /// **'টাকা ফেরত দিন'**
+  String get withdrawAction;
+
+  /// No description provided for @withdrawDetailTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'টাকা ফেরত'**
+  String get withdrawDetailTitle;
+
+  /// No description provided for @withdrawTag.
+  ///
+  /// In bn, this message translates to:
+  /// **'ফেরত'**
+  String get withdrawTag;
+
+  /// No description provided for @withdrawRowTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name}-কে ফেরত'**
+  String withdrawRowTitle(String name);
+
+  /// No description provided for @withdrawOwed.
+  ///
+  /// In bn, this message translates to:
+  /// **'এখন পাওনা: {amount}'**
+  String withdrawOwed(String amount);
+
+  /// No description provided for @withdrawMember.
+  ///
+  /// In bn, this message translates to:
+  /// **'কাকে ফেরত দেবেন'**
+  String get withdrawMember;
+
+  /// No description provided for @withdrawOverBalance.
+  ///
+  /// In bn, this message translates to:
+  /// **'ব্যালেন্সের বেশি নয়'**
+  String get withdrawOverBalance;
+
+  /// No description provided for @withdrawFundNote.
+  ///
+  /// In bn, this message translates to:
+  /// **'ফান্ডে এত নগদ নেই (আছে {cash}) — ফান্ড negative হবে।'**
+  String withdrawFundNote(String cash);
+
+  /// No description provided for @withdrawDone.
+  ///
+  /// In bn, this message translates to:
+  /// **'ফেরত দেওয়া হয়েছে'**
+  String get withdrawDone;
+
+  /// No description provided for @withdrawFailExceeds.
+  ///
+  /// In bn, this message translates to:
+  /// **'ফেরত দেওয়া যাবে না — সদস্যের ব্যালেন্সের বেশি'**
+  String get withdrawFailExceeds;
+
+  /// No description provided for @withdrawFailAmount.
+  ///
+  /// In bn, this message translates to:
+  /// **'টাকার পরিমাণ শূন্যের বেশি হতে হবে'**
+  String get withdrawFailAmount;
+
+  /// No description provided for @withdrawDeleteTitle.
+  ///
+  /// In bn, this message translates to:
+  /// **'এই ফেরত মুছবেন?'**
+  String get withdrawDeleteTitle;
+
+  /// No description provided for @withdrawDeleteBody.
+  ///
+  /// In bn, this message translates to:
+  /// **'মুছলে টাকাটা আবার সদস্যের ব্যালেন্সে ফিরে আসবে। ভুল হলে মুছে নতুন করে লিখুন।'**
+  String get withdrawDeleteBody;
+
+  /// No description provided for @withdrawAuditOf.
+  ///
+  /// In bn, this message translates to:
+  /// **'{name}-কে টাকা ফেরত'**
+  String withdrawAuditOf(String name);
+
+  /// No description provided for @withdrawAuditMine.
+  ///
+  /// In bn, this message translates to:
+  /// **'আপনাকে টাকা ফেরত'**
+  String get withdrawAuditMine;
 }
 
 class _AppLocalizationsDelegate

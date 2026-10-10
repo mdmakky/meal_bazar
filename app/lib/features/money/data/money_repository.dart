@@ -338,6 +338,31 @@ class MoneyRepository {
     ),
   );
 
+  /// Manager pays a member back ([amount] positive; SQL stores it negative and
+  /// refuses more than the member's balance). Idempotent on [id].
+  Future<void> recordWithdrawal({
+    required String messId,
+    required String id,
+    required String memberId,
+    required DateTime date,
+    required double amount,
+    required PayMethod method,
+    String? note,
+  }) => guard(
+    () => _client.rpc(
+      'record_withdrawal',
+      params: {
+        'p_mess': messId,
+        'p_id': id,
+        'p_member': memberId,
+        'p_date': isoDate(date),
+        'p_amount': amount,
+        'p_method': method.name,
+        'p_note': note,
+      },
+    ),
+  );
+
   /// Manager: pending → verified ([approve]) or rejected.
   Future<void> verifyDeposit(String id, {required bool approve}) => guard(
     () => _client.rpc(

@@ -230,6 +230,7 @@ class Deposit {
     this.status = DepositStatus.verified,
     this.note,
     this.screenshotPath,
+    this.kind = 'deposit',
   });
 
   factory Deposit.fromJson(Map<String, dynamic> j) => Deposit(
@@ -243,6 +244,7 @@ class Deposit {
     status: DepositStatus.values.byName(j['status'] as String),
     note: j['note'] as String?,
     screenshotPath: j['screenshot_path'] as String?,
+    kind: j['kind'] as String? ?? 'deposit',
   );
 
   final String id;
@@ -257,6 +259,11 @@ class Deposit {
 
   /// Payment screenshot in the `receipts` bucket.
   final String? screenshotPath;
+
+  /// 'deposit' or 'withdrawal' (a manager paid the member back); a withdrawal's
+  /// [amount] is negative, exactly as SQL stores it.
+  final String kind;
+  bool get isWithdrawal => kind == 'withdrawal';
 
   Map<String, dynamic> toJson() => {
     'id': id,

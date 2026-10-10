@@ -809,7 +809,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get moneyExtraProof => 'Split equally among members';
 
   @override
-  String get moneyDepositTotal => 'Deposits';
+  String get moneyDepositTotal => 'Deposits (net of paybacks)';
 
   @override
   String get moneyDepositProof => 'Verified deposits only';
@@ -3431,7 +3431,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String cashProof(String deposits, String spent) {
-    return 'Deposits $deposits − spent from the fund $spent';
+    return 'Deposits (net of paybacks) $deposits − spent from the fund $spent';
   }
 
   @override
@@ -3462,7 +3462,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'This month · deposits, paid from own pocket, balance';
 
   @override
-  String get transDeposits => 'Deposits';
+  String get transDeposits => 'Deposits (net of paybacks)';
 
   @override
   String get transOwnPocket => 'Own pocket';
@@ -4077,4 +4077,59 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get fundModePickPayer => 'Who paid?';
+
+  @override
+  String get withdrawAction => 'Pay back';
+
+  @override
+  String get withdrawDetailTitle => 'Money paid back';
+
+  @override
+  String get withdrawTag => 'Paid back';
+
+  @override
+  String withdrawRowTitle(String name) {
+    return 'Paid back to $name';
+  }
+
+  @override
+  String withdrawOwed(String amount) {
+    return 'Owed now: $amount';
+  }
+
+  @override
+  String get withdrawMember => 'Pay back to';
+
+  @override
+  String get withdrawOverBalance => 'Not more than the balance';
+
+  @override
+  String withdrawFundNote(String cash) {
+    return 'The fund doesn\'t have this much cash ($cash in hand), so it will go negative.';
+  }
+
+  @override
+  String get withdrawDone => 'Paid back';
+
+  @override
+  String get withdrawFailExceeds =>
+      'Can\'t pay back more than the member is owed';
+
+  @override
+  String get withdrawFailAmount => 'The amount must be more than zero';
+
+  @override
+  String get withdrawDeleteTitle => 'Delete this payback?';
+
+  @override
+  String get withdrawDeleteBody =>
+      'The money goes back to the member\'s balance. To correct a mistake, delete it and enter it again.';
+
+  @override
+  String withdrawAuditOf(String name) {
+    return 'a payback to $name';
+  }
+
+  @override
+  String get withdrawAuditMine => 'a payback to you';
 }

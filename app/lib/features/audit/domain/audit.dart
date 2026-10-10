@@ -145,6 +145,10 @@ String describeAudit(
   final (thing, detail) = switch (e.entity) {
     'bazars' => (l.auditBazar, money()),
     'expenses' => (l.auditExpense, money()),
+    'deposits' when row['kind'] == 'withdrawal' => (
+      mine ? l.withdrawAuditMine : l.withdrawAuditOf(name(row['member_id'])),
+      money(),
+    ),
     'deposits' => (
       mine ? l.auditDepositMine : l.auditDepositOf(name(row['member_id'])),
       money(),

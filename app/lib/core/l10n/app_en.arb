@@ -335,7 +335,7 @@
   },
   "moneyExtraTotal": "Other expenses",
   "moneyExtraProof": "Split equally among members",
-  "moneyDepositTotal": "Deposits",
+  "moneyDepositTotal": "Deposits (net of paybacks)",
   "moneyDepositProof": "Verified deposits only",
   "moneyNoMealsWarning": "There is food cost but no meals yet, so nobody is charged",
   "moneyTabMembers": "Members",
@@ -1696,7 +1696,7 @@
     }
   },
   "cashTitle": "Cash in hand (mess fund)",
-  "cashProof": "Deposits {deposits} − spent from the fund {spent}",
+  "cashProof": "Deposits (net of paybacks) {deposits} − spent from the fund {spent}",
   "@cashProof": {
     "placeholders": {
       "deposits": {
@@ -1722,7 +1722,7 @@
   "myTodayTitle": "My meals today",
   "transTitle": "Everyone's account",
   "transNote": "This month · deposits, paid from own pocket, balance",
-  "transDeposits": "Deposits",
+  "transDeposits": "Deposits (net of paybacks)",
   "transOwnPocket": "Own pocket",
   "transBalance": "Balance",
   "activityTitle": "Entries about me",
@@ -1982,5 +1982,24 @@
   "@fundModePromptBody": {"placeholders": {"cash": {"type": "String"}, "amount": {"type": "String"}}},
   "fundModeYesPocket": "Yes, choose who paid",
   "fundModeNoFund": "No, from the fund",
-  "fundModePickPayer": "Who paid?"
+  "fundModePickPayer": "Who paid?",
+  "withdrawAction": "Pay back",
+  "withdrawDetailTitle": "Money paid back",
+  "withdrawTag": "Paid back",
+  "withdrawRowTitle": "Paid back to {name}",
+  "@withdrawRowTitle": {"placeholders": {"name": {"type": "String"}}},
+  "withdrawOwed": "Owed now: {amount}",
+  "@withdrawOwed": {"placeholders": {"amount": {"type": "String"}}},
+  "withdrawMember": "Pay back to",
+  "withdrawOverBalance": "Not more than the balance",
+  "withdrawFundNote": "The fund doesn't have this much cash ({cash} in hand), so it will go negative.",
+  "@withdrawFundNote": {"placeholders": {"cash": {"type": "String"}}},
+  "withdrawDone": "Paid back",
+  "withdrawFailExceeds": "Can't pay back more than the member is owed",
+  "withdrawFailAmount": "The amount must be more than zero",
+  "withdrawDeleteTitle": "Delete this payback?",
+  "withdrawDeleteBody": "The money goes back to the member's balance. To correct a mistake, delete it and enter it again.",
+  "withdrawAuditOf": "a payback to {name}",
+  "@withdrawAuditOf": {"placeholders": {"name": {"type": "String"}}},
+  "withdrawAuditMine": "a payback to you"
 }

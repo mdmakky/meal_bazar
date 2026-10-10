@@ -97,10 +97,24 @@ class _MoneyScreenState extends ConsumerState<MoneyScreen> {
         ],
       ),
       floatingActionButton: isManager
-          ? FloatingActionButton.extended(
-              icon: const Icon(Icons.add),
-              label: Text(addLabel),
-              onPressed: () => add(context),
+          ? Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              spacing: AppSpace.md,
+              children: [
+                // The one small secondary action: pay a member back.
+                if (_tab == MoneyTab.deposit)
+                  FilledButton.tonalIcon(
+                    icon: const Icon(Icons.remove_circle_outline),
+                    label: Text(l.withdrawAction),
+                    onPressed: () => showWithdrawalSheet(context),
+                  ),
+                FloatingActionButton.extended(
+                  icon: const Icon(Icons.add),
+                  label: Text(addLabel),
+                  onPressed: () => add(context),
+                ),
+              ],
             )
           : !ref.featureOn('member_deposits')
           ? null
@@ -893,6 +907,22 @@ class BillBreakdown extends ConsumerWidget {
             ),
           ],
         ),
+        if (ref.watch(amIManagerProvider) && balance.closingBalance > 0)
+          Padding(
+            padding: const EdgeInsets.only(top: AppSpace.xl),
+            child: AppButton(
+              label: l.withdrawAction,
+              variant: AppButtonVariant.secondary,
+              onPressed: () => showWithdrawalSheet(
+                context,
+                member: ref
+                    .read(membersProvider(messId))
+                    .value
+                    ?.where((m) => m.id == balance.memberId)
+                    .firstOrNull,
+              ),
+            ),
+          ),
         if (ref.watch(amIManagerProvider) && ref.featureOn('share_bills')) ...[
           const SizedBox(height: AppSpace.xl),
           MemberShareActions(balance: balance),
@@ -1204,6 +1234,32 @@ class _DepositList extends ConsumerWidget {
     Deposit d,
   ) {
     final name = names[d.memberId] ?? l.moneyTabDeposit;
+    if (d.isWithdrawal) {
+      return _row(
+        context,
+        leading: IconTile(Icons.remove, color: context.palette.due),
+        title: l.withdrawRowTitle(name),
+        subtitle: [
+          shortDate(context, d.date),
+          methodLabel(l, d.method, ref.watch(platformConfigProvider)),
+        ].join(' · '),
+        trailing: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          spacing: AppSpace.xs,
+          children: [
+            Money(
+              d.amount,
+              signed: true,
+              banglaDigits: banglaDigits(context),
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            StatusTag(l.withdrawTag),
+          ],
+        ),
+        onTap: () => showWithdrawalDetail(context, d),
+      );
+    }
     return _row(
       context,
       leading: InitialsAvatar(name),

@@ -53,11 +53,34 @@ Future<void> showExpenseForm(BuildContext context, {Expense? existing}) {
 
 Future<void> showDepositForm(BuildContext context, {Deposit? existing}) {
   final l = AppLocalizations.of(context);
+  // A withdrawal is never edited: it is deleted and entered again.
+  if (existing != null && existing.isWithdrawal) {
+    return showWithdrawalDetail(context, existing);
+  }
   return _showForm(
     context,
     existing == null ? l.depositAdd : l.depositEdit,
     (key) => _DepositForm(key: key, existing: existing),
   );
+}
+
+/// Manager only: pay [member] (or whoever is picked) back part of what they
+/// put in (`record_withdrawal`).
+Future<void> showWithdrawalSheet(BuildContext context, {Member? member}) =>
+    _showForm(
+      context,
+      AppLocalizations.of(context).withdrawAction,
+      (key) => _WithdrawalForm(key: key, member: member),
+    );
+
+/// A withdrawal, read-only; managers can delete it (never edit).
+Future<void> showWithdrawalDetail(BuildContext context, Deposit d) async {
+  final done = await AppSheet.show<String>(
+    context,
+    title: AppLocalizations.of(context).withdrawDetailTitle,
+    child: _WithdrawalDetail(deposit: d),
+  );
+  if (done != null && context.mounted) showSnack(context, done);
 }
 
 /// A member records their own deposit; it stays pending until verified.
@@ -3120,6 +3143,233 @@ List<Widget> _methodFields(
       decoration: InputDecoration(labelText: l.depositTrxId),
     ),
 ];
+
+// ── Withdrawal (manager pays a member back) ───────────────────────────────
+
+class _WithdrawalForm extends ConsumerStatefulWidget {
+  const _WithdrawalForm({super.key, this.member});
+
+  final Member? member;
+
+  @override
+  ConsumerState<_WithdrawalForm> createState() => _WithdrawalFormState();
+}
+
+class _WithdrawalFormState extends ConsumerState<_WithdrawalForm>
+    with _Submit<_WithdrawalForm> {
+  final _amount = TextEditingController();
+  final _note = TextEditingController();
+  // One id per sheet: a retry after a lost reply is the same write.
+  final _id = uuidV4();
+  late var _member = widget.member?.id;
+  var _date = today();
+  var _method = PayMethod.cash;
+
+  @override
+  void dispose() {
+    _amount.dispose();
+    _note.dispose();
+    super.dispose();
+  }
+
+  /// What the member is owed now (SQL's closing balance, positive part).
+  double _owed(String messId) {
+    final all = ref.read(memberBalancesProvider(messId)).value ?? const [];
+    for (final b in all) {
+      if (b.memberId == _member) return math.max(0, b.closingBalance);
+    }
+    return 0;
+  }
+
+  @override
+  void onSave(String messId) async {
+    if (!formKey.currentState!.validate()) return;
+    await run(
+      () => ref
+          .read(moneyControllerProvider)
+          .recordWithdrawal(
+            messId: messId,
+            id: _id,
+            memberId: _member!,
+            date: _date,
+            amount: parseAmount(_amount.text)!,
+            method: _method,
+            note: _trimmed(_note),
+          ),
+      AppLocalizations.of(context).withdrawDone,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final config = ref.watch(platformConfigProvider);
+    return _WithMess(
+      builder: (messId) {
+        final people = [
+          for (final m
+              in ref.watch(membersProvider(messId)).value ?? const <Member>[])
+            if (m.status != MemberStatus.pending) m,
+        ];
+        ref.watch(memberBalancesProvider(messId));
+        final owed = _owed(messId);
+        final cash = ref.watch(messCashProvider(messId)).value?.cash;
+        final typed = parseAmount(_amount.text);
+        final short =
+            ref.watch(currentMessProvider)?.fundMode == true &&
+            cash != null &&
+            typed != null &&
+            typed > cash;
+        return Form(
+          key: formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: AppSpace.lg,
+            children: [
+              _Label(l.withdrawMember),
+              _Required(
+                ok: () => _member != null,
+                message: l.moneyPickMember,
+                child: Wrap(
+                  spacing: AppSpace.sm,
+                  runSpacing: AppSpace.sm,
+                  children: [
+                    for (final m in people)
+                      ChoiceChip(
+                        label: Text(m.displayName),
+                        selected: m.id == _member,
+                        onSelected: (_) => setState(() => _member = m.id),
+                      ),
+                  ],
+                ),
+              ),
+              if (_member != null)
+                Text(
+                  l.withdrawOwed(money(context, owed)),
+                  key: const Key('withdraw-owed'),
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+              TextFormField(
+                key: const Key('amount'),
+                controller: _amount,
+                autofocus: widget.member != null,
+                onChanged: (_) => setState(() {}),
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp('[0-9০-৯.]')),
+                ],
+                decoration: InputDecoration(
+                  labelText: l.moneyAmount,
+                  prefixText: '৳ ',
+                ),
+                validator: (v) {
+                  final a = parseAmount(v ?? '');
+                  if (a == null) return l.moneyAmountInvalid;
+                  if (a == 0) return l.depositAmountPositive;
+                  if (a > _owed(messId)) return l.withdrawOverBalance;
+                  return null;
+                },
+              ),
+              if (short)
+                Text(
+                  l.withdrawFundNote(money(context, cash)),
+                  key: const Key('withdraw-fund-note'),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: context.palette.warning,
+                  ),
+                ),
+              _DateChip(
+                value: _date,
+                last: today(),
+                onChanged: (d) => setState(() => _date = d),
+              ),
+              _Label(l.depositMethod),
+              Wrap(
+                spacing: AppSpace.sm,
+                runSpacing: AppSpace.sm,
+                children: [
+                  for (final m in PayMethod.values)
+                    if (m != PayMethod.other &&
+                        (config.methodEnabled(m.name) || m == _method))
+                      ChoiceChip(
+                        label: Text(methodLabel(l, m, config)),
+                        selected: m == _method,
+                        onSelected: (_) => setState(() => _method = m),
+                      ),
+                ],
+              ),
+              TextFormField(
+                controller: _note,
+                maxLength: 300,
+                decoration: InputDecoration(labelText: l.moneyNote),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _WithdrawalDetail extends ConsumerWidget {
+  const _WithdrawalDetail({required this.deposit});
+
+  final Deposit deposit;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l = AppLocalizations.of(context);
+    final d = deposit;
+    final name = [
+      for (final m in ref.watch(membersProvider(d.messId)).value ?? const [])
+        if (m.id == d.memberId) m.displayName,
+    ].firstOrNull;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: AppSpace.sm,
+      children: [
+        Money(
+          d.amount,
+          signed: true,
+          banglaDigits: banglaDigits(context),
+          style: Theme.of(context).textTheme.headlineSmall,
+        ),
+        _Label(
+          [
+            l.withdrawRowTitle(name ?? ''),
+            longDate(context, d.date),
+            methodLabel(l, d.method, ref.watch(platformConfigProvider)),
+          ].join(' · '),
+        ),
+        if (d.note != null) Text(d.note!),
+        if (ref.watch(amIManagerProvider)) ...[
+          const SizedBox(height: AppSpace.sm),
+          AppButton(
+            label: l.delete,
+            variant: AppButtonVariant.secondary,
+            onPressed: () async {
+              final ok = await confirmDialog(
+                context,
+                title: l.withdrawDeleteTitle,
+                body: l.withdrawDeleteBody,
+                action: l.delete,
+              );
+              if (!ok || !context.mounted) return;
+              try {
+                await ref.read(moneyControllerProvider).deleteDeposit(d);
+                if (context.mounted) Navigator.pop(context, l.moneyDeleted);
+              } catch (e) {
+                if (context.mounted) showFailure(context, e);
+              }
+            },
+          ),
+        ],
+      ],
+    );
+  }
+}
 
 // ── My deposit (member, pending until verified) ───────────────────────────
 

@@ -22,6 +22,8 @@ enum FailureKind {
   futureDate,
   bazarRequestNotPending,
   itemsInvalid,
+  withdrawalExceeds,
+  amountInvalid,
   invalidOtp,
   invalidCredentials,
   emailTaken,
@@ -71,6 +73,8 @@ const _sqlKeys = {
   'FUTURE_DATE': FailureKind.futureDate,
   'BAZAR_REQUEST_NOT_PENDING': FailureKind.bazarRequestNotPending,
   'ITEMS_INVALID': FailureKind.itemsInvalid,
+  'WITHDRAWAL_EXCEEDS_BALANCE': FailureKind.withdrawalExceeds,
+  'AMOUNT_INVALID': FailureKind.amountInvalid,
 };
 
 AppFailure mapError(Object error) {

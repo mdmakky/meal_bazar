@@ -183,6 +183,7 @@ String depositsCsv(
       methodLabel(l, d.method),
       d.trxId,
       switch (d.status) {
+        _ when d.isWithdrawal => l.withdrawTag,
         DepositStatus.verified => l.exportVerified,
         DepositStatus.pending => l.depositPending,
         DepositStatus.rejected => l.depositRejected,

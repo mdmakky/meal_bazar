@@ -455,7 +455,7 @@
   },
   "moneyExtraTotal": "অন্যান্য খরচ",
   "moneyExtraProof": "সবার মধ্যে সমান ভাগে",
-  "moneyDepositTotal": "মোট জমা",
+  "moneyDepositTotal": "মোট জমা (ফেরত বাদে)",
   "moneyDepositProof": "যাচাই হওয়া জমা মিলিয়ে",
   "moneyNoMealsWarning": "খরচ আছে কিন্তু এখনো কোনো মিল নেই, তাই কারো ভাগে ধরা হয়নি",
   "moneyTabMembers": "সদস্য",
@@ -1978,7 +1978,7 @@
     }
   },
   "cashTitle": "হাতে নগদ (মেস ফান্ড)",
-  "cashProof": "জমা {deposits} − ফান্ড থেকে খরচ {spent}",
+  "cashProof": "জমা (ফেরত বাদে) {deposits} − ফান্ড থেকে খরচ {spent}",
   "@cashProof": {
     "placeholders": {
       "deposits": {
@@ -2004,7 +2004,7 @@
   "myTodayTitle": "আজ আমার মিল",
   "transTitle": "সবার হিসাব",
   "transNote": "এই মাস · জমা, নিজের পকেট থেকে দেওয়া টাকা আর ব্যালেন্স",
-  "transDeposits": "জমা",
+  "transDeposits": "জমা (ফেরত বাদে)",
   "transOwnPocket": "নিজে দিয়েছেন",
   "transBalance": "ব্যালেন্স",
   "activityTitle": "আমার বিষয়ে এন্ট্রি",
@@ -2361,5 +2361,24 @@
   "@fundModePromptBody": {"placeholders": {"cash": {"type": "String"}, "amount": {"type": "String"}}},
   "fundModeYesPocket": "হ্যাঁ, কে দিয়েছে বাছুন",
   "fundModeNoFund": "না, ফান্ড থেকেই",
-  "fundModePickPayer": "কে দিয়েছে?"
+  "fundModePickPayer": "কে দিয়েছে?",
+  "withdrawAction": "টাকা ফেরত দিন",
+  "withdrawDetailTitle": "টাকা ফেরত",
+  "withdrawTag": "ফেরত",
+  "withdrawRowTitle": "{name}-কে ফেরত",
+  "@withdrawRowTitle": {"placeholders": {"name": {"type": "String"}}},
+  "withdrawOwed": "এখন পাওনা: {amount}",
+  "@withdrawOwed": {"placeholders": {"amount": {"type": "String"}}},
+  "withdrawMember": "কাকে ফেরত দেবেন",
+  "withdrawOverBalance": "ব্যালেন্সের বেশি নয়",
+  "withdrawFundNote": "ফান্ডে এত নগদ নেই (আছে {cash}) — ফান্ড negative হবে।",
+  "@withdrawFundNote": {"placeholders": {"cash": {"type": "String"}}},
+  "withdrawDone": "ফেরত দেওয়া হয়েছে",
+  "withdrawFailExceeds": "ফেরত দেওয়া যাবে না — সদস্যের ব্যালেন্সের বেশি",
+  "withdrawFailAmount": "টাকার পরিমাণ শূন্যের বেশি হতে হবে",
+  "withdrawDeleteTitle": "এই ফেরত মুছবেন?",
+  "withdrawDeleteBody": "মুছলে টাকাটা আবার সদস্যের ব্যালেন্সে ফিরে আসবে। ভুল হলে মুছে নতুন করে লিখুন।",
+  "withdrawAuditOf": "{name}-কে টাকা ফেরত",
+  "@withdrawAuditOf": {"placeholders": {"name": {"type": "String"}}},
+  "withdrawAuditMine": "আপনাকে টাকা ফেরত"
 }

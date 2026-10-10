@@ -803,7 +803,7 @@ class AppLocalizationsBn extends AppLocalizations {
   String get moneyExtraProof => 'সবার মধ্যে সমান ভাগে';
 
   @override
-  String get moneyDepositTotal => 'মোট জমা';
+  String get moneyDepositTotal => 'মোট জমা (ফেরত বাদে)';
 
   @override
   String get moneyDepositProof => 'যাচাই হওয়া জমা মিলিয়ে';
@@ -3421,7 +3421,7 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String cashProof(String deposits, String spent) {
-    return 'জমা $deposits − ফান্ড থেকে খরচ $spent';
+    return 'জমা (ফেরত বাদে) $deposits − ফান্ড থেকে খরচ $spent';
   }
 
   @override
@@ -3452,7 +3452,7 @@ class AppLocalizationsBn extends AppLocalizations {
       'এই মাস · জমা, নিজের পকেট থেকে দেওয়া টাকা আর ব্যালেন্স';
 
   @override
-  String get transDeposits => 'জমা';
+  String get transDeposits => 'জমা (ফেরত বাদে)';
 
   @override
   String get transOwnPocket => 'নিজে দিয়েছেন';
@@ -4064,4 +4064,59 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get fundModePickPayer => 'কে দিয়েছে?';
+
+  @override
+  String get withdrawAction => 'টাকা ফেরত দিন';
+
+  @override
+  String get withdrawDetailTitle => 'টাকা ফেরত';
+
+  @override
+  String get withdrawTag => 'ফেরত';
+
+  @override
+  String withdrawRowTitle(String name) {
+    return '$name-কে ফেরত';
+  }
+
+  @override
+  String withdrawOwed(String amount) {
+    return 'এখন পাওনা: $amount';
+  }
+
+  @override
+  String get withdrawMember => 'কাকে ফেরত দেবেন';
+
+  @override
+  String get withdrawOverBalance => 'ব্যালেন্সের বেশি নয়';
+
+  @override
+  String withdrawFundNote(String cash) {
+    return 'ফান্ডে এত নগদ নেই (আছে $cash) — ফান্ড negative হবে।';
+  }
+
+  @override
+  String get withdrawDone => 'ফেরত দেওয়া হয়েছে';
+
+  @override
+  String get withdrawFailExceeds =>
+      'ফেরত দেওয়া যাবে না — সদস্যের ব্যালেন্সের বেশি';
+
+  @override
+  String get withdrawFailAmount => 'টাকার পরিমাণ শূন্যের বেশি হতে হবে';
+
+  @override
+  String get withdrawDeleteTitle => 'এই ফেরত মুছবেন?';
+
+  @override
+  String get withdrawDeleteBody =>
+      'মুছলে টাকাটা আবার সদস্যের ব্যালেন্সে ফিরে আসবে। ভুল হলে মুছে নতুন করে লিখুন।';
+
+  @override
+  String withdrawAuditOf(String name) {
+    return '$name-কে টাকা ফেরত';
+  }
+
+  @override
+  String get withdrawAuditMine => 'আপনাকে টাকা ফেরত';
 }
