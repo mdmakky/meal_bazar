@@ -43,8 +43,8 @@ select test.check((select not is_off and count = 1 from meal_entries
                    where member_id = :'mgr' and date = '2099-03-01'), 'other member untouched');
 select test.check((select count(*) from meal_entries where date between '2099-03-01' and '2099-03-02') = 3, 'no extra rows');
 
--- Audit row written with the member as actor.
-select test.check((select count(*) from audit_log where entity = 'meal_entries' and actor_id = :R) = 3, 'audit row per change by member');
+-- Audit rows written with the member as actor; off then on again within 10 minutes is one line (0039).
+select test.check((select count(*) from audit_log where entity = 'meal_entries' and actor_id = :R) = 2, 'audit line per change by member, merged');
 
 -- After the cutoff (past date / today) refused.
 select test.expect_error(format($$select set_my_meal_off(%L, '2020-01-01', %L, true)$$, :'mess', :'lunch'), 'CUTOFF_PASSED');

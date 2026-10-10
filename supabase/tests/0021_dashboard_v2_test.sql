@@ -108,8 +108,8 @@ insert into bazars (mess_id, date, amount) values (:'mess', '2026-10-13', 90);
 
 select test.act_as(:B);
 select test.check((select count(*) from my_activity(:'mess') where ref_type = 'meal') = 2, 'activity: meal change in, plain fill out');
-select test.check((select action = 'update' and (old ->> 'count')::numeric = 1 and (new ->> 'count')::numeric = 0.5
-                   from my_activity(:'mess') where ref_type = 'meal' limit 1), 'activity: newest meal change first');
+select test.check((select (new ->> 'count')::numeric = 0.5
+                   from my_activity(:'mess') where ref_type = 'meal' limit 1), 'activity: newest meal change first (fill + correction merged, 0039)');
 select test.check((select array_agg(at order by n) = array_agg(at order by at desc, id desc)
                    from my_activity(:'mess') with ordinality t(id, at, action, entity, ref_type, ref_id, actor_id,
                                                               actor_name, old, new, n)), 'activity: newest first');
